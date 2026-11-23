@@ -57,9 +57,6 @@ const brandConfig = {
 
   features: { fleet: false, coupons: false },
 
-  // Fill in after `eas init` for this client's Expo project.
-  // easProjectId: '00000000-0000-0000-0000-000000000000',
-  // owner: 'expo-account-name',
 } satisfies BrandConfigInput;
 
 export default brandConfig;
