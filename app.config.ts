@@ -76,7 +76,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     package: `${brand.androidPackage}${variant.id}`,
     adaptiveIcon: {
       foregroundImage: './brand/assets/adaptive-icon.png',
-      backgroundColor: brand.colors.surface,
+      backgroundColor: brand.adaptiveIcon.backgroundColor,
     },
     predictiveBackGestureEnabled: false,
     googleServicesFile: firebaseFile(process.env.GOOGLE_SERVICES_JSON, 'google-services.json'),

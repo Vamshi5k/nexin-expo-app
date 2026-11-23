@@ -38,6 +38,8 @@ const brandConfig = {
     Unknown: '#9E9E9E',
   },
 
+  adaptiveIcon: { backgroundColor: '#FFFFFF' },
+
   fontFamily: 'Inter',
   locale: 'en-IN',
   currency: { code: 'INR', symbol: '₹' },

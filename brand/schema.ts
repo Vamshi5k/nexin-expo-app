@@ -39,7 +39,7 @@ export const BrandSchema = z.object({
   appName: z.string().min(1),
   /** Expo slug (must match the EAS project). */
   slug: z.string().regex(/^[a-z0-9-]+$/),
-  /** Custom URL scheme for deep links. Non-production builds get a ".dev"/".staging" suffix. */
+  /** Custom URL scheme for deep links. Non-production builds get a "-dev"/"-staging" suffix. */
   scheme: z.string().regex(/^[a-z][a-z0-9+.-]*$/),
   /** iOS bundle identifier for production. */
   bundleId: reverseDomain,
@@ -69,6 +69,9 @@ export const BrandSchema = z.object({
   }),
   /** OCPP connector status colours. All statuses are required. */
   connectorColors: z.record(z.enum(CONNECTOR_STATUSES), hex),
+
+  /** Android adaptive icon. The foreground image is brand/assets/adaptive-icon.png. */
+  adaptiveIcon: z.object({ backgroundColor: hex }).default({ backgroundColor: '#FFFFFF' }),
 
   fontFamily: z.string().min(1).default('Inter'),
   /** BCP 47 locale used for number, date and currency formatting. */
