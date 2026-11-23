@@ -121,14 +121,29 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
           : {}),
       },
     ],
-    // Native plugin slots: added in the phases that need them.
+    [
+      'expo-location',
+      {
+        locationWhenInUsePermission: `${brand.appName} uses your location to show charging stations near you.`,
+      },
+    ],
+    [
+      'expo-camera',
+      {
+        cameraPermission: `${brand.appName} uses the camera to scan charger QR codes.`,
+        microphonePermission: false,
+        recordAudioAndroid: false,
+      },
+    ],
+    [
+      'expo-notifications',
+      { icon: './brand/assets/notification-icon.png', color: brand.colors.primary },
+    ],
+    // Remaining native plugin slots, added in the phases that need them:
     // - Maps: react-native-maps reads the keys set in ios.config / android.config above.
     // - Firebase: '@react-native-firebase/app', '@react-native-firebase/messaging'
     //   (+ expo-build-properties { ios: { useFrameworks: 'static' } }).
-    // - Notifications: ['expo-notifications', { icon: './brand/assets/notification-icon.png',
-    //   color: brand.colors.primary }]
     // - Payments: react-native-razorpay (needs a config plugin or prebuild patch).
-    // - Camera: ['expo-camera', { cameraPermission: `${brand.appName} uses the camera to scan charger QR codes.` }]
   ],
 
   experiments: {
