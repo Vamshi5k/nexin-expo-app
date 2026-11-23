@@ -99,6 +99,13 @@ for (const file of ['map-style.json', 'env.ts', 'brand.config.ts']) {
   }
 }
 
+// 2b. Fonts: brand/fonts/<Weight>.otf for every weight the theme loads (src/theme/fonts.ts).
+for (const weight of ['Regular', 'Medium', 'SemiBold', 'Bold']) {
+  if (!existsSync(join(BRAND_DIR, 'fonts', `${weight}.otf`))) {
+    errors.push(`Missing brand/fonts/${weight}.otf`);
+  }
+}
+
 // 3. Assets
 for (const [name, rule] of Object.entries(ASSETS)) {
   const path = join(BRAND_DIR, 'assets', name);
