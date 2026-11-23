@@ -99,21 +99,30 @@ function status(
   return { base, soft, text };
 }
 
+/**
+ * Light surfaces default to neutrals (DESIGN.md "neutrals by default"): a near-white grey
+ * page, white cards and neutral hairline borders. A brand may override bg, surface and
+ * border; everything else is derived. The dark palette is always derived.
+ */
 export function buildPalette(brand: BrandConfig, scheme: ColorScheme): Palette {
   const c = brand.colors;
   const neutral = neutralScale(c.primary);
   const light = scheme === 'light';
   const dir = light ? 'darken' : 'lighten';
 
-  const bg = light ? c.background : neutral[950];
-  const surface = light ? c.surface : neutral[900];
-  const surfaceRaised = light ? c.surface : neutral[800];
+  const bg = light ? (c.background ?? mix(neutral[50], neutral[100], 0.7)) : neutral[950];
+  const surface = light ? (c.surface ?? '#FFFFFF') : neutral[900];
+  const surfaceRaised = light ? surface : neutral[800];
   const surfaceSunken = light
-    ? mix(c.background, neutral[200], 0.5)
+    ? mix(neutral[100], neutral[200], 0.45)
     : mix(neutral[950], '#000000', 0.4);
   const surfaces = [bg, surface, surfaceRaised, surfaceSunken];
 
-  const accent = light ? c.primary : ensureContrast(c.primary, [bg, surface], AA_UI, 'lighten');
+  // accentFill (defaults to primary) is the brand colour as a fill. In dark mode it is
+  // lightened only if it would vanish against the dark surfaces.
+  const accent = light
+    ? c.accentFill
+    : ensureContrast(c.accentFill, [bg, surface], AA_UI, 'lighten');
   const accentSoft = mix(surface, accent, light ? 0.12 : 0.22);
   const accentText = light
     ? ensureContrast(c.accentText, [bg, surface, surfaceRaised, accentSoft], AA_TEXT, 'darken')
@@ -134,8 +143,8 @@ export function buildPalette(brand: BrandConfig, scheme: ColorScheme): Palette {
     surface,
     surfaceRaised,
     surfaceSunken,
-    border: light ? c.border : neutral[700],
-    borderStrong: light ? mix(c.border, c.textTertiary, 0.5) : neutral[600],
+    border: light ? (c.border ?? neutral[200]) : mix(neutral[800], neutral[700], 0.5),
+    borderStrong: light ? neutral[300] : neutral[600],
     textPrimary: ensureContrast(textPrimary, surfaces, AA_TEXT, dir),
     textSecondary: ensureContrast(light ? c.textSecondary : neutral[300], surfaces, AA_TEXT, dir),
     textTertiary: ensureContrast(light ? c.textTertiary : neutral[400], surfaces, AA_TEXT, dir),
