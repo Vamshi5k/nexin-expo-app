@@ -79,6 +79,9 @@
     "moduleNameMapper": {
       "^@/(.*)$": "<rootDir>/src/$1",
       "^@brand/(.*)$": "<rootDir>/brand/$1"
-    }
+    },
+    "setupFilesAfterEnv": [
+      "<rootDir>/jest.setup.ts"
+    ]
   }
 }
