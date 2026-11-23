@@ -11,6 +11,8 @@ export type InputProps = Omit<TextInputProps, 'style' | 'placeholderTextColor'> 
   hint?: string;
   error?: string;
   icon?: LucideIcon;
+  /** Fixed text before the value with a divider, e.g. a dialling code from brand config. */
+  prefix?: string;
   /** Element shown at the end of the field, e.g. a show-password toggle. */
   trailing?: ReactNode;
   ref?: Ref<ComponentRef<typeof TextInput>>;
@@ -21,6 +23,7 @@ export function Input({
   hint,
   error,
   icon: Icon,
+  prefix,
   trailing,
   editable = true,
   onFocus,
@@ -69,6 +72,14 @@ export function Input({
           {Icon ? (
             <Icon color={focused ? c.accentText : c.textTertiary} size={20} strokeWidth={1.75} />
           ) : null}
+          {prefix ? (
+            <View style={[styles.prefix, { gap: t.space[3] }]}>
+              <Text variant="body" tone="secondary" tabular>
+                {prefix}
+              </Text>
+              <View style={[styles.divider, { backgroundColor: c.borderStrong }]} />
+            </View>
+          ) : null}
           <TextInput
             ref={ref}
             editable={editable}
@@ -110,4 +121,6 @@ const RING = 3;
 const styles = StyleSheet.create({
   field: { flexDirection: 'row', alignItems: 'center' },
   input: { flex: 1, paddingVertical: 0 },
+  prefix: { flexDirection: 'row', alignItems: 'center' },
+  divider: { width: 1, height: 20 },
 });
