@@ -107,7 +107,7 @@ export const BrandSchema = z.object({
   /** GST_SPLIT = CGST + SGST shown separately; SINGLE = one tax line. */
   taxModel: z.enum(['GST_SPLIT', 'SINGLE']).default('GST_SPLIT'),
 
-  /** Amounts below are in major currency units (rupees). Convert to paise in src. */
+  /** Money in whole rupees (the unit is in the field name). Convert to paise in src before any arithmetic. */
   minTopUp: z.number().int().positive(),
   quickTopUpAmounts: positiveInts,
   quickChargeAmounts: positiveInts,

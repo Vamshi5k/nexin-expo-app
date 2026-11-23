@@ -24,7 +24,7 @@
 - Routes live in `src/app/` (create-expo-app default), not `app/`.
 - `app.config.ts` imports `tsx/cjs` so Expo can load `brand/*.ts`. `tsx` is a dev dependency
   (EAS installs dev dependencies).
-- Amounts in `brand.config.ts` are in rupees for readability; convert to paise in `src/`.
+- Money fields in `brand.config.ts` are whole rupees and say so in their names (`minTopUpRupees`, `quickTopUpRupees`, `quickChargeRupees`); convert to paise in `src/`.
 - `easProjectId` / `owner` are optional, so `brand:check` passes with a warning until `eas init`.
 - `development` points at the staging backend.
 - Added a `development-simulator` EAS profile for iOS simulator builds.
