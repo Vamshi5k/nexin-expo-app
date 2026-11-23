@@ -1,6 +1,6 @@
 # Progress
 
-## Phase 0: Template and brand layer (done)
+## Phase 0: Template and brand layer (done, 2026-11-23)
 
 **Done**
 
@@ -14,7 +14,7 @@
 - `eas.json` (development, development-simulator, staging, production), `.env.example`, `.gitignore`.
 - `docs/WHITE_LABEL.md`; `docs/screen-audit.md` copied from the old app.
 
-**Verified**: `brand:check`, `typecheck`, `lint`, `test` (9 tests), `expo prebuild --clean`, and
+**Verified**: `brand:check`, `typecheck`, `lint`, `test` (20 tests), `expo prebuild --clean`, and
 `eas.json` profiles parsed with `@expo/eas-json`.
 
 **Deviations**
@@ -22,6 +22,7 @@
 - `docs/BLUEPRINT.md` was not available; the old app lives at `../Cruzev_nexin_whitelable_app`
   (AGENTS.md updated).
 - Routes live in `src/app/` (create-expo-app default), not `app/`.
+- Template-owned helpers live in `brand/lib/` (contrast maths) next to `schema.ts`.
 - `app.config.ts` imports `tsx/cjs` so Expo can load `brand/*.ts`. `tsx` is a dev dependency
   (EAS installs dev dependencies).
 - Money fields in `brand.config.ts` are whole rupees and say so in their names (`minTopUpRupees`, `quickTopUpRupees`, `quickChargeRupees`); convert to paise in `src/`.
@@ -41,7 +42,13 @@
 - Money fields renamed: `minTopUpRupees`, `quickTopUpRupees`, `quickChargeRupees`.
 - `brand.appearance` (`system` | `light` | `dark`, default `system`). Cruze EV sets `light`
   until dark tokens exist.
-- `brand:check` warns when accent vs white, or dark text on the accent, is below 4.5:1.
-- **Pending:** `docs/DESIGN.md` and its AGENTS.md line (text not received yet).
+- `colors.accentText` (optional; derived by darkening `primary` until 4.5:1 on white and
+  `background`). Cruze EV: `#117A83`. `brand:check` checks accentText on light surfaces and
+  that white or dark text passes on the accent fill.
+- `docs/DESIGN.md` added and referenced from AGENTS.md.
 
 **Open questions**: see `docs/OPEN_QUESTIONS.md`.
+
+## Phase 1
+
+Not started. Waiting for `docs/BLUEPRINT.md`.
