@@ -1,41 +1,54 @@
-This is an Expo/React Native mobile application. Prioritize mobile-first patterns, performance, and cross-platform compatibility.
+# EV Charging App Template (Expo)
 
-## Expo has changed — do not trust your training data
+This repo is a WHITE-LABEL TEMPLATE for an EV charging app (consumer + fleet driver modes).
+It is a rebuild of the bare RN app "Cruze EV". Each client gets its own repo created from this
+template; the ONLY per-client differences live in `brand/` and EAS secrets.
 
-Expo ships breaking changes every SDK release. APIs you remember are likely renamed, moved, or removed. Before writing any code that touches an Expo, EAS, or React Native API:
+## Source of truth
 
-1. Read the major version of the `expo` package in `package.json`.
-2. Fetch the matching versioned docs: `https://docs.expo.dev/versions/v<major>.0.0/`
-3. For anything else, fetch https://docs.expo.dev/llms.txt — an index of all Expo docs with corrections to common LLM misconceptions. Follow its links to the specific page you need; never answer from memory.
+- docs/BLUEPRINT.md: API contract, screens, navigation, bugs to fix, architecture. Follow it.
+- docs/screen-audit.md: exact UI copy per screen. Use it verbatim.
+- All UI follows docs/DESIGN.md. Never style a screen ad hoc; use src/ui and theme tokens.
+- ../Cruzev_nexin_whitelable_app: old app, read-only reference. Never copy its bugs (BLUEPRINT section 1 list).
 
-## Commands
+## Stack (do not swap without asking)
 
-Use `bunx` instead of `npx` if the project uses bun (`bun.lock` present).
+Expo SDK (latest stable) + expo-dev-client (Expo Go is NOT supported), Expo Router (typed routes),
+TypeScript strict, TanStack Query, Zustand, react-hook-form + zod, axios, socket.io-client,
+expo-secure-store, react-native-mmkv, react-native-maps + supercluster, expo-location,
+expo-camera, @react-native-firebase/messaging + expo-notifications, react-native-razorpay,
+@gorhom/bottom-sheet, expo-file-system + expo-sharing, lucide-react-native, @sentry/react-native.
+Install native deps with `npx expo install`, never plain npm, so versions match the SDK.
 
-```bash
-npx expo install <package>  # ALWAYS use instead of npm/yarn/pnpm/bun add — resolves SDK-compatible versions
-npx expo start              # start the dev server
-npx expo lint               # lint
-npx tsc --noEmit            # typecheck
-npx expo-doctor             # diagnose dependency and config issues
-npx expo install --fix      # fix incompatible package versions
-```
+## White-label rules (most important)
 
-Run lint and typecheck before declaring any task done.
+- NEVER hard-code a brand name, colour, URL, host, token, bundle id, scheme, phone regex,
+  currency, locale, map region or amount limit in app/ or src/. Read it from `src/core/config`
+  (build-time, from brand/) or `useClientConfig()` (runtime, from GET /client/info).
+- Runtime values from /client/info win over build-time fallbacks for brand name, logo, legal
+  and support URLs, login type and feature flags.
+- Feature flags (fleetFeature, couponFeature) must fully hide their UI and routes when off.
+- If you need a new brand-specific value, add it to the brand schema (brand/schema.ts) with a
+  default, never inline it.
 
-## Navigation & Routing
+## Architecture rules
 
-- Use **Expo Router** for all navigation. Routes live in `src/app/` — every file there is a screen, `_layout.tsx` files define navigators. Keep non-route code (components, hooks, utils) outside `src/app/`.
-- Import `Link`, `router`, and `useLocalSearchParams` from `expo-router`.
-- Docs: https://docs.expo.dev/router/introduction.md
+1. app/\*_ are thin route files: read params, render a screen from src/features/_/screens. No fetching.
+2. src/features/<f>/api.ts: typed functions, the only place endpoint strings appear.
+3. mappers.ts: DTO -> domain model. Components never see raw API shapes.
+4. hooks.ts: TanStack Query wrappers. Screens use only hooks.
+5. Zustand = client state only (session, filters). Server data lives in the query cache.
+6. Pure logic (pricing, QR parsing, status maps, formatters) in plain .ts files with Jest tests.
+7. Features import each other only via index.ts. src/ui and src/core never import src/features.
+8. Money is computed in paise (integers). Format only at render time.
+9. No `any` in api/hooks. No console.\* in committed code (use src/core/log.ts).
+10. Every list/detail screen has loading (skeleton), error (+Retry), empty and offline states.
 
-## Building with EAS
+## Working style
 
-Use EAS to build, sign, and submit the app in the cloud (`eas build`, `eas submit`) and to ship over-the-air updates (`eas update`) — no local Xcode or Android Studio required. Run EAS CLI as `bunx eas-cli <command>` in Bun projects, or `npx eas-cli@latest <command>` otherwise; substitute that for bare `eas` in docs examples.
-Docs: https://docs.expo.dev/eas/index.md
-
-## Rules
-
-- If `ios/` and `android/` directories do not exist, they are generated (Continuous Native Generation). Never create or edit them by hand — configure native behavior in `app.json` and config plugins.
-- Expo Go only includes its bundled native modules. After adding a library with native code, the app needs a development build: `npx expo run:ios|android` locally, or `eas build --profile development`.
-- Prefer recommended Expo modules over third-party libraries, and check your available skills before adding dependencies. Docs: https://docs.expo.dev/versions/latest/index.md
+- Before writing code for a phase, reply with a short plan: files to create, libraries to add,
+  open questions. Wait for approval.
+- Work in small commits. After each feature, run `npx tsc --noEmit`, `npx expo lint`, `npx jest`.
+- When the blueprint marks something "confirm with backend", implement behind a clearly named
+  constant and list it in docs/OPEN_QUESTIONS.md instead of guessing silently.
+- At the end of a phase, update docs/PROGRESS.md: done, deviations, open questions.
