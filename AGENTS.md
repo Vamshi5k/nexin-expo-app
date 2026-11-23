@@ -8,7 +8,7 @@ template; the ONLY per-client differences live in `brand/` and EAS secrets.
 
 - docs/BLUEPRINT.md: API contract, screens, navigation, bugs to fix, architecture. Follow it.
 - docs/screen-audit.md: exact UI copy per screen. Use it verbatim.
-- ../cruze-ev-old: old app, read-only reference. Never copy its bugs (BLUEPRINT section 1 list).
+- ../Cruzev_nexin_whitelable_app: old app, read-only reference. Never copy its bugs (BLUEPRINT section 1 list).
 
 ## Stack (do not swap without asking)
 

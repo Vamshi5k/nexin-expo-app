@@ -1,0 +1,11 @@
+# Open questions
+
+| #   | Area    | Question                                                                                                                                                | Current behaviour                                                                    |
+| --- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| 1   | Docs    | `docs/BLUEPRINT.md` is missing. Phase 0 was built from the task brief and the old app.                                                                  | Need the file before the API/feature phases.                                         |
+| 2   | EAS     | EAS project id and owner for Cruze EV.                                                                                                                  | Left unset; `brand:check` warns. Run `eas init` and add them.                        |
+| 3   | Backend | Is there a stable development API host? The old app's dev host was a devtunnel URL.                                                                     | `development` uses staging (`testapi.evechos.com`).                                  |
+| 4   | Domains | The web domain is `cruzeev.com` but the delete-account page is on `cruzeev.in`. Is that intended? Is an AASA / assetlinks file served on `cruzeev.com`? | Deep links: `cruzeev.com` only.                                                      |
+| 5   | Assets  | No dedicated Android adaptive-icon foreground (with safe-zone padding) or splash image exist.                                                           | Adaptive icon = the iOS 1024 icon; splash = `logo.png`. Replace with proper artwork. |
+| 6   | Assets  | The iOS icon has an alpha channel; App Store needs an opaque icon.                                                                                      | Check on the first production build; flatten if rejected.                            |
+| 7   | Brand   | Confirm phone regex `^[6-9]\d{9}$`, tax model `GST_SPLIT`, map deltas 0.05, and quick-charge amounts = quick top-up amounts (100/200/500/1000).         | As listed.                                                                           |
