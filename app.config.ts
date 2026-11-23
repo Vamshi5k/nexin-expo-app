@@ -41,6 +41,12 @@ function firebaseFile(envVar: string | undefined, localName: string): string | u
   return existsSync(local) ? `./brand/firebase/${localName}` : undefined;
 }
 
+const USER_INTERFACE_STYLE = {
+  system: 'automatic',
+  light: 'light',
+  dark: 'dark',
+} as const satisfies Record<typeof brand.appearance, NonNullable<ExpoConfig['userInterfaceStyle']>>;
+
 const scheme = `${brand.scheme}${variant.scheme}`;
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
@@ -52,7 +58,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   version: '1.0.0',
   platforms: ['ios', 'android'],
   orientation: 'portrait',
-  userInterfaceStyle: 'light',
+  userInterfaceStyle: USER_INTERFACE_STYLE[brand.appearance],
   icon: './brand/assets/icon.png',
 
   ios: {

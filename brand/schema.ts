@@ -70,6 +70,12 @@ export const BrandSchema = z.object({
   /** OCPP connector status colours. All statuses are required. */
   connectorColors: z.record(z.enum(CONNECTOR_STATUSES), hex),
 
+  /**
+   * Colour scheme the app follows. 'system' follows the device setting; 'light' / 'dark'
+   * force one. Maps to Expo's userInterfaceStyle (system -> automatic).
+   */
+  appearance: z.enum(['system', 'light', 'dark']).default('system'),
+
   /** Android adaptive icon. The foreground image is brand/assets/adaptive-icon.png. */
   adaptiveIcon: z.object({ backgroundColor: hex }).default({ backgroundColor: '#FFFFFF' }),
 

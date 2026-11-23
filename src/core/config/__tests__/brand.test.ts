@@ -54,3 +54,12 @@ describe('brand env', () => {
     expect(env.clientToken).toBe('t');
   });
 });
+
+describe('appearance', () => {
+  it("defaults to 'system' and rejects unknown values", () => {
+    const { appearance, ...rest } = brandConfig;
+    void appearance;
+    expect(parseBrand(rest).appearance).toBe('system');
+    expect(BrandSchema.safeParse({ ...brandConfig, appearance: 'auto' }).success).toBe(false);
+  });
+});

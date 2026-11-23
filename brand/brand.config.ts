@@ -38,6 +38,8 @@ const brandConfig = {
     Unknown: '#9E9E9E',
   },
 
+  // Light only until dark colour tokens exist (the old app had no dark theme).
+  appearance: 'light',
   adaptiveIcon: { backgroundColor: '#FFFFFF' },
   splash: { imageWidth: 200, backgroundColor: '#FFFFFF' },
 
