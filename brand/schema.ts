@@ -122,9 +122,9 @@ const BrandObjectSchema = z.object({
   taxModel: z.enum(['GST_SPLIT', 'SINGLE']).default('GST_SPLIT'),
 
   /** Money in whole rupees (the unit is in the field name). Convert to paise in src before any arithmetic. */
-  minTopUp: z.number().int().positive(),
-  quickTopUpAmounts: positiveInts,
-  quickChargeAmounts: positiveInts,
+  minTopUpRupees: z.number().int().positive(),
+  quickTopUpRupees: positiveInts,
+  quickChargeRupees: positiveInts,
   quickChargeKwh: z.array(z.number().positive()).min(1),
 
   /** Map region shown before the user's location is known. */

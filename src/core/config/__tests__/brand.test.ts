@@ -77,3 +77,15 @@ describe('accentText', () => {
     expect(derived).not.toBe(brandConfig.colors.primary);
   });
 });
+
+describe('money fields', () => {
+  it('carry the rupee unit in their names', () => {
+    const parsed = parseBrand(brandConfig);
+    expect(Object.keys(parsed)).toEqual(
+      expect.arrayContaining(['minTopUpRupees', 'quickTopUpRupees', 'quickChargeRupees']),
+    );
+    expect(Object.keys(parsed)).not.toEqual(
+      expect.arrayContaining(['minTopUp', 'quickTopUpAmounts', 'quickChargeAmounts']),
+    );
+  });
+});

@@ -51,9 +51,9 @@ const brandConfig = {
   phoneLength: 10,
   taxModel: 'GST_SPLIT',
 
-  minTopUp: 100,
-  quickTopUpAmounts: [100, 200, 500, 1000],
-  quickChargeAmounts: [100, 200, 500, 1000],
+  minTopUpRupees: 100,
+  quickTopUpRupees: [100, 200, 500, 1000],
+  quickChargeRupees: [100, 200, 500, 1000],
   quickChargeKwh: [5, 10, 20, 30],
 
   defaultRegion: { lat: 17.4239, lng: 78.3772, latDelta: 0.05, lngDelta: 0.05 },

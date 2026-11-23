@@ -44,8 +44,8 @@ if (!parsed.success) {
     warnings.push('easProjectId is not set. Run `eas init` and add it to brand.config.ts.');
   }
   if (!parsed.data.owner) warnings.push('owner is not set.');
-  if (parsed.data.minTopUp > Math.min(...parsed.data.quickTopUpAmounts)) {
-    errors.push('quickTopUpAmounts contains an amount below minTopUp.');
+  if (parsed.data.minTopUpRupees > Math.min(...parsed.data.quickTopUpRupees)) {
+    errors.push('quickTopUpRupees contains an amount below minTopUpRupees.');
   }
 }
 
