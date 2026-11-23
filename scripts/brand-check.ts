@@ -14,8 +14,7 @@ const ROOT = join(__dirname, '..');
 const BRAND_DIR = join(ROOT, 'brand');
 
 type SizeRule =
-  | { kind: 'exact'; width: number; height: number }
-  | { kind: 'minWidth'; width: number };
+  { kind: 'exact'; width: number; height: number } | { kind: 'minWidth'; width: number };
 
 const ASSETS: Record<string, SizeRule> = {
   'icon.png': { kind: 'exact', width: 1024, height: 1024 },

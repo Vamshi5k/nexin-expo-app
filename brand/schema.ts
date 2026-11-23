@@ -13,7 +13,10 @@ const hex = z
 
 const reverseDomain = z
   .string()
-  .regex(/^[a-zA-Z][a-zA-Z0-9_]*(\.[a-zA-Z][a-zA-Z0-9_]*)+$/, 'Expected reverse-DNS, e.g. com.acme.app');
+  .regex(
+    /^[a-zA-Z][a-zA-Z0-9_]*(\.[a-zA-Z][a-zA-Z0-9_]*)+$/,
+    'Expected reverse-DNS, e.g. com.acme.app',
+  );
 
 const domain = z
   .string()

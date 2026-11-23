@@ -9,7 +9,11 @@
       "@brand/*": [
         "./brand/*"
       ]
-    }
+    },
+    "types": [
+      "node",
+      "jest"
+    ]
   },
   "include": [
     "**/*.ts",
