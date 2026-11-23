@@ -10,14 +10,20 @@ import { APP_ENVS, resolveEnv } from '../brand/env';
 import { BrandSchema, findPlaceholders, PLACEHOLDER } from '../brand/schema';
 import { z } from 'zod';
 
+import { readPngInfo } from './lib/png';
+
 const ROOT = join(__dirname, '..');
 const BRAND_DIR = join(ROOT, 'brand');
 
-type SizeRule =
-  { kind: 'exact'; width: number; height: number } | { kind: 'minWidth'; width: number };
+type SizeRule = (
+  { kind: 'exact'; width: number; height: number } | { kind: 'minWidth'; width: number }
+) & {
+  /** App Store rejects icons with an alpha channel or transparency. */
+  opaque?: boolean;
+};
 
 const ASSETS: Record<string, SizeRule> = {
-  'icon.png': { kind: 'exact', width: 1024, height: 1024 },
+  'icon.png': { kind: 'exact', width: 1024, height: 1024, opaque: true },
   'adaptive-icon.png': { kind: 'exact', width: 1024, height: 1024 },
   'notification-icon.png': { kind: 'exact', width: 96, height: 96 },
   'splash.png': { kind: 'minWidth', width: 512 },
@@ -26,14 +32,6 @@ const ASSETS: Record<string, SizeRule> = {
 
 const errors: string[] = [];
 const warnings: string[] = [];
-
-/** Width/height from the PNG IHDR chunk, or null if the file is not a PNG. */
-function pngSize(file: string): { width: number; height: number } | null {
-  const buf = readFileSync(file);
-  const signature = '89504e470d0a1a0a';
-  if (buf.length < 24 || buf.subarray(0, 8).toString('hex') !== signature) return null;
-  return { width: buf.readUInt32BE(16), height: buf.readUInt32BE(20) };
-}
 
 // 1. Schema
 const parsed = BrandSchema.safeParse(brandConfig);
@@ -78,7 +76,7 @@ for (const [name, rule] of Object.entries(ASSETS)) {
     errors.push(`Missing brand/assets/${name}`);
     continue;
   }
-  const size = pngSize(path);
+  const size = readPngInfo(readFileSync(path));
   if (!size) {
     errors.push(`brand/assets/${name} is not a PNG`);
     continue;
@@ -89,6 +87,11 @@ for (const [name, rule] of Object.entries(ASSETS)) {
   }
   if (rule.kind === 'minWidth' && size.width < rule.width) {
     errors.push(`brand/assets/${name} is ${actual}, expected at least ${rule.width}px wide`);
+  }
+  if (rule.opaque && size.hasTransparency) {
+    errors.push(
+      `brand/assets/${name} has transparency (alpha channel or tRNS). Flatten it onto an opaque background.`,
+    );
   }
 }
 
