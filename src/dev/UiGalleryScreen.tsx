@@ -1,0 +1,573 @@
+import { zodResolver } from '@hookform/resolvers/zod';
+import { Inbox, Moon, Phone, Plus, Sun, Zap } from 'lucide-react-native';
+import { Fragment, useEffect, useState, type ReactNode } from 'react';
+import { useForm } from 'react-hook-form';
+import { View } from 'react-native';
+import { z } from 'zod';
+
+import { brand, phonePattern, type ConnectorStatus } from '@/core/config';
+import { showPermissionBlocked } from '@/core/permissions';
+import {
+  useSchemeOverride,
+  useTheme,
+  type ColorScheme,
+  type Palette,
+  type TypeVariant,
+} from '@/theme';
+import {
+  Badge,
+  BrandLogo,
+  Button,
+  Card,
+  CONNECTOR_TYPES,
+  ConnectorIcon,
+  Dialog,
+  EmptyState,
+  ErrorState,
+  FormInput,
+  Header,
+  Input,
+  LargeTitleScroll,
+  Pressable,
+  SegmentedControl,
+  Sheet,
+  Skeleton,
+  SkeletonText,
+  StatusChip,
+  Text,
+  toast,
+} from '@/ui';
+
+/**
+ * Dev-only gallery of every UI kit component, in light and dark. Reached at /dev/ui in
+ * non-production builds. Demo copy here is not product copy.
+ */
+const SECTIONS: Record<string, () => ReactNode> = {
+  appearance: () => <SchemeSection />,
+  colors: () => <ColorsSection />,
+  type: () => <TypeSection />,
+  buttons: () => <ButtonsSection />,
+  inputs: () => <InputsSection />,
+  cards: () => <CardsSection />,
+  chips: () => <ChipsSection />,
+  connectors: () => <ConnectorsSection />,
+  states: () => <StatesSection />,
+  overlays: () => <OverlaysSection />,
+  toasts: () => <ToastsSection />,
+  brand: () => <BrandSection />,
+};
+
+export type UiGalleryScreenProps = {
+  /** Force a scheme on open (deep link ?scheme=dark). */
+  initialScheme?: ColorScheme;
+  /** Show one section only (deep link ?section=buttons). */
+  section?: string;
+};
+
+/**
+ * Dev-only gallery of every UI kit component, in light and dark. Reached at /dev/ui in
+ * non-production builds. Demo copy here is not product copy.
+ */
+export function UiGalleryScreen({ initialScheme, section }: UiGalleryScreenProps) {
+  const t = useTheme();
+  const { setSchemeOverride } = useSchemeOverride();
+  useEffect(() => {
+    if (initialScheme) setSchemeOverride(initialScheme);
+  }, [initialScheme, setSchemeOverride]);
+  // The override is a gallery tool: leaving the gallery returns to brand.appearance.
+  useEffect(() => () => setSchemeOverride(null), [setSchemeOverride]);
+
+  const keys = section && SECTIONS[section] ? [section] : Object.keys(SECTIONS);
+  return (
+    <LargeTitleScroll title="UI kit" subtitle={`${brand.appName} · ${t.scheme} mode`} back>
+      <View style={{ gap: t.layout.sectionGapLarge }}>
+        {keys.map((k) => (
+          <Fragment key={k}>{SECTIONS[k]()}</Fragment>
+        ))}
+      </View>
+    </LargeTitleScroll>
+  );
+}
+
+function Section({ title, children }: { title: string; children: ReactNode }) {
+  const t = useTheme();
+  return (
+    <View style={{ gap: t.space[3] }}>
+      <Text variant="title2">{title}</Text>
+      {children}
+    </View>
+  );
+}
+
+function Row({ children }: { children: ReactNode }) {
+  const t = useTheme();
+  return (
+    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2], alignItems: 'center' }}>
+      {children}
+    </View>
+  );
+}
+
+function SchemeSection() {
+  const { schemeOverride, setSchemeOverride } = useSchemeOverride();
+  return (
+    <Section title="Appearance">
+      <SegmentedControl
+        accessibilityLabel="Colour scheme"
+        segments={[
+          { value: 'brand', label: `Brand (${brand.appearance})` },
+          { value: 'light', label: 'Light' },
+          { value: 'dark', label: 'Dark' },
+        ]}
+        value={schemeOverride ?? 'brand'}
+        onChange={(v) => setSchemeOverride(v === 'brand' ? null : v)}
+      />
+    </Section>
+  );
+}
+
+const SWATCHES: (keyof Palette)[] = [
+  'bg',
+  'surface',
+  'surfaceRaised',
+  'surfaceSunken',
+  'border',
+  'textPrimary',
+  'textSecondary',
+  'textTertiary',
+  'accent',
+  'accentSoft',
+  'accentText',
+  'onAccent',
+  'success',
+  'warning',
+  'danger',
+];
+
+function ColorsSection() {
+  const t = useTheme();
+  return (
+    <Section title="Colour tokens">
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[3] }}>
+        {SWATCHES.map((key) => (
+          <View key={key} style={{ width: 96, gap: t.space[1] }}>
+            <View
+              style={{
+                height: 44,
+                borderRadius: t.radius.control,
+                backgroundColor: t.colors[key] as string,
+                borderWidth: t.layout.hairline,
+                borderColor: t.colors.border,
+              }}
+            />
+            <Text variant="caption">{key}</Text>
+            <Text variant="caption" tone="tertiary">
+              {t.colors[key] as string}
+            </Text>
+          </View>
+        ))}
+      </View>
+      <View style={{ flexDirection: 'row', borderRadius: t.radius.control, overflow: 'hidden' }}>
+        {Object.entries(t.colors.neutral).map(([step, color]) => (
+          <View key={step} style={{ flex: 1, height: 28, backgroundColor: color }} />
+        ))}
+      </View>
+      <Text variant="caption" tone="tertiary">
+        Neutral scale 50–950, tinted towards the brand hue
+      </Text>
+    </Section>
+  );
+}
+
+const VARIANTS: TypeVariant[] = [
+  'display',
+  'title1',
+  'title2',
+  'headline',
+  'body',
+  'callout',
+  'subhead',
+  'caption',
+];
+
+function TypeSection() {
+  const t = useTheme();
+  return (
+    <Section title="Typography">
+      {VARIANTS.map((v) => (
+        <Text key={v} variant={v}>
+          {v} · {t.type[v].fontSize}/{t.type[v].lineHeight}
+        </Text>
+      ))}
+      <Row>
+        <Text variant="title1" tabular>
+          ₹1,234.50
+        </Text>
+        <Text variant="title1" tabular tone="accent">
+          42.7 kWh
+        </Text>
+      </Row>
+      <Row>
+        <Text tone="secondary">secondary</Text>
+        <Text tone="tertiary">tertiary</Text>
+        <Text tone="accent">accent</Text>
+        <Text tone="success">success</Text>
+        <Text tone="warning">warning</Text>
+        <Text tone="danger">danger</Text>
+      </Row>
+    </Section>
+  );
+}
+
+function ButtonsSection() {
+  const [loading, setLoading] = useState(false);
+  const t = useTheme();
+  return (
+    <Section title="Buttons">
+      <View style={{ gap: t.space[3] }}>
+        <Button label="Primary" icon={Zap} onPress={() => toast.info('Primary pressed')} />
+        <Button label="Secondary" variant="secondary" onPress={() => undefined} />
+        <Button label="Ghost" variant="ghost" onPress={() => undefined} />
+        <Button label="Danger" variant="danger" haptic="warning" onPress={() => undefined} />
+        <Button
+          label="Stop charging"
+          variant="dangerOutline"
+          haptic="warning"
+          onPress={() => undefined}
+        />
+        <Button
+          label="Loading"
+          loading={loading}
+          onPress={() => {
+            setLoading(true);
+            setTimeout(() => setLoading(false), 1500);
+          }}
+        />
+        <Button label="Disabled" disabled onPress={() => undefined} />
+        <Row>
+          <Button
+            label="Small"
+            size="small"
+            fullWidth={false}
+            icon={Plus}
+            onPress={() => undefined}
+          />
+          <Button
+            label="Small ghost"
+            size="small"
+            variant="ghost"
+            fullWidth={false}
+            onPress={() => undefined}
+          />
+        </Row>
+      </View>
+    </Section>
+  );
+}
+
+const phoneForm = z.object({
+  phone: z
+    .string()
+    .length(brand.phoneLength, `Enter a ${brand.phoneLength}-digit number`)
+    .regex(phonePattern, 'Enter a valid phone number'),
+});
+
+function InputsSection() {
+  const t = useTheme();
+  const { control, handleSubmit } = useForm<z.infer<typeof phoneForm>>({
+    resolver: zodResolver(phoneForm),
+    defaultValues: { phone: '' },
+  });
+  return (
+    <Section title="Inputs">
+      <View style={{ gap: t.space[4] }}>
+        <Input label="Plain" placeholder="Type here" />
+        <Input
+          label="With icon and hint"
+          icon={Phone}
+          placeholder="Phone"
+          hint="We'll send an OTP"
+        />
+        <Input label="Error" defaultValue="abc" error="This value is not valid" />
+        <Input label="Disabled" defaultValue="Read only" editable={false} />
+        <FormInput
+          control={control}
+          name="phone"
+          label="FormInput (react-hook-form + zod)"
+          icon={Phone}
+          keyboardType="phone-pad"
+          maxLength={brand.phoneLength}
+          placeholder="Phone number"
+        />
+        <Button
+          label="Validate form"
+          variant="secondary"
+          onPress={handleSubmit((v) => toast.success(`Valid: ${v.phone}`))}
+        />
+      </View>
+    </Section>
+  );
+}
+
+function CardsSection() {
+  const t = useTheme();
+  return (
+    <Section title="Cards">
+      <Card>
+        <Text variant="headline">Flat card</Text>
+        <Text tone="secondary">Hairline border, radius 16, padding 16.</Text>
+      </Card>
+      <Card elevation="floating">
+        <Text variant="headline">Floating card</Text>
+        <Text tone="secondary">The one soft shadow level.</Text>
+      </Card>
+      <Card onPress={() => toast.info('Card pressed')} accessibilityLabel="Pressable card">
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            gap: t.space[3],
+          }}
+        >
+          <View style={{ flex: 1 }}>
+            <Text variant="headline">Pressable card</Text>
+            <Text tone="secondary">Scales to 0.98 when pressed.</Text>
+          </View>
+          <Badge label="New" />
+        </View>
+      </Card>
+    </Section>
+  );
+}
+
+const CONNECTOR_STATUSES: ConnectorStatus[] = [
+  'Available',
+  'Charging',
+  'Unavailable',
+  'Faulted',
+  'Reserved',
+  'Unknown',
+];
+
+function ChipsSection() {
+  return (
+    <Section title="Status chips and badges">
+      <Row>
+        <StatusChip label="Success" tone="success" />
+        <StatusChip label="Warning" tone="warning" />
+        <StatusChip label="Danger" tone="danger" />
+        <StatusChip label="Accent" tone="accent" />
+        <StatusChip label="Neutral" />
+      </Row>
+      <Row>
+        {CONNECTOR_STATUSES.map((s) => (
+          <StatusChip key={s} label={s} connector={s} />
+        ))}
+      </Row>
+      <Row>
+        <Badge label={3} />
+        <Badge label="Primary" tone="neutral" />
+        <Badge label={12} tone="danger" />
+      </Row>
+    </Section>
+  );
+}
+
+function ConnectorsSection() {
+  const t = useTheme();
+  return (
+    <Section title="Connector icons">
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[4] }}>
+        {CONNECTOR_TYPES.map((type) => (
+          <ConnectorIcon key={type} type={type} showLabel />
+        ))}
+      </View>
+      <Row>
+        <ConnectorIcon type="CCS2" available={false} showLabel />
+        <Text variant="caption" tone="tertiary">
+          Unavailable
+        </Text>
+      </Row>
+    </Section>
+  );
+}
+
+function StatesSection() {
+  const t = useTheme();
+  return (
+    <Section title="Loading, empty and error">
+      <Card>
+        <View style={{ flexDirection: 'row', gap: t.space[3] }}>
+          <Skeleton width={56} height={56} radius={t.radius.control} />
+          <View style={{ flex: 1, gap: t.space[2] }}>
+            <Skeleton height={16} width="70%" />
+            <SkeletonText lines={2} />
+          </View>
+        </View>
+      </Card>
+      <Card>
+        <EmptyState
+          icon={Inbox}
+          title="No sessions yet"
+          description="Your charging sessions will show up here."
+          actionLabel="Find a charger"
+          onAction={() => toast.info('Empty state action')}
+        />
+      </Card>
+      <Card>
+        <ErrorState
+          message="We couldn't load this. Check your connection and try again."
+          onRetry={() => toast.info('Retry')}
+        />
+      </Card>
+    </Section>
+  );
+}
+
+function OverlaysSection() {
+  const t = useTheme();
+  const [sheet, setSheet] = useState(false);
+  const [dialog, setDialog] = useState(false);
+  const [tab, setTab] = useState<'ac' | 'dc'>('ac');
+  return (
+    <Section title="Header, sheet, dialog, segmented">
+      <Card padded={false}>
+        <Header
+          title="Compact header"
+          back={() => toast.info('Back')}
+          right={<Badge label={2} />}
+        />
+      </Card>
+      <SegmentedControl
+        segments={[
+          { value: 'ac', label: 'AC' },
+          { value: 'dc', label: 'DC' },
+        ]}
+        value={tab}
+        onChange={setTab}
+      />
+      <Button label="Open sheet" variant="secondary" onPress={() => setSheet(true)} />
+      <Button
+        label="Open destructive dialog"
+        variant="dangerOutline"
+        onPress={() => setDialog(true)}
+      />
+      <Button
+        label="Permission blocked (camera)"
+        variant="ghost"
+        onPress={() => void showPermissionBlocked('camera')}
+      />
+      <Sheet
+        open={sheet}
+        onClose={() => setSheet(false)}
+        title="Bottom sheet"
+        description="For choices, filters and confirmations."
+      >
+        <View style={{ gap: t.space[3] }}>
+          <Button label="Confirm" onPress={() => setSheet(false)} />
+          <Button label="Cancel" variant="ghost" onPress={() => setSheet(false)} />
+        </View>
+      </Sheet>
+      <Dialog
+        open={dialog}
+        destructive
+        title="Remove vehicle?"
+        message="Only for destructive or blocking actions."
+        confirmLabel="Remove"
+        onConfirm={() => {
+          setDialog(false);
+          toast.success('Removed');
+        }}
+        onCancel={() => setDialog(false)}
+      />
+    </Section>
+  );
+}
+
+function ToastsSection() {
+  const t = useTheme();
+  const wait = (ms: number, ok: boolean) =>
+    new Promise<string>((resolve, reject) =>
+      setTimeout(() => (ok ? resolve('done') : reject(new Error('failed'))), ms),
+    );
+  return (
+    <Section title="Toasts">
+      <View style={{ gap: t.space[3] }}>
+        <Button
+          label="toast.success"
+          variant="secondary"
+          onPress={() => toast.success('Payment successful')}
+        />
+        <Button
+          label="toast.error"
+          variant="secondary"
+          onPress={() => toast.error('Payment failed', { description: 'No money was taken.' })}
+        />
+        <Button
+          label="toast.info"
+          variant="secondary"
+          onPress={() => toast.info('Charger is preparing')}
+        />
+        <Button
+          label="toast.promise (resolves)"
+          variant="secondary"
+          onPress={() =>
+            toast.promise(wait(1500, true), {
+              loading: 'Starting…',
+              success: 'Charging started',
+              error: 'Could not start',
+            })
+          }
+        />
+        <Button
+          label="toast.promise (rejects)"
+          variant="secondary"
+          onPress={() =>
+            toast.promise(wait(1500, false), {
+              loading: 'Starting…',
+              success: 'Charging started',
+              error: 'Could not start',
+            })
+          }
+        />
+      </View>
+    </Section>
+  );
+}
+
+function BrandSection() {
+  const t = useTheme();
+  const { setSchemeOverride, schemeOverride } = useSchemeOverride();
+  return (
+    <Section title="Brand">
+      <Card>
+        <View style={{ alignItems: 'center', gap: t.space[3] }}>
+          <BrandLogo height={48} />
+          <Text variant="caption" tone="tertiary">
+            BrandLogo (build-time asset; runtime logo comes in Phase 2)
+          </Text>
+        </View>
+      </Card>
+      <Pressable
+        onPress={() => setSchemeOverride(t.scheme === 'dark' ? 'light' : 'dark')}
+        haptic="selection"
+        accessibilityLabel="Toggle colour scheme"
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: t.space[2],
+          alignSelf: 'flex-start',
+          minHeight: t.layout.minTouch,
+        }}
+      >
+        {t.scheme === 'dark' ? (
+          <Sun color={t.colors.accentText} size={20} strokeWidth={1.75} />
+        ) : (
+          <Moon color={t.colors.accentText} size={20} strokeWidth={1.75} />
+        )}
+        <Text tone="accent">{schemeOverride ? 'Toggle scheme' : 'Switch to dark'}</Text>
+      </Pressable>
+    </Section>
+  );
+}
