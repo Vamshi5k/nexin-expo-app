@@ -10,6 +10,7 @@ import { APP_ENVS, resolveEnv } from '../brand/env';
 import { BrandSchema, findPlaceholders, PLACEHOLDER } from '../brand/schema';
 import { z } from 'zod';
 
+import { AA_NORMAL_TEXT, contrastRatio } from './lib/contrast';
 import { readPngInfo } from './lib/png';
 
 const ROOT = join(__dirname, '..');
@@ -44,6 +45,24 @@ if (!parsed.success) {
   if (!parsed.data.owner) warnings.push('owner is not set.');
   if (parsed.data.minTopUp > Math.min(...parsed.data.quickTopUpAmounts)) {
     errors.push('quickTopUpAmounts contains an amount below minTopUp.');
+  }
+}
+
+// 1b. Contrast (warnings): accent vs white, and dark text on the accent. WCAG AA = 4.5:1.
+if (parsed.success) {
+  const { primary, textPrimary } = parsed.data.colors;
+  const WHITE = '#FFFFFF';
+  const pairs: [string, string, string][] = [
+    ['accent text on white / white text on accent', primary, WHITE],
+    ['dark text (textPrimary) on accent', textPrimary, primary],
+  ];
+  for (const [label, fg, bg] of pairs) {
+    const ratio = contrastRatio(fg, bg);
+    if (ratio < AA_NORMAL_TEXT) {
+      warnings.push(
+        `Low contrast: ${label} (${fg} vs ${bg}) is ${ratio.toFixed(2)}:1, below ${AA_NORMAL_TEXT}:1.`,
+      );
+    }
   }
 }
 
