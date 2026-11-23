@@ -16,6 +16,6 @@ export { Sheet, type SheetProps } from './Sheet';
 export { Dialog, type DialogProps } from './Dialog';
 export { SegmentedControl, type Segment } from './SegmentedControl';
 export { ConnectorIcon, CONNECTOR_TYPES, toConnectorType, type ConnectorType } from './connectors';
-export { BrandLogo } from './BrandLogo';
+export { BrandLogo, type BrandLogoProps } from './BrandLogo';
 export { toast, AppToaster } from './toast';
 export { haptics, type HapticKind } from './haptics';
