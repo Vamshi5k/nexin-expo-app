@@ -1,5 +1,13 @@
 # Progress
 
+Phase numbers follow the project prompts, not BLUEPRINT.md section 7:
+
+| Phase | Scope                                                                          | Blueprint section 7 | Status                   |
+| ----- | ------------------------------------------------------------------------------ | ------------------- | ------------------------ |
+| 0     | Template and white-label brand layer                                           | part of Phase 0     | Done                     |
+| 1     | Foundation (theme, UI kit, core api/session/storage, root layout) + UI refresh | Phase 0             | Done, tag `phase-1-done` |
+| 2     | Client config and consumer auth (A1-A4, A9)                                    | Phase 1             | Next, branch `feat/auth` |
+
 ## Phase 0: Template and brand layer (done, 2026-11-23)
 
 **Done**
@@ -51,11 +59,28 @@
 
 **Open questions**: see `docs/OPEN_QUESTIONS.md`.
 
-## Phase 1: Foundation
+## Phase 1: Foundation (done, 2026-11-23, tag `phase-1-done`)
 
-Ready to start (branch `feat/foundation`).
+**Done**
 
-### UI refresh (2026-11-23, branch `feat/ui-refresh`)
+- Dependencies for the stack in AGENTS.md; `src/core/log.ts`; console calls stripped in
+  production builds.
+- Theme: semantic palette derived from brand (light and dark), tokens, `ThemeProvider`, brand
+  font files and loader (`brand:check` verifies them).
+- UI kit (`src/ui`): Text, Pressable, Button, Input, FormInput, Card, Screen, Header,
+  LargeTitleScroll, Skeleton, EmptyState, ErrorState, Badge, StatusChip, Sheet, Dialog,
+  SegmentedControl, ListGroup/ListRow, connector icons, BrandLogo (build-time), themed toasts.
+- `src/core/api`: axios client, single-flight 401 refresh, response envelope and typed errors.
+- `src/core`: TanStack Query client, SecureStore and MMKV storage, legacy AsyncStorage token
+  migration, Zustand session store, permissions helpers with a global blocked dialog, offline
+  banner.
+- Root layout with providers, splash held during bootstrap, global overlays.
+- Dev UI kit gallery at `/dev/ui` (non-production builds only).
+
+**Not done here (moved to Phase 2)**: `/client/info`, runtime logo, splash gate routing and
+auth route groups.
+
+### UI refresh (2026-11-23, merged in Phase 1)
 
 **Done**
 
@@ -81,3 +106,9 @@ component but not polished screen by screen; Cruze EV stays on `appearance: 'lig
 
 **Note**: expo-blur is native, so existing dev clients must be rebuilt (`npm run ios` /
 `npm run android`).
+
+## Phase 2: Client config and consumer auth (next)
+
+Branch `feat/auth`. Scope: `/client/info` with cache, route groups and guards, boot/splash
+(A1), onboarding (A2), login (A3), OTP (A4), boot error screen (A9 style), logout. Plan
+pending approval.
