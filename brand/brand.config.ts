@@ -18,12 +18,9 @@ const brandConfig = {
     primary: '#00C8D0',
     primaryLight: '#E6F8FA',
     primaryDark: '#1A8F99',
-    background: '#F4FBFC',
-    surface: '#FFFFFF',
     textPrimary: '#0E2E31',
     textSecondary: '#4A6A6E',
     textTertiary: '#7D9B9F',
-    border: '#C2EBEE',
     borderLight: '#E6F8FA',
     success: '#22C55E',
     warning: '#F59E0B',
@@ -60,9 +57,6 @@ const brandConfig = {
 
   features: { fleet: false, coupons: false },
 
-  // Fill in after `eas init` for this client's Expo project.
-  // easProjectId: '00000000-0000-0000-0000-000000000000',
-  // owner: 'expo-account-name',
 } satisfies BrandConfigInput;
 
 export default brandConfig;

@@ -6,23 +6,36 @@ one accent colour used sparingly, big readable numbers. Nothing decorative that 
 the driver find, start, watch or pay for a charge.
 
 ## Colour
+- **Neutrals by default.** Most of the UI is neutral: a near-white grey page (bg), white cards
+  (surface), neutral hairline borders and a sunken grey for inputs and segmented controls. They
+  are derived from a grey scale (50-950) only slightly tinted towards the brand hue. A brand may
+  override `colors.background`, `colors.surface` and `colors.border` (light mode only), but the
+  template ships without them and Cruze EV uses the defaults.
+- **Accent only for the primary action, selections and icons.** The brand colour fills the one
+  primary button on a screen, the active tab, selected chips, the progress ring and map pins,
+  and tints icons. It never fills large backgrounds, cards or secondary actions.
+- **Secondary buttons are never brand-filled.** Secondary = white surface, 1 pt neutral
+  (borderStrong) border, dark text. Ghost = brand-coloured text only. Dialog and sheet cancel
+  actions are secondary.
 - Components use semantic tokens only: bg, surface, surfaceRaised, surfaceSunken, border,
-  textPrimary, textSecondary, textTertiary, accent, accentSoft, accentText, onAccent,
-  success, warning, danger, plus connector status colours. No raw hex outside src/theme
-  and brand/.
-- accent = the brand colour as a FILL (buttons, active tab, selected chips, progress ring,
-  map pins). accentText = the brand colour as TEXT or ICONS on light surfaces (links,
-  "See all", selected tab label, icons in accentSoft circles). Never use accent itself as
-  text on a light background.
-- onAccent is computed (dark or white, whichever passes 4.5:1). For Cruze teal that is dark
-  text (#0E2E31).
-- Derive a neutral grey scale (50-950) slightly tinted towards the brand hue; most of the UI
-  is neutrals. The brand colour never fills large backgrounds.
+  borderStrong, textPrimary, textSecondary, textTertiary, accent, accentSoft, accentText,
+  onAccent, success, warning, danger (each with Soft and Text), plus connector status colours.
+  No raw hex outside src/theme and brand/.
+- accent = the brand colour as a FILL. It comes from `colors.accentFill`, which defaults to
+  `colors.primary`. accentText = the brand colour as TEXT or ICONS on light surfaces (links,
+  "See all", selected tab label, icons in accentSoft circles). Never use accent itself as text
+  on a light background.
+- **onAccent is always computed from contrast**: dark text or white, whichever reads better on
+  the fill. It is never set by hand. For Cruze teal (#00C8D0) that is dark text #0E2E31 at
+  7.0:1. brand:check warns if the computed onAccent misses 4.5:1 on accentFill in either
+  scheme. (Example: #0AA5AE passes with dark text at 4.8:1; white on it would be only 3.0:1.)
 - Contrast: WCAG AA (4.5:1 body text, 3:1 large text and icons) in light and dark.
-  brand:check warns on any failing pair.
+  brand:check checks the palettes the app actually renders.
 - Light and dark palettes come from semantic tokens; the dark palette is derived from the
-  brand, not inverted. In dark mode, accent works as text directly when it passes.
-  brand.appearance: 'system' | 'light' | 'dark'.
+  brand, not inverted, and ignores the light overrides. In dark mode, accent works as text
+  directly when it passes. brand.appearance: 'system' | 'light' | 'dark'. Every token and
+  component must work in both schemes (the dev gallery at /dev/ui shows them side by side),
+  even while a brand ships light only. Cruze EV stays on 'light' until the core screens exist.
 
 ## Typography (font from brand, Inter by default)
 - Scale: display 34/40 semibold, title1 28/34 semibold, title2 22/28 semibold,
@@ -36,17 +49,27 @@ the driver find, start, watch or pay for a charge.
 ## Layout and shape
 - 4 pt grid. Screen padding 20. Section gap 24-32. Card padding 16.
 - Radius: controls 12, cards 16, sheets 28, pills full.
-- Depth comes from layering and hairline borders (StyleSheet.hairlineWidth), plus one very
-  soft shadow level for floating items (FAB, map search, sheets). No heavy drop shadows.
-- Primary button height 52, full width, in a sticky footer above the safe area on forms.
-  Minimum touch target 44x44.
-- Main screens use large-title headers that collapse to a compact title on scroll.
+- Depth comes from layering (grey page, white cards) and hairline borders
+  (StyleSheet.hairlineWidth), plus one very soft shadow level for floating items (FAB, map
+  search, sheets) and hero cards (Card elevation="elevated"). In dark mode, where shadows
+  don't read, elevated cards use surfaceRaised with a hairline border. No heavy drop shadows.
+- Buttons: large = 52 high, full width (primary actions, sticky footer above the safe area on
+  forms); medium = 44 high, content width (inline actions in cards, banners, empty states).
+  Put two related actions side by side rather than stacking full-width buttons. Minimum touch
+  target 44x44.
+- Main screens use large-title headers (LargeTitleScroll) that collapse to a compact title on
+  scroll. The compact bar floats over content and gains a translucent blur (expo-blur) once the
+  large title has scrolled away; Android uses a solid bar.
 
 ## Components and patterns
 - Bottom sheets for choices, filters and confirmations; Dialog only for destructive or
   blocking actions.
 - Segmented controls for tabs inside a screen. Settings-style screens (Profile, Edit
-  Profile) use inset grouped lists.
+  Profile) use inset grouped lists (ListGroup + ListRow: optional icon in a soft tinted
+  circle, title, subtitle, value or trailing element, chevron when tappable; separators inset
+  past the icon; group label above, helper text below).
+- Inputs: sunken neutral fill at rest, no border. On focus the field lifts to the surface with
+  a 1.5 pt accent border and a 3 pt accentSoft focus ring. Errors swap accent for danger.
 - Skeletons match the final layout, with a subtle shimmer. A full-screen spinner only
   during payment and charger start.
 - Empty and error states: simple line icon in an accentSoft circle, one-line title, one

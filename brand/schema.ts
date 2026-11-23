@@ -55,15 +55,27 @@ const BrandObjectSchema = z.object({
   deleteAccountUrl: z.url(),
 
   colors: z.object({
+    /** The brand colour. Used for derived tints, the neutral grey hue and notification icons. */
     primary: hex,
     primaryLight: hex,
     primaryDark: hex,
-    background: hex,
-    surface: hex,
+    /**
+     * Brand colour as a FILL (primary buttons, active tab, selected chips, progress ring).
+     * Defaults to `primary`. Text on it (onAccent) is always computed from contrast, so pick
+     * a fill where white or dark text reaches 4.5:1 (brand:check warns if not).
+     */
+    accentFill: hex.optional(),
+    /**
+     * Optional light-mode overrides. Leave them out to get the template's neutral defaults
+     * (DESIGN.md "neutrals by default"): a near-white grey background, white surfaces and
+     * neutral hairline borders, all derived from `primary`'s hue.
+     */
+    background: hex.optional(),
+    surface: hex.optional(),
     textPrimary: hex,
     textSecondary: hex,
     textTertiary: hex,
-    border: hex,
+    border: hex.optional(),
     borderLight: hex,
     success: hex,
     warning: hex,
@@ -146,15 +158,22 @@ const BrandObjectSchema = z.object({
   owner: z.string().min(1).optional(),
 });
 
-/** White plus the brand background: the light surfaces accentText must be readable on. */
-export function lightSurfaces(colors: { background: string }): string[] {
-  return ['#FFFFFF', colors.background];
+/**
+ * A grey at least as dark as any derived neutral light background or sunken surface
+ * (src/theme/palette.ts). Text that passes on it passes on all of them.
+ */
+export const DERIVED_LIGHT_SURFACE_FLOOR = '#E8ECEC';
+
+/** The light surfaces accentText must be readable on. */
+export function lightSurfaces(colors: { background?: string }): string[] {
+  return ['#FFFFFF', colors.background ?? DERIVED_LIGHT_SURFACE_FLOOR];
 }
 
 export const BrandSchema = BrandObjectSchema.transform((b) => ({
   ...b,
   colors: {
     ...b.colors,
+    accentFill: b.colors.accentFill ?? b.colors.primary,
     accentText:
       b.colors.accentText ?? darkenUntilContrast(b.colors.primary, lightSurfaces(b.colors)),
   },

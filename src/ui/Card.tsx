@@ -8,8 +8,12 @@ import { Pressable } from './Pressable';
 export type CardProps = {
   children: ReactNode;
   onPress?: () => void;
-  /** 'flat' = hairline border (default); 'floating' = soft shadow for floating items. */
-  elevation?: 'flat' | 'floating';
+  /**
+   * 'flat' (default): white surface with a neutral hairline border.
+   * 'elevated': the one soft shadow level, for hero cards and floating items. In dark mode,
+   * where shadows don't read, it is a raised surface with a hairline border instead.
+   */
+  elevation?: 'flat' | 'elevated';
   padded?: boolean;
   style?: StyleProp<ViewStyle>;
   accessibilityLabel?: string;
@@ -24,13 +28,15 @@ export function Card({
   accessibilityLabel,
 }: CardProps) {
   const t = useTheme();
+  const elevated = elevation === 'elevated';
+  const light = t.scheme === 'light';
   const base: ViewStyle = {
-    backgroundColor: elevation === 'floating' ? t.colors.surfaceRaised : t.colors.surface,
+    backgroundColor: elevated ? t.colors.surfaceRaised : t.colors.surface,
     borderRadius: t.radius.card,
-    borderWidth: t.layout.hairline,
+    borderWidth: elevated && light ? 0 : t.layout.hairline,
     borderColor: t.colors.border,
     padding: padded ? t.layout.cardPadding : 0,
-    ...(elevation === 'floating' ? t.shadow : null),
+    ...(elevated && light ? t.shadow : null),
   };
   if (onPress) {
     return (

@@ -74,6 +74,17 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }
 
+/**
+ * Renders children in a fixed scheme regardless of the app's scheme. Used by the dev
+ * gallery to show light and dark side by side; screens should not need it.
+ */
+export function ThemeScope({ scheme, children }: { scheme: ColorScheme; children: ReactNode }) {
+  const parent = useContext(ThemeContext);
+  if (!parent) throw new Error('ThemeScope must be used inside <ThemeProvider>');
+  const value = useMemo(() => ({ ...parent, theme: buildTheme(scheme) }), [parent, scheme]);
+  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
+}
+
 export function useTheme(): Theme {
   const ctx = useContext(ThemeContext);
   if (!ctx) throw new Error('useTheme must be used inside <ThemeProvider>');

@@ -78,7 +78,7 @@ export function Dialog({
               loading={loading}
             />
             {onCancel ? (
-              <Button label={cancelLabel} onPress={onCancel} variant="ghost" haptic={false} />
+              <Button label={cancelLabel} onPress={onCancel} variant="secondary" haptic={false} />
             ) : null}
           </View>
         </View>

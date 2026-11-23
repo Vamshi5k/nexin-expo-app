@@ -7,35 +7,46 @@ import type { HapticKind } from './haptics';
 import { Pressable } from './Pressable';
 import { Text } from './Text';
 
+/**
+ * primary: the one brand-filled action on a screen.
+ * secondary: white (surface) with a neutral border and dark text. Never brand-filled.
+ * ghost: brand-coloured text only, for low-emphasis actions.
+ * danger / dangerOutline: destructive actions (Stop charging uses dangerOutline).
+ */
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'dangerOutline';
+
+/** large = 52 (primary actions, sticky footers); medium = 44 (inline, cards, banners). */
+export type ButtonSize = 'large' | 'medium';
 
 export type ButtonProps = {
   label: string;
   onPress?: () => void;
   variant?: ButtonVariant;
+  size?: ButtonSize;
   icon?: LucideIcon;
   loading?: boolean;
   disabled?: boolean;
-  /** Full width by default (DESIGN.md primary buttons). */
+  /** Stretch to the parent's width. Default: true for large, false for medium. */
   fullWidth?: boolean;
-  size?: 'large' | 'small';
   haptic?: HapticKind | false;
   style?: StyleProp<ViewStyle>;
   accessibilityHint?: string;
 };
 
-function colorsFor(variant: ButtonVariant, c: Palette) {
+type VariantColors = { bg: string; fg: string; border: string; borderWidth: number };
+
+function colorsFor(variant: ButtonVariant, c: Palette): VariantColors {
   switch (variant) {
     case 'primary':
-      return { bg: c.accent, fg: c.onAccent, border: c.accent };
+      return { bg: c.accent, fg: c.onAccent, border: c.accent, borderWidth: 0 };
     case 'secondary':
-      return { bg: c.accentSoft, fg: c.accentText, border: c.accentSoft };
+      return { bg: c.surface, fg: c.textPrimary, border: c.borderStrong, borderWidth: 1 };
     case 'ghost':
-      return { bg: 'transparent', fg: c.accentText, border: 'transparent' };
+      return { bg: 'transparent', fg: c.accentText, border: 'transparent', borderWidth: 0 };
     case 'danger':
-      return { bg: c.danger, fg: c.onDanger, border: c.danger };
+      return { bg: c.danger, fg: c.onDanger, border: c.danger, borderWidth: 0 };
     case 'dangerOutline':
-      return { bg: 'transparent', fg: c.dangerText, border: c.danger };
+      return { bg: 'transparent', fg: c.dangerText, border: c.danger, borderWidth: 1.5 };
   }
 }
 
@@ -43,19 +54,30 @@ export function Button({
   label,
   onPress,
   variant = 'primary',
+  size = 'large',
   icon: Icon,
   loading,
   disabled,
-  fullWidth = true,
-  size = 'large',
+  fullWidth,
   haptic = 'light',
   style,
   accessibilityHint,
 }: ButtonProps) {
   const t = useTheme();
-  const { bg, fg, border } = colorsFor(variant, t.colors);
   const inactive = disabled || loading;
-  const height = size === 'large' ? t.layout.buttonHeight : t.layout.minTouch;
+  // Disabled filled buttons go neutral rather than a faded brand colour.
+  const filled = variant === 'primary' || variant === 'danger';
+  const { bg, fg, border, borderWidth } =
+    disabled && filled
+      ? {
+          bg: t.colors.surfaceSunken,
+          fg: t.colors.textTertiary,
+          border: 'transparent',
+          borderWidth: 0,
+        }
+      : colorsFor(variant, t.colors);
+  const large = size === 'large';
+  const stretch = fullWidth ?? large;
 
   return (
     <Pressable
@@ -68,15 +90,15 @@ export function Button({
       style={[
         styles.base,
         {
-          height,
+          height: large ? t.layout.buttonHeight : t.layout.minTouch,
           minWidth: t.layout.minTouch,
-          paddingHorizontal: size === 'large' ? t.space[6] : t.space[4],
+          paddingHorizontal: large ? t.space[6] : t.space[4],
           borderRadius: t.radius.control,
           backgroundColor: bg,
           borderColor: border,
-          borderWidth: variant === 'dangerOutline' ? 1.5 : 0,
-          alignSelf: fullWidth ? 'stretch' : 'flex-start',
-          opacity: disabled ? 0.45 : 1,
+          borderWidth,
+          alignSelf: stretch ? 'stretch' : 'flex-start',
+          opacity: disabled && !filled ? 0.45 : 1,
         },
         style,
       ]}
@@ -85,8 +107,12 @@ export function Button({
         <ActivityIndicator color={fg} />
       ) : (
         <View style={styles.row}>
-          {Icon ? <Icon color={fg} size={20} strokeWidth={1.75} /> : null}
-          <Text variant={size === 'large' ? 'headline' : 'subhead'} style={{ color: fg }}>
+          {Icon ? <Icon color={fg} size={large ? 20 : 18} strokeWidth={1.75} /> : null}
+          <Text
+            variant={large ? 'headline' : 'subhead'}
+            numberOfLines={1}
+            style={[{ color: fg }, !large && { fontFamily: t.type.headline.fontFamily }]}
+          >
             {label}
           </Text>
         </View>

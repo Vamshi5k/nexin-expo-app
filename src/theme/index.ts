@@ -1,5 +1,6 @@
 export {
   ThemeProvider,
+  ThemeScope,
   useTheme,
   useSchemeOverride,
   buildTheme,

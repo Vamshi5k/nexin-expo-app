@@ -1,7 +1,7 @@
 import brandConfig from '@brand/brand.config';
 import { parseBrand } from '@brand/schema';
 
-import { contrastRatio, ensureContrast, mix } from '../color';
+import { contrastRatio, ensureContrast } from '../color';
 import {
   AA_TEXT,
   AA_UI,
@@ -93,7 +93,7 @@ describe('palette derivation', () => {
   it('builds a dark palette that is not an inversion', () => {
     const d = buildPalette(base, 'dark');
     expect(contrastRatio(d.bg, '#000000')).toBeLessThan(2);
-    expect(d.bg).not.toBe(mix('#FFFFFF', base.colors.background, 1));
+    expect(d.bg).not.toBe(buildPalette(base, 'light').bg);
   });
 
   it('builds an 11-step neutral scale from light to dark', () => {
@@ -109,6 +109,79 @@ describe('palette derivation', () => {
 
   it('ensureContrast returns passing colours unchanged', () => {
     expect(ensureContrast('#000000', ['#FFFFFF'], 4.5, 'darken')).toBe('#000000');
+  });
+});
+
+describe('neutrals by default (DESIGN.md)', () => {
+  /** Saturation of a colour, 0 to 1: how far it is from grey. */
+  function saturation(hex: string): number {
+    const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255);
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
+    const l = (max + min) / 2;
+    return max === min ? 0 : (max - min) / (1 - Math.abs(2 * l - 1));
+  }
+
+  it.each(PRIMARIES)('derives near-grey light surfaces for primary %s', (primary) => {
+    const p = buildPalette(brandWith(primary), 'light');
+    expect(p.surface).toBe('#FFFFFF');
+    for (const k of ['bg', 'surfaceSunken', 'border', 'borderStrong'] as const) {
+      expect(saturation(p[k])).toBeLessThan(0.12);
+    }
+    // Cards must separate from the page.
+    expect(p.bg).not.toBe(p.surface);
+  });
+
+  it('honours brand overrides for background, surface and border', () => {
+    const b = parseBrand({
+      ...brandConfig,
+      colors: {
+        ...brandConfig.colors,
+        background: '#F4FBFC',
+        surface: '#FEFEFE',
+        border: '#C2EBEE',
+      },
+    });
+    const p = buildPalette(b, 'light');
+    expect([p.bg, p.surface, p.border]).toEqual(['#F4FBFC', '#FEFEFE', '#C2EBEE']);
+    expect(failures(p)).toEqual([]);
+  });
+
+  it('ignores light overrides in dark mode', () => {
+    const b = parseBrand({
+      ...brandConfig,
+      colors: { ...brandConfig.colors, background: '#F4FBFC' },
+    });
+    expect(buildPalette(b, 'dark').bg).toBe(buildPalette(base, 'dark').bg);
+  });
+});
+
+describe('accentFill', () => {
+  it('defaults to primary', () => {
+    expect(base.colors.accentFill).toBe(base.colors.primary);
+  });
+
+  it('fills the accent and recomputes onAccent from contrast', () => {
+    const b = parseBrand({
+      ...brandConfig,
+      colors: { ...brandConfig.colors, accentFill: '#1E3A8A' },
+    });
+    const p = buildPalette(b, 'light');
+    expect(p.accent).toBe('#1E3A8A');
+    expect(p.onAccent).toBe('#FFFFFF');
+    expect(contrastRatio(p.onAccent, p.accent)).toBeGreaterThanOrEqual(AA_TEXT);
+    // accentText stays readable on the new accentSoft tint.
+    expect(contrastRatio(p.accentText, p.accentSoft)).toBeGreaterThanOrEqual(AA_TEXT);
+  });
+
+  it('keeps dark onAccent on a light fill even when white is close (#0AA5AE)', () => {
+    const b = parseBrand({
+      ...brandConfig,
+      colors: { ...brandConfig.colors, accentFill: '#0AA5AE' },
+    });
+    const p = buildPalette(b, 'light');
+    expect(p.onAccent).toBe('#0E2E31');
+    expect(contrastRatio(p.onAccent, p.accent)).toBeGreaterThanOrEqual(AA_TEXT);
   });
 });
 

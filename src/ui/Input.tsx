@@ -31,7 +31,10 @@ export function Input({
   const t = useTheme();
   const c = t.colors;
   const [focused, setFocused] = useState(false);
-  const borderColor = error ? c.danger : focused ? c.accent : c.border;
+  // At rest the field is a sunken neutral fill; focus lifts it to the surface with a brand
+  // border and a soft focus ring. Errors use danger in place of the brand.
+  const borderColor = error ? c.danger : focused ? c.accent : 'transparent';
+  const ringColor = error ? c.dangerSoft : focused ? c.accentSoft : 'transparent';
 
   return (
     <View style={{ gap: t.space[2] }}>
@@ -41,40 +44,52 @@ export function Input({
         </Text>
       ) : null}
       <View
-        style={[
-          styles.field,
-          {
-            height: t.layout.inputHeight,
-            borderRadius: t.radius.control,
-            borderColor,
-            borderWidth: focused || error ? 1.5 : t.layout.hairline * 2,
-            backgroundColor: editable ? c.surface : c.surfaceSunken,
-            paddingHorizontal: t.space[4],
-            gap: t.space[3],
-          },
-        ]}
+        style={{
+          margin: -RING,
+          borderWidth: RING,
+          borderColor: ringColor,
+          borderRadius: t.radius.control + RING,
+        }}
       >
-        {Icon ? <Icon color={c.textTertiary} size={20} strokeWidth={1.75} /> : null}
-        <TextInput
-          ref={ref}
-          editable={editable}
-          placeholderTextColor={c.textTertiary}
-          selectionColor={c.accent}
-          maxFontSizeMultiplier={t.layout.maxFontScale}
-          accessibilityLabel={label}
-          accessibilityHint={error ?? hint}
-          onFocus={(e) => {
-            setFocused(true);
-            onFocus?.(e);
-          }}
-          onBlur={(e) => {
-            setFocused(false);
-            onBlur?.(e);
-          }}
-          style={[t.type.body, styles.input, { color: c.textPrimary }]}
-          {...rest}
-        />
-        {trailing}
+        <View
+          style={[
+            styles.field,
+            {
+              height: t.layout.inputHeight,
+              borderRadius: t.radius.control,
+              borderColor,
+              borderWidth: 1.5,
+              backgroundColor: focused ? c.surface : c.surfaceSunken,
+              opacity: editable ? 1 : 0.6,
+              paddingHorizontal: t.space[4] - 1.5,
+              gap: t.space[3],
+            },
+          ]}
+        >
+          {Icon ? (
+            <Icon color={focused ? c.accentText : c.textTertiary} size={20} strokeWidth={1.75} />
+          ) : null}
+          <TextInput
+            ref={ref}
+            editable={editable}
+            placeholderTextColor={c.textTertiary}
+            selectionColor={c.accent}
+            maxFontSizeMultiplier={t.layout.maxFontScale}
+            accessibilityLabel={label}
+            accessibilityHint={error ?? hint}
+            onFocus={(e) => {
+              setFocused(true);
+              onFocus?.(e);
+            }}
+            onBlur={(e) => {
+              setFocused(false);
+              onBlur?.(e);
+            }}
+            style={[t.type.body, styles.input, { color: c.textPrimary }]}
+            {...rest}
+          />
+          {trailing}
+        </View>
       </View>
       {error ? (
         <Text variant="caption" tone="danger" accessibilityLiveRegion="polite">
@@ -88,6 +103,9 @@ export function Input({
     </View>
   );
 }
+
+/** Width of the focus ring drawn outside the field. */
+const RING = 3;
 
 const styles = StyleSheet.create({
   field: { flexDirection: 'row', alignItems: 'center' },

@@ -54,3 +54,30 @@
 ## Phase 1: Foundation
 
 Ready to start (branch `feat/foundation`).
+
+### UI refresh (2026-11-23, branch `feat/ui-refresh`)
+
+**Done**
+
+- Palette: light bg, surface, border and borderStrong are derived from neutrals by default.
+  `brand.colors.background`, `surface` and `border` are now optional light-mode overrides;
+  Cruze EV dropped its teal-tinted ones (`#F4FBFC`, `#C2EBEE`; `surface #FFFFFF` matched the
+  default and was removed too).
+- New optional `brand.colors.accentFill` (defaults to `primary`). onAccent is always computed.
+  Cruze EV keeps `#00C8D0` with dark text `#0E2E31` (7.0:1).
+- `brand:check` checks contrast on the rendered light and dark palettes
+  (`scripts/lib/contrast-warnings.ts`, unit-tested) and warns if onAccent misses 4.5:1.
+- Button: secondary is white + neutral border + dark text; `size` is `large` (52) | `medium`
+  (44, was `small`); medium defaults to content width. Dialog cancel is secondary.
+- Card: `elevation` is `flat` | `elevated` (was `floating`).
+- New `ListGroup` / `ListRow` (src/ui/List.tsx).
+- LargeTitleScroll: floating bar with blur on iOS (expo-blur), solid on Android.
+- Input: sunken fill, brand focus border and ring.
+- `ThemeScope` renders a subtree in a fixed scheme (gallery light/dark preview).
+- Dev gallery and placeholder home restyled. DESIGN.md updated with these decisions.
+
+**Deviations**: none from the approved plan. Dark mode is supported by every token and
+component but not polished screen by screen; Cruze EV stays on `appearance: 'light'`.
+
+**Note**: expo-blur is native, so existing dev clients must be rebuilt (`npm run ios` /
+`npm run android`).

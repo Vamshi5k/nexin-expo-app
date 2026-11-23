@@ -7,10 +7,10 @@ import { join } from 'node:path';
 
 import brandConfig from '../brand/brand.config';
 import { APP_ENVS, resolveEnv } from '../brand/env';
-import { AA_NORMAL_TEXT, contrastRatio } from '../brand/lib/contrast';
-import { BrandSchema, findPlaceholders, lightSurfaces, PLACEHOLDER } from '../brand/schema';
+import { BrandSchema, findPlaceholders, PLACEHOLDER } from '../brand/schema';
 import { z } from 'zod';
 
+import { contrastWarnings } from './lib/contrast-warnings';
 import { readPngInfo } from './lib/png';
 
 const ROOT = join(__dirname, '..');
@@ -49,32 +49,19 @@ if (!parsed.success) {
   }
 }
 
-// 1b. Contrast (warnings). WCAG AA for normal text = 4.5:1.
+// 1b. Contrast (warnings), checked on the palettes the app actually renders.
+// WCAG AA for normal text = 4.5:1.
 if (parsed.success) {
-  const { primary, textPrimary, accentText } = parsed.data.colors;
-  const WHITE = '#FFFFFF';
+  const { primary, accentText } = parsed.data.colors;
 
-  if (!brandConfig.colors.accentText) {
+  if (!('accentText' in brandConfig.colors)) {
     info.push(`accentText not set; derived ${accentText} from primary ${primary}.`);
   }
-  // accentText is the brand colour as text: it must pass on every light surface.
-  for (const bg of lightSurfaces(parsed.data.colors)) {
-    const ratio = contrastRatio(accentText, bg);
-    if (ratio < AA_NORMAL_TEXT) {
-      warnings.push(
-        `Low contrast: accentText ${accentText} on ${bg} is ${ratio.toFixed(2)}:1, below ${AA_NORMAL_TEXT}:1.`,
-      );
-    }
+  if (!('accentFill' in brandConfig.colors)) {
+    info.push(`accentFill not set; using primary ${primary}.`);
   }
-  // onAccent is white or dark text, whichever passes on the accent fill.
-  const onWhite = contrastRatio(WHITE, primary);
-  const onDark = contrastRatio(textPrimary, primary);
-  if (Math.max(onWhite, onDark) < AA_NORMAL_TEXT) {
-    warnings.push(
-      `Low contrast: neither white (${onWhite.toFixed(2)}:1) nor textPrimary (${onDark.toFixed(2)}:1) ` +
-        `reaches ${AA_NORMAL_TEXT}:1 on accent ${primary}.`,
-    );
-  }
+
+  warnings.push(...contrastWarnings(parsed.data));
 }
 
 // 2. Placeholders in config, env and map style
