@@ -90,7 +90,7 @@ function OfflineCard() {
         label={OFFLINE_COPY.retry}
         icon={RefreshCw}
         variant="secondary"
-        size="small"
+        size="medium"
         onPress={retry}
         loading={checking}
       />

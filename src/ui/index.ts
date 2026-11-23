@@ -1,11 +1,12 @@
 export { Text, type TextProps, type TextTone } from './Text';
 export { Pressable, type PressableProps } from './Pressable';
-export { Button, type ButtonProps, type ButtonVariant } from './Button';
+export { Button, type ButtonProps, type ButtonSize, type ButtonVariant } from './Button';
 export { Input, type InputProps } from './Input';
 export { FormInput, type FormInputProps } from './FormInput';
 export { Card, type CardProps } from './Card';
+export { ListGroup, ListRow, type ListGroupProps, type ListRowProps } from './List';
 export { Screen, type ScreenProps } from './Screen';
-export { Header, LargeTitleScroll, type HeaderProps } from './Header';
+export { Header, LargeTitleScroll, type HeaderProps, type LargeTitleScrollProps } from './Header';
 export { Skeleton, SkeletonText } from './Skeleton';
 export { EmptyState, type EmptyStateProps } from './EmptyState';
 export { ErrorState, type ErrorStateProps } from './ErrorState';
