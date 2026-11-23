@@ -23,10 +23,10 @@ const env = resolveEnv(APP_ENV, {
 });
 
 /** Suffixes let development, staging and production builds install side by side. */
-const VARIANT: Record<AppEnv, { id: string; name: string }> = {
-  development: { id: '.dev', name: ' (Dev)' },
-  staging: { id: '.staging', name: ' (Stg)' },
-  production: { id: '', name: '' },
+const VARIANT: Record<AppEnv, { id: string; scheme: string; name: string }> = {
+  development: { id: '.dev', scheme: '-dev', name: ' (Dev)' },
+  staging: { id: '.staging', scheme: '-staging', name: ' (Stg)' },
+  production: { id: '', scheme: '', name: '' },
 };
 const variant = VARIANT[APP_ENV];
 
@@ -41,7 +41,7 @@ function firebaseFile(envVar: string | undefined, localName: string): string | u
   return existsSync(local) ? `./brand/firebase/${localName}` : undefined;
 }
 
-const scheme = `${brand.scheme}${variant.id}`;
+const scheme = `${brand.scheme}${variant.scheme}`;
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,

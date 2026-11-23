@@ -53,8 +53,8 @@ installed side by side:
 
 | APP_ENV     | Bundle id / package | Scheme             | Name suffix |
 | ----------- | ------------------- | ------------------ | ----------- |
-| development | `<id>.dev`          | `<scheme>.dev`     | (Dev)       |
-| staging     | `<id>.staging`      | `<scheme>.staging` | (Stg)       |
+| development | `<id>.dev`          | `<scheme>-dev`     | (Dev)       |
+| staging     | `<id>.staging`      | `<scheme>-staging` | (Stg)       |
 | production  | `<id>`              | `<scheme>`         | none        |
 
 Firebase apps, Google Maps key restrictions and store listings must be registered for each id
