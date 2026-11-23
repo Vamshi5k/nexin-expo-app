@@ -1,5 +1,21 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Inbox, Moon, Phone, Plus, Sun, Zap } from 'lucide-react-native';
+import {
+  Bell,
+  Camera,
+  CircleAlert,
+  CreditCard,
+  Inbox,
+  Info,
+  Layers,
+  LogOut,
+  Loader,
+  Phone,
+  Plus,
+  SquareCheck,
+  Wallet,
+  X,
+  Zap,
+} from 'lucide-react-native';
 import { Fragment, useEffect, useState, type ReactNode } from 'react';
 import { useForm } from 'react-hook-form';
 import { View } from 'react-native';
@@ -8,6 +24,7 @@ import { z } from 'zod';
 import { brand, phonePattern, type ConnectorStatus } from '@/core/config';
 import { showPermissionBlocked } from '@/core/permissions';
 import {
+  ThemeScope,
   useSchemeOverride,
   useTheme,
   type ColorScheme,
@@ -28,7 +45,8 @@ import {
   Header,
   Input,
   LargeTitleScroll,
-  Pressable,
+  ListGroup,
+  ListRow,
   SegmentedControl,
   Sheet,
   Skeleton,
@@ -44,11 +62,13 @@ import {
  */
 const SECTIONS: Record<string, () => ReactNode> = {
   appearance: () => <SchemeSection />,
+  modes: () => <ModesSection />,
   colors: () => <ColorsSection />,
   type: () => <TypeSection />,
   buttons: () => <ButtonsSection />,
   inputs: () => <InputsSection />,
   cards: () => <CardsSection />,
+  lists: () => <ListsSection />,
   chips: () => <ChipsSection />,
   connectors: () => <ConnectorsSection />,
   states: () => <StatesSection />,
@@ -89,12 +109,40 @@ export function UiGalleryScreen({ initialScheme, section }: UiGalleryScreenProps
   );
 }
 
-function Section({ title, children }: { title: string; children: ReactNode }) {
+function Section({
+  title,
+  description,
+  children,
+}: {
+  title: string;
+  description?: string;
+  children: ReactNode;
+}) {
   const t = useTheme();
   return (
-    <View style={{ gap: t.space[3] }}>
-      <Text variant="title2">{title}</Text>
+    <View style={{ gap: t.space[4] }}>
+      <View style={{ gap: t.space[1] }}>
+        <Text variant="title2" accessibilityRole="header">
+          {title}
+        </Text>
+        {description ? (
+          <Text variant="callout" tone="secondary">
+            {description}
+          </Text>
+        ) : null}
+      </View>
       {children}
+    </View>
+  );
+}
+
+/** Two equal-width items side by side. */
+function Pair({ children }: { children: [ReactNode, ReactNode] }) {
+  const t = useTheme();
+  return (
+    <View style={{ flexDirection: 'row', gap: t.space[3] }}>
+      <View style={{ flex: 1 }}>{children[0]}</View>
+      <View style={{ flex: 1 }}>{children[1]}</View>
     </View>
   );
 }
@@ -111,7 +159,10 @@ function Row({ children }: { children: ReactNode }) {
 function SchemeSection() {
   const { schemeOverride, setSchemeOverride } = useSchemeOverride();
   return (
-    <Section title="Appearance">
+    <Section
+      title="Appearance"
+      description={`The app follows brand.appearance (${brand.appearance}). Force a scheme here.`}
+    >
       <SegmentedControl
         accessibilityLabel="Colour scheme"
         segments={[
@@ -126,12 +177,74 @@ function SchemeSection() {
   );
 }
 
+function ModePreview() {
+  const t = useTheme();
+  return (
+    <View
+      style={{
+        flex: 1,
+        backgroundColor: t.colors.bg,
+        borderRadius: t.radius.card,
+        borderWidth: t.layout.hairline,
+        borderColor: t.colors.border,
+        padding: t.space[3],
+        gap: t.space[3],
+      }}
+    >
+      <Text variant="caption" tone="secondary">
+        {t.scheme === 'light' ? 'Light' : 'Dark'}
+      </Text>
+      <Card padded={false} style={{ padding: t.space[3], gap: t.space[1] }}>
+        <Text variant="caption" tone="secondary">
+          Wallet balance
+        </Text>
+        <Text variant="title2" tabular>
+          {brand.currency.symbol}1,250
+        </Text>
+      </Card>
+      <StatusChip label="Available" connector="Available" />
+      <Button label="Start" size="medium" fullWidth haptic={false} onPress={() => undefined} />
+      <Button
+        label="Details"
+        size="medium"
+        variant="secondary"
+        fullWidth
+        haptic={false}
+        onPress={() => undefined}
+      />
+      <Text variant="subhead" tone="accent">
+        See all
+      </Text>
+    </View>
+  );
+}
+
+function ModesSection() {
+  const t = useTheme();
+  return (
+    <Section
+      title="Light and dark"
+      description="Every token and component renders in both schemes."
+    >
+      <View style={{ flexDirection: 'row', gap: t.space[3] }}>
+        <ThemeScope scheme="light">
+          <ModePreview />
+        </ThemeScope>
+        <ThemeScope scheme="dark">
+          <ModePreview />
+        </ThemeScope>
+      </View>
+    </Section>
+  );
+}
+
 const SWATCHES: (keyof Palette)[] = [
   'bg',
   'surface',
   'surfaceRaised',
   'surfaceSunken',
   'border',
+  'borderStrong',
   'textPrimary',
   'textSecondary',
   'textTertiary',
@@ -147,10 +260,13 @@ const SWATCHES: (keyof Palette)[] = [
 function ColorsSection() {
   const t = useTheme();
   return (
-    <Section title="Colour tokens">
+    <Section
+      title="Colour tokens"
+      description="Neutrals by default. The brand fills only the primary action and selections."
+    >
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[3] }}>
         {SWATCHES.map((key) => (
-          <View key={key} style={{ width: 96, gap: t.space[1] }}>
+          <View key={key} style={{ width: '30%', flexGrow: 1, gap: t.space[1] }}>
             <View
               style={{
                 height: 44,
@@ -223,42 +339,39 @@ function ButtonsSection() {
   const [loading, setLoading] = useState(false);
   const t = useTheme();
   return (
-    <Section title="Buttons">
+    <Section title="Buttons" description="One primary per screen. Secondary is never brand-filled.">
       <View style={{ gap: t.space[3] }}>
-        <Button label="Primary" icon={Zap} onPress={() => toast.info('Primary pressed')} />
-        <Button label="Secondary" variant="secondary" onPress={() => undefined} />
-        <Button label="Ghost" variant="ghost" onPress={() => undefined} />
-        <Button label="Danger" variant="danger" haptic="warning" onPress={() => undefined} />
+        <Button label="Start charging" icon={Zap} onPress={() => toast.info('Primary pressed')} />
+        <Button label="View details" variant="secondary" onPress={() => undefined} />
+        <Pair>
+          <Button label="Ghost" variant="ghost" onPress={() => undefined} />
+          <Button
+            label={loading ? 'Loading' : 'Load'}
+            variant="secondary"
+            loading={loading}
+            onPress={() => {
+              setLoading(true);
+              setTimeout(() => setLoading(false), 1500);
+            }}
+          />
+        </Pair>
+        <Pair>
+          <Button label="Delete" variant="danger" haptic="warning" onPress={() => undefined} />
+          <Button label="Disabled" disabled onPress={() => undefined} />
+        </Pair>
         <Button
           label="Stop charging"
           variant="dangerOutline"
           haptic="warning"
           onPress={() => undefined}
         />
-        <Button
-          label="Loading"
-          loading={loading}
-          onPress={() => {
-            setLoading(true);
-            setTimeout(() => setLoading(false), 1500);
-          }}
-        />
-        <Button label="Disabled" disabled onPress={() => undefined} />
+        <Text variant="subhead" tone="secondary" style={{ marginTop: t.space[2] }}>
+          Medium (44) for inline actions
+        </Text>
         <Row>
-          <Button
-            label="Small"
-            size="small"
-            fullWidth={false}
-            icon={Plus}
-            onPress={() => undefined}
-          />
-          <Button
-            label="Small ghost"
-            size="small"
-            variant="ghost"
-            fullWidth={false}
-            onPress={() => undefined}
-          />
+          <Button label="Add vehicle" size="medium" icon={Plus} onPress={() => undefined} />
+          <Button label="Retry" size="medium" variant="secondary" onPress={() => undefined} />
+          <Button label="Skip" size="medium" variant="ghost" onPress={() => undefined} />
         </Row>
       </View>
     </Section>
@@ -279,7 +392,7 @@ function InputsSection() {
     defaultValues: { phone: '' },
   });
   return (
-    <Section title="Inputs">
+    <Section title="Inputs" description="Sunken neutral fill; brand border and ring on focus.">
       <View style={{ gap: t.space[4] }}>
         <Input label="Plain" placeholder="Type here" />
         <Input
@@ -313,30 +426,56 @@ function CardsSection() {
   const t = useTheme();
   return (
     <Section title="Cards">
-      <Card>
-        <Text variant="headline">Flat card</Text>
-        <Text tone="secondary">Hairline border, radius 16, padding 16.</Text>
+      <Card elevation="elevated" style={{ gap: t.space[2] }}>
+        <Text variant="subhead" tone="secondary">
+          Wallet balance
+        </Text>
+        <Text variant="display" tabular>
+          {brand.currency.symbol}1,250.00
+        </Text>
+        <View style={{ flexDirection: 'row', gap: t.space[2], marginTop: t.space[2] }}>
+          <Button label="Add money" size="medium" icon={Plus} onPress={() => undefined} />
+          <Button label="History" size="medium" variant="secondary" onPress={() => undefined} />
+        </View>
       </Card>
-      <Card elevation="floating">
-        <Text variant="headline">Floating card</Text>
-        <Text tone="secondary">The one soft shadow level.</Text>
+      <Card style={{ gap: t.space[1] }}>
+        <Text variant="headline">Flat card</Text>
+        <Text tone="secondary">White surface, neutral hairline border, radius 16.</Text>
       </Card>
       <Card onPress={() => toast.info('Card pressed')} accessibilityLabel="Pressable card">
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            gap: t.space[3],
-          }}
-        >
-          <View style={{ flex: 1 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[3] }}>
+          <View style={{ flex: 1, gap: t.space[1] }}>
             <Text variant="headline">Pressable card</Text>
             <Text tone="secondary">Scales to 0.98 when pressed.</Text>
           </View>
           <Badge label="New" />
         </View>
       </Card>
+    </Section>
+  );
+}
+
+function ListsSection() {
+  return (
+    <Section title="Grouped lists" description="Settings-style screens (Profile, Edit profile).">
+      <ListGroup title="Account">
+        <ListRow
+          icon={Wallet}
+          title="Wallet"
+          value={`${brand.currency.symbol}1,250`}
+          onPress={() => undefined}
+        />
+        <ListRow
+          icon={CreditCard}
+          title="Payment history"
+          subtitle="Top-ups and charging sessions"
+          onPress={() => undefined}
+        />
+        <ListRow icon={Bell} title="Notifications" value="On" onPress={() => undefined} />
+      </ListGroup>
+      <ListGroup footer="You can sign back in at any time.">
+        <ListRow icon={LogOut} title="Log out" destructive onPress={() => undefined} />
+      </ListGroup>
     </Section>
   );
 }
@@ -447,17 +586,21 @@ function OverlaysSection() {
         value={tab}
         onChange={setTab}
       />
-      <Button label="Open sheet" variant="secondary" onPress={() => setSheet(true)} />
-      <Button
-        label="Open destructive dialog"
-        variant="dangerOutline"
-        onPress={() => setDialog(true)}
-      />
-      <Button
-        label="Permission blocked (camera)"
-        variant="ghost"
-        onPress={() => void showPermissionBlocked('camera')}
-      />
+      <ListGroup>
+        <ListRow icon={Layers} title="Open bottom sheet" onPress={() => setSheet(true)} />
+        <ListRow
+          icon={CircleAlert}
+          iconTone="danger"
+          title="Open destructive dialog"
+          onPress={() => setDialog(true)}
+        />
+        <ListRow
+          icon={Camera}
+          iconTone="neutral"
+          title="Permission blocked (camera)"
+          onPress={() => void showPermissionBlocked('camera')}
+        />
+      </ListGroup>
       <Sheet
         open={sheet}
         onClose={() => setSheet(false)}
@@ -466,7 +609,7 @@ function OverlaysSection() {
       >
         <View style={{ gap: t.space[3] }}>
           <Button label="Confirm" onPress={() => setSheet(false)} />
-          <Button label="Cancel" variant="ghost" onPress={() => setSheet(false)} />
+          <Button label="Cancel" variant="secondary" onPress={() => setSheet(false)} />
         </View>
       </Sheet>
       <Dialog
@@ -486,32 +629,34 @@ function OverlaysSection() {
 }
 
 function ToastsSection() {
-  const t = useTheme();
   const wait = (ms: number, ok: boolean) =>
     new Promise<string>((resolve, reject) =>
       setTimeout(() => (ok ? resolve('done') : reject(new Error('failed'))), ms),
     );
   return (
     <Section title="Toasts">
-      <View style={{ gap: t.space[3] }}>
-        <Button
-          label="toast.success"
-          variant="secondary"
+      <ListGroup>
+        <ListRow
+          icon={SquareCheck}
+          title="Success"
           onPress={() => toast.success('Payment successful')}
         />
-        <Button
-          label="toast.error"
-          variant="secondary"
+        <ListRow
+          icon={X}
+          iconTone="danger"
+          title="Error"
           onPress={() => toast.error('Payment failed', { description: 'No money was taken.' })}
         />
-        <Button
-          label="toast.info"
-          variant="secondary"
+        <ListRow
+          icon={Info}
+          iconTone="neutral"
+          title="Info"
           onPress={() => toast.info('Charger is preparing')}
         />
-        <Button
-          label="toast.promise (resolves)"
-          variant="secondary"
+        <ListRow
+          icon={Loader}
+          iconTone="neutral"
+          title="Promise (resolves)"
           onPress={() =>
             toast.promise(wait(1500, true), {
               loading: 'Starting…',
@@ -520,9 +665,10 @@ function ToastsSection() {
             })
           }
         />
-        <Button
-          label="toast.promise (rejects)"
-          variant="secondary"
+        <ListRow
+          icon={Loader}
+          iconTone="neutral"
+          title="Promise (rejects)"
           onPress={() =>
             toast.promise(wait(1500, false), {
               loading: 'Starting…',
@@ -531,43 +677,21 @@ function ToastsSection() {
             })
           }
         />
-      </View>
+      </ListGroup>
     </Section>
   );
 }
 
 function BrandSection() {
   const t = useTheme();
-  const { setSchemeOverride, schemeOverride } = useSchemeOverride();
   return (
     <Section title="Brand">
-      <Card>
-        <View style={{ alignItems: 'center', gap: t.space[3] }}>
-          <BrandLogo height={48} />
-          <Text variant="caption" tone="tertiary">
-            BrandLogo (build-time asset; runtime logo comes in Phase 2)
-          </Text>
-        </View>
+      <Card style={{ alignItems: 'center', gap: t.space[3], paddingVertical: t.space[6] }}>
+        <BrandLogo height={44} />
+        <Text variant="caption" tone="tertiary" align="center">
+          Build-time logo. The runtime logo arrives in Phase 2.
+        </Text>
       </Card>
-      <Pressable
-        onPress={() => setSchemeOverride(t.scheme === 'dark' ? 'light' : 'dark')}
-        haptic="selection"
-        accessibilityLabel="Toggle colour scheme"
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: t.space[2],
-          alignSelf: 'flex-start',
-          minHeight: t.layout.minTouch,
-        }}
-      >
-        {t.scheme === 'dark' ? (
-          <Sun color={t.colors.accentText} size={20} strokeWidth={1.75} />
-        ) : (
-          <Moon color={t.colors.accentText} size={20} strokeWidth={1.75} />
-        )}
-        <Text tone="accent">{schemeOverride ? 'Toggle scheme' : 'Switch to dark'}</Text>
-      </Pressable>
     </Section>
   );
 }
