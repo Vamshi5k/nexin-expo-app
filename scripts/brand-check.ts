@@ -7,10 +7,10 @@ import { join } from 'node:path';
 
 import brandConfig from '../brand/brand.config';
 import { APP_ENVS, resolveEnv } from '../brand/env';
-import { BrandSchema, findPlaceholders, PLACEHOLDER } from '../brand/schema';
+import { AA_NORMAL_TEXT, contrastRatio } from '../brand/lib/contrast';
+import { BrandSchema, findPlaceholders, lightSurfaces, PLACEHOLDER } from '../brand/schema';
 import { z } from 'zod';
 
-import { AA_NORMAL_TEXT, contrastRatio } from './lib/contrast';
 import { readPngInfo } from './lib/png';
 
 const ROOT = join(__dirname, '..');
@@ -33,6 +33,7 @@ const ASSETS: Record<string, SizeRule> = {
 
 const errors: string[] = [];
 const warnings: string[] = [];
+const info: string[] = [];
 
 // 1. Schema
 const parsed = BrandSchema.safeParse(brandConfig);
@@ -48,21 +49,31 @@ if (!parsed.success) {
   }
 }
 
-// 1b. Contrast (warnings): accent vs white, and dark text on the accent. WCAG AA = 4.5:1.
+// 1b. Contrast (warnings). WCAG AA for normal text = 4.5:1.
 if (parsed.success) {
-  const { primary, textPrimary } = parsed.data.colors;
+  const { primary, textPrimary, accentText } = parsed.data.colors;
   const WHITE = '#FFFFFF';
-  const pairs: [string, string, string][] = [
-    ['accent text on white / white text on accent', primary, WHITE],
-    ['dark text (textPrimary) on accent', textPrimary, primary],
-  ];
-  for (const [label, fg, bg] of pairs) {
-    const ratio = contrastRatio(fg, bg);
+
+  if (!brandConfig.colors.accentText) {
+    info.push(`accentText not set; derived ${accentText} from primary ${primary}.`);
+  }
+  // accentText is the brand colour as text: it must pass on every light surface.
+  for (const bg of lightSurfaces(parsed.data.colors)) {
+    const ratio = contrastRatio(accentText, bg);
     if (ratio < AA_NORMAL_TEXT) {
       warnings.push(
-        `Low contrast: ${label} (${fg} vs ${bg}) is ${ratio.toFixed(2)}:1, below ${AA_NORMAL_TEXT}:1.`,
+        `Low contrast: accentText ${accentText} on ${bg} is ${ratio.toFixed(2)}:1, below ${AA_NORMAL_TEXT}:1.`,
       );
     }
+  }
+  // onAccent is white or dark text, whichever passes on the accent fill.
+  const onWhite = contrastRatio(WHITE, primary);
+  const onDark = contrastRatio(textPrimary, primary);
+  if (Math.max(onWhite, onDark) < AA_NORMAL_TEXT) {
+    warnings.push(
+      `Low contrast: neither white (${onWhite.toFixed(2)}:1) nor textPrimary (${onDark.toFixed(2)}:1) ` +
+        `reaches ${AA_NORMAL_TEXT}:1 on accent ${primary}.`,
+    );
   }
 }
 
@@ -114,6 +125,7 @@ for (const [name, rule] of Object.entries(ASSETS)) {
   }
 }
 
+for (const i of info) process.stdout.write(`info  ${i}\n`);
 for (const w of warnings) process.stdout.write(`warn  ${w}\n`);
 if (errors.length) {
   for (const e of errors) process.stderr.write(`error ${e}\n`);

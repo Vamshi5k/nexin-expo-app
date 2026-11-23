@@ -63,3 +63,17 @@ describe('appearance', () => {
     expect(BrandSchema.safeParse({ ...brandConfig, appearance: 'auto' }).success).toBe(false);
   });
 });
+
+describe('accentText', () => {
+  it('keeps an explicit accentText', () => {
+    expect(parseBrand(brandConfig).colors.accentText).toBe(brandConfig.colors.accentText);
+  });
+
+  it('derives accentText from primary when omitted', () => {
+    const { accentText, ...colors } = brandConfig.colors;
+    void accentText;
+    const derived = parseBrand({ ...brandConfig, colors }).colors.accentText;
+    expect(derived).toMatch(/^#[0-9A-F]{6}$/);
+    expect(derived).not.toBe(brandConfig.colors.primary);
+  });
+});

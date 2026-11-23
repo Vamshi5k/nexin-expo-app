@@ -7,6 +7,8 @@
  */
 import { z } from 'zod';
 
+import { darkenUntilContrast } from './lib/contrast';
+
 const hex = z
   .string()
   .regex(/^#([0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/, 'Expected a #RRGGBB or #RRGGBBAA colour');
@@ -34,7 +36,7 @@ export const CONNECTOR_STATUSES = [
 ] as const;
 export type ConnectorStatus = (typeof CONNECTOR_STATUSES)[number];
 
-export const BrandSchema = z.object({
+const BrandObjectSchema = z.object({
   /** Display name. "(Dev)" / "(Stg)" is appended for non-production builds. */
   appName: z.string().min(1),
   /** Expo slug (must match the EAS project). */
@@ -66,6 +68,12 @@ export const BrandSchema = z.object({
     success: hex,
     warning: hex,
     error: hex,
+    /**
+     * Brand colour as TEXT or ICONS on light surfaces (links, selected tab label).
+     * Must reach 4.5:1 on white and on `background`. If omitted, it is derived by
+     * darkening `primary` until it does. Never use `primary` itself as text.
+     */
+    accentText: hex.optional(),
   }),
   /** OCPP connector status colours. All statuses are required. */
   connectorColors: z.record(z.enum(CONNECTOR_STATUSES), hex),
@@ -137,6 +145,20 @@ export const BrandSchema = z.object({
   /** Expo account / organisation that owns the EAS project. */
   owner: z.string().min(1).optional(),
 });
+
+/** White plus the brand background: the light surfaces accentText must be readable on. */
+export function lightSurfaces(colors: { background: string }): string[] {
+  return ['#FFFFFF', colors.background];
+}
+
+export const BrandSchema = BrandObjectSchema.transform((b) => ({
+  ...b,
+  colors: {
+    ...b.colors,
+    accentText:
+      b.colors.accentText ?? darkenUntilContrast(b.colors.primary, lightSurfaces(b.colors)),
+  },
+}));
 
 /** Brand config as written in brand.config.ts (defaults may be omitted). */
 export type BrandConfigInput = z.input<typeof BrandSchema>;

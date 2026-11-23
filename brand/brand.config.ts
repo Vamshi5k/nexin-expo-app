@@ -28,6 +28,7 @@ const brandConfig = {
     success: '#22C55E',
     warning: '#F59E0B',
     error: '#D32F2F',
+    accentText: '#117A83',
   },
   connectorColors: {
     Available: '#16A34A',

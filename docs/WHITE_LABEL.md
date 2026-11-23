@@ -13,7 +13,7 @@ here and pull it into client repos.
 | `map-style.json`         | Google Maps style array                                                                                                                                                                                                                                     |
 | `assets/`                | `icon.png` (1024²), `adaptive-icon.png` (1024², Android foreground), `notification-icon.png` (96², white on transparent), `splash.png` and `logo.png` (≥ 512 px wide)                                                                                       |
 | `firebase/` (gitignored) | Optional local copies of `google-services.json` / `GoogleService-Info.plist`                                                                                                                                                                                |
-| `schema.ts`              | The contract. **Template-owned: do not edit in a client repo.**                                                                                                                                                                                             |
+| `schema.ts`, `lib/`      | The contract and its helpers (e.g. contrast maths). **Template-owned: do not edit in a client repo.**                                                                                                                                                       |
 
 After any change run `npm run brand:check`. It validates the config against the schema, checks
 every asset exists at the right size, and fails if any value still contains `CHANGE_ME`.

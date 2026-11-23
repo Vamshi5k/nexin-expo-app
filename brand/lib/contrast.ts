@@ -20,3 +20,25 @@ export function contrastRatio(a: string, b: string): number {
 
 /** WCAG AA minimum for normal-size text. */
 export const AA_NORMAL_TEXT = 4.5;
+
+function toHex(rgb: number[]): string {
+  return `#${rgb.map((v) => Math.round(v).toString(16).padStart(2, '0')).join('')}`.toUpperCase();
+}
+
+/**
+ * Darkens `color` towards black in 1% steps until it reaches `min` contrast against every
+ * colour in `backgrounds`. Used to derive accentText (brand colour as text) from primary.
+ */
+export function darkenUntilContrast(
+  color: string,
+  backgrounds: string[],
+  min: number = AA_NORMAL_TEXT,
+): string {
+  const h = color.replace('#', '');
+  const rgb = [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16));
+  for (let step = 0; step <= 100; step++) {
+    const candidate = toHex(rgb.map((v) => v * (1 - step / 100)));
+    if (backgrounds.every((bg) => contrastRatio(candidate, bg) >= min)) return candidate;
+  }
+  return '#000000';
+}
