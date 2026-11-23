@@ -30,4 +30,18 @@
 - Added a `development-simulator` EAS profile for iOS simulator builds.
 - `eas config` itself was not run (needs an Expo login).
 
+**Phase 0 fixes**
+
+- Scheme suffixes are `-dev` / `-staging` (e.g. `cruzeev-dev`).
+- Adaptive icon rebuilt from the old app's Android launcher foreground, upscaled into the centre
+  66% of 1024; background colour is `brand.adaptiveIcon.backgroundColor`.
+- iOS icon flattened (no alpha channel); `brand:check` fails if `icon.png` has transparency.
+- Splash settings (`brand.splash`: imageWidth, backgroundColor, optional darkBackgroundColor)
+  feed the expo-splash-screen plugin.
+- Money fields renamed: `minTopUpRupees`, `quickTopUpRupees`, `quickChargeRupees`.
+- `brand.appearance` (`system` | `light` | `dark`, default `system`). Cruze EV sets `light`
+  until dark tokens exist.
+- `brand:check` warns when accent vs white, or dark text on the accent, is below 4.5:1.
+- **Pending:** `docs/DESIGN.md` and its AGENTS.md line (text not received yet).
+
 **Open questions**: see `docs/OPEN_QUESTIONS.md`.
