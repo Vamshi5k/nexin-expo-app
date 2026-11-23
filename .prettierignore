@@ -5,3 +5,4 @@ android
 dist
 example
 package-lock.json
+docs/DESIGN.md
