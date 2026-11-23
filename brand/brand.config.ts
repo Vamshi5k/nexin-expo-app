@@ -39,6 +39,7 @@ const brandConfig = {
   },
 
   adaptiveIcon: { backgroundColor: '#FFFFFF' },
+  splash: { imageWidth: 200, backgroundColor: '#FFFFFF' },
 
   fontFamily: 'Inter',
   locale: 'en-IN',

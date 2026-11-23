@@ -73,6 +73,17 @@ export const BrandSchema = z.object({
   /** Android adaptive icon. The foreground image is brand/assets/adaptive-icon.png. */
   adaptiveIcon: z.object({ backgroundColor: hex }).default({ backgroundColor: '#FFFFFF' }),
 
+  /** Splash screen (expo-splash-screen). The image is brand/assets/splash.png (usually the logo). */
+  splash: z
+    .object({
+      /** Rendered width of the splash image in dp. */
+      imageWidth: z.number().int().min(50).max(400).default(200),
+      backgroundColor: hex.default('#FFFFFF'),
+      /** Used when the device is in dark mode; falls back to backgroundColor. */
+      darkBackgroundColor: hex.optional(),
+    })
+    .default({ imageWidth: 200, backgroundColor: '#FFFFFF' }),
+
   fontFamily: z.string().min(1).default('Inter'),
   /** BCP 47 locale used for number, date and currency formatting. */
   locale: z.string().min(2).default('en-IN'),

@@ -102,9 +102,17 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       'expo-splash-screen',
       {
         image: './brand/assets/splash.png',
-        imageWidth: 200,
+        imageWidth: brand.splash.imageWidth,
         resizeMode: 'contain',
-        backgroundColor: brand.colors.surface,
+        backgroundColor: brand.splash.backgroundColor,
+        ...(brand.splash.darkBackgroundColor
+          ? {
+              dark: {
+                image: './brand/assets/splash.png',
+                backgroundColor: brand.splash.darkBackgroundColor,
+              },
+            }
+          : {}),
       },
     ],
     // Native plugin slots: added in the phases that need them.
