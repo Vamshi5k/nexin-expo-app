@@ -41,8 +41,8 @@ export function CookieCheckScreen({ autoRunLocal = false }: { autoRunLocal?: boo
   const [busy, setBusy] = useState(false);
   const [contact, setContact] = useState('');
   const [otp, setOtp] = useState('');
-  // Old app sent "CruzeEV"; brand.appName is the display name. Editable to test both.
-  const [appName, setAppName] = useState(brand.appName);
+  // Defaults to brand.apiAppName (what verify() sends). Editable to test other values.
+  const [appName, setAppName] = useState(brand.apiAppName);
   const add = (l: Line) => setLines((prev) => [...prev, l]);
 
   // ?auto=local runs part A on open (simulators where we can't tap).

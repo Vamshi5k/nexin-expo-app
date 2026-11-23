@@ -39,6 +39,11 @@ export type ConnectorStatus = (typeof CONNECTOR_STATUSES)[number];
 const BrandObjectSchema = z.object({
   /** Display name. "(Dev)" / "(Stg)" is appended for non-production builds. */
   appName: z.string().min(1),
+  /**
+   * App identifier the backend expects in POST /auth/app/verify `appName`. Not the display
+   * name. If omitted, appName with whitespace removed (e.g. "Cruze EV" -> "CruzeEV").
+   */
+  apiAppName: z.string().min(1).optional(),
   /** Expo slug (must match the EAS project). */
   slug: z.string().regex(/^[a-z0-9-]+$/),
   /** Custom URL scheme for deep links. Non-production builds get a "-dev"/"-staging" suffix. */
@@ -130,6 +135,13 @@ const BrandObjectSchema = z.object({
     }, 'Invalid regular expression')
     .default('^[6-9]\\d{9}$'),
   phoneLength: z.number().int().positive().default(10),
+  /** Dialling code shown as a fixed prefix in the phone input. Display only; not sent. */
+  phoneCountryCode: z
+    .string()
+    .regex(/^\+\d{1,4}$/, 'Expected e.g. +91')
+    .default('+91'),
+  /** Example number shown as the phone input placeholder. */
+  phonePlaceholder: z.string().min(1).default('9876543210'),
   /** GST_SPLIT = CGST + SGST shown separately; SINGLE = one tax line. */
   taxModel: z.enum(['GST_SPLIT', 'SINGLE']).default('GST_SPLIT'),
 
@@ -171,6 +183,7 @@ export function lightSurfaces(colors: { background?: string }): string[] {
 
 export const BrandSchema = BrandObjectSchema.transform((b) => ({
   ...b,
+  apiAppName: b.apiAppName ?? b.appName.replace(/\s+/g, ''),
   colors: {
     ...b.colors,
     accentFill: b.colors.accentFill ?? b.colors.primary,

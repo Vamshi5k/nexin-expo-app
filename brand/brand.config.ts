@@ -6,6 +6,8 @@ import type { BrandConfigInput } from './schema';
 
 const brandConfig = {
   appName: 'Cruze EV',
+  // What the old app sends to /auth/app/verify; the backend already accepts it.
+  apiAppName: 'CruzeEV',
   slug: 'cruze-ev',
   scheme: 'cruzeev',
   bundleId: 'com.cruzeev.app',
@@ -46,6 +48,8 @@ const brandConfig = {
   currency: { code: 'INR', symbol: '₹' },
   phoneRegex: '^[6-9]\\d{9}$',
   phoneLength: 10,
+  phoneCountryCode: '+91',
+  phonePlaceholder: '9876543210',
   taxModel: 'GST_SPLIT',
 
   minTopUpRupees: 100,
@@ -56,7 +60,6 @@ const brandConfig = {
   defaultRegion: { lat: 17.4239, lng: 78.3772, latDelta: 0.05, lngDelta: 0.05 },
 
   features: { fleet: false, coupons: false },
-
 } satisfies BrandConfigInput;
 
 export default brandConfig;

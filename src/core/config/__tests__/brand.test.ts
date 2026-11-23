@@ -20,6 +20,27 @@ describe('brand schema', () => {
     expect(parsed.features).toEqual({ fleet: false, coupons: false });
   });
 
+  it('derives apiAppName from appName and defaults the phone display values', () => {
+    const { apiAppName, phoneCountryCode, phonePlaceholder, ...rest } = brandConfig;
+    void apiAppName;
+    void phoneCountryCode;
+    void phonePlaceholder;
+    const parsed = parseBrand({ ...rest, appName: 'Acme Charge Go' });
+    expect(parsed.apiAppName).toBe('AcmeChargeGo');
+    expect(parsed.phoneCountryCode).toBe('+91');
+    expect(parsed.phonePlaceholder).toBe('9876543210');
+  });
+
+  it('keeps Cruze EV apiAppName as the old app sends it', () => {
+    expect(parseBrand(brandConfig).apiAppName).toBe('CruzeEV');
+  });
+
+  it('rejects a malformed phone country code', () => {
+    expect(() => parseBrand({ ...brandConfig, phoneCountryCode: '91' })).toThrow(
+      /phoneCountryCode/,
+    );
+  });
+
   it('rejects a bad hex colour', () => {
     const bad = { ...brandConfig, colors: { ...brandConfig.colors, primary: 'teal' } };
     expect(() => parseBrand(bad)).toThrow(/colors\.primary/);
