@@ -19,3 +19,33 @@ jest.mock('expo-constants', () => {
     },
   };
 });
+
+jest.mock('@react-native-async-storage/async-storage', () =>
+  jest.requireActual('@react-native-async-storage/async-storage/jest/async-storage-mock'),
+);
+
+/** In-memory MMKV: the real package loads Nitro native modules that Jest can't run. */
+jest.mock('react-native-mmkv', () => ({
+  createMMKV: () => {
+    const map = new Map<string, string | number | boolean>();
+    return {
+      set: (k: string, v: string | number | boolean) => void map.set(k, v),
+      getString: (k: string) => {
+        const v = map.get(k);
+        return typeof v === 'string' ? v : undefined;
+      },
+      getBoolean: (k: string) => {
+        const v = map.get(k);
+        return typeof v === 'boolean' ? v : undefined;
+      },
+      getNumber: (k: string) => {
+        const v = map.get(k);
+        return typeof v === 'number' ? v : undefined;
+      },
+      contains: (k: string) => map.has(k),
+      remove: (k: string) => map.delete(k),
+      clearAll: () => map.clear(),
+      getAllKeys: () => [...map.keys()],
+    };
+  },
+}));
