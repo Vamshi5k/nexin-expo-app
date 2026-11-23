@@ -17,7 +17,8 @@ Expo SDK (latest stable) + expo-dev-client (Expo Go is NOT supported), Expo Rout
 TypeScript strict, TanStack Query, Zustand, react-hook-form + zod, axios, socket.io-client,
 expo-secure-store, react-native-mmkv, react-native-maps + supercluster, expo-location,
 expo-camera, @react-native-firebase/messaging + expo-notifications, react-native-razorpay,
-@gorhom/bottom-sheet, expo-file-system + expo-sharing, lucide-react-native, @sentry/react-native.
+@gorhom/bottom-sheet, expo-file-system + expo-sharing, lucide-react-native, sonner-native (toasts,
+only via src/ui/toast.ts), @sentry/react-native.
 Install native deps with `npx expo install`, never plain npm, so versions match the SDK.
 
 ## White-label rules (most important)
