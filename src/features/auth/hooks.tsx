@@ -12,7 +12,7 @@ import {
   type ReactNode,
 } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
-import { Keyboard, type TextInputInstance } from 'react-native';
+import { Keyboard } from 'react-native';
 import type { StoreApi } from 'zustand';
 import { z } from 'zod';
 
@@ -396,10 +396,14 @@ function useCountdown(seconds: number) {
   };
 }
 
-export function useOtpForm(type: ContactType, value: string) {
+// The screen owns the input ref: a ref in the result makes the React Compiler reject every read.
+export function useOtpForm(
+  type: ContactType,
+  value: string,
+  { onWrongCode }: { onWrongCode?: () => void } = {},
+) {
   const [code, setCode] = useState('');
   const [wrong, setWrong] = useState(false);
-  const inputRef = useRef<TextInputInstance>(null);
   const auth = useAuth();
   const verify = useAction(auth.verifyOtp);
   const resend = useAction(auth.requestOtp);
@@ -413,7 +417,7 @@ export function useOtpForm(type: ContactType, value: string) {
     } catch (error) {
       setCode('');
       setWrong(true);
-      inputRef.current?.focus();
+      onWrongCode?.();
       haptics.warning();
       const status = statusOf(error);
       toast.error(
@@ -443,7 +447,6 @@ export function useOtpForm(type: ContactType, value: string) {
       setCode(next);
     },
     wrong,
-    inputRef,
     length: CONSUMER_OTP_LENGTH,
     complete: code.length === CONSUMER_OTP_LENGTH,
     verifying: verify.isPending,

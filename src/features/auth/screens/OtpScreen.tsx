@@ -1,5 +1,6 @@
 import { router } from 'expo-router';
-import { StyleSheet, View } from 'react-native';
+import { useRef } from 'react';
+import { StyleSheet, View, type TextInputInstance } from 'react-native';
 
 import { useTheme } from '@/theme';
 import { Button, Reveal, Text } from '@/ui';
@@ -14,7 +15,8 @@ export type OtpScreenProps = { type: ContactType; value: string };
 
 export function OtpScreen({ type, value }: OtpScreenProps) {
   const t = useTheme();
-  const otp = useOtpForm(type, value);
+  const inputRef = useRef<TextInputInstance>(null);
+  const otp = useOtpForm(type, value, { onWrongCode: () => inputRef.current?.focus() });
 
   return (
     <AuthScaffold
@@ -78,7 +80,7 @@ export function OtpScreen({ type, value }: OtpScreenProps) {
     >
       <Reveal index={3} style={{ gap: t.space[3] }}>
         <OtpInput
-          ref={otp.inputRef}
+          ref={inputRef}
           value={otp.code}
           onChange={otp.changeCode}
           onComplete={otp.submit}
