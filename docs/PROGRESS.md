@@ -107,6 +107,50 @@ component but not polished screen by screen; Cruze EV stays on `appearance: 'lig
 **Note**: expo-blur is native, so existing dev clients must be rebuilt (`npm run ios` /
 `npm run android`).
 
+## Phase 2b: First-run setup (in progress, branch `feat/setup`)
+
+Scope: BLUEPRINT A5-A8. Flow after OTP for a first-time user: `/(setup)/profile` ->
+`/(setup)/vehicle` (Skip) -> `/(setup)/permissions` -> home, with "Step n of 3" across setup.
+
+**Built**
+
+- `setup` feature: Profile Setup (`PUT /profile { first_name }`, name >= 2, terms checkbox with
+  a full-row touch target), Vehicle Setup (wraps the shared wizard, Skip), one Permissions
+  screen (Location + Notifications rows: Allow / Allowed / Open Settings; re-checks on return
+  from Settings; Android GPS prompt after location; push token sent after notifications).
+- `vehicles` feature: `getBrands`, `getModels`, `getCapacities`, `addVehicle` (calls return
+  models; `toAddVehicleBody` sends numeric ids, upper-cased regNo and MAC ID, optional fields
+  only when filled); shared `useVehicleWizard` + `VehicleForm` (brand -> model -> capacity +
+  Custom 10-500 kWh sheet -> details) for Add / Edit Vehicle later.
+- Fixes from screen-audit 2.5-2.8: MAC ID max 17; loading skeleton, error + Retry and empty
+  states on every grid; one back button; custom capacity limits enforced in the sheet.
+- auth: `registerPushToken` (`PUT /auth/fcm`), per-user `setup_done_for` flag respected by
+  `resolveStartRoute`, `openLegal` exported for the setup Terms links.
+- Brand schema: `regNoPlaceholder` (default `KA01AB1234`); amount label uses `brand.currency`.
+- Tests: form rules, request mapper, name rule; render tests for profile submit, wizard brand
+  -> model, empty brands, Skip. `tests/helpers/render.tsx` now includes the bottom-sheet
+  provider like the root layout.
+
+**Verified**: `tsc --noEmit`, `expo lint`, `jest` (34 suites, 213 tests). Not run on a device:
+setup is behind login, which needs a staging test number (OPEN_QUESTIONS #10).
+
+**Deviations**
+
+- Location and Notification permission screens (A7, A8) are one screen (owner decision).
+- `updateProfile` lives in `setup/api.ts` instead of a separate `profile` feature: one call
+  today; move it when Edit Profile arrives.
+- New copy not in screen-audit: permissions title/subtitle ("Allow access", ...), grid empty
+  states ("No brands available", ...), the custom capacity sheet ("Battery capacity (kWh)",
+  "Save", limits line), "Allow" / "Allowed" / "Open Settings" row actions.
+
+**Left**
+
+- A4 "returning user without location permission -> LocationPermission" is not wired; the
+  permissions screen is only part of first-run setup.
+- Device check of the whole setup flow (needs #10).
+
+**Open questions**: #13 (push token type), #14 (does `PUT /profile` clear `isFirstLogin`).
+
 ## Phase 2: Client config and consumer auth (in progress, branch `feat/auth`)
 
 Scope: `/client/info` with cache, route groups and guards, boot/splash (A1), onboarding (A2),

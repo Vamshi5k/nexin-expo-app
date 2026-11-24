@@ -1,7 +1,9 @@
 # Cruze EV → Expo Rebuild Blueprint
+
 23 Nov 2026 · @Vamshi Animela
 
 > **Notes for this repo (read first)**
+>
 > - Routes live in `src/app/`. Wherever this blueprint says `app/...`, read `src/app/...`.
 > - The old app is at `../Cruzev_nexin_whitelable_app` (read-only reference).
 > - This blueprint describes Cruze EV. In this template, every brand value it mentions (colours, hosts, client tokens, scheme, bundle id, domains, ₹ amounts, Hyderabad region, phone regex) comes from `brand/` via `src/core/config`, never inline.
@@ -15,45 +17,45 @@ Cruze EV is a bare React Native 0.83.1 (React 19.2, TypeScript) white-label EV c
 
 ### Tech stack today
 
-| Concern | Current library | Notes |
-|---|---|---|
-| Navigation | React Navigation 7 (native-stack + bottom-tabs) | One flat root stack, no auth guard |
-| State | 4 React Contexts (Auth, Fleet, Location, Wallet) | Location and Wallet contexts are dead stubs. Server data lives in screen useState |
-| HTTP | axios + interceptors | Bearer token, x-client-token, 401 refresh queue |
-| Realtime | socket.io-client 4.8 | Separate user and fleet sockets |
-| Forms | formik + yup |  |
-| Storage | AsyncStorage | Tokens stored unencrypted |
-| Maps | react-native-maps (Google) + react-native-map-clustering | Custom style JSON in utils/mapsjson.ts |
-| Location | react-native-get-location, android-location-enabler, react-native-permissions |  |
-| QR | react-native-vision-camera 4 |  |
-| Payments | react-native-razorpay | Key comes from server per order |
-| Push | RN Firebase messaging + Notifee | Init is broken (see bugs) |
-| PDF | react-native-blob-util | Invoice download |
-| UI | lucide-react-native, react-native-svg, multi-slider, simple-toast | Inter font |
+| Concern    | Current library                                                               | Notes                                                                             |
+| ---------- | ----------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| Navigation | React Navigation 7 (native-stack + bottom-tabs)                               | One flat root stack, no auth guard                                                |
+| State      | 4 React Contexts (Auth, Fleet, Location, Wallet)                              | Location and Wallet contexts are dead stubs. Server data lives in screen useState |
+| HTTP       | axios + interceptors                                                          | Bearer token, x-client-token, 401 refresh queue                                   |
+| Realtime   | socket.io-client 4.8                                                          | Separate user and fleet sockets                                                   |
+| Forms      | formik + yup                                                                  |                                                                                   |
+| Storage    | AsyncStorage                                                                  | Tokens stored unencrypted                                                         |
+| Maps       | react-native-maps (Google) + react-native-map-clustering                      | Custom style JSON in utils/mapsjson.ts                                            |
+| Location   | react-native-get-location, android-location-enabler, react-native-permissions |                                                                                   |
+| QR         | react-native-vision-camera 4                                                  |                                                                                   |
+| Payments   | react-native-razorpay                                                         | Key comes from server per order                                                   |
+| Push       | RN Firebase messaging + Notifee                                               | Init is broken (see bugs)                                                         |
+| PDF        | react-native-blob-util                                                        | Invoice download                                                                  |
+| UI         | lucide-react-native, react-native-svg, multi-slider, simple-toast             | Inter font                                                                        |
 
 ### Source folders
 
-| Folder | What lives there |
-|---|---|
-| src/api/ | client.ts (axios), interceptors.ts, endpoints.ts |
-| src/services/api/ | Thin wrappers: auth, stations, user, vehicle, wallet (sessions, trip unused) |
-| src/services/ | location, notification, storage (payment and socket files are empty) |
-| src/context/ | AuthContext, FleetContext (+ dead Location, Wallet) |
-| src/navigations/ | AppNavigator.tsx (root stack + offline overlay), AppStack.tsx (tabs), linking.ts |
-| src/screens/ | auth, map, stations, charging, scanner, wallet, profile, fleet, Nointernet |
-| src/components/ | Buttons, Cards, Forms, Headers, Modals, Sections, Skeletons, Maps, Tabs, ConnectorTypes SVGs |
-| src/theme/ | colors (teal #00C8D0, bg #F4FBFC), fonts, fontSizes, radius, spacing |
-| src/utils/ | Mappers (station, fleet, invoice), status, distance, currency, date, permissions, network hook |
+| Folder            | What lives there                                                                               |
+| ----------------- | ---------------------------------------------------------------------------------------------- |
+| src/api/          | client.ts (axios), interceptors.ts, endpoints.ts                                               |
+| src/services/api/ | Thin wrappers: auth, stations, user, vehicle, wallet (sessions, trip unused)                   |
+| src/services/     | location, notification, storage (payment and socket files are empty)                           |
+| src/context/      | AuthContext, FleetContext (+ dead Location, Wallet)                                            |
+| src/navigations/  | AppNavigator.tsx (root stack + offline overlay), AppStack.tsx (tabs), linking.ts               |
+| src/screens/      | auth, map, stations, charging, scanner, wallet, profile, fleet, Nointernet                     |
+| src/components/   | Buttons, Cards, Forms, Headers, Modals, Sections, Skeletons, Maps, Tabs, ConnectorTypes SVGs   |
+| src/theme/        | colors (teal #00C8D0, bg #F4FBFC), fonts, fontSizes, radius, spacing                           |
+| src/utils/        | Mappers (station, fleet, invoice), status, distance, currency, date, permissions, network hook |
 
 ### Environments and config
 
 All API paths are relative to API_URL = ${API_HOST}/v1. Every request sends Authorization: Bearer <token> (when logged in) and x-client-token: <CLIENT_TOKEN>, which identifies the tenant.
 
-| Env | API_HOST and SOCKET_URL | CLIENT_TOKEN |
-|---|---|---|
+| Env         | API_HOST and SOCKET_URL                  | CLIENT_TOKEN            |
+| ----------- | ---------------------------------------- | ----------------------- |
 | development | https://852m8pd3-8080.inc1.devtunnels.ms | bf6af0f0-…-67eef6e68a06 |
-| staging | https://testapi.evechos.com | bf6af0f0-…-67eef6e68a06 |
-| production | https://api.nexinev.com | c7ba30bc-…-deddf96cd68d |
+| staging     | https://testapi.evechos.com              | bf6af0f0-…-67eef6e68a06 |
+| production  | https://api.nexinev.com                  | c7ba30bc-…-deddf96cd68d |
 
 Other constants: timeout 20000 ms, deep-link scheme cruzeev, web domain cruzeev.com, delete-account URL https://www.cruzeev.in/delete-account, bundle ID com.cruzeev.app. Runtime branding (logo, brand name, terms/privacy/support URLs, feature flags) comes from GET /client/info.
 
@@ -68,13 +70,13 @@ Other constants: timeout 20000 ms, deep-link scheme cruzeev, web domain cruzeev.
 7.  AddMoney receives an onSuccess function as a route param (not serialisable).
 8.  MAC ID input caps at 12 chars while its placeholder AA:BB:CC:DD:EE:FF is 17.
 9.  Edit Vehicle calls useEffect inside a Formik render prop.
-10.  Profile menu shows "Loading…" forever when /profile fails.
-11.  socket.off('meterValue') with no handler removes every listener.
-12.  If both user and fleet tokens exist, fleet calls go out with the user token.
+10. Profile menu shows "Loading…" forever when /profile fails.
+11. socket.off('meterValue') with no handler removes every listener.
+12. If both user and fleet tokens exist, fleet calls go out with the user token.
 
 ## 2. API layer and endpoints
 
-The app calls 50 endpoints across 9 feature areas, plus 5 Socket.IO events. Port exactly these; everything else in endpoints.ts (/sessions/*, /trips/*, /payments/*, /support/*, /stations/search, reviews, /wallet/add, login-with-password) is never called.
+The app calls 50 endpoints across 9 feature areas, plus 5 Socket.IO events. Port exactly these; everything else in endpoints.ts (/sessions/_, /trips/_, /payments/_, /support/_, /stations/search, reviews, /wallet/add, login-with-password) is never called.
 
 ### HTTP client rules to reproduce
 
@@ -88,108 +90,108 @@ The app calls 50 endpoints across 9 feature areas, plus 5 Socket.IO events. Port
 
 ### Config and auth (consumer)
 
-| Method | Path | Request | Response fields used | Used by |
-|---|---|---|---|---|
-| GET | /client/info?details=true&login=true&logo=true&clientDetails=true | none | data.clientDetails.{brandName, termsAndConditionsUrl, privacyPolicyUrl, supportUrl, logoUrl}, data.media.{url, base64}, data.loginConfig.userLoginType ('Email' or phone), data.features.{fleetFeature, couponFeature} | App start (cached as CLIENT_CONFIG) |
-| POST | /auth/app/login | { contact } | any data = OTP sent | Login, OTP resend |
-| POST | /auth/app/verify | { otp, appName: 'CruzeEV' } | top-level userAccessToken \|\| accessToken, userRefreshToken \|\| refreshToken | OTP |
-| GET | /auth/user-by-token | none | data.user.{id, userId, first_name, last_name, email, phone, isFirstLogin, wallet.balance, is_email_verified, is_phone_verified, gst} | Startup, after login, after payment |
-| POST | /auth/refresh | { refreshToken } | accessToken, refreshToken | Interceptor |
-| PUT | /auth/fcm | { fcmToken } | none | After login, token refresh |
-| POST | /auth/logout | none | none | Logout (best effort) |
+| Method | Path                                                              | Request                     | Response fields used                                                                                                                                                                                                   | Used by                             |
+| ------ | ----------------------------------------------------------------- | --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------- |
+| GET    | /client/info?details=true&login=true&logo=true&clientDetails=true | none                        | data.clientDetails.{brandName, termsAndConditionsUrl, privacyPolicyUrl, supportUrl, logoUrl}, data.media.{url, base64}, data.loginConfig.userLoginType ('Email' or phone), data.features.{fleetFeature, couponFeature} | App start (cached as CLIENT_CONFIG) |
+| POST   | /auth/app/login                                                   | { contact }                 | any data = OTP sent                                                                                                                                                                                                    | Login, OTP resend                   |
+| POST   | /auth/app/verify                                                  | { otp, appName: 'CruzeEV' } | top-level userAccessToken \|\| accessToken, userRefreshToken \|\| refreshToken                                                                                                                                         | OTP                                 |
+| GET    | /auth/user-by-token                                               | none                        | data.user.{id, userId, first_name, last_name, email, phone, isFirstLogin, wallet.balance, is_email_verified, is_phone_verified, gst}                                                                                   | Startup, after login, after payment |
+| POST   | /auth/refresh                                                     | { refreshToken }            | accessToken, refreshToken                                                                                                                                                                                              | Interceptor                         |
+| PUT    | /auth/fcm                                                         | { fcmToken }                | none                                                                                                                                                                                                                   | After login, token refresh          |
+| POST   | /auth/logout                                                      | none                        | none                                                                                                                                                                                                                   | Logout (best effort)                |
 
 ### Profile
 
-| Method | Path | Request | Response fields used | Used by |
-|---|---|---|---|---|
-| GET | /profile | none | user fields + data.stats.{totalVehicles, totalChargingSessions, totalFavourites} | Profile tab |
-| PUT | /profile | setup: { first_name }; edit: changed subset of { first_name, last_name, email, phone, gst } | none | Profile Setup, Edit Profile |
-| POST | /profile/send-otp | { contact } | none | Edit Profile (verify new email/phone) |
-| POST | /profile/verify-otp | { contact, otp } | none | Edit Profile |
+| Method | Path                | Request                                                                                     | Response fields used                                                             | Used by                               |
+| ------ | ------------------- | ------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- | ------------------------------------- |
+| GET    | /profile            | none                                                                                        | user fields + data.stats.{totalVehicles, totalChargingSessions, totalFavourites} | Profile tab                           |
+| PUT    | /profile            | setup: { first_name }; edit: changed subset of { first_name, last_name, email, phone, gst } | none                                                                             | Profile Setup, Edit Profile           |
+| POST   | /profile/send-otp   | { contact }                                                                                 | none                                                                             | Edit Profile (verify new email/phone) |
+| POST   | /profile/verify-otp | { contact, otp }                                                                            | none                                                                             | Edit Profile                          |
 
 ### Vehicles
 
-| Method | Path | Request | Response fields used | Used by |
-|---|---|---|---|---|
-| GET | /vehicle | none | data[].{id, regNo, vinNumber, maxAmount, autoCharge, isPrimary, capacityId, capacity (number or {capacity}), range, variant, modelId, model.{id, name, brand.name}} | My Vehicles, Charging Summary, Auto Charge |
-| POST | /vehicle | { modelId, regNo, capacityId? \| capacity?, vinNumber?, maxAmount? } | status 201 | Vehicle Setup, Add Vehicle |
-| PUT | /vehicle/:id | same as POST | status 200 | Edit Vehicle |
-| PATCH | /vehicle/:id | { autoCharge } | none | My Vehicles toggle |
-| PATCH | /vehicle/primary/:id | none | none | Set primary |
-| DELETE | /vehicle/:id | none | none | Delete vehicle |
-| PUT | /vehicle/:id?type=Charging | { modelId, regNo, vinNumber: macId, maxAmount } | 2xx | Add Auto Charge sheet |
-| POST | /vehicle/:id?type=Charging | same | data.success | Auto Charge Enable screen (confirm PUT vs POST with backend) |
-| GET | /vehicle/brand | none | data[].{id, name} | Vehicle forms |
-| GET | /vehicle/model/:brandId | none | data[].{id, name} | Vehicle forms |
-| GET | /vehicle/capacity/:modelId | none | data[].{id, capacity \| value, range} | Vehicle forms |
+| Method | Path                       | Request                                                              | Response fields used                                                                                                                                                | Used by                                                      |
+| ------ | -------------------------- | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| GET    | /vehicle                   | none                                                                 | data[].{id, regNo, vinNumber, maxAmount, autoCharge, isPrimary, capacityId, capacity (number or {capacity}), range, variant, modelId, model.{id, name, brand.name}} | My Vehicles, Charging Summary, Auto Charge                   |
+| POST   | /vehicle                   | { modelId, regNo, capacityId? \| capacity?, vinNumber?, maxAmount? } | status 201                                                                                                                                                          | Vehicle Setup, Add Vehicle                                   |
+| PUT    | /vehicle/:id               | same as POST                                                         | status 200                                                                                                                                                          | Edit Vehicle                                                 |
+| PATCH  | /vehicle/:id               | { autoCharge }                                                       | none                                                                                                                                                                | My Vehicles toggle                                           |
+| PATCH  | /vehicle/primary/:id       | none                                                                 | none                                                                                                                                                                | Set primary                                                  |
+| DELETE | /vehicle/:id               | none                                                                 | none                                                                                                                                                                | Delete vehicle                                               |
+| PUT    | /vehicle/:id?type=Charging | { modelId, regNo, vinNumber: macId, maxAmount }                      | 2xx                                                                                                                                                                 | Add Auto Charge sheet                                        |
+| POST   | /vehicle/:id?type=Charging | same                                                                 | data.success                                                                                                                                                        | Auto Charge Enable screen (confirm PUT vs POST with backend) |
+| GET    | /vehicle/brand             | none                                                                 | data[].{id, name}                                                                                                                                                   | Vehicle forms                                                |
+| GET    | /vehicle/model/:brandId    | none                                                                 | data[].{id, name}                                                                                                                                                   | Vehicle forms                                                |
+| GET    | /vehicle/capacity/:modelId | none                                                                 | data[].{id, capacity \| value, range}                                                                                                                               | Vehicle forms                                                |
 
 ### Stations and favourites
 
-| Method | Path | Request | Response fields used | Used by |
-|---|---|---|---|---|
-| GET | /station/locations | query min_power_output?, stationType?, connectorTypes? (csv) | data[].{id, name, stationUniqueId, stationType, status \| stationStatus, stationLocation.{latitude, longitude}} | Map markers (all stations) |
-| GET | /station | query latitude, longitude, limit, page, search?, min_power_output?, stationType?, connectorTypes? | data[].{id, name, distance, totalConnectors, availableConnectors, connectorTypes (csv), maxPowerOutput, minStartingPrice, status, stationLocation.{address, city, latitude, longitude}}, pagination.{currentPage, totalPages} | Map cards, Stations list |
-| GET | /station/:id | none | data.{id, name, status, helpNumber, amenities[].name, stationMedia[0].url, stationLocation.{…}, chargers[].{id, chargerId, capacity, powerType, status, tariff[0].price, connectors[].{id, connectorId, portType, status, currentSoc, estimatedFullChargeMinutes}}} | Station Details |
-| GET | /station/charger/:chargerId | query connectorId? | data.{chargerId, powerType, capacity, station.name, tariff[0].{price, gst}, connectors[0].{connectorId, portType, status}} | Charging Summary |
-| GET | /station/favourites/all | query page, limit, search? | data[].{stationId, station.{name, stationLocation}}, pagination.{currentPage, totalPages} | Favourites, Stations, Station Details |
-| POST | /station/favourites/:stationId | { isFavourite } (new desired state) | data.message | Heart toggle |
+| Method | Path                           | Request                                                                                           | Response fields used                                                                                                                                                                                                                                                | Used by                               |
+| ------ | ------------------------------ | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------- |
+| GET    | /station/locations             | query min_power_output?, stationType?, connectorTypes? (csv)                                      | data[].{id, name, stationUniqueId, stationType, status \| stationStatus, stationLocation.{latitude, longitude}}                                                                                                                                                     | Map markers (all stations)            |
+| GET    | /station                       | query latitude, longitude, limit, page, search?, min_power_output?, stationType?, connectorTypes? | data[].{id, name, distance, totalConnectors, availableConnectors, connectorTypes (csv), maxPowerOutput, minStartingPrice, status, stationLocation.{address, city, latitude, longitude}}, pagination.{currentPage, totalPages}                                       | Map cards, Stations list              |
+| GET    | /station/:id                   | none                                                                                              | data.{id, name, status, helpNumber, amenities[].name, stationMedia[0].url, stationLocation.{…}, chargers[].{id, chargerId, capacity, powerType, status, tariff[0].price, connectors[].{id, connectorId, portType, status, currentSoc, estimatedFullChargeMinutes}}} | Station Details                       |
+| GET    | /station/charger/:chargerId    | query connectorId?                                                                                | data.{chargerId, powerType, capacity, station.name, tariff[0].{price, gst}, connectors[0].{connectorId, portType, status}}                                                                                                                                          | Charging Summary                      |
+| GET    | /station/favourites/all        | query page, limit, search?                                                                        | data[].{stationId, station.{name, stationLocation}}, pagination.{currentPage, totalPages}                                                                                                                                                                           | Favourites, Stations, Station Details |
+| POST   | /station/favourites/:stationId | { isFavourite } (new desired state)                                                               | data.message                                                                                                                                                                                                                                                        | Heart toggle                          |
 
 ### Charging sessions and invoices
 
-| Method | Path | Request | Response fields used | Used by |
-|---|---|---|---|---|
-| POST | /ocpp/start/:chargerId?platform=ios\|android | { connectorId, amount, energy, percentage? } (percentage only on Battery tab) | data = sessionId | Charging Summary |
-| POST | /ocpp/stop/:chargerId?platform= | { transactionId } | data.sessionId | Active Charging |
-| GET | /device-transactions/running-transaction | none | data = array of running sessions, each with sessionId | After login, app start ("resume charging" card) |
-| GET | /device-transactions/running/:sessionId | none | data.transaction.{id, transactionId, chargerId, status, startDate, updatedAt, totalWh, calcPrice, calcTaxPercent, price, startSoc, stopSoc, targetKwh, vehicleId, macId, charger.{powerType, chargerId, station.{name, location, helpNumber}}}, data.connectorDetails[0].portType, data.latestTransactionDetail.{batteryPercentage, powerOffered, currentImportEv} | Active Charging, Session Summary |
-| GET | /device-transactions | none (not paginated) | data.transactions[].{id, transactionId, status, startDate, totalWh, charginDuration, price, connectorId, session.sessionId, charger.{capacity, powerType, station.{name, stationLocation.address}}} | Charging History |
-| GET | /invoice/summary/:id | none | data.{id, transactionId, startDate, stopDate, totalWh, amount, gst, calcTaxPercent, price, startSoc, stopSoc, chargerId, connectorId, connectorDetails.portType, vehicle.regNo, user.{first_name, email}, charger.{powerType, station.{name, helpNumber, stationLocation.{address, city, state, pincode, country}}}} | Invoice |
-| GET | /invoice/:id | none | binary PDF | Invoice download |
+| Method | Path                                         | Request                                                                       | Response fields used                                                                                                                                                                                                                                                                                                                                               | Used by                                         |
+| ------ | -------------------------------------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------- |
+| POST   | /ocpp/start/:chargerId?platform=ios\|android | { connectorId, amount, energy, percentage? } (percentage only on Battery tab) | data = sessionId                                                                                                                                                                                                                                                                                                                                                   | Charging Summary                                |
+| POST   | /ocpp/stop/:chargerId?platform=              | { transactionId }                                                             | data.sessionId                                                                                                                                                                                                                                                                                                                                                     | Active Charging                                 |
+| GET    | /device-transactions/running-transaction     | none                                                                          | data = array of running sessions, each with sessionId                                                                                                                                                                                                                                                                                                              | After login, app start ("resume charging" card) |
+| GET    | /device-transactions/running/:sessionId      | none                                                                          | data.transaction.{id, transactionId, chargerId, status, startDate, updatedAt, totalWh, calcPrice, calcTaxPercent, price, startSoc, stopSoc, targetKwh, vehicleId, macId, charger.{powerType, chargerId, station.{name, location, helpNumber}}}, data.connectorDetails[0].portType, data.latestTransactionDetail.{batteryPercentage, powerOffered, currentImportEv} | Active Charging, Session Summary                |
+| GET    | /device-transactions                         | none (not paginated)                                                          | data.transactions[].{id, transactionId, status, startDate, totalWh, charginDuration, price, connectorId, session.sessionId, charger.{capacity, powerType, station.{name, stationLocation.address}}}                                                                                                                                                                | Charging History                                |
+| GET    | /invoice/summary/:id                         | none                                                                          | data.{id, transactionId, startDate, stopDate, totalWh, amount, gst, calcTaxPercent, price, startSoc, stopSoc, chargerId, connectorId, connectorDetails.portType, vehicle.regNo, user.{first_name, email}, charger.{powerType, station.{name, helpNumber, stationLocation.{address, city, state, pincode, country}}}}                                               | Invoice                                         |
+| GET    | /invoice/:id                                 | none                                                                          | binary PDF                                                                                                                                                                                                                                                                                                                                                         | Invoice download                                |
 
 ### Wallet and payments
 
-| Method | Path | Request | Response fields used | Used by |
-|---|---|---|---|---|
-| GET | /transactions | query limit, page | data[].{refNo, type ('Credit' or debit), amount, createdAt, charger.station.name}, pagination.{page, totalPages} | Wallet, Wallet History |
-| GET | /coupon | none | data[].{id, code, description, cashbackPercent, amount (min), endDate, status} | Add Money (when couponFeature) |
-| POST | /payment | { amount, couponId \| null } | data.{keyId, orderId, amount, currency, companyName} | Add Money: create Razorpay order |
-| POST | /payment/verify | { razorpay_payment_id, razorpay_order_id, razorpay_signature } | none | After Razorpay success, then refresh user |
+| Method | Path            | Request                                                        | Response fields used                                                                                             | Used by                                   |
+| ------ | --------------- | -------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- | ----------------------------------------- |
+| GET    | /transactions   | query limit, page                                              | data[].{refNo, type ('Credit' or debit), amount, createdAt, charger.station.name}, pagination.{page, totalPages} | Wallet, Wallet History                    |
+| GET    | /coupon         | none                                                           | data[].{id, code, description, cashbackPercent, amount (min), endDate, status}                                   | Add Money (when couponFeature)            |
+| POST   | /payment        | { amount, couponId \| null }                                   | data.{keyId, orderId, amount, currency, companyName}                                                             | Add Money: create Razorpay order          |
+| POST   | /payment/verify | { razorpay_payment_id, razorpay_order_id, razorpay_signature } | none                                                                                                             | After Razorpay success, then refresh user |
 
 Wallet balance itself comes from user.wallet.balance (/auth/user-by-token), not from /wallet.
 
 ### Notifications
 
-| Method | Path | Request | Response fields used | Used by |
-|---|---|---|---|---|
-| GET | /notification?page= | none | data[].{id, type, title, message, createdAt, isRead}, pagination.totalPages | Notifications |
+| Method | Path                | Request | Response fields used                                                        | Used by       |
+| ------ | ------------------- | ------- | --------------------------------------------------------------------------- | ------------- |
+| GET    | /notification?page= | none    | data[].{id, type, title, message, createdAt, isRead}, pagination.totalPages | Notifications |
 
 ### Fleet driver
 
-| Method | Path | Request | Response fields used | Used by |
-|---|---|---|---|---|
-| POST | /fleet/login | { fleetId, contact } | data.driverId | Fleet Login |
-| POST | /fleet/verify-otp | { otp } | userAccessToken, userRefreshToken | Fleet OTP |
-| POST | /fleet/resend-otp | { driverId } | any data | Fleet OTP |
-| GET | /fleet/get-by-token | none | data.{id, fleetId, name, phone, email, licenseNumber, aadharNumber, panNumber, address, drId, status, type} | Startup, Fleet Profile |
-| GET | /fleet/logout | none (GET, not POST) | none | Fleet logout |
-| GET | /fleet/assigned-vehicle | none | data.{status, startDate, startTime, endTime, vehicle.{regNo, model.{name, brand.name}}} | Fleet Home |
-| GET | /fleet/running-transaction | none | data[0].{chargerId, transaction.{transactionId, startDate, stopDate, startSoc, stopSoc}, latestTransactionDetail.batteryPercentage} | Fleet Home |
-| POST | /fleet/ocpp/stop?platform= | { transactionId, chargerId } | none | Fleet Home stop |
-| GET | /fleet/transaction?page&limit=5 | none | data[].{id, transactionId, status, startDate, totalWh, price, connectorId, session.sessionId, charger.{…}}, pagination.{page, totalPages} | Fleet Sessions |
-| GET | /fleet/running/:sessionId | none | data.{sessionId, transaction.{…}, connectorDetails[0].portType, latestTransactionDetail.{batteryPercentage, voltageEv, currentImportEv, powerOffered}} | Fleet Invoice |
-| PUT | /fleet/update-profile | { name, email, address } | success | Edit Fleet Profile |
+| Method | Path                            | Request                      | Response fields used                                                                                                                                   | Used by                |
+| ------ | ------------------------------- | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------- |
+| POST   | /fleet/login                    | { fleetId, contact }         | data.driverId                                                                                                                                          | Fleet Login            |
+| POST   | /fleet/verify-otp               | { otp }                      | userAccessToken, userRefreshToken                                                                                                                      | Fleet OTP              |
+| POST   | /fleet/resend-otp               | { driverId }                 | any data                                                                                                                                               | Fleet OTP              |
+| GET    | /fleet/get-by-token             | none                         | data.{id, fleetId, name, phone, email, licenseNumber, aadharNumber, panNumber, address, drId, status, type}                                            | Startup, Fleet Profile |
+| GET    | /fleet/logout                   | none (GET, not POST)         | none                                                                                                                                                   | Fleet logout           |
+| GET    | /fleet/assigned-vehicle         | none                         | data.{status, startDate, startTime, endTime, vehicle.{regNo, model.{name, brand.name}}}                                                                | Fleet Home             |
+| GET    | /fleet/running-transaction      | none                         | data[0].{chargerId, transaction.{transactionId, startDate, stopDate, startSoc, stopSoc}, latestTransactionDetail.batteryPercentage}                    | Fleet Home             |
+| POST   | /fleet/ocpp/stop?platform=      | { transactionId, chargerId } | none                                                                                                                                                   | Fleet Home stop        |
+| GET    | /fleet/transaction?page&limit=5 | none                         | data[].{id, transactionId, status, startDate, totalWh, price, connectorId, session.sessionId, charger.{…}}, pagination.{page, totalPages}              | Fleet Sessions         |
+| GET    | /fleet/running/:sessionId       | none                         | data.{sessionId, transaction.{…}, connectorDetails[0].portType, latestTransactionDetail.{batteryPercentage, voltageEv, currentImportEv, powerOffered}} | Fleet Invoice          |
+| PUT    | /fleet/update-profile           | { name, email, address }     | success                                                                                                                                                | Edit Fleet Profile     |
 
 ### Socket.IO (realtime)
 
 Connect to SOCKET_URL with autoConnect: false, reconnection 5 attempts every 2 s. Connect after login and emit join with the user id (fleet: fleet user id).
 
-| Event | Direction | Where | Payload and effect |
-|---|---|---|---|
-| join | emit | On connect (user.id), Charging Summary (chargerId, then sessionId), Active Charging (sessionId) | Subscribe to a room |
-| StartTransaction | listen | Charging Summary | Payload is the sessionId; navigate to Active Charging |
-| status | listen | Charging Summary | Re-fetch charger details (connector status) |
-| meterValue | listen | Active Charging | Silently re-fetch /device-transactions/running/:sessionId |
-| StopTransaction | listen | Active Charging | Toast, then replace with Charging Session Summary |
+| Event            | Direction | Where                                                                                           | Payload and effect                                        |
+| ---------------- | --------- | ----------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| join             | emit      | On connect (user.id), Charging Summary (chargerId, then sessionId), Active Charging (sessionId) | Subscribe to a room                                       |
+| StartTransaction | listen    | Charging Summary                                                                                | Payload is the sessionId; navigate to Active Charging     |
+| status           | listen    | Charging Summary                                                                                | Re-fetch charger details (connector status)               |
+| meterValue       | listen    | Active Charging                                                                                 | Silently re-fetch /device-transactions/running/:sessionId |
+| StopTransaction  | listen    | Active Charging                                                                                 | Toast, then replace with Charging Session Summary         |
 
 Fleet screens use no socket events; they re-fetch on focus.
 
@@ -200,43 +202,42 @@ OTP sends a first-time user through (setup), a returning user straight to (app),
 
 ### Old route → new Expo Router file
 
-| Old route (params) | New file | Group |
-|---|---|---|
-| Splash | app/index.tsx (redirect only) | root |
-| Onboarding | app/(auth)/onboarding.tsx | auth |
-| Login | app/(auth)/login.tsx | auth |
-| OTP (type, value) | app/(auth)/otp.tsx | auth |
-| FleetLogin | app/(auth)/fleet-login.tsx | auth |
-| FleetOtp (contact, fleetId, driverId) | app/(auth)/fleet-otp.tsx | auth |
-| ProfileSetup | app/(setup)/profile.tsx | setup |
-| VehicleSetup | app/(setup)/vehicle.tsx | setup |
-| LocationPermission | app/(setup)/location.tsx | setup |
-| NotificationPermission | app/(setup)/notifications.tsx | setup |
-| MainApp → Map | app/(app)/(tabs)/index.tsx | app |
-| MainApp → Stations (fromMap?) | app/(app)/(tabs)/stations.tsx | app |
-| MainApp → Wallet | app/(app)/(tabs)/wallet.tsx | app |
-| MainApp → Profile | app/(app)/(tabs)/profile.tsx | app |
-| QRScanner | app/(app)/scan.tsx (modal presentation) | app |
-| StationDetails (stationId) | app/(app)/station/[stationId].tsx | app |
-| ChargingSummary (chargerId, connectorId) | app/(app)/charging/summary.tsx | app |
-| ActiveCharging (sessionId) | app/(app)/charging/[sessionId]/index.tsx | app |
-| ChargingSessionSummary (sessionId) | app/(app)/charging/[sessionId]/complete.tsx | app |
-| ChargingHistory (defaultFilter?) | app/(app)/charging/history.tsx | app |
-| AutoChargeEnable (macId) | app/(app)/charging/auto-charge.tsx | app |
-| ChargingInvoice (id) | app/(app)/invoice/[id].tsx | app |
-| WalletHistory | app/(app)/wallet/history.tsx | app |
-| AddMoney (amount?, source?) | app/(app)/wallet/add.tsx | app |
-| MyVechiles | app/(app)/vehicles/index.tsx | app |
-| AddVehicle | app/(app)/vehicles/add.tsx | app |
-| EditVehicle (vehicle object) | app/(app)/vehicles/[vehicleId]/edit.tsx (id only) | app |
-| EditProfile | app/(app)/profile/edit.tsx | app |
-| FavoriteSpots | app/(app)/favorites.tsx | app |
-| Notifications | app/(app)/notifications.tsx | app |
-| FleetHome | app/(fleet)/fleet/index.tsx | fleet |
-| FleetSessions | app/(fleet)/fleet/sessions.tsx | fleet |
-| FleetInvoiceScreen (id) | app/(fleet)/fleet/invoice/[id].tsx | fleet |
-| FleetProfile | app/(fleet)/fleet/profile.tsx | fleet |
-| EditFleetProfile | app/(fleet)/fleet/profile-edit.tsx | fleet |
+| Old route (params)                                 | New file                                          | Group |
+| -------------------------------------------------- | ------------------------------------------------- | ----- |
+| Splash                                             | app/index.tsx (redirect only)                     | root  |
+| Onboarding                                         | app/(auth)/onboarding.tsx                         | auth  |
+| Login                                              | app/(auth)/login.tsx                              | auth  |
+| OTP (type, value)                                  | app/(auth)/otp.tsx                                | auth  |
+| FleetLogin                                         | app/(auth)/fleet-login.tsx                        | auth  |
+| FleetOtp (contact, fleetId, driverId)              | app/(auth)/fleet-otp.tsx                          | auth  |
+| ProfileSetup                                       | app/(setup)/profile.tsx                           | setup |
+| VehicleSetup                                       | app/(setup)/vehicle.tsx                           | setup |
+| Permissions (Location + Notifications, one screen) | app/(setup)/permissions.tsx                       | setup |
+| MainApp → Map                                      | app/(app)/(tabs)/index.tsx                        | app   |
+| MainApp → Stations (fromMap?)                      | app/(app)/(tabs)/stations.tsx                     | app   |
+| MainApp → Wallet                                   | app/(app)/(tabs)/wallet.tsx                       | app   |
+| MainApp → Profile                                  | app/(app)/(tabs)/profile.tsx                      | app   |
+| QRScanner                                          | app/(app)/scan.tsx (modal presentation)           | app   |
+| StationDetails (stationId)                         | app/(app)/station/[stationId].tsx                 | app   |
+| ChargingSummary (chargerId, connectorId)           | app/(app)/charging/summary.tsx                    | app   |
+| ActiveCharging (sessionId)                         | app/(app)/charging/[sessionId]/index.tsx          | app   |
+| ChargingSessionSummary (sessionId)                 | app/(app)/charging/[sessionId]/complete.tsx       | app   |
+| ChargingHistory (defaultFilter?)                   | app/(app)/charging/history.tsx                    | app   |
+| AutoChargeEnable (macId)                           | app/(app)/charging/auto-charge.tsx                | app   |
+| ChargingInvoice (id)                               | app/(app)/invoice/[id].tsx                        | app   |
+| WalletHistory                                      | app/(app)/wallet/history.tsx                      | app   |
+| AddMoney (amount?, source?)                        | app/(app)/wallet/add.tsx                          | app   |
+| MyVechiles                                         | app/(app)/vehicles/index.tsx                      | app   |
+| AddVehicle                                         | app/(app)/vehicles/add.tsx                        | app   |
+| EditVehicle (vehicle object)                       | app/(app)/vehicles/[vehicleId]/edit.tsx (id only) | app   |
+| EditProfile                                        | app/(app)/profile/edit.tsx                        | app   |
+| FavoriteSpots                                      | app/(app)/favorites.tsx                           | app   |
+| Notifications                                      | app/(app)/notifications.tsx                       | app   |
+| FleetHome                                          | app/(fleet)/fleet/index.tsx                       | fleet |
+| FleetSessions                                      | app/(fleet)/fleet/sessions.tsx                    | fleet |
+| FleetInvoiceScreen (id)                            | app/(fleet)/fleet/invoice/[id].tsx                | fleet |
+| FleetProfile                                       | app/(fleet)/fleet/profile.tsx                     | fleet |
+| EditFleetProfile                                   | app/(fleet)/fleet/profile-edit.tsx                | fleet |
 
 The middle tab is a button, not a screen: render a custom tabBarButton that calls router.push('/scan'), so the camera never mounts inside the tab bar.
 
@@ -291,6 +292,10 @@ Each screen below lists what it shows, the API calls behind it, user actions, st
 - Fix: MAC ID max length should be 17; add empty states; build one shared VehicleForm reused by Add and Edit Vehicle.
 
 #### A7. Location Permission and A8. Notification Permission
+
+> Built as one screen, `app/(setup)/permissions.tsx` (owner decision, 2026-11-24): a row per
+> permission with Allow / Allowed / Open Settings, then Continue to MainApp. Row copy below is
+> kept; the screen title and subtitle are new. Camera stays just-in-time on the QR scanner.
 
 - Location shows: "Enable Location", 3 benefit rows, Continue, "Your location is never stored or shared." Requests permission, gets a fix (Android GPS prompt), then moves on even if denied.
 - Notification shows: "Enable notifications", rows for Charging Alerts, Maintenance Updates, Exclusive Offers, Enable Notifications, Skip for now. Then reset to MainApp.
@@ -393,11 +398,11 @@ Five tabs, icon-only: Map, Stations, Scanner (raised round button that pushes th
 
 - Shows: "Enter Amount" (₹, prefilled), Price Breakdown when a coupon is chosen (Amount, Coupon Discount "{code} · {pct}% OFF", Total Credits), Available Coupons list (only if couponFeature, only ACTIVE), Add Money, full-screen loader while submitting.
 - API flow:
-    1.  GET /coupon (only when coupon feature is on).
-    2.  POST /payment { amount, couponId | null } → { keyId, orderId, amount, currency, companyName }.
-    3.  Razorpay checkout: key: keyId, amount, currency, name: companyName || brandName, description: 'Add Funds to Wallet', order_id, prefill { email, contact, name }, theme.color: primary.
-    4.  On success: POST /payment/verify { razorpay_payment_id, razorpay_order_id, razorpay_signature } → refresh user → Success modal (credits incl. cashback, order id).
-    5.  Razorpay error/cancel → Failure modal with Retry (same order). Verify fails after paying → "Payment Not Confirmed … Please don't pay again … order ID {id}", no retry.
+  1.  GET /coupon (only when coupon feature is on).
+  2.  POST /payment { amount, couponId | null } → { keyId, orderId, amount, currency, companyName }.
+  3.  Razorpay checkout: key: keyId, amount, currency, name: companyName || brandName, description: 'Add Funds to Wallet', order_id, prefill { email, contact, name }, theme.color: primary.
+  4.  On success: POST /payment/verify { razorpay_payment_id, razorpay_order_id, razorpay_signature } → refresh user → Success modal (credits incl. cashback, order id).
+  5.  Razorpay error/cancel → Failure modal with Retry (same order). Verify fails after paying → "Payment Not Confirmed … Please don't pay again … order ID {id}", no retry.
 - Validation: required, numeric, ≥ ₹100. Coupon minimum: toast "Minimum ₹{min} required for this coupon".
 - Fix: don't pass onSuccess as a param — invalidate the user/wallet query instead; don't reset the form before payment completes; add quick amount chips.
 
@@ -479,21 +484,21 @@ Five tabs, icon-only: Map, Stations, Scanner (raised round button that pushes th
 
 ### Shared modals and sheets
 
-| Sheet / dialog | Used by | Content |
-|---|---|---|
-| Filters | Map | Min power slider (5 kW steps), Public / Private, connector types, Clear / Apply |
-| Maps options | Station Details (iOS) | Apple Maps / Google Maps |
-| Insufficient balance | Charging Summary | Balance, required, shortfall, Top Up / Cancel |
-| Preparing to charge | Charging Summary | Animated steps, target amount/units/battery, 90 s timeout error, Cancel |
-| Vehicle selection | Charging Summary | Vehicle list with primary badge, Confirm; empty "No Vehicles Found" |
-| Stop charging | Active Charging, Fleet Home | Confirm with charger id |
-| Add Auto Charge | Active Charging | Pick vehicle or add new |
-| Custom capacity | Vehicle wizard | kWh input |
-| Verify contact + OTP verify | Edit Profile | Send OTP, enter OTP |
-| Delete vehicle, Logout | My Vehicles, Profile | Confirm |
-| Payment success / failure | Add Money | Amount, order id, reason, Retry |
-| Update available | Global | Latest version, Update / Later |
-| Permission blocked | Global | Cancel / Open Settings |
+| Sheet / dialog              | Used by                     | Content                                                                         |
+| --------------------------- | --------------------------- | ------------------------------------------------------------------------------- |
+| Filters                     | Map                         | Min power slider (5 kW steps), Public / Private, connector types, Clear / Apply |
+| Maps options                | Station Details (iOS)       | Apple Maps / Google Maps                                                        |
+| Insufficient balance        | Charging Summary            | Balance, required, shortfall, Top Up / Cancel                                   |
+| Preparing to charge         | Charging Summary            | Animated steps, target amount/units/battery, 90 s timeout error, Cancel         |
+| Vehicle selection           | Charging Summary            | Vehicle list with primary badge, Confirm; empty "No Vehicles Found"             |
+| Stop charging               | Active Charging, Fleet Home | Confirm with charger id                                                         |
+| Add Auto Charge             | Active Charging             | Pick vehicle or add new                                                         |
+| Custom capacity             | Vehicle wizard              | kWh input                                                                       |
+| Verify contact + OTP verify | Edit Profile                | Send OTP, enter OTP                                                             |
+| Delete vehicle, Logout      | My Vehicles, Profile        | Confirm                                                                         |
+| Payment success / failure   | Add Money                   | Amount, order id, reason, Retry                                                 |
+| Update available            | Global                      | Latest version, Update / Later                                                  |
+| Permission blocked          | Global                      | Cancel / Open Settings                                                          |
 
 Build one Sheet primitive (@gorhom/bottom-sheet) and one Dialog primitive and compose all of these from them.
 
@@ -503,29 +508,29 @@ These run under every feature; set them up in Phase 0 before any screen. Each ro
 
 ### Library mapping (bare RN → Expo)
 
-| Capability | Today | Expo choice |
-|---|---|---|
-| Navigation | React Navigation stacks | Expo Router (file-based, typed routes, protected groups) |
-| Server data | useState + useEffect per screen | Contexts for session-wide data (Auth, Fleet, ClientConfig); `useRequest` / `useAction` around plain axios for screens (drops stale responses, loading/error/refetch) |
-| Client state | 4 Contexts | Zustand (session, client config, small UI state) |
-| Forms | formik + yup | react-hook-form + zod (shared schemas, typed) |
-| Tokens | AsyncStorage | expo-secure-store |
-| Other storage | AsyncStorage | AsyncStorage or react-native-mmkv |
-| Maps | react-native-maps + map-clustering | react-native-maps (config plugin) + supercluster |
-| Location | get-location, location-enabler, permissions | expo-location |
-| QR | vision-camera | expo-camera CameraView with barcodeScannerSettings: { barcodeTypes: ['qr'] } |
-| Push token | RN Firebase messaging | Keep @react-native-firebase/messaging (backend expects FCM tokens on iOS too) |
-| Local notifications | Notifee | expo-notifications (channels, foreground, tap handling) |
-| Payments | react-native-razorpay | Keep it (dev client / prebuild); add ProGuard rules + iOS UPI query schemes via config plugin |
-| PDF download | react-native-blob-util | expo-file-system download with headers + expo-sharing |
-| Network | netinfo + probes | @react-native-community/netinfo (`useOnline`, OfflineBanner) |
-| Toast | simple-toast (native) | sonner-native or burnt |
-| Bottom sheets | 20 hand-rolled Modals | @gorhom/bottom-sheet |
-| App update | react-native-version-check | expo-application + backend minVersion in /client/info; optional expo-updates |
-| Keep awake | none | expo-keep-awake on Active Charging |
-| Fonts | linked Inter .otf | expo-font config plugin |
-| Icons, SVG | lucide-react-native, react-native-svg | Keep both |
-| Crash reporting | none | @sentry/react-native |
+| Capability          | Today                                       | Expo choice                                                                                                                                                          |
+| ------------------- | ------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Navigation          | React Navigation stacks                     | Expo Router (file-based, typed routes, protected groups)                                                                                                             |
+| Server data         | useState + useEffect per screen             | Contexts for session-wide data (Auth, Fleet, ClientConfig); `useRequest` / `useAction` around plain axios for screens (drops stale responses, loading/error/refetch) |
+| Client state        | 4 Contexts                                  | Zustand (session, client config, small UI state)                                                                                                                     |
+| Forms               | formik + yup                                | react-hook-form + zod (shared schemas, typed)                                                                                                                        |
+| Tokens              | AsyncStorage                                | expo-secure-store                                                                                                                                                    |
+| Other storage       | AsyncStorage                                | AsyncStorage or react-native-mmkv                                                                                                                                    |
+| Maps                | react-native-maps + map-clustering          | react-native-maps (config plugin) + supercluster                                                                                                                     |
+| Location            | get-location, location-enabler, permissions | expo-location                                                                                                                                                        |
+| QR                  | vision-camera                               | expo-camera CameraView with barcodeScannerSettings: { barcodeTypes: ['qr'] }                                                                                         |
+| Push token          | RN Firebase messaging                       | Keep @react-native-firebase/messaging (backend expects FCM tokens on iOS too)                                                                                        |
+| Local notifications | Notifee                                     | expo-notifications (channels, foreground, tap handling)                                                                                                              |
+| Payments            | react-native-razorpay                       | Keep it (dev client / prebuild); add ProGuard rules + iOS UPI query schemes via config plugin                                                                        |
+| PDF download        | react-native-blob-util                      | expo-file-system download with headers + expo-sharing                                                                                                                |
+| Network             | netinfo + probes                            | @react-native-community/netinfo (`useOnline`, OfflineBanner)                                                                                                         |
+| Toast               | simple-toast (native)                       | sonner-native or burnt                                                                                                                                               |
+| Bottom sheets       | 20 hand-rolled Modals                       | @gorhom/bottom-sheet                                                                                                                                                 |
+| App update          | react-native-version-check                  | expo-application + backend minVersion in /client/info; optional expo-updates                                                                                         |
+| Keep awake          | none                                        | expo-keep-awake on Active Charging                                                                                                                                   |
+| Fonts               | linked Inter .otf                           | expo-font config plugin                                                                                                                                              |
+| Icons, SVG          | lucide-react-native, react-native-svg       | Keep both                                                                                                                                                            |
+| Crash reporting     | none                                        | @sentry/react-native                                                                                                                                                 |
 
 Expo Go will not work (Razorpay, Firebase, Google Maps). Use a development build (expo-dev-client) from day one.
 
@@ -537,13 +542,13 @@ Expo Go will not work (Razorpay, Firebase, Google Maps). Use a development build
 
 ### Local storage keys to keep
 
-| Key | Meaning |
-|---|---|
-| access_token, refresh_token | Consumer tokens (SecureStore) |
-| fleetToken, fleetRefreshToken | Fleet tokens (SecureStore) |
-| CLIENT_CONFIG | Cached /client/info |
-| firstlogin | 'completed' after onboarding; Splash chooses Login vs Onboarding |
-| FCM_TOKEN | Last synced FCM token |
+| Key                           | Meaning                                                          |
+| ----------------------------- | ---------------------------------------------------------------- |
+| access_token, refresh_token   | Consumer tokens (SecureStore)                                    |
+| fleetToken, fleetRefreshToken | Fleet tokens (SecureStore)                                       |
+| CLIENT_CONFIG                 | Cached /client/info                                              |
+| firstlogin                    | 'completed' after onboarding; Splash chooses Login vs Onboarding |
+| FCM_TOKEN                     | Last synced FCM token                                            |
 
 Drop FIRST_LAUNCH, onboardingStep, VEHICLE_ADDED (never read).
 
@@ -571,17 +576,17 @@ Scheme cruzeev, domain cruzeev.com. Routes: station/:stationId, scan, charging/s
 
 ### Theme tokens to copy
 
-| Token | Value |
-|---|---|
-| primary / primaryLight / primaryDark | #00C8D0 / #E6F8FA / #1A8F99 |
-| background / surface | #F4FBFC / #FFFFFF |
-| textPrimary / textSecondary / textTertiary | #0E2E31 / #4A6A6E / #7D9B9F |
-| border / borderLight | #C2EBEE / #E6F8FA |
-| success / warning / error | #22C55E / #F59E0B / #D32F2F |
+| Token                                                                       | Value                                                     |
+| --------------------------------------------------------------------------- | --------------------------------------------------------- |
+| primary / primaryLight / primaryDark                                        | #00C8D0 / #E6F8FA / #1A8F99                               |
+| background / surface                                                        | #F4FBFC / #FFFFFF                                         |
+| textPrimary / textSecondary / textTertiary                                  | #0E2E31 / #4A6A6E / #7D9B9F                               |
+| border / borderLight                                                        | #C2EBEE / #E6F8FA                                         |
+| success / warning / error                                                   | #22C55E / #F59E0B / #D32F2F                               |
 | connector Available / Charging / Unavailable / Faulted / Reserved / Unknown | #16a34a / #0dd5e3 / #ef4444 / #FFC107 / #f59e0b / #9E9E9E |
-| radius sm / md / lg / sheet | 8 / 12 / 16 / 24 |
-| spacing xs / sm / md / lg / xl | 4 / 8 / 16 / 24 / 32 |
-| font | Inter Regular, Medium, SemiBold, Bold |
+| radius sm / md / lg / sheet                                                 | 8 / 12 / 16 / 24                                          |
+| spacing xs / sm / md / lg / xl                                              | 4 / 8 / 16 / 24 / 32                                      |
+| font                                                                        | Inter Regular, Medium, SemiBold, Bold                     |
 
 Connector icons (Type1, Type2, CCS1, CCS2, CHAdeMO, GB/T, Bharat AC, Bharat DC) are SVG components in src/components/ConnectorTypes/; copy them as-is.
 
@@ -667,16 +672,20 @@ src/
 
 ```ts
 // src/core/api/client.ts
-export const client = axios.create({ baseURL: env.API_URL, timeout: 20_000, withCredentials: true });
+export const client = axios.create({
+  baseURL: env.API_URL,
+  timeout: 20_000,
+  withCredentials: true,
+});
 
 client.interceptors.request.use(async (config) => {
-  const token = await session.getAccessToken();      // active mode only
+  const token = await session.getAccessToken(); // active mode only
   if (token) config.headers.Authorization = `Bearer ${token}`;
   config.headers['x-client-token'] = env.CLIENT_TOKEN;
   return config;
 });
 
-client.interceptors.response.use(undefined, refreshOn401);  // queue + POST /auth/refresh
+client.interceptors.response.use(undefined, refreshOn401); // queue + POST /auth/refresh
 
 // src/core/api/envelope.ts
 export type Page<T> = { items: T[]; page: number; totalPages: number };
@@ -693,7 +702,9 @@ export const toPage = <T>(res: any): Page<T> => ({
 ```ts
 // src/features/stations/api.ts
 export async function getNearbyStations(p: NearbyParams): Promise<Page<Station>> {
-  const res = await api.get<Envelope<PageDto<StationDto>>>('/station', { params: toNearbyQuery(p) });
+  const res = await api.get<Envelope<PageDto<StationDto>>>('/station', {
+    params: toNearbyQuery(p),
+  });
   return toPage(unwrap(res), toStation);
 }
 
@@ -765,9 +776,9 @@ Build in 10 phases, each ending with something you can run on a device. Every fe
 
 ### Phase 2: First-run setup (A5–A8)
 
-- [ ] Profile Setup (PUT /profile)
-- [ ] Shared VehicleForm wizard (brand → model → capacity → details), Vehicle Setup with Skip
-- [ ] Location and Notification permission screens; send FCM token after grant
+- [x] Profile Setup (PUT /profile)
+- [x] Shared VehicleForm wizard (brand → model → capacity → details), Vehicle Setup with Skip
+- [x] One permissions screen (Location + Notifications); send the push token after grant
 
 ### Phase 3: Tabs and discovery (B0–B3)
 
