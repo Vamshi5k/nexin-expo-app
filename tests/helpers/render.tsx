@@ -13,7 +13,6 @@ const METRICS = {
   insets: { top: 47, left: 0, right: 0, bottom: 34 },
 };
 
-// The same provider stack as src/app/_layout.tsx, minus fonts and the splash.
 export function AppProviders({ children }: { children: ReactNode }) {
   return (
     <SafeAreaProvider initialMetrics={METRICS}>

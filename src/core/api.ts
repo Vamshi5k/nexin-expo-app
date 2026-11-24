@@ -1,10 +1,10 @@
 import {
-  isAxiosError,
-  type AxiosResponse,
   AxiosHeaders,
   create as createAxios,
+  isAxiosError,
   type AxiosError,
   type AxiosInstance,
+  type AxiosResponse,
   type InternalAxiosRequestConfig,
 } from 'axios';
 
@@ -225,7 +225,6 @@ export function installAuth(client: AxiosInstance, deps: AuthDeps): void {
 export const API_TIMEOUT_MS = 20_000;
 export const REFRESH_PATH = '/auth/refresh';
 
-// TODO(backend): confirm /auth/refresh also refreshes fleet tokens (OPEN_QUESTIONS #8).
 export const FLEET_REFRESH_PATH = REFRESH_PATH;
 
 export type ApiClientOptions = Omit<AuthDeps, 'refreshUrl'> & {
