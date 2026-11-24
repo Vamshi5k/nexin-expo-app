@@ -50,7 +50,11 @@ export function Input({
   const strong = error ? c.danger : c.accent;
   const strongOff = withAlpha(strong, 0);
   const active = focused || !!error;
-  const textStyle = large ? [t.type.headline, t.tabularNums] : t.type.body;
+  // No lineHeight on a one-line TextInput: iOS then draws the text low and clips descenders.
+  const textStyle = [
+    { ...(large ? t.type.headline : t.type.body), lineHeight: undefined },
+    large && t.tabularNums,
+  ];
 
   useEffect(() => {
     lift.set(withTiming(active ? 1 : 0, { duration: t.motion.durationFast }));
