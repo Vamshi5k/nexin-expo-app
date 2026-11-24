@@ -2,7 +2,6 @@ import * as Haptics from 'expo-haptics';
 
 import { log } from '@/core/log';
 
-/** DESIGN.md: light on selections/toggles, success on payment/charge start, warning on stop/delete. */
 function safe(run: () => Promise<void>) {
   run().catch((e: unknown) => log.debug('haptics unavailable', { e: String(e) }));
 }

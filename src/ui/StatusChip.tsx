@@ -10,11 +10,9 @@ export type StatusTone = 'success' | 'warning' | 'danger' | 'neutral' | 'accent'
 export type StatusChipProps = {
   label: string;
   tone?: StatusTone;
-  /** Use a connector status colour for the dot instead of a tone. */
   connector?: ConnectorStatus;
 };
 
-/** Soft tinted background + coloured dot + text. Colour is never the only signal. */
 export function StatusChip({ label, tone = 'neutral', connector }: StatusChipProps) {
   const t = useTheme();
   const c = t.colors;

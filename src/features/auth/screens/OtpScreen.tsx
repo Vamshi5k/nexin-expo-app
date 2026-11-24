@@ -10,12 +10,11 @@ import { Button, Header, Screen, Text, haptics, toast } from '@/ui';
 
 import { OtpInput } from '../components/OtpInput';
 import { useRequestOtp, useVerifyOtp } from '../hooks';
-import { CONSUMER_OTP_LENGTH, formatContact, OTP_RESEND_SECONDS } from '../otp';
+import { CONSUMER_OTP_LENGTH, formatContact, OTP_RESEND_SECONDS } from '../utils';
 import type { ContactType } from '../types';
 
 export type OtpScreenProps = { type: ContactType; value: string };
 
-/** Counts down from `seconds`; restart() starts again. */
 function useCountdown(seconds: number) {
   const [endsAt, setEndsAt] = useState(() => Date.now() + seconds * 1000);
   const [now, setNow] = useState(() => Date.now());
@@ -35,7 +34,6 @@ function useCountdown(seconds: number) {
   };
 }
 
-/** BLUEPRINT A4. Copy from docs/screen-audit.md 2.4. */
 export function OtpScreen({ type, value }: OtpScreenProps) {
   const t = useTheme();
   const [code, setCode] = useState('');
@@ -47,7 +45,6 @@ export function OtpScreen({ type, value }: OtpScreenProps) {
   const submit = async (otp: string) => {
     if (otp.length !== CONSUMER_OTP_LENGTH || verify.isPending) return;
     try {
-      // On success the session starts and the (auth) guard routes away from this screen.
       await verify.mutateAsync(otp);
       haptics.success();
     } catch (error) {
@@ -55,7 +52,6 @@ export function OtpScreen({ type, value }: OtpScreenProps) {
       input.current?.focus();
       haptics.warning();
       const status = statusOf(error);
-      // One toast only (the old app showed two). 4xx = wrong or expired code.
       toast.error(
         status !== undefined && status >= 400 && status < 500
           ? 'Invalid OTP. Please try again.'

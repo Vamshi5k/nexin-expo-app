@@ -14,10 +14,9 @@ import { useTheme } from '@/theme';
 import { Button, FormInput, Screen, Text, toast } from '@/ui';
 
 import { useRequestOtp } from '../hooks';
-import { emailFormSchema, phoneFormSchema, type ContactForm } from '../schemas';
+import { emailFormSchema, phoneFormSchema, type ContactForm } from '../utils';
 import type { ContactType } from '../types';
 
-/** Copy from docs/screen-audit.md 2.3. Email subtitle is a documented deviation. */
 const COPY = {
   phone: { title: 'Enter mobile number', subtitle: "We'll send a confirmation code" },
   email: { title: 'Enter email', subtitle: "We'll send a verification code" },
@@ -36,12 +35,10 @@ async function openLegal(url: string | null) {
   }
 }
 
-/** BLUEPRINT A3. Phone or email by the runtime loginType. */
 export function LoginScreen() {
   const t = useTheme();
   const config = useClientConfig();
   const [override, setOverride] = useState<ContactType | null>(null);
-  // "Use email instead" exists only when the client logs in by phone.
   const type: ContactType = config.loginType === 'email' ? 'email' : (override ?? 'phone');
   const requestOtp = useRequestOtp();
 
@@ -174,7 +171,6 @@ function LegalLink({ label, onPress }: { label: string; onPress: () => void }) {
 const styles = StyleSheet.create({
   terms: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center' },
   links: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  // Ghost buttons carry 16 pt padding; pull them flush with the input edges.
   linkLeft: { marginLeft: -16 },
   underline: { textDecorationLine: 'underline' },
 });

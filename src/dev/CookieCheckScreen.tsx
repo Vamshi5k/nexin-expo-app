@@ -1,11 +1,3 @@
-/**
- * TEMPORARY dev tool for Phase 2 step 0: does the session cookie from the login call reach
- * the verify call? Delete once the result is recorded in docs/OPEN_QUESTIONS.md.
- *
- * Part A runs against a local server (scratch cookie-server on port 8787) with the same axios
- * settings as the app client (createApiClient: withCredentials, 20 s timeout). Part B runs
- * the real staging login and verify with the app's `api` instance. Tokens are never shown.
- */
 import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 
@@ -41,11 +33,9 @@ export function CookieCheckScreen({ autoRunLocal = false }: { autoRunLocal?: boo
   const [busy, setBusy] = useState(false);
   const [contact, setContact] = useState('');
   const [otp, setOtp] = useState('');
-  // Defaults to brand.apiAppName (what verify() sends). Editable to test other values.
   const [appName, setAppName] = useState(brand.apiAppName);
   const add = (l: Line) => setLines((prev) => [...prev, l]);
 
-  // ?auto=local runs part A on open (simulators where we can't tap).
   useEffect(() => {
     if (autoRunLocal) void runLocal();
     // eslint-disable-next-line react-hooks/exhaustive-deps

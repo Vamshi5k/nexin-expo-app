@@ -7,9 +7,8 @@ import { sessionStore, useSession } from '@/core/session';
 import { useClientConfig } from '@/features/client-config';
 import { useTheme } from '@/theme';
 
-import { guardRoute, type RouteGroup } from '../routes';
+import { guardRoute, type RouteGroup } from '../utils';
 
-/** Layout for a route group: a Stack, shown only when the session may see `group`. */
 export function GuardedStack({ group }: { group: RouteGroup }) {
   const t = useTheme();
   const mode = useSession((s) => s.mode);

@@ -1,7 +1,3 @@
-/**
- * Semantic palette derived from the brand (docs/DESIGN.md "Colour").
- * Components use these tokens only; no raw hex outside src/theme and brand/.
- */
 import type { BrandConfig, ConnectorStatus } from '@brand/schema';
 
 import { ensureContrast, hslToHex, hue, mix, readableOn, withAlpha } from './color';
@@ -22,14 +18,10 @@ export type Palette = {
   textPrimary: string;
   textSecondary: string;
   textTertiary: string;
-  /** Brand colour as a FILL: buttons, active tab, selected chips, progress ring, map pins. */
   accent: string;
   accentPressed: string;
-  /** Tinted background for accent icons, chips and selected rows. */
   accentSoft: string;
-  /** Brand colour as TEXT or ICONS on bg / surface / accentSoft. */
   accentText: string;
-  /** Text and icons on an accent fill. */
   onAccent: string;
   success: string;
   successSoft: string;
@@ -49,7 +41,6 @@ export type Palette = {
   skeletonHighlight: string;
 };
 
-/** WCAG AA thresholds (DESIGN.md: 4.5 body text, 3 large text, icons and UI parts). */
 export const AA_TEXT = 4.5;
 export const AA_UI = 3;
 
@@ -67,7 +58,6 @@ const LIGHTNESS: Record<NeutralStep, number> = {
   950: 0.09,
 };
 
-/** Neutral grey scale slightly tinted towards the brand hue. */
 export function neutralScale(primary: string): Record<NeutralStep, string> {
   const h = hue(primary);
   return Object.fromEntries(
@@ -75,10 +65,6 @@ export function neutralScale(primary: string): Record<NeutralStep, string> {
   ) as Record<NeutralStep, string>;
 }
 
-/**
- * Text colour on a filled control: dark text or white, whichever reads better. If dark text
- * still misses AA it is pushed darker; white cannot be improved (brand:check warns).
- */
 function onFill(fill: string, darkText: string): string {
   const pick = readableOn(fill, darkText);
   return pick === '#FFFFFF' ? pick : ensureContrast(pick, [fill], AA_TEXT, 'darken');
@@ -99,11 +85,6 @@ function status(
   return { base, soft, text };
 }
 
-/**
- * Light surfaces default to neutrals (DESIGN.md "neutrals by default"): a near-white grey
- * page, white cards and neutral hairline borders. A brand may override bg, surface and
- * border; everything else is derived. The dark palette is always derived.
- */
 export function buildPalette(brand: BrandConfig, scheme: ColorScheme): Palette {
   const c = brand.colors;
   const neutral = neutralScale(c.primary);
@@ -118,8 +99,6 @@ export function buildPalette(brand: BrandConfig, scheme: ColorScheme): Palette {
     : mix(neutral[950], '#000000', 0.4);
   const surfaces = [bg, surface, surfaceRaised, surfaceSunken];
 
-  // accentFill (defaults to primary) is the brand colour as a fill. In dark mode it is
-  // lightened only if it would vanish against the dark surfaces.
   const accent = light
     ? c.accentFill
     : ensureContrast(c.accentFill, [bg, surface], AA_UI, 'lighten');
@@ -129,7 +108,6 @@ export function buildPalette(brand: BrandConfig, scheme: ColorScheme): Palette {
     : ensureContrast(accent, [bg, surface, surfaceRaised, accentSoft], AA_TEXT, 'lighten');
 
   const textPrimary = light ? c.textPrimary : neutral[50];
-  // Text on fills always chooses between white and a genuinely dark colour, in both schemes.
   const darkText = light ? c.textPrimary : neutral[950];
   const onAccent = onFill(accent, darkText);
 

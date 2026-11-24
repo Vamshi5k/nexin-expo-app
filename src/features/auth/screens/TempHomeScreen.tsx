@@ -8,7 +8,7 @@ import { useTheme } from '@/theme';
 import { Card, LargeTitleScroll, ListGroup, ListRow, Text, toast } from '@/ui';
 
 import { useLogout, useMe } from '../hooks';
-import { formatContact } from '../otp';
+import { formatContact } from '../utils';
 
 export function TempHomeScreen() {
   const t = useTheme();

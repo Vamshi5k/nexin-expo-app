@@ -2,8 +2,7 @@ import { queryOptions } from '@tanstack/react-query';
 
 import { queryKeys } from '@/core/query';
 
-import { getFleetUserByToken } from './api';
-import { toFleetUser } from './mappers';
+import { getFleetUserByToken, toFleetUser } from './api';
 
 export const fleetMeQuery = () =>
   queryOptions({

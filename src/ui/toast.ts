@@ -1,7 +1,3 @@
-/**
- * The ONLY file that imports sonner-native. Screens use `toast` and the root layout
- * mounts `<AppToaster />`; both are themed from tokens and work in light and dark.
- */
 import { CircleAlert, CircleCheck, Info } from 'lucide-react-native';
 import { createElement } from 'react';
 import { Toaster, toast as sonner } from 'sonner-native';
@@ -30,7 +26,6 @@ export const toast = {
   info(message: string, options?: Options) {
     return sonner.info(message, options);
   },
-  /** Shows loading, then success or error; haptics follow the outcome. */
   promise<T>(promise: Promise<T>, messages: PromiseMessages<T>) {
     const tracked = promise.then(
       (value) => {
@@ -54,7 +49,6 @@ export const toast = {
   },
 };
 
-/** Mount once in the root layout. */
 export function AppToaster() {
   const t = useTheme();
   const c = t.colors;

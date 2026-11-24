@@ -7,12 +7,7 @@ const LOGO = require('../../brand/assets/logo.png');
 
 export type BrandLogoProps = {
   height?: number;
-  /**
-   * Runtime logo (data: URI or https URL), e.g. from /client/info. Falls back to the
-   * build-time asset in brand/assets when null or when it fails to load.
-   */
   uri?: string | null;
-  /** Accessibility label. Defaults to the build-time app name. */
   label?: string;
 };
 
@@ -21,12 +16,7 @@ function assetRatio(): number {
   return s?.width && s.height ? s.width / s.height : 1;
 }
 
-/**
- * The client logo. src/ui can't read feature state, so screens pass the runtime uri
- * (features/client-config exports <AppLogo/>, which does).
- */
 export function BrandLogo({ height = 40, uri, label }: BrandLogoProps) {
-  // Both are keyed by uri, so a new uri starts clean without resetting state in an effect.
   const [measured, setMeasured] = useState<{ uri: string; ratio: number } | null>(null);
   const [failedUri, setFailedUri] = useState<string | null>(null);
   const remote = uri && uri !== failedUri ? uri : null;

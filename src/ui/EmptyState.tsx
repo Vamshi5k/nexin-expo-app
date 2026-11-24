@@ -14,7 +14,6 @@ export type EmptyStateProps = {
   onAction?: () => void;
 };
 
-/** Line icon in an accentSoft circle, one-line title, one sentence, one action. */
 export function EmptyState({
   icon: Icon,
   title,

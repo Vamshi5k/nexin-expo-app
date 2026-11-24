@@ -1,6 +1,5 @@
 import type { Tokens } from '@/core/api';
 
-/** POST /auth/app/verify. Tokens are top-level; older builds used the user* names. */
 export type VerifyResponseDto = {
   userAccessToken?: string | null;
   accessToken?: string | null;
@@ -9,7 +8,6 @@ export type VerifyResponseDto = {
   message?: string;
 };
 
-/** GET /auth/user-by-token -> data.user (only the fields the app reads). */
 export type UserDto = {
   id: number | string;
   userId?: string | null;
@@ -32,7 +30,6 @@ export type User = {
   email: string | null;
   phone: string | null;
   isFirstLogin: boolean;
-  /** Integer paise. Format only at render time. */
   walletBalancePaise: number;
   isEmailVerified: boolean;
   isPhoneVerified: boolean;

@@ -14,12 +14,10 @@ export type DialogProps = {
   cancelLabel?: string;
   onConfirm: () => void;
   onCancel?: () => void;
-  /** Destructive actions get a danger button and a warning haptic. */
   destructive?: boolean;
   loading?: boolean;
 };
 
-/** Only for destructive or blocking actions; use Sheet for everything else (DESIGN.md). */
 export function Dialog({
   open,
   title,

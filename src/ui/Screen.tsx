@@ -14,11 +14,8 @@ import { useTheme } from '@/theme';
 
 export type ScreenProps = {
   children: ReactNode;
-  /** Wrap content in a ScrollView. */
   scroll?: boolean;
-  /** Sticky footer above the safe area (primary actions on forms). */
   footer?: ReactNode;
-  /** Remove the 20 pt horizontal screen padding (e.g. full-bleed maps). */
   padded?: boolean;
   edges?: Edge[];
   background?: 'bg' | 'surface';

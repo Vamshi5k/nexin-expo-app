@@ -4,10 +4,6 @@ import { brand } from '@/core/config';
 
 import { fontFamilies } from './tokens';
 
-/**
- * Brand font files live in brand/fonts/ under fixed weight names so the requires stay
- * static; the family name comes from brand.fontFamily (e.g. "Inter-SemiBold").
- */
 const families = fontFamilies(brand.fontFamily);
 
 export const fontSources = {
@@ -17,7 +13,6 @@ export const fontSources = {
   [families.Bold]: require('../../brand/fonts/Bold.otf'),
 };
 
-/** Loads the brand font. The root layout keeps the splash up until this resolves. */
 export function useBrandFonts(): { loaded: boolean; error: Error | null } {
   const [loaded, error] = useFonts(fontSources);
   return { loaded, error };

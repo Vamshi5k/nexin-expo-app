@@ -35,15 +35,38 @@ Install native deps with `npx expo install`, never plain npm, so versions match 
 ## Architecture rules
 
 1. app/\*_ are thin route files: read params, render a screen from src/features/_/screens. No fetching.
-2. src/features/<f>/api.ts: typed functions, the only place endpoint strings appear.
-3. mappers.ts: DTO -> domain model. Components never see raw API shapes.
-4. hooks.ts: TanStack Query wrappers. Screens use only hooks.
+2. api.ts: endpoint calls + DTO -> domain model mapping. The only place endpoint strings
+   appear. Components never see raw API shapes.
+3. hooks.ts: TanStack Query wrappers and feature logic that needs the query client or session.
+   Screens use only hooks.
+4. utils.ts: the feature's pure logic (formatters, schemas, routing rules).
 5. Zustand = client state only (session, filters). Server data lives in the query cache.
-6. Pure logic (pricing, QR parsing, status maps, formatters) in plain .ts files with Jest tests.
+6. Pure logic (pricing, QR parsing, status maps, formatters) is tested in tests/.
 7. Features import each other only via index.ts. src/ui and src/core never import src/features.
 8. Money is computed in paise (integers). Format only at render time.
 9. No `any` in api/hooks. No console.\* in committed code (use src/core/log.ts).
 10. Every list/detail screen has loading (skeleton), error (+Retry), empty and offline states.
+
+## Folder layout
+
+Keep it small and feature-based:
+
+```
+src/app/                 thin route files
+src/core/*.ts            flat files: api, config, log, network, permissions, query, session, storage
+src/features/<f>/
+  screens/  components/  api.ts  hooks.ts  types.ts  utils.ts  index.ts
+src/ui/  src/theme/      design system
+tests/<area>/*.test.ts   all tests live here, importing via @/ aliases
+```
+
+Only add a file to a feature when it does not fit one of the above.
+
+## Code style
+
+- Write code that reads as hand-written. No JSDoc on every function, constant or prop.
+- Comment only a non-obvious "why", in one short line. TODO(backend|phase-x) markers stay.
+- Prefer fewer, larger feature-local files over many tiny layer files.
 
 ## Working style
 

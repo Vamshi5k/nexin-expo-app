@@ -30,7 +30,6 @@ export type Theme = {
 
 type ThemeContextValue = {
   theme: Theme;
-  /** Forces a scheme (dev gallery); null follows brand.appearance. */
   setSchemeOverride: (scheme: ColorScheme | null) => void;
   schemeOverride: ColorScheme | null;
 };
@@ -52,7 +51,6 @@ export function buildTheme(scheme: ColorScheme, b = brand): Theme {
   };
 }
 
-/** Resolves the scheme: dev override, then brand.appearance, then the device setting. */
 export function resolveScheme(
   appearance: 'system' | 'light' | 'dark',
   device: string | null | undefined,
@@ -74,10 +72,6 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }
 
-/**
- * Renders children in a fixed scheme regardless of the app's scheme. Used by the dev
- * gallery to show light and dark side by side; screens should not need it.
- */
 export function ThemeScope({ scheme, children }: { scheme: ColorScheme; children: ReactNode }) {
   const parent = useContext(ThemeContext);
   if (!parent) throw new Error('ThemeScope must be used inside <ThemeProvider>');

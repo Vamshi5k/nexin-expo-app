@@ -1,6 +1,5 @@
 import { SignedInPlaceholderScreen } from '@/features/auth';
 
-/** TEMPORARY: the fleet home comes in the fleet phase. */
 export default function FleetHomeRoute() {
   return (
     <SignedInPlaceholderScreen

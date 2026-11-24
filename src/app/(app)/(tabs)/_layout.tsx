@@ -3,7 +3,6 @@ import { House, Wallet } from 'lucide-react-native';
 
 import { useTheme } from '@/theme';
 
-/** TEMPORARY tab set (Home, Wallet). The full bar (Map, Stations, Scan, Wallet, Profile) comes later. */
 export default function TabsLayout() {
   const t = useTheme();
   return (

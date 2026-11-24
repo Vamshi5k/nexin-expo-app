@@ -145,6 +145,12 @@ login (A3), OTP (A4), boot error screen (A9 style), logout.
   - `brand.links` (terms, privacy, support) as build-time fallbacks; runtime link and logo
     URLs must be http(s).
 
+- Restructure (2026-11-24, requested): features are `screens/ components/ api.ts hooks.ts
+types.ts utils.ts index.ts` (mappers merged into api.ts; queries, boot and the old
+  `core/bootstrap.ts` merged into hooks.ts as `restoreSession`; otp, routes and schemas merged
+  into utils.ts). `src/core` sub-folders became flat files. All tests moved to `tests/`.
+  AI-style doc comments removed. AGENTS.md "Folder layout" and "Code style" record the rules.
+
 **Verified**: `tsc --noEmit`, `expo lint`, `jest` (26 suites, 186 tests), `brand:check` all pass.
 Not yet verified on a device against staging (needs a test number, see open questions).
 

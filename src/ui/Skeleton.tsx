@@ -19,7 +19,6 @@ export type SkeletonProps = {
   style?: StyleProp<ViewStyle>;
 };
 
-/** Placeholder block with a subtle shimmer. Match the final layout's shapes. */
 export function Skeleton({ width = '100%', height = 16, radius, style }: SkeletonProps) {
   const t = useTheme();
   const reduceMotion = useReducedMotion();
@@ -51,7 +50,6 @@ export function Skeleton({ width = '100%', height = 16, radius, style }: Skeleto
   );
 }
 
-/** A few lines of text-shaped skeleton; the last line is shorter. */
 export function SkeletonText({
   lines = 3,
   lineHeight = 14,

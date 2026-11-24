@@ -7,15 +7,8 @@ import type { HapticKind } from './haptics';
 import { Pressable } from './Pressable';
 import { Text } from './Text';
 
-/**
- * primary: the one brand-filled action on a screen.
- * secondary: white (surface) with a neutral border and dark text. Never brand-filled.
- * ghost: brand-coloured text only, for low-emphasis actions.
- * danger / dangerOutline: destructive actions (Stop charging uses dangerOutline).
- */
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'dangerOutline';
 
-/** large = 52 (primary actions, sticky footers); medium = 44 (inline, cards, banners). */
 export type ButtonSize = 'large' | 'medium';
 
 export type ButtonProps = {
@@ -26,7 +19,6 @@ export type ButtonProps = {
   icon?: LucideIcon;
   loading?: boolean;
   disabled?: boolean;
-  /** Stretch to the parent's width. Default: true for large, false for medium. */
   fullWidth?: boolean;
   haptic?: HapticKind | false;
   style?: StyleProp<ViewStyle>;
@@ -65,7 +57,6 @@ export function Button({
 }: ButtonProps) {
   const t = useTheme();
   const inactive = disabled || loading;
-  // Disabled filled buttons go neutral rather than a faded brand colour.
   const filled = variant === 'primary' || variant === 'danger';
   const { bg, fg, border, borderWidth } =
     disabled && filled

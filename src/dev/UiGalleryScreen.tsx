@@ -56,10 +56,6 @@ import {
   toast,
 } from '@/ui';
 
-/**
- * Dev-only gallery of every UI kit component, in light and dark. Reached at /dev/ui in
- * non-production builds. Demo copy here is not product copy.
- */
 const SECTIONS: Record<string, () => ReactNode> = {
   appearance: () => <SchemeSection />,
   modes: () => <ModesSection />,
@@ -78,23 +74,16 @@ const SECTIONS: Record<string, () => ReactNode> = {
 };
 
 export type UiGalleryScreenProps = {
-  /** Force a scheme on open (deep link ?scheme=dark). */
   initialScheme?: ColorScheme;
-  /** Show one section only (deep link ?section=buttons). */
   section?: string;
 };
 
-/**
- * Dev-only gallery of every UI kit component, in light and dark. Reached at /dev/ui in
- * non-production builds. Demo copy here is not product copy.
- */
 export function UiGalleryScreen({ initialScheme, section }: UiGalleryScreenProps) {
   const t = useTheme();
   const { setSchemeOverride } = useSchemeOverride();
   useEffect(() => {
     if (initialScheme) setSchemeOverride(initialScheme);
   }, [initialScheme, setSchemeOverride]);
-  // The override is a gallery tool: leaving the gallery returns to brand.appearance.
   useEffect(() => () => setSchemeOverride(null), [setSchemeOverride]);
 
   const keys = section && SECTIONS[section] ? [section] : Object.keys(SECTIONS);
@@ -136,7 +125,6 @@ function Section({
   );
 }
 
-/** Two equal-width items side by side. */
 function Pair({ children }: { children: [ReactNode, ReactNode] }) {
   const t = useTheme();
   return (

@@ -11,9 +11,7 @@ export type InputProps = Omit<TextInputProps, 'style' | 'placeholderTextColor'> 
   hint?: string;
   error?: string;
   icon?: LucideIcon;
-  /** Fixed text before the value with a divider, e.g. a dialling code from brand config. */
   prefix?: string;
-  /** Element shown at the end of the field, e.g. a show-password toggle. */
   trailing?: ReactNode;
   ref?: Ref<ComponentRef<typeof TextInput>>;
 };
@@ -34,8 +32,6 @@ export function Input({
   const t = useTheme();
   const c = t.colors;
   const [focused, setFocused] = useState(false);
-  // At rest the field is a sunken neutral fill; focus lifts it to the surface with a brand
-  // border and a soft focus ring. Errors use danger in place of the brand.
   const borderColor = error ? c.danger : focused ? c.accent : 'transparent';
   const ringColor = error ? c.dangerSoft : focused ? c.accentSoft : 'transparent';
 
@@ -115,7 +111,6 @@ export function Input({
   );
 }
 
-/** Width of the focus ring drawn outside the field. */
 const RING = 3;
 
 const styles = StyleSheet.create({

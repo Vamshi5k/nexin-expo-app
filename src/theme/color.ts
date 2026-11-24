@@ -1,4 +1,3 @@
-/** Colour maths for deriving the theme from brand colours. Pure, unit-tested. */
 import { contrastRatio } from '@brand/lib/contrast';
 
 export { contrastRatio };
@@ -18,7 +17,6 @@ export function rgbToHex([r, g, b]: Rgb): string {
   return `#${to(r)}${to(g)}${to(b)}`.toUpperCase();
 }
 
-/** Linear mix: t = 0 returns a, t = 1 returns b. */
 export function mix(a: string, b: string, t: number): string {
   const [ra, ga, ba] = hexToRgb(a);
   const [rb, gb, bb] = hexToRgb(b);
@@ -65,10 +63,6 @@ export function hslToHex(h: number, s: number, l: number): string {
 const BLACK = '#000000';
 const WHITE = '#FFFFFF';
 
-/**
- * Moves `color` towards black ('darken') or white ('lighten') in 2% steps until it reaches
- * `min` contrast on every background. Returns the colour unchanged if it already passes.
- */
 export function ensureContrast(
   color: string,
   backgrounds: string[],
@@ -83,7 +77,6 @@ export function ensureContrast(
   return target;
 }
 
-/** Whichever of `dark` or white text reads better on `fill`. */
 export function readableOn(fill: string, dark: string): string {
   return contrastRatio(dark, fill) >= contrastRatio(WHITE, fill) ? dark : WHITE;
 }

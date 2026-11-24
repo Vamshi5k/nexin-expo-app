@@ -49,10 +49,6 @@ export default function RootLayout() {
   );
 }
 
-/**
- * Holds the native splash while boot runs (legacy migration, session hydrate, client config,
- * session check: BLUEPRINT A1), then shows the routes or the boot error screen.
- */
 function AppShell() {
   const t = useTheme();
   const boot = useBoot();

@@ -7,10 +7,6 @@ import { useLogout } from '../hooks';
 
 export type SignedInPlaceholderScreenProps = { title: string; description: string };
 
-/**
- * TEMPORARY stand-in for signed-in routes that arrive in later phases (setup, fleet).
- * Has Log out so a tester is never stuck on it.
- */
 export function SignedInPlaceholderScreen({ title, description }: SignedInPlaceholderScreenProps) {
   const t = useTheme();
   const logout = useLogout();

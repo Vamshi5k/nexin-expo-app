@@ -14,7 +14,6 @@ export type SegmentedControlProps<T extends string> = {
   accessibilityLabel?: string;
 };
 
-/** Tabs inside a screen (DESIGN.md). */
 export function SegmentedControl<T extends string>({
   segments,
   value,

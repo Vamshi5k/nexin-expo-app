@@ -1,5 +1,3 @@
-// Converted from the old app's ConnectorTypes/Type1.js: same geometry, theme colours via props,
-// label removed (ConnectorIcon renders it with theme typography).
 import Svg, { Circle } from 'react-native-svg';
 
 import type { ConnectorGlyphProps } from './types';

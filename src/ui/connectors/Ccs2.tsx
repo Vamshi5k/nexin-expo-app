@@ -1,5 +1,3 @@
-// Converted from the old app's ConnectorTypes/CCS2.js: same geometry, theme colours via props,
-// label removed (ConnectorIcon renders it with theme typography).
 import Svg, { Circle, Path, Rect } from 'react-native-svg';
 
 import type { ConnectorGlyphProps } from './types';

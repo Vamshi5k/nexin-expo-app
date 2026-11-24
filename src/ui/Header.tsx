@@ -21,12 +21,10 @@ const BAR_HEIGHT = 44;
 
 export type HeaderProps = {
   title?: string;
-  /** Show a back chevron. Defaults to router.back(). */
   back?: boolean | (() => void);
   right?: ReactNode;
 };
 
-/** Compact header bar (no safe-area padding; put it inside a Screen with edges top). */
 export function Header({ title, back, right }: HeaderProps) {
   const t = useTheme();
   const onBack = typeof back === 'function' ? back : () => router.back();
@@ -54,18 +52,11 @@ export function Header({ title, back, right }: HeaderProps) {
 
 export type LargeTitleScrollProps = HeaderProps & {
   children: ReactNode;
-  /** Optional line under the large title. */
   subtitle?: string;
 };
 
-/** Blur only where it is cheap and native; Android gets a solid bar (DESIGN.md). */
 const USE_BLUR = Platform.OS === 'ios';
 
-/**
- * Main-screen layout: a large title that collapses into a compact title on scroll
- * (DESIGN.md "Layout and shape"). The bar floats over the content; once the large title
- * has scrolled away it gains a translucent blurred background and a hairline border.
- */
 export function LargeTitleScroll({
   title,
   subtitle,
@@ -100,10 +91,7 @@ export function LargeTitleScroll({
   }));
   const largeTitle = useAnimatedStyle(() => ({
     opacity: interpolate(y.value, [0, largeHeight * 0.8], [1, 0], Extrapolation.CLAMP),
-    transform: [
-      // Rubber-band the title slightly larger on pull-down, like the native large title.
-      { scale: interpolate(y.value, [-120, 0], [1.08, 1], Extrapolation.CLAMP) },
-    ],
+    transform: [{ scale: interpolate(y.value, [-120, 0], [1.08, 1], Extrapolation.CLAMP) }],
   }));
 
   const onBack = typeof back === 'function' ? back : () => router.back();

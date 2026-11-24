@@ -6,7 +6,6 @@ import { Button, Screen, Text } from '@/ui';
 
 export type BootErrorScreenProps = { onRetry: () => void; retrying?: boolean };
 
-/** BLUEPRINT A1 failure state: the session check failed or timed out. Tokens are kept. */
 export function BootErrorScreen({ onRetry, retrying }: BootErrorScreenProps) {
   const t = useTheme();
   return (

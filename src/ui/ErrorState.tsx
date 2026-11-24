@@ -10,7 +10,6 @@ export type ErrorStateProps = {
   offline?: boolean;
 };
 
-/** Error with a Retry action (AGENTS rule 10: every list/detail screen has one). */
 export function ErrorState({
   message,
   title = 'Something went wrong',

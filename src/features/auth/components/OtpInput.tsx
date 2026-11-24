@@ -11,12 +11,11 @@ import {
 import { useTheme } from '@/theme';
 import { Text } from '@/ui';
 
-import { otpCells, sanitizeOtp } from '../otp';
+import { otpCells, sanitizeOtp } from '../utils';
 
 export type OtpInputProps = {
   value: string;
   onChange: (value: string) => void;
-  /** Called once when the last digit is entered (typing, paste or autofill). */
   onComplete?: (value: string) => void;
   length: number;
   error?: boolean;
@@ -25,10 +24,6 @@ export type OtpInputProps = {
   ref?: Ref<TextInputInstance>;
 };
 
-/**
- * ONE hidden TextInput (so iOS oneTimeCode and Android sms-otp autofill work) drawn as
- * `length` boxes. Paste fills every box; the last digit triggers onComplete.
- */
 export function OtpInput({
   value,
   onChange,

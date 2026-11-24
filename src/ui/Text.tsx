@@ -28,7 +28,6 @@ const TONE: Record<TextTone, keyof Palette> = {
 export type TextProps = RNTextProps & {
   variant?: TypeVariant;
   tone?: TextTone;
-  /** Tabular figures for live numbers (₹, kWh, %, timers). */
   tabular?: boolean;
   align?: TextStyle['textAlign'];
 };

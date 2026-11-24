@@ -9,7 +9,6 @@ export type BadgeProps = {
   tone?: 'accent' | 'neutral' | 'danger';
 };
 
-/** Small pill for counts and short labels ("3", "New", "Primary"). */
 export function Badge({ label, tone = 'accent' }: BadgeProps) {
   const t = useTheme();
   const c = t.colors;

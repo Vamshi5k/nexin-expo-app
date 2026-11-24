@@ -8,11 +8,6 @@ import { Pressable } from './Pressable';
 export type CardProps = {
   children: ReactNode;
   onPress?: () => void;
-  /**
-   * 'flat' (default): white surface with a neutral hairline border.
-   * 'elevated': the one soft shadow level, for hero cards and floating items. In dark mode,
-   * where shadows don't read, it is a raised surface with a hairline border instead.
-   */
   elevation?: 'flat' | 'elevated';
   padded?: boolean;
   style?: StyleProp<ViewStyle>;

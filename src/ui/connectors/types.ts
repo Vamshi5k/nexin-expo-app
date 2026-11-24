@@ -1,7 +1,5 @@
 export type ConnectorGlyphProps = {
-  /** Stroke and pin colour. */
   color: string;
-  /** Colour of pin holes; pass the surface the icon sits on. */
   holeColor: string;
   size?: number;
 };
@@ -18,7 +16,6 @@ export const CONNECTOR_TYPES = [
 ] as const;
 export type ConnectorType = (typeof CONNECTOR_TYPES)[number];
 
-/** Maps backend port names (case/spacing vary) to a known type. */
 export function toConnectorType(raw: string | null | undefined): ConnectorType | null {
   if (!raw) return null;
   const key = raw.toLowerCase().replace(/[\s_/-]/g, '');

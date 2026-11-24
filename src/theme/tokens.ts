@@ -1,7 +1,5 @@
-/** Layout, shape and type tokens from docs/DESIGN.md. Brand-independent except the font family. */
 import { Platform, StyleSheet, type TextStyle, type ViewStyle } from 'react-native';
 
-/** 4 pt grid. */
 export const space = {
   0: 0,
   1: 4,
@@ -24,7 +22,6 @@ export const layout = {
   inputHeight: 52,
   minTouch: 44,
   hairline: StyleSheet.hairlineWidth,
-  /** Layouts must survive font scaling up to this factor. */
   maxFontScale: 1.3,
 } as const;
 
@@ -38,7 +35,6 @@ export const radius = {
 export const FONT_WEIGHTS = ['Regular', 'Medium', 'SemiBold', 'Bold'] as const;
 export type FontWeightName = (typeof FONT_WEIGHTS)[number];
 
-/** Registered font family names, e.g. "Inter-SemiBold". Loaded in the root layout. */
 export function fontFamilies(family: string): Record<FontWeightName, string> {
   return Object.fromEntries(FONT_WEIGHTS.map((w) => [w, `${family}-${w}`])) as Record<
     FontWeightName,
@@ -51,7 +47,6 @@ export type TypeVariant =
 
 type TypeSpec = { size: number; line: number; weight: FontWeightName; tracking?: number };
 
-/** DESIGN.md type scale. Slight negative letter-spacing at 22 and above. */
 export const TYPE_SCALE: Record<TypeVariant, TypeSpec> = {
   display: { size: 34, line: 40, weight: 'SemiBold', tracking: -0.5 },
   title1: { size: 28, line: 34, weight: 'SemiBold', tracking: -0.4 },
@@ -78,10 +73,8 @@ export function typography(family: string): Record<TypeVariant, TextStyle> {
   ) as Record<TypeVariant, TextStyle>;
 }
 
-/** Tabular figures so live numbers (₹, kWh, %, timers) don't jitter. */
 export const tabularNums: TextStyle = { fontVariant: ['tabular-nums'] };
 
-/** The one soft shadow level for floating items (FAB, map search, sheets). */
 export function floatingShadow(shadowColor: string): ViewStyle {
   return Platform.select<ViewStyle>({
     ios: { shadowColor, shadowOpacity: 1, shadowRadius: 16, shadowOffset: { width: 0, height: 4 } },

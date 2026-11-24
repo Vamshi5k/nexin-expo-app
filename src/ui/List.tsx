@@ -10,23 +10,16 @@ import { Pressable } from './Pressable';
 import { Text } from './Text';
 
 export type ListGroupProps = {
-  /** Small label above the group, sentence case. */
   title?: string;
-  /** Helper text under the group. */
   footer?: string;
   children: ReactNode;
 };
 
 const ICON_BOX = 32;
 
-/**
- * Inset grouped list (DESIGN.md: settings-style screens). A white card with hairline
- * separators inset past the row icon.
- */
 export function ListGroup({ title, footer, children }: ListGroupProps) {
   const t = useTheme();
   const rows = Children.toArray(children).filter(isValidElement);
-  // Separators start under the text, past the icon circle, when the rows have icons.
   const hasIcons = rows.some((r) => (r.props as Partial<ListRowProps>).icon != null);
   const inset = t.space[4] + (hasIcons ? ICON_BOX + t.space[3] : 0);
 
@@ -78,17 +71,11 @@ export function ListGroup({ title, footer, children }: ListGroupProps) {
 export type ListRowProps = {
   title: string;
   subtitle?: string;
-  /** Lucide icon shown in a soft tinted circle. */
   icon?: LucideIcon;
-  /** 'accent' (default) tints the icon with the brand; 'neutral' and 'danger' for others. */
   iconTone?: 'accent' | 'neutral' | 'danger';
-  /** Trailing value text, e.g. "₹1,250" or "On". */
   value?: string;
-  /** Custom trailing element (switch, badge). Replaces value. */
   trailing?: ReactNode;
-  /** Shows a chevron. Default: true when onPress is set and no trailing element. */
   chevron?: boolean;
-  /** Destructive rows (Log out, Delete account) use danger text. */
   destructive?: boolean;
   onPress?: () => void;
   haptic?: HapticKind | false;

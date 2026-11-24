@@ -1,4 +1,3 @@
-/** GET /fleet/get-by-token -> data (only the fields the app reads). */
 export type FleetUserDto = {
   id: number | string;
   fleetId?: number | string | null;

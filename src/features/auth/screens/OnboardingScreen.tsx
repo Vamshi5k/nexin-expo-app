@@ -16,11 +16,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/theme';
 import { Button, Text } from '@/ui';
 
-import { markOnboardingDone, START_HREF } from '../routes';
+import { markOnboardingDone, START_HREF } from '../utils';
 
 type Slide = { key: string; icon: LucideIcon; title: string; description: string };
 
-/** Copy from docs/screen-audit.md 2.2 (verbatim). */
 const SLIDES: Slide[] = [
   {
     key: 'find',
@@ -42,7 +41,6 @@ const SLIDES: Slide[] = [
   },
 ];
 
-/** BLUEPRINT A2. firstlogin is set on Skip or Get Started only, never on mount. */
 export function OnboardingScreen() {
   const t = useTheme();
   const insets = useSafeAreaInsets();
@@ -162,7 +160,6 @@ function Dot({ index, width, x }: { index: number; width: number; x: SharedValue
   const range = [(index - 1) * width, index * width, (index + 1) * width];
   const idle = t.colors.borderStrong;
   const active = t.colors.accent;
-  // Width and colour interpolate with the scroll, so there is no flicker mid-swipe.
   const style = useAnimatedStyle(() => ({
     width: interpolate(x.value, range, [8, 24, 8], Extrapolation.CLAMP),
     backgroundColor: interpolateColor(x.value, range, [idle, active, idle]),

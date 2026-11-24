@@ -1,3 +1,3 @@
 export { useClientConfig, primeClientConfig } from './hooks';
-export { AppLogo } from './AppLogo';
+export { AppLogo } from './components/AppLogo';
 export type { ClientConfig, LoginType } from './types';

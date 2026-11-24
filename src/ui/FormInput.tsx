@@ -10,7 +10,6 @@ export type FormInputProps<T extends FieldValues> = Omit<
   name: FieldPath<T>;
 };
 
-/** Input bound to react-hook-form; shows the field's validation message as the error. */
 export function FormInput<T extends FieldValues>({ control, name, ...input }: FormInputProps<T>) {
   return (
     <Controller

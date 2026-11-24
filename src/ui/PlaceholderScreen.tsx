@@ -11,7 +11,6 @@ export type PlaceholderScreenProps = {
   children?: ReactNode;
 };
 
-/** Stand-in for a route whose real screen arrives in a later phase. */
 export function PlaceholderScreen({ title, description, back, children }: PlaceholderScreenProps) {
   return (
     <LargeTitleScroll title={title} back={back}>

@@ -18,11 +18,9 @@ export type SheetProps = {
   title?: string;
   description?: string;
   children?: ReactNode;
-  /** Blocking sheets (e.g. preparing to charge) can't be swiped or tapped away. */
   dismissible?: boolean;
 };
 
-/** Bottom sheet for choices, filters and confirmations (DESIGN.md). Sized to content. */
 export function Sheet({
   open,
   onClose,

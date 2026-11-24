@@ -22,12 +22,10 @@ const AnimatedPressable = Animated.createAnimatedComponent(RNPressable);
 export type PressableProps = Omit<RNPressableProps, 'style' | 'children'> & {
   style?: StyleProp<ViewStyle>;
   children?: ReactNode;
-  /** 'scale' (default) shrinks to 0.98; 'opacity' dims. */
   feedback?: 'scale' | 'opacity';
   haptic?: HapticKind | false;
 };
 
-/** Every tappable thing has a pressed state (DESIGN.md: no dead taps). */
 export function Pressable({
   feedback = 'scale',
   haptic = false,
