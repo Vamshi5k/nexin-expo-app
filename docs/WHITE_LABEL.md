@@ -32,7 +32,8 @@ needs a new build. The native ones cannot be changed any other way:
 build-time fallbacks:
 
 - Brand name and logo shown in the UI
-- Legal and support URLs
+- Legal and support URLs (`brand.links.{terms, privacy, support}` are the optional build-time
+  fallbacks; runtime values must be http(s) or they are ignored)
 - Login type
 - Feature flags: `fleetFeature`, `couponFeature`. When a flag is off, its UI and routes are
   fully hidden. `brand.features` is only used until `/client/info` has loaded.

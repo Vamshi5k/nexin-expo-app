@@ -136,8 +136,16 @@ login (A3), OTP (A4), boot error screen (A9 style), logout.
   client config, session check (25 s timeout). Expired session -> signed out -> login;
   network/5xx/timeout -> BootErrorScreen with Try Again (tokens kept).
 - `/dev/ui` and `/dev/cookie-check` still work and still redirect to `/` in production.
+- Fixes after review (2026-11-24):
+  - Logout uses `GET /fleet/logout` for a fleet session (was always `POST /auth/logout`).
+  - `clearUserDataOnSessionChange`: user queries are dropped on every session mode change, so
+    a new login never routes on the previous user's cached `/auth/user-by-token`.
+  - Route guards are one pure function (`guardRoute`, table-tested) used by `GuardedStack`.
+  - `/otp` without a contact (bare deep link) redirects to login.
+  - `brand.links` (terms, privacy, support) as build-time fallbacks; runtime link and logo
+    URLs must be http(s).
 
-**Verified**: `tsc --noEmit`, `expo lint`, `jest` (24 suites, 154 tests) all pass.
+**Verified**: `tsc --noEmit`, `expo lint`, `jest` (26 suites, 186 tests), `brand:check` all pass.
 Not yet verified on a device against staging (needs a test number, see open questions).
 
 **Deviations**
@@ -154,7 +162,9 @@ Not yet verified on a device against staging (needs a test number, see open ques
   Part B, #10).
 - Decide the `/auth/app/verify` `appName` value (OPEN_QUESTIONS #11).
 - Remove the temporary `/dev/cookie-check` route once #9 Part B passes.
-- Tests for the route guards (currently covered by `resolveStartRoute` unit tests only).
+- Route guards are unit-tested through `guardRoute`; rendering tests of the layouts need
+  `@testing-library/react-native` (not added; ask before adding).
+- Cruze EV values for `brand.links` (OPEN_QUESTIONS #12).
 
 **Open questions still open**: #9 Part B (staging cookie), #10 (test OTP / number), #11
-(`appName`). See `docs/OPEN_QUESTIONS.md`.
+(`appName`), #12 (Cruze EV legal/support URLs). See `docs/OPEN_QUESTIONS.md`.
