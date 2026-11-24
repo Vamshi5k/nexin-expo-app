@@ -58,6 +58,17 @@ const BrandObjectSchema = z.object({
   deepLinkDomains: z.array(domain).default([]),
   /** Web page where users request account deletion (opened from Profile). */
   deleteAccountUrl: z.url(),
+  /**
+   * Build-time fallbacks for the legal and support links. Runtime URLs from GET /client/info
+   * win; these are used before it has ever loaded (fresh install offline) or if it omits one.
+   */
+  links: z
+    .object({
+      terms: z.url().optional(),
+      privacy: z.url().optional(),
+      support: z.url().optional(),
+    })
+    .default({}),
 
   colors: z.object({
     /** The brand colour. Used for derived tints, the neutral grey hue and notification icons. */

@@ -6,14 +6,20 @@ import type { ClientConfig, ClientInfoDto } from './types';
 
 const text = (v: string | null | undefined): string | null => (v && v.trim() ? v.trim() : null);
 
+/** A trimmed http(s) URL, or null (blank, malformed or another scheme). */
+export function webUrl(v: string | null | undefined): string | null {
+  const s = text(v);
+  return s && /^https?:\/\/[^\s/]+/i.test(s) ? s : null;
+}
+
 /** Build-time values used until (or when) /client/info doesn't provide them. */
 export function fallbackClientConfig(brand: BrandConfig): ClientConfig {
   return {
     brandName: brand.appName,
     logoUri: null,
-    termsUrl: null,
-    privacyUrl: null,
-    supportUrl: null,
+    termsUrl: brand.links.terms ?? null,
+    privacyUrl: brand.links.privacy ?? null,
+    supportUrl: brand.links.support ?? null,
     loginType: 'phone',
     features: { fleet: brand.features.fleet, coupons: brand.features.coupons },
     minAppVersion: null,
@@ -21,7 +27,7 @@ export function fallbackClientConfig(brand: BrandConfig): ClientConfig {
 }
 
 /**
- * DTO -> ClientConfig. Missing fields fall back to brand values.
+ * DTO -> ClientConfig. Missing (or non-http(s)) fields fall back to brand values.
  * Logo preference: base64 (doesn't expire, safe to cache) > media.url (signed, may expire)
  * > clientDetails.logoUrl.
  */
@@ -33,12 +39,12 @@ export function toClientConfig(dto: ClientInfoDto, brand: BrandConfig): ClientCo
     brandName: text(d.brandName) ?? fb.brandName,
     logoUri:
       (base64?.startsWith('data:image/') ? base64 : null) ??
-      text(dto.media?.url) ??
-      text(d.logoUrl) ??
+      webUrl(dto.media?.url) ??
+      webUrl(d.logoUrl) ??
       fb.logoUri,
-    termsUrl: text(d.termsAndConditionsUrl) ?? fb.termsUrl,
-    privacyUrl: text(d.privacyPolicyUrl) ?? fb.privacyUrl,
-    supportUrl: text(d.supportUrl) ?? fb.supportUrl,
+    termsUrl: webUrl(d.termsAndConditionsUrl) ?? fb.termsUrl,
+    privacyUrl: webUrl(d.privacyPolicyUrl) ?? fb.privacyUrl,
+    supportUrl: webUrl(d.supportUrl) ?? fb.supportUrl,
     loginType: dto.loginConfig?.userLoginType?.toLowerCase() === 'email' ? 'email' : 'phone',
     features: {
       fleet: dto.features?.fleetFeature ?? fb.features.fleet,

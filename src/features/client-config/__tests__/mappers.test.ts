@@ -1,6 +1,6 @@
 import { brand } from '@/core/config';
 
-import { fallbackClientConfig, fromCache, toCache, toClientConfig } from '../mappers';
+import { fallbackClientConfig, fromCache, toCache, toClientConfig, webUrl } from '../mappers';
 
 const FULL = {
   clientDetails: {
@@ -84,5 +84,56 @@ describe('client config cache', () => {
     expect(fromCache({ loginType: 'Phone', fleetFeature: true })).toBeUndefined();
     expect(fromCache('nope')).toBeUndefined();
     expect(fromCache(undefined)).toBeUndefined();
+  });
+});
+
+describe('webUrl', () => {
+  it('accepts http(s) URLs, trimmed', () => {
+    expect(webUrl(' https://example.com/terms ')).toBe('https://example.com/terms');
+    expect(webUrl('http://example.com')).toBe('http://example.com');
+  });
+  it.each([null, undefined, '', '  ', 'example.com', 'javascript:alert(1)', 'ftp://x', 'https://'])(
+    'rejects %p',
+    (v) => {
+      expect(webUrl(v)).toBeNull();
+    },
+  );
+});
+
+describe('legal and support links', () => {
+  const withLinks = {
+    ...brand,
+    links: {
+      terms: 'https://brand.example/terms',
+      privacy: 'https://brand.example/privacy',
+      support: 'https://brand.example/support',
+    },
+  };
+
+  it('fall back to brand.links when /client/info omits them', () => {
+    const c = toClientConfig({}, withLinks);
+    expect([c.termsUrl, c.privacyUrl, c.supportUrl]).toEqual([
+      'https://brand.example/terms',
+      'https://brand.example/privacy',
+      'https://brand.example/support',
+    ]);
+  });
+
+  it('runtime URLs win; non-http(s) runtime values fall back', () => {
+    const c = toClientConfig(
+      {
+        clientDetails: {
+          termsAndConditionsUrl: 'https://runtime/terms',
+          privacyPolicyUrl: 'not a url',
+        },
+      },
+      withLinks,
+    );
+    expect(c.termsUrl).toBe('https://runtime/terms');
+    expect(c.privacyUrl).toBe('https://brand.example/privacy');
+  });
+
+  it('are null when neither side has them', () => {
+    expect(toClientConfig({}, { ...brand, links: {} }).termsUrl).toBeNull();
   });
 });
