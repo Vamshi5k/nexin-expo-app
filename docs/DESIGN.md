@@ -106,8 +106,9 @@ the driver find, start, watch or pay for a charge.
   the screen bottom (sheet radius, hairline border, no shadow) holding the form and actions.
   The panel rises with the keyboard (`useAnimatedKeyboard`; edge-to-edge Android never resizes).
 - Login and OTP brand areas show `ChargingIllustration`: a flat SVG of an EV plugged into a
-  charger, drawn only from theme tokens (accent station, outlined car on an accentSoft disc).
-  Energy dashes flow along the cable and the battery fills; static under Reduce Motion. It
+  charger, drawn only from theme tokens: a solid textPrimary fastback with accent light bars
+  and aero wheels, a slim surface pillar with an accent charge strip, and a floating battery
+  chip. A pulse runs down the cable while the strip and chip fill together; static under Reduce Motion. It
   takes the free space and shrinks away when the keyboard is up. OTP shows the contact in a
   hairline pill under the heading.
 - Onboarding backdrop is `AmbientBackground`: a faint dot grid (borderStrong) that fades out
