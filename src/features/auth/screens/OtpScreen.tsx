@@ -1,4 +1,5 @@
 import { router } from 'expo-router';
+import { Mail, MessageSquareText } from 'lucide-react-native';
 import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, View, type TextInputInstance } from 'react-native';
 
@@ -74,9 +75,57 @@ export function OtpScreen({ type, value }: OtpScreenProps) {
     }
   };
 
+  const contact = value
+    ? formatContact(type, value, brand.phoneCountryCode)
+    : type === 'phone'
+      ? 'your number'
+      : 'your email';
+  const Badge = type === 'phone' ? MessageSquareText : Mail;
+
   return (
     <AuthScaffold
       back
+      hero={
+        <>
+          <Reveal index={0}>
+            <View
+              style={[
+                styles.badge,
+                { backgroundColor: t.colors.accentSoft, borderRadius: t.radius.control },
+              ]}
+            >
+              <Badge color={t.colors.accentText} size={22} strokeWidth={1.75} />
+            </View>
+          </Reveal>
+          <Reveal index={1} style={{ gap: t.space[2], marginTop: t.space[4] }}>
+            <Text variant="hero" accessibilityRole="header">
+              Enter verification code
+            </Text>
+            <Text variant="callout" tone="secondary">
+              We&apos;ve sent a {CONSUMER_OTP_LENGTH}-digit code to
+            </Text>
+          </Reveal>
+          <Reveal index={2}>
+            <View
+              style={[
+                styles.chip,
+                {
+                  backgroundColor: t.colors.surface,
+                  borderColor: t.colors.border,
+                  borderRadius: t.radius.pill,
+                  paddingHorizontal: t.space[3],
+                  gap: t.space[2],
+                },
+              ]}
+            >
+              <View style={[styles.dot, { backgroundColor: t.colors.success }]} />
+              <Text variant="subhead" tabular>
+                {contact}
+              </Text>
+            </View>
+          </Reveal>
+        </>
+      }
       footer={
         <>
           <Button
@@ -100,22 +149,7 @@ export function OtpScreen({ type, value }: OtpScreenProps) {
         </>
       }
     >
-      <Reveal index={0} style={{ gap: t.space[2] }}>
-        <Text variant="hero" accessibilityRole="header">
-          Enter verification code
-        </Text>
-        <Text variant="callout" tone="secondary">
-          We&apos;ve sent a {CONSUMER_OTP_LENGTH}-digit code to{' '}
-          <Text style={{ fontFamily: t.type.headline.fontFamily }}>
-            {value
-              ? formatContact(type, value, brand.phoneCountryCode)
-              : type === 'phone'
-                ? 'your number'
-                : 'your email'}
-          </Text>
-        </Text>
-      </Reveal>
-      <Reveal index={1} style={{ gap: t.space[4] }}>
+      <Reveal index={3} style={{ gap: t.space[3] }}>
         <OtpInput
           ref={input}
           value={code}
@@ -150,5 +184,15 @@ export function OtpScreen({ type, value }: OtpScreenProps) {
 
 const styles = StyleSheet.create({
   help: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap' },
-  resend: { minHeight: 44, alignItems: 'flex-start', justifyContent: 'center' },
+  resend: { minHeight: 44, alignItems: 'center', justifyContent: 'center' },
+  badge: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center' },
+  chip: {
+    alignSelf: 'flex-start',
+    flexDirection: 'row',
+    alignItems: 'center',
+    height: 36,
+    marginTop: 4,
+    borderWidth: StyleSheet.hairlineWidth,
+  },
+  dot: { width: 6, height: 6, borderRadius: 3 },
 });

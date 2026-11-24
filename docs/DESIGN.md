@@ -98,7 +98,14 @@ the driver find, start, watch or pay for a charge.
 - Completely flat: no shadows, glows or blurs. Shape comes from flat fills (accent,
   accentSoft, surfaceSunken) and 1 pt lines.
 - `SplashOverlay` pixel-matches the native splash. If boot takes over 700 ms a thin accent
-  line sweeps under the logo. When ready the logo lifts and the overlay slides up like a curtain.
+  line sweeps near the bottom. When ready the logo docks into the auth top bar's logo slot
+  (`layout.topBarHeight` / `layout.logoHeight`) while the backdrop fades, so login appears to
+  grow out of the splash.
+- Auth layout (`AuthScaffold`): top bar with the logo (or a back button), a brand area over the
+  contour lines with the heading anchored to its bottom, and a flat surface panel anchored to
+  the screen bottom (sheet radius, hairline border, no shadow) holding the form and actions.
+  The panel rises with the keyboard (`useAnimatedKeyboard`; edge-to-edge Android never resizes).
+- OTP brand area: 48 pt accentSoft badge, heading, and the contact in a hairline pill.
 - Onboarding backdrop is `AmbientBackground`: a faint dot grid (borderStrong) that fades out
   by mid screen and drifts down one cell at a time.
 - Login, OTP and boot error use `ContourBackground`: 1 pt topographic contour lines in accent (30% fading to 8%)

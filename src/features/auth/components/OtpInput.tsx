@@ -165,7 +165,7 @@ function Cell({ digit, active, error }: { digit?: string; active: boolean; error
 }
 
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', justifyContent: 'flex-start' },
+  row: { flexDirection: 'row', justifyContent: 'center' },
   cell: {
     flex: 1,
     maxWidth: 56,

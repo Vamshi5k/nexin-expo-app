@@ -23,6 +23,9 @@ export const layout = {
   minTouch: 44,
   hairline: StyleSheet.hairlineWidth,
   maxFontScale: 1.3,
+  // Auth top bar; the splash logo docks into its logo slot.
+  topBarHeight: 56,
+  logoHeight: 28,
 } as const;
 
 export const radius = {

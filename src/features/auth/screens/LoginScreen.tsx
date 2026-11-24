@@ -10,7 +10,7 @@ import Animated, { Easing, FadeIn } from 'react-native-reanimated';
 import { getErrorMessage } from '@/core/api';
 import { brand } from '@/core/config';
 import { log } from '@/core/log';
-import { AppLogo, useClientConfig } from '@/features/client-config';
+import { useClientConfig } from '@/features/client-config';
 import { useTheme } from '@/theme';
 import { Button, FormInput, Reveal, Text, toast } from '@/ui';
 
@@ -72,6 +72,22 @@ export function LoginScreen() {
 
   return (
     <AuthScaffold
+      hero={
+        <Reveal index={0}>
+          <Animated.View
+            key={type}
+            entering={FadeIn.duration(t.motion.duration).easing(Easing.out(Easing.quad))}
+            style={{ gap: t.space[2] }}
+          >
+            <Text variant="hero" accessibilityRole="header">
+              {COPY[type].title}
+            </Text>
+            <Text variant="callout" tone="secondary">
+              {COPY[type].subtitle}
+            </Text>
+          </Animated.View>
+        </Reveal>
+      }
       footer={
         <>
           <Button
@@ -94,24 +110,7 @@ export function LoginScreen() {
         </>
       }
     >
-      <Reveal index={0}>
-        <AppLogo height={28} />
-      </Reveal>
-      <Reveal index={1}>
-        <Animated.View
-          key={type}
-          entering={FadeIn.duration(t.motion.duration).easing(Easing.out(Easing.quad))}
-          style={{ gap: t.space[2] }}
-        >
-          <Text variant="hero" accessibilityRole="header">
-            {COPY[type].title}
-          </Text>
-          <Text variant="callout" tone="secondary">
-            {COPY[type].subtitle}
-          </Text>
-        </Animated.View>
-      </Reveal>
-      <Reveal index={2} style={{ gap: t.space[2] }}>
+      <Reveal index={1} style={{ gap: t.space[1] }}>
         <Animated.View
           key={type}
           entering={FadeIn.duration(t.motion.duration).easing(Easing.out(Easing.quad))}
@@ -151,8 +150,8 @@ export function LoginScreen() {
             />
           )}
         </Animated.View>
-        <View style={styles.links}>
-          {config.loginType === 'phone' ? (
+        {config.loginType === 'phone' ? (
+          <View style={styles.links}>
             <Button
               label={type === 'phone' ? 'Use email instead' : 'Use phone instead'}
               variant="ghost"
@@ -161,12 +160,10 @@ export function LoginScreen() {
               onPress={switchType}
               style={styles.linkLeft}
             />
-          ) : (
-            <View />
-          )}
-          {/* TODO(phase-fleet): "Fleet Login" link to /(auth)/fleet-login when
-              config.features.fleet is on (BLUEPRINT A3). Hidden until that route exists. */}
-        </View>
+          </View>
+        ) : null}
+        {/* TODO(phase-fleet): "Fleet Login" link to /(auth)/fleet-login when
+            config.features.fleet is on (BLUEPRINT A3). Hidden until that route exists. */}
       </Reveal>
     </AuthScaffold>
   );

@@ -1,6 +1,6 @@
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
-import { Image, StyleSheet, useColorScheme, useWindowDimensions } from 'react-native';
+import { Image, StyleSheet, useColorScheme } from 'react-native';
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -10,13 +10,14 @@ import Animated, {
   withRepeat,
   withTiming,
 } from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { scheduleOnRN } from 'react-native-worklets';
 
 import { brand } from '@/core/config';
 import { useTheme, withAlpha } from '@/theme';
 
 const SPLASH = require('../../brand/assets/splash.png');
-const TRACK = 72;
+const TRACK = 120;
 
 function splashSize() {
   const s = Image.resolveAssetSource(SPLASH);
@@ -24,65 +25,73 @@ function splashSize() {
   return { width, height: s?.width && s.height ? (width * s.height) / s.width : width };
 }
 
-// Pixel-matches the native splash, shows a thin loader only if boot is slow, then lifts away.
+// Pixel-matches the native splash, then docks the logo into the auth top bar's logo slot
+// while the backdrop fades, so the first screen appears to grow out of the splash.
 export function SplashOverlay({ ready }: { ready: boolean }) {
   const t = useTheme();
   const device = useColorScheme();
-  const { height } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
   const reduceMotion = useReducedMotion();
   const [done, setDone] = useState(false);
+  const [box, setBox] = useState({ width: 0, height: 0 });
   const size = splashSize();
 
   const sweep = useSharedValue(0);
   const loader = useSharedValue(0);
-  const lift = useSharedValue(0);
-  const curtain = useSharedValue(0);
+  const dock = useSharedValue(0);
+  const backdrop = useSharedValue(1);
+  const logoOpacity = useSharedValue(1);
 
   const background =
     device === 'dark' && brand.splash.darkBackgroundColor
       ? brand.splash.darkBackgroundColor
       : brand.splash.backgroundColor;
 
+  const scale = t.layout.logoHeight / size.height;
+  const dx = t.layout.screenPadding + (size.width * scale) / 2 - box.width / 2;
+  const dy = insets.top + t.layout.topBarHeight / 2 - box.height / 2;
+
   useEffect(() => {
     if (ready) return;
     loader.set(withDelay(700, withTiming(1, { duration: 300 })));
     if (reduceMotion) return;
     sweep.set(
-      withRepeat(withTiming(1, { duration: 1100, easing: Easing.inOut(Easing.cubic) }), -1),
+      withRepeat(withTiming(1, { duration: 1200, easing: Easing.inOut(Easing.cubic) }), -1),
     );
   }, [ready, reduceMotion, loader, sweep]);
 
   useEffect(() => {
-    if (!ready) return;
+    if (!ready || box.height === 0) return;
     const finish = () => setDone(true);
+    const ease = Easing.bezier(0.65, 0, 0.35, 1);
     loader.set(withTiming(0, { duration: 150 }));
-    lift.set(withTiming(1, { duration: 280, easing: Easing.in(Easing.cubic) }));
-    curtain.set(
+    if (reduceMotion) {
+      logoOpacity.set(withTiming(0, { duration: 250 }));
+      backdrop.set(withTiming(0, { duration: 250 }, (ok) => ok && scheduleOnRN(finish)));
+      return;
+    }
+    dock.set(withTiming(1, { duration: 640, easing: ease }));
+    backdrop.set(withDelay(300, withTiming(0, { duration: 420, easing: ease })));
+    logoOpacity.set(
       withDelay(
-        reduceMotion ? 0 : 180,
-        withTiming(
-          1,
-          { duration: reduceMotion ? 220 : 560, easing: Easing.bezier(0.7, 0, 0.2, 1) },
-          (ok) => {
-            if (ok) scheduleOnRN(finish);
-          },
-        ),
+        640,
+        withTiming(0, { duration: 180 }, (ok) => ok && scheduleOnRN(finish)),
       ),
     );
-  }, [ready, reduceMotion, loader, lift, curtain]);
+  }, [ready, box.height, reduceMotion, loader, dock, backdrop, logoOpacity]);
 
-  const container = useAnimatedStyle(() =>
-    reduceMotion
-      ? { opacity: 1 - curtain.value }
-      : { transform: [{ translateY: -height * curtain.value }] },
-  );
+  const backdropStyle = useAnimatedStyle(() => ({ opacity: backdrop.value }));
   const logo = useAnimatedStyle(() => ({
-    opacity: 1 - lift.value,
-    transform: [{ translateY: -16 * lift.value }],
+    opacity: logoOpacity.value,
+    transform: [
+      { translateX: dx * dock.value },
+      { translateY: dy * dock.value },
+      { scale: 1 + (scale - 1) * dock.value },
+    ],
   }));
   const track = useAnimatedStyle(() => ({ opacity: loader.value }));
   const bar = useAnimatedStyle(() => ({
-    transform: [{ translateX: -TRACK * 0.4 + TRACK * 1.4 * sweep.value }],
+    transform: [{ translateX: -TRACK * 0.35 + TRACK * 1.35 * sweep.value }],
   }));
 
   if (done) return null;
@@ -90,17 +99,23 @@ export function SplashOverlay({ ready }: { ready: boolean }) {
   return (
     <Animated.View
       pointerEvents={ready ? 'none' : 'auto'}
-      onLayout={() => void SplashScreen.hideAsync()}
-      style={[StyleSheet.absoluteFill, styles.center, { backgroundColor: background }, container]}
+      onLayout={(e) => {
+        const { width, height } = e.nativeEvent.layout;
+        setBox({ width, height });
+        void SplashScreen.hideAsync();
+      }}
+      style={[StyleSheet.absoluteFill, styles.center]}
     >
+      <Animated.View
+        style={[StyleSheet.absoluteFill, { backgroundColor: background }, backdropStyle]}
+      />
       <Animated.Image source={SPLASH} resizeMode="contain" style={[size, logo]} />
       <Animated.View
         style={[
           styles.track,
           {
-            top: '50%',
-            marginTop: size.height / 2 + 32,
-            backgroundColor: withAlpha(t.colors.accent, 0.18),
+            bottom: Math.max(insets.bottom, t.space[4]) + t.space[10],
+            backgroundColor: withAlpha(t.colors.accent, 0.16),
           },
           track,
         ]}
@@ -113,6 +128,6 @@ export function SplashOverlay({ ready }: { ready: boolean }) {
 
 const styles = StyleSheet.create({
   center: { alignItems: 'center', justifyContent: 'center', zIndex: 100 },
-  track: { position: 'absolute', width: TRACK, height: 2, borderRadius: 1, overflow: 'hidden' },
-  bar: { width: TRACK * 0.4, height: 2, borderRadius: 1 },
+  track: { position: 'absolute', width: TRACK, height: 3, borderRadius: 2, overflow: 'hidden' },
+  bar: { width: TRACK * 0.35, height: 3, borderRadius: 2 },
 });
