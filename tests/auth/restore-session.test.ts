@@ -1,4 +1,4 @@
-import { restoreSession } from '@/features/auth/hooks';
+import { restoreSession } from '@/features/auth/session';
 
 const calls: string[] = [];
 

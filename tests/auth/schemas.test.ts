@@ -1,4 +1,4 @@
-import { emailSchema, phoneSchema } from '@/features/auth/hooks';
+import { emailSchema, phoneSchema } from '@/features/auth/session';
 
 describe('phoneSchema (brand.phoneRegex ^[6-9]\\d{9}$)', () => {
   it.each(['9876543210', '6000000000', ' 7012345678 '])('accepts %p', (v) => {

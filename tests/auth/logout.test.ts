@@ -1,6 +1,6 @@
 import { createSessionStore, signOutThen } from '@/core/session';
 import type { SecureStorage } from '@/core/storage';
-import { serverLogout } from '@/features/auth/hooks';
+import { serverLogout } from '@/features/auth/session';
 
 jest.mock('@/core/log');
 jest.mock('@/features/fleet', () => ({ fleetLogout: jest.fn(async () => undefined) }));

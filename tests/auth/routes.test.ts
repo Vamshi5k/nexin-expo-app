@@ -5,7 +5,7 @@ import {
   isOnboardingDone,
   markOnboardingDone,
   resolveStartRoute,
-} from '@/features/auth/hooks';
+} from '@/features/auth/session';
 import type { GuardDecision, RouteGroup } from '@/features/auth/types';
 
 describe('resolveStartRoute (BLUEPRINT A1)', () => {

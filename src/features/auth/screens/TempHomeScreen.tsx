@@ -8,7 +8,8 @@ import { useClientConfig } from '@/features/client-config';
 import { useTheme } from '@/theme';
 import { Card, LargeTitleScroll, ListGroup, ListRow, Text, toast } from '@/ui';
 
-import { formatContact, useAuth } from '../hooks';
+import { useAuth } from '../hooks';
+import { formatContact } from '../session';
 
 export function TempHomeScreen() {
   const t = useTheme();

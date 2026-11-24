@@ -23,7 +23,11 @@ import { ONBOARDING_SLIDES as SLIDES } from '../constants';
 import { finishOnboarding } from '../hooks';
 import type { OnboardingSlide as Slide } from '../types';
 
-const SLIDE_ICONS: Record<Slide['key'], LucideIcon> = { find: MapPin, charge: Zap, pay: CreditCard };
+const SLIDE_ICONS: Record<Slide['key'], LucideIcon> = {
+  find: MapPin,
+  charge: Zap,
+  pay: CreditCard,
+};
 
 export function OnboardingScreen() {
   const t = useTheme();
