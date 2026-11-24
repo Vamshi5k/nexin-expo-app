@@ -1,12 +1,7 @@
 import { brand } from '@/core/config';
 
-import {
-  fallbackClientConfig,
-  fromCache,
-  toCache,
-  toClientConfig,
-  webUrl,
-} from '@/features/client-config/api';
+import { fallbackClientConfig, toClientConfig, webUrl } from '@/features/client-config/api';
+import { fromCache, toCache } from '@/features/client-config/hooks';
 
 const FULL = {
   clientDetails: {

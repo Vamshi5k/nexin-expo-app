@@ -1,17 +1,13 @@
-import { z } from 'zod';
-
 import { api, unwrap, type Envelope } from '@/core/api';
-import type { BrandConfig } from '@/core/config';
+import { brand, type BrandConfig } from '@/core/config';
 
 import type { ClientInfoDto, ClientConfig } from './types';
 
-export const CLIENT_INFO_PATH = '/client/info';
-
-export async function getClientInfo(): Promise<ClientInfoDto> {
-  const res = await api.get<Envelope<ClientInfoDto>>(CLIENT_INFO_PATH, {
+export async function getClientConfig(): Promise<ClientConfig> {
+  const res = await api.get<Envelope<ClientInfoDto>>('/client/info', {
     params: { details: true, login: true, logo: true, clientDetails: true },
   });
-  return unwrap(res);
+  return toClientConfig(unwrap(res), brand);
 }
 
 const text = (v: string | null | undefined): string | null => (v && v.trim() ? v.trim() : null);
@@ -55,29 +51,4 @@ export function toClientConfig(dto: ClientInfoDto, brand: BrandConfig): ClientCo
     },
     minAppVersion: text(dto.minAppVersion) ?? fb.minAppVersion,
   };
-}
-
-export const CACHE_VERSION = 1;
-
-const CachedSchema = z.object({
-  v: z.literal(CACHE_VERSION),
-  config: z.object({
-    brandName: z.string().min(1),
-    logoUri: z.string().nullable(),
-    termsUrl: z.string().nullable(),
-    privacyUrl: z.string().nullable(),
-    supportUrl: z.string().nullable(),
-    loginType: z.enum(['phone', 'email']),
-    features: z.object({ fleet: z.boolean(), coupons: z.boolean() }),
-    minAppVersion: z.string().nullable(),
-  }),
-});
-
-export function toCache(config: ClientConfig): unknown {
-  return { v: CACHE_VERSION, config };
-}
-
-export function fromCache(value: unknown): ClientConfig | undefined {
-  const parsed = CachedSchema.safeParse(value);
-  return parsed.success ? parsed.data.config : undefined;
 }

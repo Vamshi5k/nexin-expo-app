@@ -1,22 +1,35 @@
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
+import { z } from 'zod';
 
 import { brand } from '@/core/config';
 import { log } from '@/core/log';
 import { KV_KEYS, kv } from '@/core/storage';
 
-import { fallbackClientConfig, fromCache, getClientInfo, toCache, toClientConfig } from './api';
+import { fallbackClientConfig, getClientConfig } from './api';
+import { CLIENT_CONFIG_BOOT_TIMEOUT_MS, CLIENT_CONFIG_CACHE_VERSION } from './constants';
 import type { ClientConfig } from './types';
 
-export const CLIENT_CONFIG_BOOT_TIMEOUT_MS = 8_000;
+const CachedSchema = z.object({
+  v: z.literal(CLIENT_CONFIG_CACHE_VERSION),
+  config: z.object({
+    brandName: z.string().min(1),
+    logoUri: z.string().nullable(),
+    termsUrl: z.string().nullable(),
+    privacyUrl: z.string().nullable(),
+    supportUrl: z.string().nullable(),
+    loginType: z.enum(['phone', 'email']),
+    features: z.object({ fleet: z.boolean(), coupons: z.boolean() }),
+    minAppVersion: z.string().nullable(),
+  }),
+});
 
-export function readCachedClientConfig(): ClientConfig | undefined {
-  return fromCache(kv.getJSON<unknown>(KV_KEYS.clientConfig));
+export function toCache(config: ClientConfig): unknown {
+  return { v: CLIENT_CONFIG_CACHE_VERSION, config };
 }
 
-async function fetchClientConfig(): Promise<ClientConfig> {
-  const config = toClientConfig(await getClientInfo(), brand);
-  kv.setJSON(KV_KEYS.clientConfig, toCache(config));
-  return config;
+export function fromCache(value: unknown): ClientConfig | undefined {
+  const parsed = CachedSchema.safeParse(value);
+  return parsed.success ? parsed.data.config : undefined;
 }
 
 type ClientConfigValue = { config: ClientConfig; prime: () => Promise<void> };
@@ -28,7 +41,9 @@ export function ClientConfigProvider({ children }: { children: ReactNode }) {
 
   const refresh = useCallback(async () => {
     try {
-      setConfig(await fetchClientConfig());
+      const fresh = await getClientConfig();
+      kv.setJSON(KV_KEYS.clientConfig, toCache(fresh));
+      setConfig(fresh);
     } catch (error) {
       log.warn('client config fetch failed; keeping cached or brand values', {
         error: String(error),
@@ -37,9 +52,9 @@ export function ClientConfigProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // Called at boot once storage is ready. Cached config shows instantly and refreshes in the
-  // background; with no cache, wait up to 8 s for the server, then fall back to brand values.
+  // background; with no cache, wait for the server up to the boot timeout, then use brand values.
   const prime = useCallback(async () => {
-    const cached = readCachedClientConfig();
+    const cached = fromCache(kv.getJSON<unknown>(KV_KEYS.clientConfig));
     if (cached) {
       setConfig(cached);
       void refresh();
