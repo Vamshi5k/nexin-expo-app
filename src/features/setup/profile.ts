@@ -14,3 +14,14 @@ export const profileFormSchema = z.object({ name: nameSchema });
 export type ProfileForm = z.infer<typeof profileFormSchema>;
 
 export type SetupPermission = 'location' | 'notifications';
+
+// "Asha Rao" -> "AR"; one word -> one letter; empty -> "".
+export function initialsOf(name: string): string {
+  return name
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part.charAt(0).toUpperCase())
+    .join('');
+}

@@ -127,9 +127,14 @@ the driver find, start, watch or pay for a charge.
 - Onboarding: "01 / 03" step counter, flat orbit art (accent tile, accentSoft disc, hairline
   ring, two orbiting dots), story-style progress segments, parallax between art and text.
 
-- First-run setup (profile, vehicle, permissions) uses the same frame as auth
-  (`AuthScaffold` with a `topBar`): "Step n of 3" and segment bars in the top bar (Skip on the
-  vehicle step), the title in the brand area, the form in the bottom panel.
+- First-run setup (profile, vehicle, permissions) is content first (`SetupLayout`): a top bar
+  (back on wizard steps, Skip on the vehicle step), a named stepper "1 Profile · 2 Vehicle ·
+  3 Permissions" (done steps show a check, the current one is accent), the title right under
+  it on plain bg, then the body, and one full-width button pinned at the bottom that rises
+  with the keyboard. No empty brand area. Profile shows an 80 pt accentSoft avatar that fills
+  with the typed initials. The vehicle wizard shows picks so far as accentSoft chips
+  ("MG > Windsor EV > 40 kWh") that jump back to that step, a search field on brand and model
+  lists longer than 6, and "Custom" capacity as an inline kWh field under the grid.
 - Choice grids (vehicle brand, model, capacity): 2 columns of flat cards, surfaceSunken at
   rest; selected = accentSoft fill, 1.5 pt accent border and an accent check badge. Brand and
   model cards carry a letter monogram tile (surface, accent when selected).

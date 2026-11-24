@@ -1,11 +1,11 @@
-import { Car, Cpu, Hash } from 'lucide-react-native';
+import { Car, ChevronRight, Cpu, Hash, Search } from 'lucide-react-native';
 import { View } from 'react-native';
 
 import { getErrorMessage } from '@/core/api';
 import { brand as appBrand } from '@/core/config';
 import type { RequestState } from '@/core/request';
 import { useTheme } from '@/theme';
-import { EmptyState, ErrorState, FormInput, Input, Text } from '@/ui';
+import { EmptyState, ErrorState, FormInput, Input, Pressable, Text } from '@/ui';
 
 import {
   CUSTOM_CAPACITY_MAX_KWH,
@@ -14,35 +14,10 @@ import {
   MAC_ID_MAX_LENGTH,
   REG_NO_MAX_LENGTH,
 } from '../constants';
-import { formatCapacity } from '../form';
+import { formatCapacity, matchesQuery } from '../form';
 import type { VehicleWizard } from '../hooks';
 
 import { OptionGrid, OptionGridSkeleton, type Option } from './OptionGrid';
-
-// Split so a screen can place the title in its brand area and the body in its panel.
-// showSteps: setup hides the wizard's own bars because its top bar already shows progress.
-export function VehicleFormHeader({
-  wizard,
-  showSteps = true,
-}: {
-  wizard: VehicleWizard;
-  showSteps?: boolean;
-}) {
-  const t = useTheme();
-  return (
-    <View style={{ gap: t.space[4] }}>
-      {showSteps ? <StepBars index={wizard.stepIndex} count={wizard.stepCount} /> : null}
-      <View style={{ gap: t.space[2] }}>
-        <Text variant="hero" accessibilityRole="header">
-          {wizard.title}
-        </Text>
-        <Text variant="callout" tone="secondary">
-          {wizard.subtitle}
-        </Text>
-      </View>
-    </View>
-  );
-}
 
 export function VehicleFormBody({ wizard }: { wizard: VehicleWizard }) {
   return <StepBody wizard={wizard} />;
@@ -56,13 +31,16 @@ function StepBody({ wizard: w }: { wizard: VehicleWizard }) {
         <Choices
           request={w.brands}
           empty={EMPTY_COPY.brand}
+          search={{ placeholder: 'Search brands', query: w.query, onChange: w.setQuery }}
           toOptions={(items) =>
-            items.map((b) => ({
-              key: b.id,
-              label: b.name,
-              monogram: true,
-              selected: b.id === w.brand?.id,
-            }))
+            items
+              .filter((b) => matchesQuery(b.name, w.query))
+              .map((b) => ({
+                key: b.id,
+                label: b.name,
+                monogram: true,
+                selected: b.id === w.brand?.id,
+              }))
           }
           onSelect={(key) => {
             const next = w.brands.data?.find((b) => b.id === key);
@@ -75,13 +53,16 @@ function StepBody({ wizard: w }: { wizard: VehicleWizard }) {
         <Choices
           request={w.models}
           empty={EMPTY_COPY.model}
+          search={{ placeholder: 'Search models', query: w.query, onChange: w.setQuery }}
           toOptions={(items) =>
-            items.map((m) => ({
-              key: m.id,
-              label: m.name,
-              monogram: true,
-              selected: m.id === w.model?.id,
-            }))
+            items
+              .filter((m) => matchesQuery(m.name, w.query))
+              .map((m) => ({
+                key: m.id,
+                label: m.name,
+                monogram: true,
+                selected: m.id === w.model?.id,
+              }))
           }
           onSelect={(key) => {
             const next = w.models.data?.find((m) => m.id === key);
@@ -171,19 +152,25 @@ function StepBody({ wizard: w }: { wizard: VehicleWizard }) {
 
 const CUSTOM_KEY = '__custom__';
 
+// Lists longer than this get a search field.
+const SEARCH_AFTER = 6;
+
 function Choices<T>({
   request,
   empty,
   allowEmpty,
+  search,
   toOptions,
   onSelect,
 }: {
   request: RequestState<T[]>;
   empty: string;
   allowEmpty?: boolean;
+  search?: { placeholder: string; query: string; onChange: (q: string) => void };
   toOptions: (items: T[]) => Option[];
   onSelect: (key: string) => void;
 }) {
+  const t = useTheme();
   if (request.loading) return <OptionGridSkeleton />;
   if (request.error) {
     return (
@@ -202,27 +189,62 @@ function Choices<T>({
       />
     );
   }
-  return <OptionGrid options={toOptions(items)} onSelect={onSelect} />;
+  const options = toOptions(items);
+  return (
+    <View style={{ gap: t.space[4] }}>
+      {search && items.length > SEARCH_AFTER ? (
+        <Input
+          icon={Search}
+          placeholder={search.placeholder}
+          value={search.query}
+          onChangeText={search.onChange}
+          autoCorrect={false}
+          returnKeyType="search"
+          accessibilityLabel={search.placeholder}
+        />
+      ) : null}
+      {options.length > 0 ? (
+        <OptionGrid options={options} onSelect={onSelect} />
+      ) : (
+        <Text variant="callout" tone="secondary" align="center">
+          No matches
+        </Text>
+      )}
+    </View>
+  );
 }
 
-function StepBars({ index, count }: { index: number; count: number }) {
+// Picks from earlier steps; tapping one goes back to that step.
+export function VehicleTrail({ wizard }: { wizard: VehicleWizard }) {
   const t = useTheme();
+  if (wizard.trail.length === 0) return null;
   return (
-    <View
-      style={{ flexDirection: 'row', gap: t.space[1] }}
-      accessible
-      accessibilityLabel={`Vehicle step ${index + 1} of ${count}`}
-    >
-      {Array.from({ length: count }, (_, i) => (
+    <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: t.space[1] }}>
+      {wizard.trail.map((item, i) => (
         <View
-          key={i}
-          style={{
-            flex: 1,
-            height: 3,
-            borderRadius: t.radius.pill,
-            backgroundColor: i <= index ? t.colors.accent : t.colors.border,
-          }}
-        />
+          key={item.index}
+          style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[1] }}
+        >
+          {i > 0 ? <ChevronRight color={t.colors.textTertiary} size={14} strokeWidth={2} /> : null}
+          <Pressable
+            onPress={() => wizard.goTo(item.index)}
+            haptic="selection"
+            feedback="opacity"
+            accessibilityRole="button"
+            accessibilityLabel={`Change ${item.label}`}
+            style={{
+              paddingHorizontal: t.space[3],
+              height: 32,
+              justifyContent: 'center',
+              borderRadius: t.radius.pill,
+              backgroundColor: t.colors.accentSoft,
+            }}
+          >
+            <Text variant="subhead" tone="accent" numberOfLines={1}>
+              {item.label}
+            </Text>
+          </Pressable>
+        </View>
       ))}
     </View>
   );

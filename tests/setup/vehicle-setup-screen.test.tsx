@@ -66,6 +66,31 @@ describe('VehicleSetupScreen', () => {
     expect(await screen.findByText('No brands available')).toBeTruthy();
   });
 
+  it('long brand lists get a search field that filters the grid', async () => {
+    jest.mocked(getBrands).mockResolvedValueOnce(
+      ['Tata', 'MG', 'Hyundai', 'Mahindra', 'BYD', 'Kia', 'Volvo'].map((name, i) => ({
+        id: String(i),
+        name,
+      })),
+    );
+    await renderWithApp(<VehicleSetupScreen />);
+    await fireEvent.changeText(await screen.findByLabelText('Search brands'), 'hy');
+    expect(screen.getByRole('radio', { name: 'Hyundai' })).toBeTruthy();
+    expect(screen.queryByRole('radio', { name: 'Tata' })).toBeNull();
+    await fireEvent.changeText(screen.getByLabelText('Search brands'), 'zzz');
+    expect(screen.getByText('No matches')).toBeTruthy();
+  });
+
+  it('the picked brand shows as a chip that jumps back to the brand step', async () => {
+    await renderWithApp(<VehicleSetupScreen />);
+    await fireEvent.press(await screen.findByRole('radio', { name: 'MG' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Continue' }));
+    expect(await screen.findByText('Pick your MG model')).toBeTruthy();
+
+    await fireEvent.press(screen.getByRole('button', { name: 'Change MG' }));
+    expect(await screen.findByText('Select your brand')).toBeTruthy();
+  });
+
   it('Skip goes to the permissions step', async () => {
     await renderWithApp(<VehicleSetupScreen />);
     await fireEvent.press(screen.getByRole('button', { name: 'Skip' }));

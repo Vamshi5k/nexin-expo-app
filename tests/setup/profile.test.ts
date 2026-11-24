@@ -1,4 +1,4 @@
-import { nameSchema } from '@/features/setup/profile';
+import { initialsOf, nameSchema } from '@/features/setup/profile';
 
 describe('nameSchema (screen-audit 2.5)', () => {
   it.each([
@@ -11,4 +11,10 @@ describe('nameSchema (screen-audit 2.5)', () => {
   it('accepts a trimmed name', () => {
     expect(nameSchema.parse('  Asha Rao ')).toBe('Asha Rao');
   });
+});
+
+it('initialsOf: up to two initials for the avatar preview', () => {
+  expect(initialsOf('  asha   rao kumar ')).toBe('AR');
+  expect(initialsOf('Vamshi')).toBe('V');
+  expect(initialsOf('   ')).toBe('');
 });

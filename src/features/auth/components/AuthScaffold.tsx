@@ -19,12 +19,10 @@ export type AuthScaffoldProps = {
   children?: ReactNode;
   footer?: ReactNode;
   back?: boolean;
-  // Replaces the logo / back button (setup puts its step progress here).
-  topBar?: ReactNode;
 };
 
 // Top bar (logo or back), a brand area over the contour lines, and a flat panel anchored to the bottom.
-export function AuthScaffold({ hero, children, footer, back, topBar }: AuthScaffoldProps) {
+export function AuthScaffold({ hero, children, footer, back }: AuthScaffoldProps) {
   const t = useTheme();
   const insets = useSafeAreaInsets();
   // Edge-to-edge Android never resizes the window, so lift the content by the keyboard ourselves.
@@ -43,7 +41,7 @@ export function AuthScaffold({ hero, children, footer, back, topBar }: AuthScaff
             { height: t.layout.topBarHeight, paddingHorizontal: t.layout.screenPadding },
           ]}
         >
-          {topBar ?? (back ? <BackButton /> : <AppLogo height={t.layout.logoHeight} />)}
+          {back ? <BackButton /> : <AppLogo height={t.layout.logoHeight} />}
         </View>
         <ScrollView
           style={styles.flex}

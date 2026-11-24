@@ -9,7 +9,7 @@ import { toast } from '@/ui';
 
 import { addVehicle, getBrands, getCapacities, getModels } from './api';
 import { STEP_COPY, WIZARD_STEPS } from './constants';
-import { customCapacitySchema, detailsSchema } from './form';
+import { customCapacitySchema, detailsSchema, formatCapacity } from './form';
 import type { Brand, CapacityChoice, Model, VehicleDetails, WizardStep } from './types';
 
 const NO_ITEMS = () => Promise.resolve([]);
@@ -23,6 +23,7 @@ export function useVehicleWizard({ onAdded }: { onAdded: () => void }) {
   // "Custom" shows an inline kWh field; the choice only counts once the value is valid.
   const [customMode, setCustomMode] = useState(false);
   const [customText, setCustomText] = useState('');
+  const [query, setQuery] = useState('');
   const step: WizardStep = WIZARD_STEPS[stepIndex];
 
   const brandId = brand?.id;
@@ -80,6 +81,21 @@ export function useVehicleWizard({ onAdded }: { onAdded: () => void }) {
 
   const copy = STEP_COPY[step];
 
+  const goToStep = (index: number) => {
+    setQuery('');
+    setStepIndex(index);
+  };
+
+  // Picks made on earlier steps, shown as chips that jump back to their step.
+  const trail = [
+    brand && { index: 0, label: brand.name },
+    model && { index: 1, label: model.name },
+    capacity && {
+      index: 2,
+      label: formatCapacity(capacity.kind === 'preset' ? capacity.capacity.kwh : capacity.kwh),
+    },
+  ].filter((item): item is { index: number; label: string } => !!item && item.index < stepIndex);
+
   return {
     step,
     stepIndex,
@@ -116,18 +132,24 @@ export function useVehicleWizard({ onAdded }: { onAdded: () => void }) {
     customText,
     setCustomText,
     customError,
+    trail,
+    goTo: (index: number) => {
+      if (index < stepIndex) goToStep(index);
+    },
+    query,
+    setQuery,
     control: form.control,
     canContinue,
     submitting: add.isPending,
     isLastStep: stepIndex === WIZARD_STEPS.length - 1,
     next: () => {
-      if (stepIndex < WIZARD_STEPS.length - 1) setStepIndex((i) => i + 1);
+      if (stepIndex < WIZARD_STEPS.length - 1) goToStep(stepIndex + 1);
       else void submit();
     },
     // Returns false on the first step, so the screen decides what "back" means there.
     back: (): boolean => {
       if (stepIndex === 0) return false;
-      setStepIndex((i) => i - 1);
+      goToStep(stepIndex - 1);
       return true;
     },
   };

@@ -41,6 +41,11 @@ export const customCapacitySchema = z
     message: `Maximum ${CUSTOM_CAPACITY_MAX_KWH} kWh`,
   });
 
+export function matchesQuery(name: string, query: string): boolean {
+  const q = query.trim().toLowerCase();
+  return q === '' || name.toLowerCase().includes(q);
+}
+
 export function formatCapacity(kwh: number): string {
   return `${Number.isInteger(kwh) ? kwh : kwh.toFixed(1)} kWh`;
 }

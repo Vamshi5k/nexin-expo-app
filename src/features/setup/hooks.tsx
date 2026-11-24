@@ -17,7 +17,7 @@ import { toast } from '@/ui';
 
 import { updateProfile } from './api';
 import { SETUP_HREF } from './constants';
-import { profileFormSchema, type ProfileForm, type SetupPermission } from './profile';
+import { initialsOf, profileFormSchema, type ProfileForm, type SetupPermission } from './profile';
 
 function useFinishSetup() {
   const { user } = useAuth();
@@ -60,6 +60,7 @@ export function useProfileSetup() {
 
   return {
     control: form.control,
+    initials: initialsOf(name ?? ''),
     accepted,
     toggleAccepted: () => setAccepted((a) => !a),
     valid,

@@ -1,4 +1,9 @@
-import { customCapacitySchema, detailsSchema, formatCapacity } from '@/features/vehicles/form';
+import {
+  customCapacitySchema,
+  detailsSchema,
+  formatCapacity,
+  matchesQuery,
+} from '@/features/vehicles/form';
 
 const firstError = (r: { success: boolean; error?: { issues: { message: string }[] } }) =>
   r.error?.issues[0]?.message;
@@ -53,4 +58,10 @@ describe('customCapacitySchema (10 to 500 kWh)', () => {
 it('formatCapacity', () => {
   expect(formatCapacity(40)).toBe('40 kWh');
   expect(formatCapacity(40.55)).toBe('40.5 kWh');
+});
+
+it('matchesQuery: case-insensitive, empty query matches all', () => {
+  expect(matchesQuery('Windsor EV', ' winD ')).toBe(true);
+  expect(matchesQuery('ZS EV', 'comet')).toBe(false);
+  expect(matchesQuery('ZS EV', '')).toBe(true);
 });

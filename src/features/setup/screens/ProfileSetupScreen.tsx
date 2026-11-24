@@ -1,11 +1,10 @@
 import { UserRound } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
 
-import { AuthScaffold } from '@/features/auth';
 import { useTheme } from '@/theme';
-import { Button, FormInput, Reveal, Text } from '@/ui';
+import { Button, FormInput, Text } from '@/ui';
 
-import { SetupHeader } from '../components/SetupHeader';
+import { SetupLayout } from '../components/SetupLayout';
 import { TermsCheckbox } from '../components/TermsCheckbox';
 import { PROFILE_COPY } from '../constants';
 import { useProfileSetup } from '../hooks';
@@ -14,29 +13,24 @@ export function ProfileSetupScreen() {
   const t = useTheme();
   const profile = useProfileSetup();
   return (
-    <AuthScaffold
-      topBar={<SetupHeader step={1} />}
-      hero={
-        <>
-          <Reveal index={0}>
-            <View
-              style={[
-                styles.tile,
-                { borderRadius: t.radius.card, backgroundColor: t.colors.accent },
-              ]}
-            >
-              <UserRound color={t.colors.onAccent} size={28} strokeWidth={1.75} />
-            </View>
-          </Reveal>
-          <Reveal index={1} style={{ gap: t.space[2], marginTop: t.space[4] }}>
-            <Text variant="hero" accessibilityRole="header">
-              {PROFILE_COPY.title}
+    <SetupLayout
+      step={1}
+      title={PROFILE_COPY.title}
+      subtitle={PROFILE_COPY.subtitle}
+      aboveTitle={
+        // Live preview: the initials fill in as the name is typed.
+        <View
+          style={[styles.avatar, { backgroundColor: t.colors.accentSoft }]}
+          accessibilityElementsHidden
+        >
+          {profile.initials ? (
+            <Text variant="title1" tone="accent">
+              {profile.initials}
             </Text>
-            <Text variant="callout" tone="secondary">
-              {PROFILE_COPY.subtitle}
-            </Text>
-          </Reveal>
-        </>
+          ) : (
+            <UserRound color={t.colors.accentText} size={34} strokeWidth={1.75} />
+          )}
+        </View>
       }
       footer={
         <Button
@@ -47,7 +41,7 @@ export function ProfileSetupScreen() {
         />
       }
     >
-      <Reveal index={2} style={{ gap: t.space[4] }}>
+      <View style={{ gap: t.space[5] }}>
         <FormInput
           control={profile.control}
           name="name"
@@ -65,11 +59,17 @@ export function ProfileSetupScreen() {
           onOpenTerms={profile.openTerms}
           onOpenPrivacy={profile.openPrivacy}
         />
-      </Reveal>
-    </AuthScaffold>
+      </View>
+    </SetupLayout>
   );
 }
 
 const styles = StyleSheet.create({
-  tile: { width: 60, height: 60, alignItems: 'center', justifyContent: 'center' },
+  avatar: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 });

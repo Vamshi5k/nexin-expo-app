@@ -1,6 +1,6 @@
 import type { Href } from 'expo-router';
 
-export const SETUP_STEP_COUNT = 3;
+export const SETUP_STEPS = ['Profile', 'Vehicle', 'Permissions'] as const;
 
 export const SETUP_HREF = {
   profile: '/(setup)/profile',

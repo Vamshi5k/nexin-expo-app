@@ -1,2 +1,2 @@
-export { VehicleFormBody, VehicleFormHeader } from './components/VehicleForm';
+export { VehicleFormBody, VehicleTrail } from './components/VehicleForm';
 export { useVehicleWizard, type VehicleWizard } from './hooks';

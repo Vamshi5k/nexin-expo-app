@@ -3,7 +3,6 @@ export { registerPushToken } from './api';
 export { markSetupDone } from './session';
 export { START_HREF } from './constants';
 export type { ContactType, RouteGroup } from './types';
-export { AuthScaffold } from './components/AuthScaffold';
 export { GuardedStack } from './components/GuardedStack';
 export { BootErrorScreen } from './screens/BootErrorScreen';
 export { LoginScreen } from './screens/LoginScreen';
