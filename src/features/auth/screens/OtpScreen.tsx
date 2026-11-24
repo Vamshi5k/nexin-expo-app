@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
-import { StyleSheet, View, type TextInput } from 'react-native';
+import { StyleSheet, View, type TextInputInstance } from 'react-native';
 
 import { getErrorMessage, statusOf } from '@/core/api';
 import { brand } from '@/core/config';
@@ -39,7 +39,7 @@ function useCountdown(seconds: number) {
 export function OtpScreen({ type, value }: OtpScreenProps) {
   const t = useTheme();
   const [code, setCode] = useState('');
-  const input = useRef<TextInput>(null);
+  const input = useRef<TextInputInstance>(null);
   const verify = useVerifyOtp();
   const resend = useRequestOtp();
   const countdown = useCountdown(OTP_RESEND_SECONDS);
@@ -89,7 +89,7 @@ export function OtpScreen({ type, value }: OtpScreenProps) {
           />
           <View style={styles.help}>
             <Text variant="subhead" tone="secondary">
-              Didn't receive the code?
+              Didn&apos;t receive the code?
             </Text>
             <Button
               label={type === 'phone' ? 'Change Number' : 'Change Email'}
@@ -112,9 +112,13 @@ export function OtpScreen({ type, value }: OtpScreenProps) {
           Enter verification code
         </Text>
         <Text tone="secondary">
-          We've sent a {CONSUMER_OTP_LENGTH}-digit code to{' '}
+          We&apos;ve sent a {CONSUMER_OTP_LENGTH}-digit code to{' '}
           <Text style={{ fontFamily: t.type.headline.fontFamily }}>
-            {value ? formatContact(type, value, brand.phoneCountryCode) : type === 'phone' ? 'your number' : 'your email'}
+            {value
+              ? formatContact(type, value, brand.phoneCountryCode)
+              : type === 'phone'
+                ? 'your number'
+                : 'your email'}
           </Text>
         </Text>
       </View>

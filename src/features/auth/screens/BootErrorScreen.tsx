@@ -18,7 +18,7 @@ export function BootErrorScreen({ onRetry, retrying }: BootErrorScreenProps) {
         <AppLogo height={44} />
         <View style={{ gap: t.space[2] }}>
           <Text variant="title1" accessibilityRole="header">
-            Can't connect right now
+            Can&apos;t connect right now
           </Text>
           <Text tone="secondary">Check your internet connection and try again.</Text>
         </View>

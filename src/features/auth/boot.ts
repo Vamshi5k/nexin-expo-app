@@ -60,7 +60,7 @@ export async function checkSession(
   const { mode } = sessionStore.getState();
   if (mode === 'none') return 'ready';
   try {
-    const check =
+    const check: Promise<unknown> =
       mode === 'consumer'
         ? queryClient.fetchQuery({ ...meQuery(), retry: false })
         : queryClient.fetchQuery({ ...fleetMeQuery(), retry: false });

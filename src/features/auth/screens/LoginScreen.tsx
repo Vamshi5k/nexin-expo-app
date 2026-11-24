@@ -3,7 +3,7 @@ import { router } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import { Mail } from 'lucide-react-native';
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { Keyboard, Pressable, StyleSheet, View } from 'react-native';
 
 import { getErrorMessage } from '@/core/api';
@@ -50,7 +50,7 @@ export function LoginScreen() {
     defaultValues: { contact: '' },
     mode: 'onTouched',
   });
-  const contact = form.watch('contact');
+  const contact = useWatch({ control: form.control, name: 'contact' });
   const valid = (type === 'phone' ? phoneFormSchema : emailFormSchema).safeParse({
     contact,
   }).success;
@@ -79,7 +79,7 @@ export function LoginScreen() {
         <View style={{ gap: t.space[3] }}>
           <Button
             label="Continue"
-            onPress={submit}
+            onPress={() => void submit()}
             disabled={!valid}
             loading={requestOtp.isPending}
           />
@@ -120,7 +120,7 @@ export function LoginScreen() {
             accessibilityLabel="Mobile number"
             autoFocus
             returnKeyType="done"
-            onSubmitEditing={submit}
+            onSubmitEditing={() => void submit()}
           />
         ) : (
           <FormInput
@@ -137,7 +137,7 @@ export function LoginScreen() {
             accessibilityLabel="Email"
             autoFocus
             returnKeyType="done"
-            onSubmitEditing={submit}
+            onSubmitEditing={() => void submit()}
           />
         )}
         <View style={styles.links}>
@@ -153,15 +153,8 @@ export function LoginScreen() {
           ) : (
             <View />
           )}
-          {config.features.fleet ? (
-            <Button
-              label="Fleet Login"
-              variant="ghost"
-              size="medium"
-              onPress={() => router.push('/(auth)/fleet-login')}
-              style={styles.linkRight}
-            />
-          ) : null}
+          {/* TODO(phase-fleet): "Fleet Login" link to /(auth)/fleet-login when
+              config.features.fleet is on (BLUEPRINT A3). Hidden until that route exists. */}
         </View>
       </View>
     </Screen>
@@ -183,6 +176,5 @@ const styles = StyleSheet.create({
   links: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   // Ghost buttons carry 16 pt padding; pull them flush with the input edges.
   linkLeft: { marginLeft: -16 },
-  linkRight: { marginRight: -16 },
   underline: { textDecorationLine: 'underline' },
 });

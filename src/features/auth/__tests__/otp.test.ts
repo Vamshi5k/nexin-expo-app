@@ -23,7 +23,12 @@ describe('otpCells', () => {
   });
 
   it('has no active box when complete', () => {
-    expect(otpCells('1234', 4).map((c) => c.state)).toEqual(['filled', 'filled', 'filled', 'filled']);
+    expect(otpCells('1234', 4).map((c) => c.state)).toEqual([
+      'filled',
+      'filled',
+      'filled',
+      'filled',
+    ]);
   });
 });
 

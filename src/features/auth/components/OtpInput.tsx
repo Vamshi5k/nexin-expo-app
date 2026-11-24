@@ -1,5 +1,12 @@
 import { useRef, type Ref } from 'react';
-import { Platform, Pressable as RNPressable, StyleSheet, TextInput, View } from 'react-native';
+import {
+  Platform,
+  Pressable as RNPressable,
+  StyleSheet,
+  TextInput,
+  View,
+  type TextInputInstance,
+} from 'react-native';
 
 import { useTheme } from '@/theme';
 import { Text } from '@/ui';
@@ -15,7 +22,7 @@ export type OtpInputProps = {
   error?: boolean;
   disabled?: boolean;
   autoFocus?: boolean;
-  ref?: Ref<TextInput>;
+  ref?: Ref<TextInputInstance>;
 };
 
 /**
@@ -34,13 +41,13 @@ export function OtpInput({
 }: OtpInputProps) {
   const t = useTheme();
   const c = t.colors;
-  const inner = useRef<TextInput>(null);
+  const inner = useRef<TextInputInstance>(null);
   const cells = otpCells(value, length);
 
-  const setRefs = (node: TextInput | null) => {
+  const setRefs = (node: TextInputInstance | null) => {
     inner.current = node;
     if (typeof ref === 'function') ref(node);
-    else if (ref) (ref as { current: TextInput | null }).current = node;
+    else if (ref) (ref as { current: TextInputInstance | null }).current = node;
   };
 
   return (
