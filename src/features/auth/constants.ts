@@ -24,7 +24,9 @@ export const START_HREF = {
   onboarding: '/(auth)/onboarding',
   login: '/(auth)/login',
   setup: '/(setup)/profile',
-  home: '/(app)/(tabs)',
+  // Not (tabs)/index: groups add nothing to the URL, so that would also be "/" and clash with
+  // the root StartRedirect; a guard redirect to "/" from inside (app) then looped forever.
+  home: '/(app)/(tabs)/home',
   fleet: '/(fleet)/fleet',
 } as const satisfies Record<StartRoute, Href>;
 

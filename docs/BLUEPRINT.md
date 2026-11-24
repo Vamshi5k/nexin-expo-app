@@ -213,7 +213,7 @@ OTP sends a first-time user through (setup), a returning user straight to (app),
 | ProfileSetup                                       | app/(setup)/profile.tsx                           | setup |
 | VehicleSetup                                       | app/(setup)/vehicle.tsx                           | setup |
 | Permissions (Location + Notifications, one screen) | app/(setup)/permissions.tsx                       | setup |
-| MainApp → Map                                      | app/(app)/(tabs)/index.tsx                        | app   |
+| MainApp → Map (first tab, /home; not index: see note) | app/(app)/(tabs)/home.tsx                     | app   |
 | MainApp → Stations (fromMap?)                      | app/(app)/(tabs)/stations.tsx                     | app   |
 | MainApp → Wallet                                   | app/(app)/(tabs)/wallet.tsx                       | app   |
 | MainApp → Profile                                  | app/(app)/(tabs)/profile.tsx                      | app   |
@@ -238,6 +238,12 @@ OTP sends a first-time user through (setup), a returning user straight to (app),
 | FleetInvoiceScreen (id)                            | app/(fleet)/fleet/invoice/[id].tsx                | fleet |
 | FleetProfile                                       | app/(fleet)/fleet/profile.tsx                     | fleet |
 | EditFleetProfile                                   | app/(fleet)/fleet/profile-edit.tsx                | fleet |
+
+> Route note (2026-11-24): no `index.tsx` inside a route group. Groups add nothing to the URL,
+> so `(app)/(tabs)/index.tsx` was also `/`, clashing with the root StartRedirect: on logout the
+> `(app)` guard's redirect to `/` resolved back into `(app)` and looped forever. The first tab
+> is `(app)/(tabs)/home.tsx` (`/home`); `/` is only the root StartRedirect. Guarded by
+> `tests/auth/app-logout.test.tsx`, which renders the real `src/app` tree.
 
 The middle tab is a button, not a screen: render a custom tabBarButton that calls router.push('/scan'), so the camera never mounts inside the tab bar.
 

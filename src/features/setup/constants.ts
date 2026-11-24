@@ -6,7 +6,7 @@ export const SETUP_HREF = {
   profile: '/(setup)/profile',
   vehicle: '/(setup)/vehicle',
   permissions: '/(setup)/permissions',
-  home: '/(app)/(tabs)',
+  home: '/(app)/(tabs)/home',
 } as const satisfies Record<string, Href>;
 
 export const NAME_MIN_LENGTH = 2;
