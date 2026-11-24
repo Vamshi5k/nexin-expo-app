@@ -1,5 +1,5 @@
 import { Mail } from 'lucide-react-native';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import Animated, { Easing, FadeIn } from 'react-native-reanimated';
 
 import { brand } from '@/core/config';
@@ -8,6 +8,7 @@ import { Button, FormInput, Reveal, Text } from '@/ui';
 
 import { AuthScaffold } from '../components/AuthScaffold';
 import { ChargingIllustration } from '../components/ChargingIllustration';
+import { LegalLink } from '../components/LegalLink';
 import { useLoginForm } from '../hooks';
 
 export function LoginScreen() {
@@ -115,20 +116,9 @@ export function LoginScreen() {
   );
 }
 
-function LegalLink({ label, onPress }: { label: string; onPress: () => void }) {
-  return (
-    <Pressable onPress={onPress} hitSlop={12} accessibilityRole="link">
-      <Text variant="caption" tone="accent" style={styles.underline}>
-        {label}
-      </Text>
-    </Pressable>
-  );
-}
-
 const styles = StyleSheet.create({
   art: { flex: 1, minHeight: 0 },
   terms: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center' },
   links: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   linkLeft: { marginLeft: -16 },
-  underline: { textDecorationLine: 'underline' },
 });
