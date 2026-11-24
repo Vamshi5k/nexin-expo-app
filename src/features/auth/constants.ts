@@ -6,6 +6,16 @@ export const CONSUMER_OTP_LENGTH = 4;
 export const OTP_RESEND_SECONDS = 30;
 export const SESSION_CHECK_TIMEOUT_MS = 25_000;
 export const LOGOUT_TIMEOUT_MS = 8_000;
+// Matches the dialog's fade-out, so Login replaces the screen only after the dialog is gone.
+export const LOGOUT_DIALOG_EXIT_MS = 220;
+
+// screen-audit 6.2, with the audit's fix: "Log out" as the verb, not "Logout".
+export const LOGOUT_COPY = {
+  title: 'Log out?',
+  message: 'Are you sure you want to log out of your account?',
+  confirm: 'Yes, log out',
+  cancel: 'Cancel',
+} as const;
 
 // Same key and value the old app wrote, so existing installs skip onboarding.
 export const ONBOARDING_DONE_VALUE = 'completed';

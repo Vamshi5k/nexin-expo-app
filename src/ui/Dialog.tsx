@@ -1,3 +1,4 @@
+import type { LucideIcon } from 'lucide-react-native';
 import { Modal, StyleSheet, View } from 'react-native';
 
 import { useTheme } from '@/theme';
@@ -16,6 +17,7 @@ export type DialogProps = {
   onCancel?: () => void;
   destructive?: boolean;
   loading?: boolean;
+  icon?: LucideIcon;
 };
 
 export function Dialog({
@@ -28,6 +30,7 @@ export function Dialog({
   onCancel,
   destructive,
   loading,
+  icon: Icon,
 }: DialogProps) {
   const t = useTheme();
   return (
@@ -62,6 +65,24 @@ export function Dialog({
             },
           ]}
         >
+          {Icon ? (
+            <View
+              style={[
+                styles.icon,
+                {
+                  borderRadius: t.radius.pill,
+                  backgroundColor: destructive ? t.colors.dangerSoft : t.colors.accentSoft,
+                  marginBottom: t.space[2],
+                },
+              ]}
+            >
+              <Icon
+                color={destructive ? t.colors.dangerText : t.colors.accentText}
+                size={24}
+                strokeWidth={1.75}
+              />
+            </View>
+          ) : null}
           <Text variant="title2">{title}</Text>
           {message ? (
             <Text variant="body" tone="secondary">
@@ -89,4 +110,5 @@ export function Dialog({
 const styles = StyleSheet.create({
   backdrop: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   card: { width: '100%', maxWidth: 400 },
+  icon: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center' },
 });

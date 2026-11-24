@@ -3,19 +3,19 @@ import { LayoutGrid, LogOut, ShieldCheck } from 'lucide-react-native';
 import { View } from 'react-native';
 
 import { APP_ENV, brand } from '@/core/config';
-import { useAction } from '@/core/request';
 import { useClientConfig } from '@/features/client-config';
 import { useTheme } from '@/theme';
-import { Card, LargeTitleScroll, ListGroup, ListRow, Text, toast } from '@/ui';
+import { Card, LargeTitleScroll, ListGroup, ListRow, Text } from '@/ui';
 
-import { useAuth } from '../hooks';
+import { LogoutDialog } from '../components/LogoutDialog';
+import { useAuth, useLogoutConfirm } from '../hooks';
 import { formatContact } from '../session';
 
 export function TempHomeScreen() {
   const t = useTheme();
   const config = useClientConfig();
   const auth = useAuth();
-  const logout = useAction(auth.logout);
+  const logout = useLogoutConfirm();
   const user = auth.user;
   const name = [user?.firstName, user?.lastName].filter(Boolean).join(' ');
   const devTools = APP_ENV !== 'production';
@@ -49,15 +49,12 @@ export function TempHomeScreen() {
         <ListGroup>
           <ListRow
             icon={LogOut}
-            title={logout.isPending ? 'Logging out…' : 'Log out'}
+            title={logout.leaving ? 'Logging out…' : 'Log out'}
             destructive
-            onPress={() =>
-              logout.isPending
-                ? undefined
-                : logout.run().catch(() => toast.error('Could not log out'))
-            }
+            onPress={logout.leaving ? undefined : logout.ask}
           />
         </ListGroup>
+        <LogoutDialog state={logout} />
       </View>
     </LargeTitleScroll>
   );

@@ -23,7 +23,13 @@ import { useFleet } from '@/features/fleet';
 import { haptics, toast } from '@/ui';
 
 import * as authApi from './api';
-import { CONSUMER_OTP_LENGTH, LOGIN_COPY, OTP_RESEND_SECONDS, START_HREF } from './constants';
+import {
+  CONSUMER_OTP_LENGTH,
+  LOGIN_COPY,
+  LOGOUT_DIALOG_EXIT_MS,
+  OTP_RESEND_SECONDS,
+  START_HREF,
+} from './constants';
 import {
   checkSession,
   classifySessionError,
@@ -122,6 +128,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [mode, user.data, user.status, user.error, user.load, verifyOtp, logout],
   );
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+}
+
+// Confirm first; on "Yes" the dialog fades out, then the session clears and the guard shows Login.
+export function useLogoutConfirm() {
+  const { logout } = useAuth();
+  const [open, setOpen] = useState(false);
+  const [leaving, setLeaving] = useState(false);
+
+  const confirm = () => {
+    if (leaving) return;
+    setLeaving(true);
+    setOpen(false);
+    setTimeout(() => {
+      logout().catch(() => {
+        setLeaving(false);
+        toast.error('Could not log out');
+      });
+    }, LOGOUT_DIALOG_EXIT_MS);
+  };
+
+  return {
+    open,
+    leaving,
+    ask: () => setOpen(true),
+    cancel: () => setOpen(false),
+    confirm,
+  };
 }
 
 export function useAuth(): AuthValue {

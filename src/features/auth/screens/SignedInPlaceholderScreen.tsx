@@ -1,26 +1,22 @@
 import { View } from 'react-native';
 
-import { useAction } from '@/core/request';
 import { useTheme } from '@/theme';
-import { Button, PlaceholderScreen, toast } from '@/ui';
+import { Button, PlaceholderScreen } from '@/ui';
 
-import { useAuth } from '../hooks';
+import { LogoutDialog } from '../components/LogoutDialog';
+import { useLogoutConfirm } from '../hooks';
 
 export type SignedInPlaceholderScreenProps = { title: string; description: string };
 
 export function SignedInPlaceholderScreen({ title, description }: SignedInPlaceholderScreenProps) {
   const t = useTheme();
-  const logout = useAction(useAuth().logout);
+  const logout = useLogoutConfirm();
   return (
     <PlaceholderScreen title={title} description={description}>
       <View style={{ marginTop: t.space[6] }}>
-        <Button
-          label="Log out"
-          variant="secondary"
-          loading={logout.isPending}
-          onPress={() => void logout.run().catch(() => toast.error('Could not log out'))}
-        />
+        <Button label="Log out" variant="secondary" loading={logout.leaving} onPress={logout.ask} />
       </View>
+      <LogoutDialog state={logout} />
     </PlaceholderScreen>
   );
 }
