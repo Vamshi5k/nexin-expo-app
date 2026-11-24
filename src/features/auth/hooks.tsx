@@ -7,7 +7,6 @@ import {
   useContext,
   useEffect,
   useMemo,
-  useRef,
   useState,
   type ReactNode,
 } from 'react';
@@ -17,7 +16,7 @@ import { Keyboard } from 'react-native';
 import { getErrorMessage, statusOf } from '@/core/api';
 import { brand } from '@/core/config';
 import { log } from '@/core/log';
-import { useAction } from '@/core/request';
+import { useAction, useSessionData, type LoadStatus } from '@/core/request';
 import { sessionStore, signOutThen, useSession, type SessionMode } from '@/core/session';
 import { useClientConfig, usePrimeClientConfig } from '@/features/client-config';
 import { useFleet } from '@/features/fleet';
@@ -44,7 +43,6 @@ import type {
   GuardDecision,
   RouteGroup,
   User,
-  UserStatus,
 } from './types';
 
 export function finishOnboarding(): void {
@@ -86,7 +84,7 @@ export function useBoot(): { status: BootStatus; retrying: boolean; retry: () =>
 type AuthValue = {
   mode: SessionMode;
   user: User | null;
-  userStatus: UserStatus;
+  userStatus: LoadStatus;
   userError: unknown;
   loadUser: () => Promise<User>;
   requestOtp: (contact: string) => Promise<void>;
@@ -94,41 +92,12 @@ type AuthValue = {
   logout: () => Promise<void>;
 };
 
-type UserState = Pick<AuthValue, 'user' | 'userStatus' | 'userError'>;
-const NO_USER: UserState = { user: null, userStatus: 'idle', userError: null };
-
 const AuthContext = createContext<AuthValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const mode = useSession((s) => s.mode);
-  const [state, setState] = useState<UserState>(NO_USER);
-  // Bumped on every session change (sign-in, logout, refresh 4xx) so a response for the
-  // previous session can never write the old user back.
-  const generation = useRef(0);
-
-  useEffect(
-    () =>
-      sessionStore.subscribe((next, prev) => {
-        if (next.mode === prev.mode) return;
-        generation.current++;
-        setState(NO_USER);
-      }),
-    [],
-  );
-
-  const loadUser = useCallback(async () => {
-    const gen = generation.current;
-    setState((s) => ({ ...s, userStatus: 'loading', userError: null }));
-    try {
-      const user = await authApi.getUser();
-      if (gen === generation.current) setState({ user, userStatus: 'ready', userError: null });
-      return user;
-    } catch (error) {
-      if (gen === generation.current)
-        setState((s) => ({ ...s, userStatus: 'error', userError: error }));
-      throw error;
-    }
-  }, []);
+  // Cleared on sign-in, logout and refresh 4xx; a late response for the old session is dropped.
+  const user = useSessionData(authApi.getUser);
 
   // Only stores the tokens: the guard sends the user to "/", which loads the user and routes.
   const verifyOtp = useCallback(async (otp: string) => {
@@ -139,8 +108,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = useCallback(() => signOutThen(serverLogout), []);
 
   const value = useMemo(
-    () => ({ mode, ...state, loadUser, requestOtp: authApi.requestOtp, verifyOtp, logout }),
-    [mode, state, loadUser, verifyOtp, logout],
+    () => ({
+      mode,
+      user: user.data,
+      userStatus: user.status,
+      userError: user.error,
+      loadUser: user.load,
+      requestOtp: authApi.requestOtp,
+      verifyOtp,
+      logout,
+    }),
+    [mode, user.data, user.status, user.error, user.load, verifyOtp, logout],
   );
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

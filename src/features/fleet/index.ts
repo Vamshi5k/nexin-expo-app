@@ -1,3 +1,3 @@
 export { fleetLogout } from './api';
-export { FleetProvider, useFleet, type DriverStatus } from './FleetContext';
+export { FleetProvider, useFleet } from './hooks';
 export type { FleetUser } from './types';
