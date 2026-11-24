@@ -22,15 +22,14 @@ src/features/<feature>/
 | 2 | `bbe5db2` | auth split: pure rules and boot steps in `session.ts` (no React/UI imports); `@/ui` Jest stub removed |
 | 3 | `32a7e6e` | `useSessionData` in `src/core/request.ts` (status + generation counter + reset on session change), used by Auth and Fleet; fleet on the new layout (`hooks.tsx`, `constants.ts`, `getDriver()` returns a model) |
 | 4 | `8386398` | client-config on the new layout: `hooks.tsx` (provider + cache helpers), `constants.ts`, `getClientConfig()` returns a model |
-| 5 | (this commit) | AGENTS.md, BLUEPRINT.md section 6 and this file describe the layout as built |
+| 5 | `dcf7696` | AGENTS.md, BLUEPRINT.md section 6 and this file describe the layout as built |
+| 6 | (this commit) | `@testing-library/react-native` + 3 flow tests: login submit, OTP wrong code, logout redirect (through the real router) |
 
 Sizes now: auth `hooks.tsx` 309 lines, `session.ts` 159; fleet `hooks.tsx` 43; client-config
 `hooks.tsx` 92.
 
 ## Not done
 
-6. Add `@testing-library/react-native` and three render tests: login submit, OTP wrong code,
-   logout redirect. Update AGENTS.md rule 6 to mention render tests.
 7. Owner checks on the emulator: start-up, onboarding, login, OTP, logout.
 8. Pull request from `wip/auth-refactor` into `feat/auth`.
 
@@ -47,6 +46,16 @@ Sizes now: auth `hooks.tsx` 309 lines, `session.ts` 159; fleet `hooks.tsx` 43; c
 - Earlier on `feat/auth`: TanStack Query replaced by contexts + `useRequest` / `useAction`;
   Zustand kept only as the token store (see PROGRESS.md deviations).
 - No DESIGN.md changes; UI and copy are unchanged.
+- Jest setup for render tests (`jest.setup.ts`, `package.json` "jest"):
+  - Reanimated: stub only `react-native-reanimated/src/initializers` (jest-expo loads the
+    native initializer, which calls a CSS API the JS fallback throws on), then the official
+    worklets and Reanimated mocks.
+  - `src/ui/toast.ts` is mocked globally (sonner-native is ESM only); tests assert on the spies.
+  - `lucide-react-native` mapped to its CJS build (Jest picks the ESM `react-native` export).
+  - `react-native-gesture-handler/jestSetup.js` in `setupFiles`, as its docs say.
+  - `test-renderer` pinned as a dev dependency (RNTL 14 peer).
+- Flow tests mock the feature's `api.ts`, never hooks; shared providers in
+  `tests/helpers/render.tsx`. The logout test was checked to fail when the guard is broken.
 
 ## Open questions
 
@@ -58,7 +67,7 @@ None outstanding. All three questions from the first handoff were answered by th
 |---|---|
 | `npm run lint` | pass: 0 errors, 0 warnings |
 | `npx tsc --noEmit` | pass: 0 errors |
-| `npm test` | pass: 25 suites, 187 tests |
+| `npm test` | pass: 28 suites, 190 tests |
 
 Not re-verified on a device since the refactor (step 7).
 

@@ -52,7 +52,10 @@ Install native deps with `npx expo install`, never plain npm, so versions match 
    lives in the contexts (user, driver, client config) or in a screen's `useRequest`. Contexts
    reset on every session change and drop responses for the previous session.
 6. Pure logic (pricing, QR parsing, status maps, formatters, mappers) is tested in tests/.
-   Logic tests import api.ts mappers and <topic>.ts files directly.
+   Logic tests import api.ts mappers and <topic>.ts files directly. Flow tests render
+   screens with @testing-library/react-native inside `AppProviders` (tests/helpers/render.tsx),
+   or through the real router with `renderRouter` (expo-router/testing-library); they mock
+   the feature's api.ts, never hooks.
 7. Features import each other only via index.ts. src/ui and src/core never import src/features.
 8. Money is computed in paise (integers). Format only at render time.
 9. No `any` in api/hooks. No console.\* in committed code (use src/core/log.ts).

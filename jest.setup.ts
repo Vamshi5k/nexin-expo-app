@@ -49,3 +49,17 @@ jest.mock('react-native-mmkv', () => ({
     };
   },
 }));
+
+// Render tests: jest-expo loads Reanimated's native initializer, which calls a CSS API its JS
+// fallback throws on. Stub just that initializer, then use the official worklets/Reanimated mocks.
+jest.mock('react-native-worklets', () => jest.requireActual('react-native-worklets/src/mock'));
+jest.mock('react-native-reanimated/src/initializers', () => ({
+  initializeReanimatedModule: () => undefined,
+}));
+jest.mock('react-native-reanimated', () => jest.requireActual('react-native-reanimated/mock'));
+
+// sonner-native ships ESM only. Tests assert on these spies instead of rendering toasts.
+jest.mock('@/ui/toast', () => ({
+  toast: { success: jest.fn(), error: jest.fn(), info: jest.fn(), promise: jest.fn() },
+  AppToaster: () => null,
+}));
