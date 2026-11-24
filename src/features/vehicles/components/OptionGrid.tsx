@@ -106,7 +106,7 @@ export function OptionGridSkeleton() {
 
 const styles = StyleSheet.create({
   grid: { flexDirection: 'row', flexWrap: 'wrap' },
-  cell: { width: '47%', flexGrow: 1, justifyContent: 'flex-end' },
+  cell: { width: '47%', flexGrow: 1, justifyContent: 'flex-start' },
   label: { paddingRight: 24 },
   monogram: { width: 36, height: 36, alignItems: 'center', justifyContent: 'center' },
   badge: {

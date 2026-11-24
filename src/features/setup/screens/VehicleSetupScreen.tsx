@@ -23,7 +23,7 @@ export function VehicleSetupScreen() {
       }
       hero={
         <Reveal index={0}>
-          <VehicleFormHeader wizard={wizard} />
+          <VehicleFormHeader wizard={wizard} showSteps={false} />
         </Reveal>
       }
       footer={

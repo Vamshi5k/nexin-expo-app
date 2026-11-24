@@ -19,8 +19,10 @@ export function useVehicleWizard({ onAdded }: { onAdded: () => void }) {
   const [stepIndex, setStepIndex] = useState(0);
   const [brand, setBrand] = useState<Brand | null>(null);
   const [model, setModel] = useState<Model | null>(null);
-  const [capacity, setCapacity] = useState<CapacityChoice | null>(null);
-  const [customOpen, setCustomOpen] = useState(false);
+  const [preset, setPreset] = useState<CapacityChoice | null>(null);
+  // "Custom" shows an inline kWh field; the choice only counts once the value is valid.
+  const [customMode, setCustomMode] = useState(false);
+  const [customText, setCustomText] = useState('');
   const step: WizardStep = WIZARD_STEPS[stepIndex];
 
   const brandId = brand?.id;
@@ -41,6 +43,17 @@ export function useVehicleWizard({ onAdded }: { onAdded: () => void }) {
   });
   const details = useWatch({ control: form.control });
   const detailsValid = detailsSchema.safeParse(details).success;
+
+  const customParsed = customCapacitySchema.safeParse(customText);
+  const capacity: CapacityChoice | null = customMode
+    ? customParsed.success
+      ? { kind: 'custom', kwh: customParsed.data }
+      : null
+    : preset;
+  const customError =
+    customMode && customText.trim() !== '' && !customParsed.success
+      ? (customParsed.error.issues[0]?.message ?? 'Invalid capacity')
+      : undefined;
 
   const add = useAction(addVehicle);
 
@@ -82,25 +95,27 @@ export function useVehicleWizard({ onAdded }: { onAdded: () => void }) {
     selectBrand: (next: Brand) => {
       if (next.id !== brand?.id) {
         setModel(null);
-        setCapacity(null);
+        setPreset(null);
+        setCustomMode(false);
       }
       setBrand(next);
     },
     selectModel: (next: Model) => {
-      if (next.id !== model?.id) setCapacity(null);
+      if (next.id !== model?.id) {
+        setPreset(null);
+        setCustomMode(false);
+      }
       setModel(next);
     },
-    selectCapacity: (next: CapacityChoice) => setCapacity(next),
-    customOpen,
-    openCustom: () => setCustomOpen(true),
-    closeCustom: () => setCustomOpen(false),
-    saveCustom: (raw: string): string | null => {
-      const parsed = customCapacitySchema.safeParse(raw);
-      if (!parsed.success) return parsed.error.issues[0]?.message ?? 'Invalid capacity';
-      setCapacity({ kind: 'custom', kwh: parsed.data });
-      setCustomOpen(false);
-      return null;
+    selectCapacity: (next: CapacityChoice) => {
+      setPreset(next);
+      setCustomMode(false);
     },
+    customMode,
+    chooseCustom: () => setCustomMode(true),
+    customText,
+    setCustomText,
+    customError,
     control: form.control,
     canContinue,
     submitting: add.isPending,

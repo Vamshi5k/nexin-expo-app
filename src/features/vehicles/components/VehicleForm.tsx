@@ -1,12 +1,11 @@
 import { Car, Cpu, Hash } from 'lucide-react-native';
-import { useState } from 'react';
 import { View } from 'react-native';
 
 import { getErrorMessage } from '@/core/api';
 import { brand as appBrand } from '@/core/config';
 import type { RequestState } from '@/core/request';
 import { useTheme } from '@/theme';
-import { Button, EmptyState, ErrorState, FormInput, Input, Sheet, Text } from '@/ui';
+import { EmptyState, ErrorState, FormInput, Input, Text } from '@/ui';
 
 import {
   CUSTOM_CAPACITY_MAX_KWH,
@@ -21,11 +20,18 @@ import type { VehicleWizard } from '../hooks';
 import { OptionGrid, OptionGridSkeleton, type Option } from './OptionGrid';
 
 // Split so a screen can place the title in its brand area and the body in its panel.
-export function VehicleFormHeader({ wizard }: { wizard: VehicleWizard }) {
+// showSteps: setup hides the wizard's own bars because its top bar already shows progress.
+export function VehicleFormHeader({
+  wizard,
+  showSteps = true,
+}: {
+  wizard: VehicleWizard;
+  showSteps?: boolean;
+}) {
   const t = useTheme();
   return (
     <View style={{ gap: t.space[4] }}>
-      <StepBars index={wizard.stepIndex} count={wizard.stepCount} />
+      {showSteps ? <StepBars index={wizard.stepIndex} count={wizard.stepCount} /> : null}
       <View style={{ gap: t.space[2] }}>
         <Text variant="hero" accessibilityRole="header">
           {wizard.title}
@@ -39,12 +45,7 @@ export function VehicleFormHeader({ wizard }: { wizard: VehicleWizard }) {
 }
 
 export function VehicleFormBody({ wizard }: { wizard: VehicleWizard }) {
-  return (
-    <>
-      <StepBody wizard={wizard} />
-      <CustomCapacitySheet wizard={wizard} />
-    </>
-  );
+  return <StepBody wizard={wizard} />;
 }
 
 function StepBody({ wizard: w }: { wizard: VehicleWizard }) {
@@ -88,35 +89,48 @@ function StepBody({ wizard: w }: { wizard: VehicleWizard }) {
           }}
         />
       );
-    case 'capacity': {
-      const custom = w.capacity?.kind === 'custom' ? w.capacity.kwh : null;
+    case 'capacity':
       return (
-        <Choices
-          request={w.capacities}
-          empty={EMPTY_COPY.capacity}
-          allowEmpty
-          toOptions={(items) => [
-            ...items.map((c) => ({
-              key: c.id,
-              label: formatCapacity(c.kwh),
-              subtitle: c.rangeKm !== null ? `${c.rangeKm} km range` : undefined,
-              selected: w.capacity?.kind === 'preset' && w.capacity.capacity.id === c.id,
-            })),
-            {
-              key: CUSTOM_KEY,
-              label: custom !== null ? formatCapacity(custom) : 'Custom',
-              subtitle: 'Enter manually',
-              selected: custom !== null,
-            },
-          ]}
-          onSelect={(key) => {
-            if (key === CUSTOM_KEY) return w.openCustom();
-            const next = w.capacities.data?.find((c) => c.id === key);
-            if (next) w.selectCapacity({ kind: 'preset', capacity: next });
-          }}
-        />
+        <View style={{ gap: t.space[4] }}>
+          <Choices
+            request={w.capacities}
+            empty={EMPTY_COPY.capacity}
+            allowEmpty
+            toOptions={(items) => [
+              ...items.map((c) => ({
+                key: c.id,
+                label: formatCapacity(c.kwh),
+                subtitle: c.rangeKm !== null ? `${c.rangeKm} km range` : undefined,
+                selected:
+                  !w.customMode && w.capacity?.kind === 'preset' && w.capacity.capacity.id === c.id,
+              })),
+              {
+                key: CUSTOM_KEY,
+                label: 'Custom',
+                subtitle: 'Enter manually',
+                selected: w.customMode,
+              },
+            ]}
+            onSelect={(key) => {
+              if (key === CUSTOM_KEY) return w.chooseCustom();
+              const next = w.capacities.data?.find((c) => c.id === key);
+              if (next) w.selectCapacity({ kind: 'preset', capacity: next });
+            }}
+          />
+          {w.customMode ? (
+            <Input
+              label="Battery capacity (kWh)"
+              placeholder="e.g. 40"
+              hint={`Between ${CUSTOM_CAPACITY_MIN_KWH} and ${CUSTOM_CAPACITY_MAX_KWH} kWh`}
+              keyboardType="decimal-pad"
+              value={w.customText}
+              onChangeText={w.setCustomText}
+              error={w.customError}
+              autoFocus
+            />
+          ) : null}
+        </View>
       );
-    }
     case 'details':
       return (
         <View style={{ gap: t.space[5] }}>
@@ -211,37 +225,5 @@ function StepBars({ index, count }: { index: number; count: number }) {
         />
       ))}
     </View>
-  );
-}
-
-function CustomCapacitySheet({ wizard: w }: { wizard: VehicleWizard }) {
-  const t = useTheme();
-  const [value, setValue] = useState('');
-  const [error, setError] = useState<string | null>(null);
-  return (
-    <Sheet
-      open={w.customOpen}
-      onClose={() => {
-        setError(null);
-        w.closeCustom();
-      }}
-      title="Custom"
-      description={`Enter your battery capacity (${CUSTOM_CAPACITY_MIN_KWH}–${CUSTOM_CAPACITY_MAX_KWH} kWh)`}
-    >
-      <View style={{ gap: t.space[4] }}>
-        <Input
-          label="Battery capacity (kWh)"
-          placeholder="e.g. 40"
-          keyboardType="decimal-pad"
-          value={value}
-          onChangeText={(next) => {
-            setValue(next);
-            setError(null);
-          }}
-          error={error ?? undefined}
-        />
-        <Button label="Save" onPress={() => setError(w.saveCustom(value))} />
-      </View>
-    </Sheet>
   );
 }

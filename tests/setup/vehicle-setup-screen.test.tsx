@@ -38,6 +38,28 @@ describe('VehicleSetupScreen', () => {
     expect(await screen.findByRole('radio', { name: 'Nexon EV' })).toBeTruthy();
   });
 
+  it('Custom capacity opens an inline kWh field, validated as you type', async () => {
+    await renderWithApp(<VehicleSetupScreen />);
+    const continueButton = screen.getByRole('button', { name: 'Continue' });
+
+    await fireEvent.press(await screen.findByRole('radio', { name: 'MG' }));
+    await fireEvent.press(continueButton);
+    await fireEvent.press(await screen.findByRole('radio', { name: 'Nexon EV' }));
+    await fireEvent.press(continueButton);
+
+    expect(screen.queryByLabelText('Battery capacity (kWh)')).toBeNull();
+    await fireEvent.press(await screen.findByRole('radio', { name: 'Custom, Enter manually' }));
+    const field = screen.getByLabelText('Battery capacity (kWh)');
+
+    await fireEvent.changeText(field, '9');
+    expect(screen.getByText('Minimum 10 kWh')).toBeTruthy();
+    expect(continueButton).toBeDisabled();
+
+    await fireEvent.changeText(field, '40');
+    expect(screen.queryByText('Minimum 10 kWh')).toBeNull();
+    expect(continueButton).toBeEnabled();
+  });
+
   it('shows an empty state with Retry when there are no brands', async () => {
     jest.mocked(getBrands).mockResolvedValueOnce([]);
     await renderWithApp(<VehicleSetupScreen />);
