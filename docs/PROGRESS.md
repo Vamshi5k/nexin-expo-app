@@ -167,7 +167,14 @@ types.ts utils.ts index.ts` (mappers merged into api.ts; queries, boot and the o
   `restoreSession`. Push notifications stay dev-build only. Firebase messaging and Razorpay
   (later phases) will need the same guard.
 
-**Verified**: `tsc --noEmit`, `expo lint`, `jest` (27 suites, 189 tests), `brand:check` all pass.
+- Logout fix (2026-11-24): `signOutEverywhere` clears the session first, so the guard shows
+  Login at once, then sends the server logout in the background with the token captured
+  before clearing (`authToken` request option: sent as-is, 8 s timeout, never refreshes on
+  401). Before, the UI waited on the server (up to 20 s, or 40 s when a 401 triggered a token
+  refresh first) and could save refreshed tokens just before deleting them. `clearUserData`
+  now cancels in-flight user queries before removing them.
+
+**Verified**: `tsc --noEmit`, `expo lint`, `jest` (27 suites, 194 tests), `brand:check` all pass.
 Not yet verified on a device against staging (needs a test number, see open questions).
 
 **Deviations**

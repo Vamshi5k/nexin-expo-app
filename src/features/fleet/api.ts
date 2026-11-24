@@ -9,8 +9,10 @@ export async function getFleetUserByToken(): Promise<FleetUserDto> {
   return data;
 }
 
-export async function fleetLogout(): Promise<void> {
-  await api.get('/fleet/logout');
+const FLEET_LOGOUT_TIMEOUT_MS = 8_000;
+
+export async function fleetLogout(accessToken: string | null): Promise<void> {
+  await api.get('/fleet/logout', { authToken: accessToken, timeout: FLEET_LOGOUT_TIMEOUT_MS });
 }
 
 const str = (v: string | null | undefined): string | null => (v && v.trim() ? v.trim() : null);

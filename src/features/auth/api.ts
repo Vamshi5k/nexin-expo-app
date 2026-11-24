@@ -24,8 +24,13 @@ export async function registerFcm(fcmToken: string): Promise<void> {
   await api.put('/auth/fcm', { fcmToken });
 }
 
-export async function logout(): Promise<void> {
-  await api.post('/auth/logout');
+export const LOGOUT_TIMEOUT_MS = 8_000;
+
+export async function logout(accessToken: string | null): Promise<void> {
+  await api.post('/auth/logout', undefined, {
+    authToken: accessToken,
+    timeout: LOGOUT_TIMEOUT_MS,
+  });
 }
 
 const str = (v: string | null | undefined): string | null => (v && v.trim() ? v.trim() : null);

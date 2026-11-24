@@ -128,6 +128,19 @@ describe('401 refresh queue', () => {
     expect(tokens().refreshToken).toBe('old-refresh');
   });
 
+  it('an explicit authToken is sent as-is and a 401 never triggers a refresh', async () => {
+    const refreshAdapter = jest.fn<ReturnType<AxiosAdapter>, Parameters<AxiosAdapter>>();
+    const { client, seen, onSessionExpired } = setup({ refreshAdapter });
+    await expect(
+      client.post('/auth/logout', undefined, { authToken: 'captured' }),
+    ).rejects.toMatchObject({
+      response: { status: 401 },
+    });
+    expect(seen.map((s) => s.auth)).toEqual(['Bearer captured']);
+    expect(refreshAdapter).not.toHaveBeenCalled();
+    expect(onSessionExpired).not.toHaveBeenCalled();
+  });
+
   it('sends x-client-token and the bearer token on every request', async () => {
     const refreshAdapter: AxiosAdapter = async (config) =>
       response(config, 200, { accessToken: 'new-access', refreshToken: 'new-refresh' });

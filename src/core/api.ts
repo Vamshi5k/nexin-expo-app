@@ -106,6 +106,14 @@ export function nextPage<T>(page: Page<T>): number | undefined {
 
 export type Tokens = { accessToken: string; refreshToken: string };
 
+declare module 'axios' {
+  interface AxiosRequestConfig {
+    // Send this token instead of the session's and never refresh on 401 (used by logout,
+    // which runs after the session is already cleared).
+    authToken?: string | null;
+  }
+}
+
 export type AuthDeps = {
   clientToken: string;
   refreshUrl: string;
@@ -172,7 +180,7 @@ export function installAuth(client: AxiosInstance, deps: AuthDeps): void {
   }
 
   client.interceptors.request.use((config: RetryConfig) => {
-    const token = deps.getAccessToken();
+    const token = config.authToken !== undefined ? config.authToken : deps.getAccessToken();
     config._sentToken = token;
     setAuthHeader(config, token);
     const headers = AxiosHeaders.from(config.headers);
@@ -183,7 +191,13 @@ export function installAuth(client: AxiosInstance, deps: AuthDeps): void {
 
   client.interceptors.response.use(undefined, async (error: AxiosError) => {
     const config = error.config as RetryConfig | undefined;
-    if (!config || error.response?.status !== 401 || config._retry || !deps.getRefreshToken()) {
+    if (
+      !config ||
+      error.response?.status !== 401 ||
+      config._retry ||
+      config.authToken !== undefined ||
+      !deps.getRefreshToken()
+    ) {
       throw error;
     }
     config._retry = true;

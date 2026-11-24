@@ -65,7 +65,10 @@ export function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
 
 export function clearUserData(queryClient: QueryClient): void {
   const keep = queryKeys.clientConfig()[0];
-  queryClient.removeQueries({ predicate: (q) => q.queryKey[0] !== keep });
+  const predicate = (q: { queryKey: readonly unknown[] }) => q.queryKey[0] !== keep;
+  // Cancel first so a response that lands after sign-out can't write the old user back.
+  void queryClient.cancelQueries({ predicate });
+  queryClient.removeQueries({ predicate });
 }
 
 export function clearUserDataOnSessionChange(
@@ -128,23 +131,27 @@ export function useVerifyOtp() {
   });
 }
 
-export async function serverLogout(mode: SessionMode): Promise<void> {
-  if (mode === 'fleet') await fleetLogout();
-  else if (mode === 'consumer') await logout();
+export async function serverLogout(mode: SessionMode, accessToken: string | null): Promise<void> {
+  if (mode === 'fleet') await fleetLogout(accessToken);
+  else if (mode === 'consumer') await logout(accessToken);
+}
+
+// Local first (BLUEPRINT: logout always clears locally): the guard sends the user to Login at
+// once, and the best-effort server call runs in the background with the captured token.
+export async function signOutEverywhere(
+  store: StoreApi<SessionState> = sessionStore,
+): Promise<void> {
+  const { mode, tokens } = store.getState();
+  if (mode === 'none') return;
+  await store.getState().signOut();
+  // TODO(phase-charging): disconnect the socket here (BLUEPRINT Profile logout).
+  void serverLogout(mode, tokens?.accessToken ?? null).catch((error: unknown) =>
+    log.warn('server logout failed; session already cleared locally', { error: String(error) }),
+  );
 }
 
 export function useLogout() {
-  return useMutation({
-    mutationFn: async () => {
-      try {
-        await serverLogout(sessionStore.getState().mode);
-      } catch (error) {
-        log.warn('logout request failed; clearing locally anyway', { error: String(error) });
-      } finally {
-        await sessionStore.getState().signOut();
-      }
-    },
-  });
+  return useMutation({ mutationFn: () => signOutEverywhere() });
 }
 
 export type BootState = {
