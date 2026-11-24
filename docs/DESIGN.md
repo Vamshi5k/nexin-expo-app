@@ -99,8 +99,11 @@ the driver find, start, watch or pay for a charge.
   accentSoft, surfaceSunken) and 1 pt lines.
 - `SplashOverlay` pixel-matches the native splash. If boot takes over 700 ms a thin accent
   line sweeps under the logo. When ready the logo lifts and the overlay slides up like a curtain.
-- Backdrop is `AmbientBackground`: a faint dot grid (borderStrong) that fades out by mid
-  screen and drifts down one cell at a time. Static under Reduce Motion.
+- Onboarding backdrop is `AmbientBackground`: a faint dot grid (borderStrong) that fades out
+  by mid screen and drifts down one cell at a time.
+- Login, OTP and boot error use `ContourBackground`: 1 pt topographic contour lines in accent
+  radiating from the top-right corner, slowly turning (120 s per turn) and breathing, faded to
+  bg by 60% of the height so the form sits on plain bg. Both are static under Reduce Motion.
 - Headings use `hero` (44/48 bold, -1.4 tracking), left aligned. Content enters with a short
   staggered fade-up (`Reveal`).
 - Inputs on these screens use `size="large"` (68 high, 22 pt value). OTP cells are flat
@@ -120,6 +123,6 @@ the driver find, start, watch or pay for a charge.
 - Everything tappable has a pressed state (opacity, or scale 0.98). No dead taps.
 
 ## Avoid
-Gradient backgrounds (except the dot-grid fade above), more than one accent colour, heavy shadows, centred paragraphs,
+Gradient backgrounds (except the backdrop fades above), more than one accent colour, heavy shadows, centred paragraphs,
 cramped cards, emoji in the UI, mixed icon sets, grey text below AA, stock illustrations,
 and any brand value hard-coded in a component.

@@ -23,3 +23,4 @@ export { haptics, type HapticKind } from './haptics';
 export { AmbientBackground } from './AmbientBackground';
 export { Reveal, type RevealProps } from './Reveal';
 export { SplashOverlay } from './SplashOverlay';
+export { ContourBackground } from './ContourBackground';

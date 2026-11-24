@@ -5,7 +5,7 @@ import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 're
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTheme } from '@/theme';
-import { AmbientBackground, Pressable, Reveal } from '@/ui';
+import { ContourBackground, Pressable, Reveal } from '@/ui';
 
 export type AuthScaffoldProps = {
   children: ReactNode;
@@ -20,7 +20,7 @@ export function AuthScaffold({ children, footer, back, center }: AuthScaffoldPro
 
   return (
     <View style={styles.flex}>
-      <AmbientBackground />
+      <ContourBackground />
       <KeyboardAvoidingView
         style={[styles.flex, { paddingTop: insets.top }]}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
