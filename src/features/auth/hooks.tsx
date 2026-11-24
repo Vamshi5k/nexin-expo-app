@@ -31,6 +31,7 @@ import {
   formatContact,
   guardRoute,
   isOnboardingDone,
+  isSetupDone,
   markOnboardingDone,
   resolveStartRoute,
   restoreSession,
@@ -129,7 +130,7 @@ export function useAuth(): AuthValue {
   return ctx;
 }
 
-async function openLegal(url: string | null) {
+export async function openLegal(url: string | null) {
   if (!url) {
     toast.error('Link not available');
     return;
@@ -286,7 +287,12 @@ export function useStartRoute(): { href: Href | null; failed: boolean; retry: ()
     if (expired) void sessionStore.getState().signOut();
   }, [expired]);
 
-  const route = resolveStartRoute({ mode, user, onboardingDone: isOnboardingDone() });
+  const route = resolveStartRoute({
+    mode,
+    user,
+    onboardingDone: isOnboardingDone(),
+    setupDone: user ? isSetupDone(user.id) : false,
+  });
   return {
     href: route ? START_HREF[route] : null,
     failed: failed && !expired,

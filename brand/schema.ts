@@ -153,6 +153,8 @@ const BrandObjectSchema = z.object({
     .default('+91'),
   /** Example number shown as the phone input placeholder. */
   phonePlaceholder: z.string().min(1).default('9876543210'),
+  /** Example vehicle registration number shown in vehicle forms. */
+  regNoPlaceholder: z.string().min(1).default('KA01AB1234'),
   /** GST_SPLIT = CGST + SGST shown separately; SINGLE = one tax line. */
   taxModel: z.enum(['GST_SPLIT', 'SINGLE']).default('GST_SPLIT'),
 

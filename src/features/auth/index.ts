@@ -1,4 +1,6 @@
-export { AuthProvider, useAuth, useBoot } from './hooks';
+export { AuthProvider, openLegal, useAuth, useBoot } from './hooks';
+export { registerPushToken } from './api';
+export { markSetupDone } from './session';
 export { START_HREF } from './constants';
 export type { ContactType, RouteGroup } from './types';
 export { GuardedStack } from './components/GuardedStack';

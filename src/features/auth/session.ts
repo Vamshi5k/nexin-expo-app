@@ -57,11 +57,12 @@ export function resolveStartRoute(input: {
   mode: SessionMode;
   user: Pick<User, 'isFirstLogin'> | null | undefined;
   onboardingDone: boolean;
+  setupDone?: boolean;
 }): StartRoute | null {
   if (input.mode === 'fleet') return 'fleet';
   if (input.mode === 'consumer') {
     if (!input.user) return null; // still loading
-    return input.user.isFirstLogin ? 'setup' : 'home';
+    return input.user.isFirstLogin && !input.setupDone ? 'setup' : 'home';
   }
   return input.onboardingDone ? 'login' : 'onboarding';
 }
@@ -88,6 +89,16 @@ export function isOnboardingDone(): boolean {
 
 export function markOnboardingDone(): void {
   kv.setString(KV_KEYS.firstLogin, ONBOARDING_DONE_VALUE);
+}
+
+// The server's isFirstLogin may stay true after setup (OPEN_QUESTIONS #14). This flag, keyed by
+// user id, stops the app sending that user through setup again.
+export function isSetupDone(userId: string): boolean {
+  return kv.getString(KV_KEYS.setupDoneFor) === userId;
+}
+
+export function markSetupDone(userId: string): void {
+  kv.setString(KV_KEYS.setupDoneFor, userId);
 }
 
 export async function restoreSession(): Promise<void> {

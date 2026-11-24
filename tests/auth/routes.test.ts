@@ -25,6 +25,17 @@ describe('resolveStartRoute (BLUEPRINT A1)', () => {
     ).toBeNull();
   });
 
+  it('first login with setup already finished on this device -> home (OPEN_QUESTIONS #14)', () => {
+    expect(
+      resolveStartRoute({
+        mode: 'consumer',
+        user: { isFirstLogin: true },
+        onboardingDone: true,
+        setupDone: true,
+      }),
+    ).toBe('home');
+  });
+
   it('no session -> login after onboarding, else onboarding', () => {
     expect(resolveStartRoute({ mode: 'none', user: null, onboardingDone: true })).toBe('login');
     expect(resolveStartRoute({ mode: 'none', user: null, onboardingDone: false })).toBe(
