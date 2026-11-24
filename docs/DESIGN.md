@@ -101,13 +101,13 @@ the driver find, start, watch or pay for a charge.
   line sweeps under the logo. When ready the logo lifts and the overlay slides up like a curtain.
 - Onboarding backdrop is `AmbientBackground`: a faint dot grid (borderStrong) that fades out
   by mid screen and drifts down one cell at a time.
-- Login, OTP and boot error use `ContourBackground`: 1 pt topographic contour lines in accent
+- Login, OTP and boot error use `ContourBackground`: 1 pt topographic contour lines in accent (30% fading to 8%)
   radiating from the top-right corner, slowly turning (120 s per turn) and breathing, faded to
   bg by 60% of the height so the form sits on plain bg. Both are static under Reduce Motion.
-- Headings use `hero` (44/48 bold, -1.4 tracking), left aligned. Content enters with a short
+- Headings use `hero` (30/36 semibold, -0.8 tracking), left aligned; subtitles use callout. Content enters with a short
   staggered fade-up (`Reveal`).
-- Inputs on these screens use `size="large"` (68 high, 22 pt value). OTP cells are flat
-  sunken squares; the active cell gets an accent border and a blinking caret.
+- Inputs on these screens use `size="large"` (56 high, 17 pt semibold value). OTP cells are
+  flat 56 pt sunken squares; the active cell gets an accent border and a blinking caret.
 - Onboarding: "01 / 03" step counter, flat orbit art (accent tile, accentSoft disc, hairline
   ring, two orbiting dots), story-style progress segments, parallax between art and text.
 

@@ -50,7 +50,7 @@ export function Input({
   const strong = error ? c.danger : c.accent;
   const strongOff = withAlpha(strong, 0);
   const active = focused || !!error;
-  const textStyle = large ? [t.type.title2, t.tabularNums] : t.type.body;
+  const textStyle = large ? [t.type.headline, t.tabularNums] : t.type.body;
 
   useEffect(() => {
     lift.set(withTiming(active ? 1 : 0, { duration: t.motion.durationFast }));
@@ -84,12 +84,12 @@ export function Input({
         style={[
           styles.field,
           {
-            height: large ? 68 : t.layout.inputHeight,
-            borderRadius: large ? t.radius.card : t.radius.control,
+            height: large ? 56 : t.layout.inputHeight,
+            borderRadius: t.radius.control,
             borderWidth: 1.5,
             backgroundColor: c.surfaceSunken,
             opacity: editable ? 1 : 0.6,
-            paddingHorizontal: (large ? t.space[5] : t.space[4]) - 1.5,
+            paddingHorizontal: t.space[4] - 1.5,
             gap: t.space[3],
           },
           field,
@@ -100,12 +100,10 @@ export function Input({
         ) : null}
         {prefix ? (
           <View style={[styles.prefix, { gap: t.space[3] }]}>
-            <Text variant={large ? 'title2' : 'body'} tone="secondary" tabular>
+            <Text variant={large ? 'headline' : 'body'} tone="secondary" tabular>
               {prefix}
             </Text>
-            <View
-              style={[styles.divider, { backgroundColor: c.borderStrong, height: large ? 28 : 20 }]}
-            />
+            <View style={[styles.divider, { backgroundColor: c.borderStrong, height: 20 }]} />
           </View>
         ) : null}
         <TextInput

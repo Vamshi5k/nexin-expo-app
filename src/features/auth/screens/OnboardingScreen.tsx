@@ -87,7 +87,7 @@ export function OnboardingScreen() {
         style={[styles.topBar, { paddingLeft: t.layout.screenPadding, paddingRight: t.space[2] }]}
       >
         <Animated.View key={index} entering={FadeIn.duration(t.motion.duration)}>
-          <Text variant="subhead" tone="secondary" tabular accessibilityElementsHidden>
+          <Text variant="caption" tone="secondary" tabular accessibilityElementsHidden>
             {String(index + 1).padStart(2, '0')} / {String(SLIDES.length).padStart(2, '0')}
           </Text>
         </Animated.View>
@@ -202,7 +202,7 @@ function SlideView({
           <Art icon={slide.icon} spin={spin} />
         </Reveal>
       </Animated.View>
-      <View style={{ gap: t.space[3], paddingBottom: t.space[6] }}>
+      <View style={{ gap: t.space[2], paddingBottom: t.space[5] }}>
         <Animated.View style={title}>
           <Reveal index={1}>
             <Text variant="hero">{slide.title}</Text>
@@ -210,7 +210,7 @@ function SlideView({
         </Animated.View>
         <Animated.View style={body}>
           <Reveal index={2}>
-            <Text variant="body" tone="secondary">
+            <Text variant="callout" tone="secondary">
               {slide.description}
             </Text>
           </Reveal>
@@ -220,8 +220,8 @@ function SlideView({
   );
 }
 
-const OUTER = 272;
-const INNER = 196;
+const OUTER = 216;
+const INNER = 152;
 
 function Art({ icon: Icon, spin }: { icon: LucideIcon; spin: SharedValue<number> }) {
   const t = useTheme();
@@ -246,15 +246,15 @@ function Art({ icon: Icon, spin }: { icon: LucideIcon; spin: SharedValue<number>
           { width: INNER, height: INNER, borderRadius: INNER / 2, backgroundColor: c.accentSoft },
         ]}
       />
-      <Orbit size={OUTER} dot={12} color={c.accent} spin={spin} turns={1} />
-      <Orbit size={INNER} dot={8} color={c.textPrimary} spin={spin} turns={-2} />
+      <Orbit size={OUTER} dot={8} color={c.accent} spin={spin} turns={1} />
+      <Orbit size={INNER} dot={6} color={c.textPrimary} spin={spin} turns={-2} />
       <View
         style={[
           styles.center,
-          { width: 104, height: 104, borderRadius: 34, backgroundColor: c.accent },
+          { width: 76, height: 76, borderRadius: 24, backgroundColor: c.accent },
         ]}
       >
-        <Icon color={c.onAccent} size={44} strokeWidth={1.75} />
+        <Icon color={c.onAccent} size={32} strokeWidth={1.75} />
       </View>
     </View>
   );

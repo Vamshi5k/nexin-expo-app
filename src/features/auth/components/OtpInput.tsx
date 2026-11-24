@@ -153,7 +153,7 @@ function Cell({ digit, active, error }: { digit?: string; active: boolean; error
     >
       {filled ? (
         <Animated.View key={digit} entering={ZoomIn.springify().damping(14).stiffness(260)}>
-          <Text variant="display" tabular>
+          <Text variant="title2" tabular>
             {digit}
           </Text>
         </Animated.View>
@@ -168,12 +168,12 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', justifyContent: 'flex-start' },
   cell: {
     flex: 1,
-    maxWidth: 76,
-    height: 76,
+    maxWidth: 56,
+    height: 56,
     borderWidth: 1.5,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  caret: { width: 2, height: 30, borderRadius: 1 },
+  caret: { width: 2, height: 22, borderRadius: 1 },
   hidden: { ...StyleSheet.absoluteFill, opacity: 0.011, color: 'transparent' },
 });

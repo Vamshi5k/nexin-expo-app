@@ -37,9 +37,9 @@ export function AuthScaffold({ children, footer, back, center }: AuthScaffoldPro
             center && styles.center,
             {
               paddingHorizontal: t.layout.screenPadding,
-              paddingTop: t.space[6],
+              paddingTop: t.space[4],
               paddingBottom: t.space[6],
-              gap: t.space[8],
+              gap: t.space[6],
             },
           ]}
           keyboardShouldPersistTaps="handled"
@@ -77,7 +77,7 @@ function BackButton() {
         { backgroundColor: t.colors.surfaceSunken, borderRadius: t.radius.pill },
       ]}
     >
-      <ChevronLeft color={t.colors.textPrimary} size={22} strokeWidth={1.75} />
+      <ChevronLeft color={t.colors.textPrimary} size={20} strokeWidth={1.75} />
     </Pressable>
   );
 }
@@ -87,5 +87,5 @@ const styles = StyleSheet.create({
   grow: { flexGrow: 1 },
   center: { justifyContent: 'center' },
   bar: { height: 52, flexDirection: 'row', alignItems: 'center' },
-  back: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
+  back: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
 });

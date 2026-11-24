@@ -100,11 +100,11 @@ export function OtpScreen({ type, value }: OtpScreenProps) {
         </>
       }
     >
-      <Reveal index={0} style={{ gap: t.space[3] }}>
+      <Reveal index={0} style={{ gap: t.space[2] }}>
         <Text variant="hero" accessibilityRole="header">
           Enter verification code
         </Text>
-        <Text tone="secondary">
+        <Text variant="callout" tone="secondary">
           We&apos;ve sent a {CONSUMER_OTP_LENGTH}-digit code to{' '}
           <Text style={{ fontFamily: t.type.headline.fontFamily }}>
             {value
@@ -115,7 +115,7 @@ export function OtpScreen({ type, value }: OtpScreenProps) {
           </Text>
         </Text>
       </Reveal>
-      <Reveal index={1} style={{ gap: t.space[5] }}>
+      <Reveal index={1} style={{ gap: t.space[4] }}>
         <OtpInput
           ref={input}
           value={code}

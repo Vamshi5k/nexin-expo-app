@@ -44,12 +44,19 @@ export function fontFamilies(family: string): Record<FontWeightName, string> {
 
 export type TypeVariant =
   | 'hero'
-  | 'display' | 'title1' | 'title2' | 'headline' | 'body' | 'callout' | 'subhead' | 'caption';
+  | 'display'
+  | 'title1'
+  | 'title2'
+  | 'headline'
+  | 'body'
+  | 'callout'
+  | 'subhead'
+  | 'caption';
 
 type TypeSpec = { size: number; line: number; weight: FontWeightName; tracking?: number };
 
 export const TYPE_SCALE: Record<TypeVariant, TypeSpec> = {
-  hero: { size: 44, line: 48, weight: 'Bold', tracking: -1.4 },
+  hero: { size: 30, line: 36, weight: 'SemiBold', tracking: -0.8 },
   display: { size: 34, line: 40, weight: 'SemiBold', tracking: -0.5 },
   title1: { size: 28, line: 34, weight: 'SemiBold', tracking: -0.4 },
   title2: { size: 22, line: 28, weight: 'SemiBold', tracking: -0.25 },

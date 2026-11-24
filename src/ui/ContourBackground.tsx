@@ -50,7 +50,7 @@ export function ContourBackground() {
     () =>
       Array.from({ length: RINGS }, (_, i) => {
         const r = radius * (0.12 + (0.88 * i) / (RINGS - 1));
-        return { d: ring(half, half, r, i * 0.38), opacity: 0.5 - (0.36 * i) / (RINGS - 1) };
+        return { d: ring(half, half, r, i * 0.38), opacity: 0.3 - (0.22 * i) / (RINGS - 1) };
       }),
     [radius, half],
   );

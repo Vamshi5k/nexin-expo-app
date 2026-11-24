@@ -95,18 +95,20 @@ export function LoginScreen() {
       }
     >
       <Reveal index={0}>
-        <AppLogo height={32} />
+        <AppLogo height={28} />
       </Reveal>
       <Reveal index={1}>
         <Animated.View
           key={type}
           entering={FadeIn.duration(t.motion.duration).easing(Easing.out(Easing.quad))}
-          style={{ gap: t.space[3] }}
+          style={{ gap: t.space[2] }}
         >
           <Text variant="hero" accessibilityRole="header">
             {COPY[type].title}
           </Text>
-          <Text tone="secondary">{COPY[type].subtitle}</Text>
+          <Text variant="callout" tone="secondary">
+            {COPY[type].subtitle}
+          </Text>
         </Animated.View>
       </Reveal>
       <Reveal index={2} style={{ gap: t.space[2] }}>
