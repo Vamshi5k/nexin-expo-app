@@ -68,8 +68,8 @@ the driver find, start, watch or pay for a charge.
   Profile) use inset grouped lists (ListGroup + ListRow: optional icon in a soft tinted
   circle, title, subtitle, value or trailing element, chevron when tappable; separators inset
   past the icon; group label above, helper text below).
-- Inputs: sunken neutral fill at rest, no border. On focus the field lifts to the surface with
-  a 1.5 pt accent border and a 3 pt accentSoft focus ring. Errors swap accent for danger.
+- Inputs: sunken neutral fill, no border at rest. On focus a 1.5 pt accent border fades in
+  (no ring, no lift). Errors swap accent for danger and shake once.
 - Skeletons match the final layout, with a subtle shimmer. A full-screen spinner only
   during payment and charger start.
 - Empty and error states: simple line icon in an accentSoft circle, one-line title, one
@@ -94,12 +94,19 @@ the driver find, start, watch or pay for a charge.
 - Station details: hero image with a gradient fade at the bottom, and a sticky bottom bar
   with Directions and the primary action.
 
-## Splash, onboarding and auth
-- `SplashOverlay` pixel-matches the native splash, takes over from it, breathes while the app
-  boots, then dips and zooms away to reveal the first screen.
-- These screens (and only these) sit on `AmbientBackground`: two very soft accent orbs on bg
-  that drift slowly. Only transforms animate. It is static under Reduce Motion.
-- Content enters with a short staggered fade-up (`Reveal`); titles use display size.
+## Splash, onboarding and auth (flat, no shadows)
+- Completely flat: no shadows, glows or blurs. Shape comes from flat fills (accent,
+  accentSoft, surfaceSunken) and 1 pt lines.
+- `SplashOverlay` pixel-matches the native splash. If boot takes over 700 ms a thin accent
+  line sweeps under the logo. When ready the logo lifts and the overlay slides up like a curtain.
+- Backdrop is `AmbientBackground`: a faint dot grid (borderStrong) that fades out by mid
+  screen and drifts down one cell at a time. Static under Reduce Motion.
+- Headings use `hero` (44/48 bold, -1.4 tracking), left aligned. Content enters with a short
+  staggered fade-up (`Reveal`).
+- Inputs on these screens use `size="large"` (68 high, 22 pt value). OTP cells are flat
+  sunken squares; the active cell gets an accent border and a blinking caret.
+- Onboarding: "01 / 03" step counter, flat orbit art (accent tile, accentSoft disc, hairline
+  ring, two orbiting dots), story-style progress segments, parallax between art and text.
 
 ## Motion and feedback
 - react-native-reanimated springs of about 200-300 ms, layout animations when list items
@@ -113,6 +120,6 @@ the driver find, start, watch or pay for a charge.
 - Everything tappable has a pressed state (opacity, or scale 0.98). No dead taps.
 
 ## Avoid
-Gradient backgrounds (except the ambient backdrop above), more than one accent colour, heavy shadows, centred paragraphs,
+Gradient backgrounds (except the dot-grid fade above), more than one accent colour, heavy shadows, centred paragraphs,
 cramped cards, emoji in the UI, mixed icon sets, grey text below AA, stock illustrations,
 and any brand value hard-coded in a component.

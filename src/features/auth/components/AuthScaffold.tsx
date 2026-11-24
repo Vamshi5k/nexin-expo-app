@@ -37,7 +37,7 @@ export function AuthScaffold({ children, footer, back, center }: AuthScaffoldPro
             center && styles.center,
             {
               paddingHorizontal: t.layout.screenPadding,
-              paddingTop: back ? t.space[4] : t.space[8],
+              paddingTop: t.space[6],
               paddingBottom: t.space[6],
               gap: t.space[8],
             },
@@ -74,12 +74,7 @@ function BackButton() {
       accessibilityLabel="Go back"
       style={[
         styles.back,
-        {
-          backgroundColor: t.colors.surface,
-          borderColor: t.colors.border,
-          borderWidth: t.layout.hairline,
-          borderRadius: t.radius.pill,
-        },
+        { backgroundColor: t.colors.surfaceSunken, borderRadius: t.radius.pill },
       ]}
     >
       <ChevronLeft color={t.colors.textPrimary} size={22} strokeWidth={1.75} />

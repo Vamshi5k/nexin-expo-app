@@ -11,10 +11,10 @@ export function BootErrorScreen({ onRetry, retrying }: BootErrorScreenProps) {
   return (
     <AuthScaffold center footer={<Button label="Try Again" onPress={onRetry} loading={retrying} />}>
       <Reveal index={0}>
-        <AppLogo height={40} />
+        <AppLogo height={32} />
       </Reveal>
-      <Reveal index={1} style={{ gap: t.space[2] }}>
-        <Text variant="display" accessibilityRole="header">
+      <Reveal index={1} style={{ gap: t.space[3] }}>
+        <Text variant="hero" accessibilityRole="header">
           Can&apos;t connect right now
         </Text>
         <Text tone="secondary">Check your internet connection and try again.</Text>

@@ -100,8 +100,8 @@ export function OtpScreen({ type, value }: OtpScreenProps) {
         </>
       }
     >
-      <Reveal index={0} style={{ gap: t.space[2] }}>
-        <Text variant="display" accessibilityRole="header">
+      <Reveal index={0} style={{ gap: t.space[3] }}>
+        <Text variant="hero" accessibilityRole="header">
           Enter verification code
         </Text>
         <Text tone="secondary">
@@ -150,5 +150,5 @@ export function OtpScreen({ type, value }: OtpScreenProps) {
 
 const styles = StyleSheet.create({
   help: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap' },
-  resend: { minHeight: 44, alignItems: 'center', justifyContent: 'center' },
+  resend: { minHeight: 44, alignItems: 'flex-start', justifyContent: 'center' },
 });

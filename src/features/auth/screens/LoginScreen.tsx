@@ -95,15 +95,15 @@ export function LoginScreen() {
       }
     >
       <Reveal index={0}>
-        <AppLogo height={40} />
+        <AppLogo height={32} />
       </Reveal>
       <Reveal index={1}>
         <Animated.View
           key={type}
           entering={FadeIn.duration(t.motion.duration).easing(Easing.out(Easing.quad))}
-          style={{ gap: t.space[2] }}
+          style={{ gap: t.space[3] }}
         >
-          <Text variant="display" accessibilityRole="header">
+          <Text variant="hero" accessibilityRole="header">
             {COPY[type].title}
           </Text>
           <Text tone="secondary">{COPY[type].subtitle}</Text>
@@ -118,6 +118,7 @@ export function LoginScreen() {
             <FormInput
               control={form.control}
               name="contact"
+              size="large"
               prefix={brand.phoneCountryCode}
               placeholder={brand.phonePlaceholder}
               keyboardType="phone-pad"
@@ -133,6 +134,7 @@ export function LoginScreen() {
             <FormInput
               control={form.control}
               name="contact"
+              size="large"
               icon={Mail}
               placeholder="name@example.com"
               keyboardType="email-address"

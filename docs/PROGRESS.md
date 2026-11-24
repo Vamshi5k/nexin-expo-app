@@ -156,6 +156,10 @@ types.ts utils.ts index.ts` (mappers merged into api.ts; queries, boot and the o
   accent orbs) and `AuthScaffold` (floating footer, round back button) on onboarding, login,
   OTP and boot error; staggered `Reveal` entrances; Input, Button and OtpInput animate their
   state changes; pill primary buttons; radius 14/20; auth stack slides, group changes fade.
+- Second pass (2026-11-24, requested "modern, no shadows"): fully flat. Dot-grid backdrop
+  replaces the orbs, curtain splash with a slow-boot loader, `hero` type, large inputs, flat
+  OTP cells, input focus ring removed, onboarding with step counter, orbit art and progress
+  segments.
 
 **Verified**: `tsc --noEmit`, `expo lint`, `jest` (26 suites, 186 tests), `brand:check` all pass.
 Not yet verified on a device against staging (needs a test number, see open questions).

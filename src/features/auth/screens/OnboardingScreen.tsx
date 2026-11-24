@@ -5,8 +5,8 @@ import { StyleSheet, useWindowDimensions, View, type FlatList } from 'react-nati
 import Animated, {
   Easing,
   Extrapolation,
+  FadeIn,
   interpolate,
-  interpolateColor,
   useAnimatedScrollHandler,
   useAnimatedStyle,
   useReducedMotion,
@@ -52,19 +52,15 @@ export function OnboardingScreen() {
   const reduceMotion = useReducedMotion();
   const list = useRef<FlatList<Slide>>(null);
   const x = useSharedValue(0);
-  const breathe = useSharedValue(0);
+  const spin = useSharedValue(0);
   const [index, setIndex] = useState(0);
   const last = index === SLIDES.length - 1;
   const lastOffset = (SLIDES.length - 1) * width;
 
   useEffect(() => {
     if (reduceMotion) return;
-    breathe.value = withRepeat(
-      withTiming(1, { duration: 2600, easing: Easing.inOut(Easing.sin) }),
-      -1,
-      true,
-    );
-  }, [breathe, reduceMotion]);
+    spin.set(withRepeat(withTiming(1, { duration: 14000, easing: Easing.linear }), -1, false));
+  }, [spin, reduceMotion]);
 
   const onScroll = useAnimatedScrollHandler((e) => {
     x.value = e.contentOffset.x;
@@ -87,12 +83,18 @@ export function OnboardingScreen() {
   return (
     <View style={[styles.flex, { paddingTop: insets.top }]}>
       <AmbientBackground />
-      <Animated.View
-        style={[styles.topBar, { paddingHorizontal: t.space[2] }, skip]}
-        pointerEvents={last ? 'none' : 'auto'}
+      <View
+        style={[styles.topBar, { paddingLeft: t.layout.screenPadding, paddingRight: t.space[2] }]}
       >
-        <Button label="Skip" variant="ghost" size="medium" haptic={false} onPress={finish} />
-      </Animated.View>
+        <Animated.View key={index} entering={FadeIn.duration(t.motion.duration)}>
+          <Text variant="subhead" tone="secondary" tabular accessibilityElementsHidden>
+            {String(index + 1).padStart(2, '0')} / {String(SLIDES.length).padStart(2, '0')}
+          </Text>
+        </Animated.View>
+        <Animated.View style={skip} pointerEvents={last ? 'none' : 'auto'}>
+          <Button label="Skip" variant="ghost" size="medium" haptic={false} onPress={finish} />
+        </Animated.View>
+      </View>
 
       <Animated.FlatList
         ref={list}
@@ -108,7 +110,7 @@ export function OnboardingScreen() {
         onMomentumScrollEnd={(e) => setIndex(Math.round(e.nativeEvent.contentOffset.x / width))}
         getItemLayout={(_, i) => ({ length: width, offset: width * i, index: i })}
         renderItem={({ item, index: i }) => (
-          <SlideView slide={item} index={i} width={width} x={x} breathe={breathe} />
+          <SlideView slide={item} index={i} width={width} x={x} spin={spin} />
         )}
       />
 
@@ -120,9 +122,9 @@ export function OnboardingScreen() {
           gap: t.space[6],
         }}
       >
-        <View style={[styles.dots, { gap: t.space[2] }]} accessibilityElementsHidden>
+        <View style={[styles.segments, { gap: t.space[2] }]} accessibilityElementsHidden>
           {SLIDES.map((s, i) => (
-            <Dot key={s.key} index={i} width={width} x={x} />
+            <Segment key={s.key} index={i} width={width} x={x} />
           ))}
         </View>
         <Button label={last ? 'Get Started' : 'Next'} onPress={next} />
@@ -136,13 +138,13 @@ function SlideView({
   index,
   width,
   x,
-  breathe,
+  spin,
 }: {
   slide: Slide;
   index: number;
   width: number;
   x: SharedValue<number>;
-  breathe: SharedValue<number>;
+  spin: SharedValue<number>;
 }) {
   const t = useTheme();
   const range = [(index - 1) * width, index * width, (index + 1) * width];
@@ -155,11 +157,11 @@ function SlideView({
         translateX: interpolate(
           x.value,
           range,
-          [-width * 0.35, 0, width * 0.35],
+          [-width * 0.4, 0, width * 0.4],
           Extrapolation.CLAMP,
         ),
       },
-      { scale: interpolate(x.value, range, [0.8, 1, 0.8], Extrapolation.CLAMP) },
+      { scale: interpolate(x.value, range, [0.86, 1, 0.86], Extrapolation.CLAMP) },
     ],
   }));
   const title = useAnimatedStyle(() => ({
@@ -169,7 +171,7 @@ function SlideView({
         translateX: interpolate(
           x.value,
           range,
-          [width * 0.25, 0, -width * 0.25],
+          [width * 0.2, 0, -width * 0.2],
           Extrapolation.CLAMP,
         ),
       },
@@ -182,7 +184,7 @@ function SlideView({
         translateX: interpolate(
           x.value,
           range,
-          [width * 0.4, 0, -width * 0.4],
+          [width * 0.35, 0, -width * 0.35],
           Extrapolation.CLAMP,
         ),
       },
@@ -197,13 +199,13 @@ function SlideView({
     >
       <Animated.View style={[styles.artArea, art]}>
         <Reveal index={0}>
-          <Art icon={slide.icon} breathe={breathe} />
+          <Art icon={slide.icon} spin={spin} />
         </Reveal>
       </Animated.View>
-      <View style={{ gap: t.space[3], paddingBottom: t.space[4] }}>
+      <View style={{ gap: t.space[3], paddingBottom: t.space[6] }}>
         <Animated.View style={title}>
           <Reveal index={1}>
-            <Text variant="display">{slide.title}</Text>
+            <Text variant="hero">{slide.title}</Text>
           </Reveal>
         </Animated.View>
         <Animated.View style={body}>
@@ -218,77 +220,113 @@ function SlideView({
   );
 }
 
-const RINGS = [260, 196, 136];
+const OUTER = 272;
+const INNER = 196;
 
-function Art({ icon: Icon, breathe }: { icon: LucideIcon; breathe: SharedValue<number> }) {
+function Art({ icon: Icon, spin }: { icon: LucideIcon; spin: SharedValue<number> }) {
   const t = useTheme();
+  const c = t.colors;
   return (
-    <View style={[styles.center, { width: RINGS[0], height: RINGS[0] }]}>
-      {RINGS.map((size, i) => (
-        <Ring key={size} size={size} order={i} breathe={breathe} />
-      ))}
+    <View style={[styles.center, { width: OUTER, height: OUTER }]}>
+      <View
+        style={[
+          styles.abs,
+          {
+            width: OUTER,
+            height: OUTER,
+            borderRadius: OUTER / 2,
+            borderWidth: 1,
+            borderColor: c.border,
+          },
+        ]}
+      />
+      <View
+        style={[
+          styles.abs,
+          { width: INNER, height: INNER, borderRadius: INNER / 2, backgroundColor: c.accentSoft },
+        ]}
+      />
+      <Orbit size={OUTER} dot={12} color={c.accent} spin={spin} turns={1} />
+      <Orbit size={INNER} dot={8} color={c.textPrimary} spin={spin} turns={-2} />
       <View
         style={[
           styles.center,
-          t.shadow,
-          { width: 88, height: 88, borderRadius: 28, backgroundColor: t.colors.accent },
+          { width: 104, height: 104, borderRadius: 34, backgroundColor: c.accent },
         ]}
       >
-        <Icon color={t.colors.onAccent} size={38} strokeWidth={1.75} />
+        <Icon color={c.onAccent} size={44} strokeWidth={1.75} />
       </View>
     </View>
   );
 }
 
-function Ring({
+function Orbit({
   size,
-  order,
-  breathe,
+  dot,
+  color,
+  spin,
+  turns,
 }: {
   size: number;
-  order: number;
-  breathe: SharedValue<number>;
+  dot: number;
+  color: string;
+  spin: SharedValue<number>;
+  turns: number;
 }) {
-  const t = useTheme();
   const style = useAnimatedStyle(() => ({
-    transform: [{ scale: 1 + (0.03 + order * 0.015) * breathe.value }],
-    opacity: 1 - 0.25 * breathe.value * (2 - order) * 0.5,
+    transform: [{ rotate: `${spin.value * 360 * turns}deg` }],
   }));
   return (
-    <Animated.View
-      style={[
-        styles.ring,
-        style,
-        {
-          width: size,
-          height: size,
-          borderRadius: size / 2,
-          borderColor: t.colors.accentSoft,
-          backgroundColor: order === RINGS.length - 1 ? t.colors.accentSoft : 'transparent',
-        },
-      ]}
-    />
+    <Animated.View style={[styles.abs, { width: size, height: size }, style]}>
+      <View
+        style={{
+          position: 'absolute',
+          top: -dot / 2,
+          left: size / 2 - dot / 2,
+          width: dot,
+          height: dot,
+          borderRadius: dot / 2,
+          backgroundColor: color,
+        }}
+      />
+    </Animated.View>
   );
 }
 
-function Dot({ index, width, x }: { index: number; width: number; x: SharedValue<number> }) {
+function Segment({ index, width, x }: { index: number; width: number; x: SharedValue<number> }) {
   const t = useTheme();
-  const range = [(index - 1) * width, index * width, (index + 1) * width];
-  const idle = t.colors.borderStrong;
-  const active = t.colors.accent;
-  const style = useAnimatedStyle(() => ({
-    width: interpolate(x.value, range, [6, 28, 6], Extrapolation.CLAMP),
-    backgroundColor: interpolateColor(x.value, range, [idle, active, idle]),
+  const fill = useAnimatedStyle(() => ({
+    transform: [
+      { scaleX: interpolate(x.value / width, [index - 1, index], [0, 1], Extrapolation.CLAMP) },
+    ],
   }));
-  return <Animated.View style={[style, { height: 6, borderRadius: t.radius.pill }]} />;
+  return (
+    <View
+      style={[styles.segment, { backgroundColor: t.colors.border, borderRadius: t.radius.pill }]}
+    >
+      <Animated.View
+        style={[
+          StyleSheet.absoluteFill,
+          { backgroundColor: t.colors.accent, transformOrigin: 'left' },
+          fill,
+        ]}
+      />
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
   flex: { flex: 1 },
-  topBar: { height: 52, flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center' },
+  topBar: {
+    height: 52,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
   slide: { flex: 1, justifyContent: 'flex-end' },
   artArea: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   center: { alignItems: 'center', justifyContent: 'center' },
-  ring: { position: 'absolute', borderWidth: 1.5 },
-  dots: { flexDirection: 'row' },
+  abs: { position: 'absolute' },
+  segments: { flexDirection: 'row' },
+  segment: { flex: 1, height: 3, overflow: 'hidden' },
 });
