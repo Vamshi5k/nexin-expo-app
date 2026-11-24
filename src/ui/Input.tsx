@@ -1,8 +1,17 @@
 import type { LucideIcon } from 'lucide-react-native';
-import { useState, type ComponentRef, type ReactNode, type Ref } from 'react';
+import { useEffect, useState, type ComponentRef, type ReactNode, type Ref } from 'react';
 import { StyleSheet, TextInput, View, type TextInputProps } from 'react-native';
+import Animated, {
+  FadeIn,
+  interpolateColor,
+  useAnimatedStyle,
+  useReducedMotion,
+  useSharedValue,
+  withSequence,
+  withTiming,
+} from 'react-native-reanimated';
 
-import { useTheme } from '@/theme';
+import { useTheme, withAlpha } from '@/theme';
 
 import { Text } from './Text';
 
@@ -31,9 +40,40 @@ export function Input({
 }: InputProps) {
   const t = useTheme();
   const c = t.colors;
+  const reduceMotion = useReducedMotion();
   const [focused, setFocused] = useState(false);
-  const borderColor = error ? c.danger : focused ? c.accent : 'transparent';
-  const ringColor = error ? c.dangerSoft : focused ? c.accentSoft : 'transparent';
+  const lift = useSharedValue(0);
+  const focus = useSharedValue(0);
+  const shake = useSharedValue(0);
+  const strong = error ? c.danger : c.accent;
+  const soft = error ? c.dangerSoft : c.accentSoft;
+  const strongOff = withAlpha(strong, 0);
+  const softOff = withAlpha(soft, 0);
+  const active = focused || !!error;
+
+  useEffect(() => {
+    lift.value = withTiming(active ? 1 : 0, { duration: t.motion.durationFast });
+    focus.value = withTiming(focused ? 1 : 0, { duration: t.motion.durationFast });
+  }, [active, focused, lift, focus, t.motion.durationFast]);
+
+  useEffect(() => {
+    if (!error || reduceMotion) return;
+    shake.value = withSequence(
+      withTiming(-6, { duration: 50 }),
+      withTiming(6, { duration: 70 }),
+      withTiming(-3, { duration: 60 }),
+      withTiming(0, { duration: 50 }),
+    );
+  }, [error, reduceMotion, shake]);
+
+  const ring = useAnimatedStyle(() => ({
+    borderColor: interpolateColor(lift.value, [0, 1], [softOff, soft]),
+    transform: [{ translateX: shake.value }],
+  }));
+  const field = useAnimatedStyle(() => ({
+    borderColor: interpolateColor(lift.value, [0, 1], [strongOff, strong]),
+    backgroundColor: interpolateColor(focus.value, [0, 1], [c.surfaceSunken, c.surface]),
+  }));
 
   return (
     <View style={{ gap: t.space[2] }}>
@@ -42,27 +82,21 @@ export function Input({
           {label}
         </Text>
       ) : null}
-      <View
-        style={{
-          margin: -RING,
-          borderWidth: RING,
-          borderColor: ringColor,
-          borderRadius: t.radius.control + RING,
-        }}
+      <Animated.View
+        style={[{ margin: -RING, borderWidth: RING, borderRadius: t.radius.control + RING }, ring]}
       >
-        <View
+        <Animated.View
           style={[
             styles.field,
             {
               height: t.layout.inputHeight,
               borderRadius: t.radius.control,
-              borderColor,
               borderWidth: 1.5,
-              backgroundColor: focused ? c.surface : c.surfaceSunken,
               opacity: editable ? 1 : 0.6,
               paddingHorizontal: t.space[4] - 1.5,
               gap: t.space[3],
             },
+            field,
           ]}
         >
           {Icon ? (
@@ -96,12 +130,14 @@ export function Input({
             {...rest}
           />
           {trailing}
-        </View>
-      </View>
+        </Animated.View>
+      </Animated.View>
       {error ? (
-        <Text variant="caption" tone="danger" accessibilityLiveRegion="polite">
-          {error}
-        </Text>
+        <Animated.View key={error} entering={FadeIn.duration(t.motion.durationFast)}>
+          <Text variant="caption" tone="danger" accessibilityLiveRegion="polite">
+            {error}
+          </Text>
+        </Animated.View>
       ) : hint ? (
         <Text variant="caption" tone="tertiary">
           {hint}

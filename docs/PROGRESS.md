@@ -151,6 +151,12 @@ types.ts utils.ts index.ts` (mappers merged into api.ts; queries, boot and the o
   into utils.ts). `src/core` sub-folders became flat files. All tests moved to `tests/`.
   AI-style doc comments removed. AGENTS.md "Folder layout" and "Code style" record the rules.
 
+- UI refresh of splash, onboarding and auth (2026-11-24, requested): animated `SplashOverlay`
+  takes over from the native splash and zooms away; `AmbientBackground` (two slow-drifting
+  accent orbs) and `AuthScaffold` (floating footer, round back button) on onboarding, login,
+  OTP and boot error; staggered `Reveal` entrances; Input, Button and OtpInput animate their
+  state changes; pill primary buttons; radius 14/20; auth stack slides, group changes fade.
+
 **Verified**: `tsc --noEmit`, `expo lint`, `jest` (26 suites, 186 tests), `brand:check` all pass.
 Not yet verified on a device against staging (needs a test number, see open questions).
 
@@ -161,6 +167,8 @@ Not yet verified on a device against staging (needs a test number, see open ques
 - The "Fleet Login" link on Login is hidden until `(auth)/fleet-login` exists (fleet phase).
 - `(app)/(tabs)` has only Home and Wallet for now; Home is a temporary signed-in screen.
 - A stored fleet session with `features.fleet` off is signed out (it has no valid screens).
+- OTP screen drops the logo in favour of a round back button; onboarding text is left-aligned
+  (DESIGN.md: no centred paragraphs).
 
 **Left in Phase 2**
 

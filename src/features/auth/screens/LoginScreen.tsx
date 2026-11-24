@@ -5,14 +5,16 @@ import { Mail } from 'lucide-react-native';
 import { useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { Keyboard, Pressable, StyleSheet, View } from 'react-native';
+import Animated, { Easing, FadeIn } from 'react-native-reanimated';
 
 import { getErrorMessage } from '@/core/api';
 import { brand } from '@/core/config';
 import { log } from '@/core/log';
 import { AppLogo, useClientConfig } from '@/features/client-config';
 import { useTheme } from '@/theme';
-import { Button, FormInput, Screen, Text, toast } from '@/ui';
+import { Button, FormInput, Reveal, Text, toast } from '@/ui';
 
+import { AuthScaffold } from '../components/AuthScaffold';
 import { useRequestOtp } from '../hooks';
 import { emailFormSchema, phoneFormSchema, type ContactForm } from '../utils';
 import type { ContactType } from '../types';
@@ -69,11 +71,9 @@ export function LoginScreen() {
   });
 
   return (
-    <Screen
-      edges={['top']}
-      scroll
+    <AuthScaffold
       footer={
-        <View style={{ gap: t.space[3] }}>
+        <>
           <Button
             label="Continue"
             onPress={() => void submit()}
@@ -91,52 +91,62 @@ export function LoginScreen() {
             </Text>
             <LegalLink label="Privacy" onPress={() => void openLegal(config.privacyUrl)} />
           </View>
-        </View>
+        </>
       }
-      contentStyle={{ paddingTop: t.space[12], gap: t.space[8] }}
     >
-      <AppLogo height={44} />
-      <View style={{ gap: t.space[2] }}>
-        <Text variant="title1" accessibilityRole="header">
-          {COPY[type].title}
-        </Text>
-        <Text tone="secondary">{COPY[type].subtitle}</Text>
-      </View>
-      <View style={{ gap: t.space[2] }}>
-        {type === 'phone' ? (
-          <FormInput
-            key="phone"
-            control={form.control}
-            name="contact"
-            prefix={brand.phoneCountryCode}
-            placeholder={brand.phonePlaceholder}
-            keyboardType="phone-pad"
-            textContentType="telephoneNumber"
-            autoComplete="tel-national"
-            maxLength={brand.phoneLength}
-            accessibilityLabel="Mobile number"
-            autoFocus
-            returnKeyType="done"
-            onSubmitEditing={() => void submit()}
-          />
-        ) : (
-          <FormInput
-            key="email"
-            control={form.control}
-            name="contact"
-            icon={Mail}
-            placeholder="name@example.com"
-            keyboardType="email-address"
-            textContentType="emailAddress"
-            autoComplete="email"
-            autoCapitalize="none"
-            autoCorrect={false}
-            accessibilityLabel="Email"
-            autoFocus
-            returnKeyType="done"
-            onSubmitEditing={() => void submit()}
-          />
-        )}
+      <Reveal index={0}>
+        <AppLogo height={40} />
+      </Reveal>
+      <Reveal index={1}>
+        <Animated.View
+          key={type}
+          entering={FadeIn.duration(t.motion.duration).easing(Easing.out(Easing.quad))}
+          style={{ gap: t.space[2] }}
+        >
+          <Text variant="display" accessibilityRole="header">
+            {COPY[type].title}
+          </Text>
+          <Text tone="secondary">{COPY[type].subtitle}</Text>
+        </Animated.View>
+      </Reveal>
+      <Reveal index={2} style={{ gap: t.space[2] }}>
+        <Animated.View
+          key={type}
+          entering={FadeIn.duration(t.motion.duration).easing(Easing.out(Easing.quad))}
+        >
+          {type === 'phone' ? (
+            <FormInput
+              control={form.control}
+              name="contact"
+              prefix={brand.phoneCountryCode}
+              placeholder={brand.phonePlaceholder}
+              keyboardType="phone-pad"
+              textContentType="telephoneNumber"
+              autoComplete="tel-national"
+              maxLength={brand.phoneLength}
+              accessibilityLabel="Mobile number"
+              autoFocus
+              returnKeyType="done"
+              onSubmitEditing={() => void submit()}
+            />
+          ) : (
+            <FormInput
+              control={form.control}
+              name="contact"
+              icon={Mail}
+              placeholder="name@example.com"
+              keyboardType="email-address"
+              textContentType="emailAddress"
+              autoComplete="email"
+              autoCapitalize="none"
+              autoCorrect={false}
+              accessibilityLabel="Email"
+              autoFocus
+              returnKeyType="done"
+              onSubmitEditing={() => void submit()}
+            />
+          )}
+        </Animated.View>
         <View style={styles.links}>
           {config.loginType === 'phone' ? (
             <Button
@@ -153,8 +163,8 @@ export function LoginScreen() {
           {/* TODO(phase-fleet): "Fleet Login" link to /(auth)/fleet-login when
               config.features.fleet is on (BLUEPRINT A3). Hidden until that route exists. */}
         </View>
-      </View>
-    </Screen>
+      </Reveal>
+    </AuthScaffold>
   );
 }
 

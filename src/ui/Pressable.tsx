@@ -11,6 +11,7 @@ import Animated, {
   useReducedMotion,
   useSharedValue,
   withSpring,
+  type AnimatedStyle,
 } from 'react-native-reanimated';
 
 import { useTheme } from '@/theme';
@@ -20,7 +21,7 @@ import { haptics, type HapticKind } from './haptics';
 const AnimatedPressable = Animated.createAnimatedComponent(RNPressable);
 
 export type PressableProps = Omit<RNPressableProps, 'style' | 'children'> & {
-  style?: StyleProp<ViewStyle>;
+  style?: StyleProp<AnimatedStyle<ViewStyle>>;
   children?: ReactNode;
   feedback?: 'scale' | 'opacity';
   haptic?: HapticKind | false;

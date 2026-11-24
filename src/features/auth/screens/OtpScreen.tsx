@@ -4,10 +4,10 @@ import { StyleSheet, View, type TextInputInstance } from 'react-native';
 
 import { getErrorMessage, statusOf } from '@/core/api';
 import { brand } from '@/core/config';
-import { AppLogo } from '@/features/client-config';
 import { useTheme } from '@/theme';
-import { Button, Header, Screen, Text, haptics, toast } from '@/ui';
+import { Button, Reveal, Text, haptics, toast } from '@/ui';
 
+import { AuthScaffold } from '../components/AuthScaffold';
 import { OtpInput } from '../components/OtpInput';
 import { useRequestOtp, useVerifyOtp } from '../hooks';
 import { CONSUMER_OTP_LENGTH, formatContact, OTP_RESEND_SECONDS } from '../utils';
@@ -37,6 +37,7 @@ function useCountdown(seconds: number) {
 export function OtpScreen({ type, value }: OtpScreenProps) {
   const t = useTheme();
   const [code, setCode] = useState('');
+  const [wrong, setWrong] = useState(false);
   const input = useRef<TextInputInstance>(null);
   const verify = useVerifyOtp();
   const resend = useRequestOtp();
@@ -49,6 +50,7 @@ export function OtpScreen({ type, value }: OtpScreenProps) {
       haptics.success();
     } catch (error) {
       setCode('');
+      setWrong(true);
       input.current?.focus();
       haptics.warning();
       const status = statusOf(error);
@@ -65,6 +67,7 @@ export function OtpScreen({ type, value }: OtpScreenProps) {
       await resend.mutateAsync(value);
       countdown.restart();
       setCode('');
+      setWrong(false);
       toast.success('New OTP sent!');
     } catch (error) {
       toast.error(getErrorMessage(error));
@@ -72,11 +75,10 @@ export function OtpScreen({ type, value }: OtpScreenProps) {
   };
 
   return (
-    <Screen
-      edges={['top']}
-      scroll
+    <AuthScaffold
+      back
       footer={
-        <View style={{ gap: t.space[3] }}>
+        <>
           <Button
             label="Verify"
             onPress={() => void submit(code)}
@@ -95,16 +97,11 @@ export function OtpScreen({ type, value }: OtpScreenProps) {
               onPress={() => router.back()}
             />
           </View>
-        </View>
+        </>
       }
-      contentStyle={{ gap: t.space[8] }}
     >
-      <View style={{ marginHorizontal: -t.layout.screenPadding }}>
-        <Header back />
-      </View>
-      <AppLogo height={44} />
-      <View style={{ gap: t.space[2] }}>
-        <Text variant="title1" accessibilityRole="header">
+      <Reveal index={0} style={{ gap: t.space[2] }}>
+        <Text variant="display" accessibilityRole="header">
           Enter verification code
         </Text>
         <Text tone="secondary">
@@ -117,14 +114,18 @@ export function OtpScreen({ type, value }: OtpScreenProps) {
                 : 'your email'}
           </Text>
         </Text>
-      </View>
-      <View style={{ gap: t.space[5] }}>
+      </Reveal>
+      <Reveal index={1} style={{ gap: t.space[5] }}>
         <OtpInput
           ref={input}
           value={code}
-          onChange={setCode}
+          onChange={(next) => {
+            setWrong(false);
+            setCode(next);
+          }}
           onComplete={(otp) => void submit(otp)}
           length={CONSUMER_OTP_LENGTH}
+          error={wrong}
           disabled={verify.isPending}
         />
         <View style={styles.resend}>
@@ -142,8 +143,8 @@ export function OtpScreen({ type, value }: OtpScreenProps) {
             />
           )}
         </View>
-      </View>
-    </Screen>
+      </Reveal>
+    </AuthScaffold>
   );
 }
 

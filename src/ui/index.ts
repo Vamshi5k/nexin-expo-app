@@ -20,3 +20,6 @@ export { BrandLogo, type BrandLogoProps } from './BrandLogo';
 export { PlaceholderScreen, type PlaceholderScreenProps } from './PlaceholderScreen';
 export { toast, AppToaster } from './toast';
 export { haptics, type HapticKind } from './haptics';
+export { AmbientBackground } from './AmbientBackground';
+export { Reveal, type RevealProps } from './Reveal';
+export { SplashOverlay } from './SplashOverlay';

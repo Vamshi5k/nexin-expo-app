@@ -15,7 +15,7 @@ import { createQueryClient, wireQueryManagers } from '@/core/query';
 import { BootErrorScreen, clearUserDataOnSessionChange, useBoot } from '@/features/auth';
 import { ThemeProvider, useTheme } from '@/theme';
 import { useBrandFonts } from '@/theme/fonts';
-import { AppToaster } from '@/ui';
+import { AppToaster, SplashOverlay } from '@/ui';
 
 void SplashScreen.preventAutoHideAsync();
 
@@ -54,25 +54,24 @@ function AppShell() {
   const boot = useBoot();
   const loading = boot.status === 'loading';
 
-  useEffect(() => {
-    if (!loading) void SplashScreen.hideAsync();
-  }, [loading]);
-
-  if (loading) return null;
-
   return (
     <>
       <StatusBar style={t.scheme === 'dark' ? 'light' : 'dark'} />
-      {boot.status === 'error' ? (
+      {loading ? null : boot.status === 'error' ? (
         <BootErrorScreen onRetry={boot.retry} retrying={boot.retrying} />
       ) : (
         <Stack
-          screenOptions={{ headerShown: false, contentStyle: { backgroundColor: t.colors.bg } }}
+          screenOptions={{
+            headerShown: false,
+            animation: 'fade',
+            contentStyle: { backgroundColor: t.colors.bg },
+          }}
         />
       )}
       <OfflineBanner />
       <PermissionBlockedDialog />
       <AppToaster />
+      <SplashOverlay ready={!loading} />
     </>
   );
 }

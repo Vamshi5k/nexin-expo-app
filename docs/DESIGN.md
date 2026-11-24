@@ -48,7 +48,7 @@ the driver find, start, watch or pay for a charge.
 
 ## Layout and shape
 - 4 pt grid. Screen padding 20. Section gap 24-32. Card padding 16.
-- Radius: controls 12, cards 16, sheets 28, pills full.
+- Radius: controls 14, cards 20, sheets 28, pills full. Large buttons are pills.
 - Depth comes from layering (grey page, white cards) and hairline borders
   (StyleSheet.hairlineWidth), plus one very soft shadow level for floating items (FAB, map
   search, sheets) and hero cards (Card elevation="elevated"). In dark mode, where shadows
@@ -94,14 +94,25 @@ the driver find, start, watch or pay for a charge.
 - Station details: hero image with a gradient fade at the bottom, and a sticky bottom bar
   with Directions and the primary action.
 
+## Splash, onboarding and auth
+- `SplashOverlay` pixel-matches the native splash, takes over from it, breathes while the app
+  boots, then dips and zooms away to reveal the first screen.
+- These screens (and only these) sit on `AmbientBackground`: two very soft accent orbs on bg
+  that drift slowly. Only transforms animate. It is static under Reduce Motion.
+- Content enters with a short staggered fade-up (`Reveal`); titles use display size.
+
 ## Motion and feedback
 - react-native-reanimated springs of about 200-300 ms, layout animations when list items
   are added or removed, animated progress on the charging ring. Respect Reduce Motion.
+- State changes never snap: input focus and error colours, button disabled/enabled colours,
+  loading spinners and OTP cells transition in about 200 ms. Errors shake once.
+- Animate only transform, opacity and colour on the UI thread, never layout, so motion stays
+  at the display refresh rate.
 - expo-haptics: light on selections and toggles, success on payment and charge start,
   warning on stop or delete confirmation.
 - Everything tappable has a pressed state (opacity, or scale 0.98). No dead taps.
 
 ## Avoid
-Gradient backgrounds, more than one accent colour, heavy shadows, centred paragraphs,
+Gradient backgrounds (except the ambient backdrop above), more than one accent colour, heavy shadows, centred paragraphs,
 cramped cards, emoji in the UI, mixed icon sets, grey text below AA, stock illustrations,
 and any brand value hard-coded in a component.

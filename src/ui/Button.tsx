@@ -1,11 +1,19 @@
 import type { LucideIcon } from 'lucide-react-native';
-import { ActivityIndicator, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import { useEffect } from 'react';
+import { ActivityIndicator, StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
+import Animated, {
+  FadeIn,
+  FadeOut,
+  interpolateColor,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 
 import { useTheme, type Palette } from '@/theme';
 
 import type { HapticKind } from './haptics';
 import { Pressable } from './Pressable';
-import { Text } from './Text';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'dangerOutline';
 
@@ -58,17 +66,23 @@ export function Button({
   const t = useTheme();
   const inactive = disabled || loading;
   const filled = variant === 'primary' || variant === 'danger';
-  const { bg, fg, border, borderWidth } =
-    disabled && filled
-      ? {
-          bg: t.colors.surfaceSunken,
-          fg: t.colors.textTertiary,
-          border: 'transparent',
-          borderWidth: 0,
-        }
-      : colorsFor(variant, t.colors);
+  const { bg, fg, border, borderWidth } = colorsFor(variant, t.colors);
+  const off = { bg: t.colors.surfaceSunken, fg: t.colors.textTertiary };
   const large = size === 'large';
   const stretch = fullWidth ?? large;
+
+  // Filled buttons fade between their disabled and live colours instead of snapping.
+  const live = useSharedValue(disabled && filled ? 0 : 1);
+  useEffect(() => {
+    live.value = withTiming(disabled && filled ? 0 : 1, { duration: t.motion.duration });
+  }, [disabled, filled, live, t.motion.duration]);
+  const fill = useAnimatedStyle(() => ({
+    backgroundColor: interpolateColor(live.value, [0, 1], [off.bg, bg]),
+  }));
+  const ink = useAnimatedStyle(() => ({
+    color: interpolateColor(live.value, [0, 1], [off.fg, fg]),
+  }));
+  const iconColor = disabled && filled ? off.fg : fg;
 
   return (
     <Pressable
@@ -84,29 +98,44 @@ export function Button({
           height: large ? t.layout.buttonHeight : t.layout.minTouch,
           minWidth: t.layout.minTouch,
           paddingHorizontal: large ? t.space[6] : t.space[4],
-          borderRadius: t.radius.control,
-          backgroundColor: bg,
+          borderRadius: large ? t.radius.pill : t.radius.control,
           borderColor: border,
           borderWidth,
           alignSelf: stretch ? 'stretch' : 'flex-start',
           opacity: disabled && !filled ? 0.45 : 1,
         },
+        fill,
         style,
       ]}
     >
       {loading ? (
-        <ActivityIndicator color={fg} />
+        <Animated.View
+          key="spinner"
+          entering={FadeIn.duration(160)}
+          exiting={FadeOut.duration(120)}
+        >
+          <ActivityIndicator color={fg} />
+        </Animated.View>
       ) : (
-        <View style={styles.row}>
-          {Icon ? <Icon color={fg} size={large ? 20 : 18} strokeWidth={1.75} /> : null}
-          <Text
-            variant={large ? 'headline' : 'subhead'}
+        <Animated.View
+          key="label"
+          entering={FadeIn.duration(160)}
+          exiting={FadeOut.duration(120)}
+          style={styles.row}
+        >
+          {Icon ? <Icon color={iconColor} size={large ? 20 : 18} strokeWidth={1.75} /> : null}
+          <Animated.Text
             numberOfLines={1}
-            style={[{ color: fg }, !large && { fontFamily: t.type.headline.fontFamily }]}
+            maxFontSizeMultiplier={t.layout.maxFontScale}
+            style={[
+              large ? t.type.headline : t.type.subhead,
+              !large && { fontFamily: t.type.headline.fontFamily },
+              ink,
+            ]}
           >
             {label}
-          </Text>
-        </View>
+          </Animated.Text>
+        </Animated.View>
       )}
     </Pressable>
   );

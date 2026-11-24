@@ -26,8 +26,8 @@ export const layout = {
 } as const;
 
 export const radius = {
-  control: 12,
-  card: 16,
+  control: 14,
+  card: 20,
   sheet: 28,
   pill: 999,
 } as const;
@@ -84,8 +84,11 @@ export function floatingShadow(shadowColor: string): ViewStyle {
 
 export const motion = {
   spring: { damping: 20, stiffness: 220, mass: 1 },
+  springSnappy: { damping: 16, stiffness: 320, mass: 0.8 },
   durationFast: 200,
   duration: 260,
-  pressedScale: 0.98,
+  durationSlow: 520,
+  stagger: 70,
+  pressedScale: 0.97,
   pressedOpacity: 0.7,
 } as const;
