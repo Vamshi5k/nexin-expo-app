@@ -20,7 +20,7 @@ const CachedSchema = z.object({
     loginType: z.enum(['phone', 'email']),
     features: z.object({ fleet: z.boolean(), coupons: z.boolean() }),
     minAppVersion: z.string().nullable(),
-  }),
+  }) satisfies z.ZodType<ClientConfig>,
 });
 
 export function toCache(config: ClientConfig): unknown {

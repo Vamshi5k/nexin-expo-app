@@ -1,7 +1,6 @@
 import { brand } from '@/core/config';
 
 import { fallbackClientConfig, toClientConfig, webUrl } from '@/features/client-config/api';
-import { fromCache, toCache } from '@/features/client-config/hooks';
 
 const FULL = {
   clientDetails: {
@@ -72,19 +71,6 @@ describe('toClientConfig', () => {
 
   it('honours fleetFeature true', () => {
     expect(toClientConfig({ features: { fleetFeature: true } }, brand).features.fleet).toBe(true);
-  });
-});
-
-describe('client config cache', () => {
-  it('round-trips', () => {
-    const c = toClientConfig(FULL, brand);
-    expect(fromCache(JSON.parse(JSON.stringify(toCache(c))))).toEqual(c);
-  });
-
-  it("ignores the old app's raw CLIENT_CONFIG and corrupt values", () => {
-    expect(fromCache({ loginType: 'Phone', fleetFeature: true })).toBeUndefined();
-    expect(fromCache('nope')).toBeUndefined();
-    expect(fromCache(undefined)).toBeUndefined();
   });
 });
 

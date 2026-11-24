@@ -1,9 +1,9 @@
-import { createContext, useCallback, useContext, useMemo, type ReactNode } from 'react';
+import { createContext, useContext, useMemo, type ReactNode } from 'react';
 
 import { useSessionData, type LoadStatus } from '@/core/request';
-import { signOutThen, useSession, type SessionMode } from '@/core/session';
+import { useSession, type SessionMode } from '@/core/session';
 
-import { fleetLogout, getDriver } from './api';
+import { getDriver } from './api';
 import type { FleetUser } from './types';
 
 type FleetValue = {
@@ -12,7 +12,6 @@ type FleetValue = {
   driverStatus: LoadStatus;
   driverError: unknown;
   loadDriver: () => Promise<FleetUser>;
-  logout: () => Promise<void>;
 };
 
 const FleetContext = createContext<FleetValue | null>(null);
@@ -20,7 +19,6 @@ const FleetContext = createContext<FleetValue | null>(null);
 export function FleetProvider({ children }: { children: ReactNode }) {
   const mode = useSession((s) => s.mode);
   const driver = useSessionData(getDriver);
-  const logout = useCallback(() => signOutThen((_, token) => fleetLogout(token)), []);
 
   const value = useMemo(
     () => ({
@@ -29,9 +27,8 @@ export function FleetProvider({ children }: { children: ReactNode }) {
       driverStatus: driver.status,
       driverError: driver.error,
       loadDriver: driver.load,
-      logout,
     }),
-    [mode, driver.data, driver.status, driver.error, driver.load, logout],
+    [mode, driver.data, driver.status, driver.error, driver.load],
   );
   return <FleetContext.Provider value={value}>{children}</FleetContext.Provider>;
 }
