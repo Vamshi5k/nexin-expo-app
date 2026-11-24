@@ -6,6 +6,9 @@ jest.mock('@/core/log');
 jest.mock('@/features/client-config', () => ({ primeClientConfig: jest.fn() }));
 jest.mock('@/features/fleet', () => ({ fleetMeQuery: jest.fn(), fleetLogout: jest.fn() }));
 jest.mock('@/core/storage', () => ({
+  hydrateStorage: jest.fn(async () => {
+    calls.push('storage');
+  }),
   migrateLegacyStorage: jest.fn(async () => {
     calls.push('migrate');
     return { status: 'migrated', moved: [] };
@@ -24,9 +27,9 @@ jest.mock('@/core/session', () => ({
 describe('restoreSession', () => {
   beforeEach(() => (calls.length = 0));
 
-  it('migrates legacy storage before hydrating the session', async () => {
+  it('loads storage, migrates legacy storage, then hydrates the session', async () => {
     await restoreSession();
-    expect(calls).toEqual(['migrate', 'hydrate']);
+    expect(calls).toEqual(['storage', 'migrate', 'hydrate']);
   });
 
   it('still hydrates if the migration throws', async () => {
@@ -35,6 +38,6 @@ describe('restoreSession', () => {
       throw new Error('boom');
     });
     await restoreSession();
-    expect(calls).toEqual(['hydrate']);
+    expect(calls).toEqual(['storage', 'hydrate']);
   });
 });

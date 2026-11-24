@@ -13,7 +13,10 @@ template; the ONLY per-client differences live in `brand/` and EAS secrets.
 
 ## Stack (do not swap without asking)
 
-Expo SDK (latest stable) + expo-dev-client (Expo Go is NOT supported), Expo Router (typed routes),
+Expo SDK (latest stable) + expo-dev-client (the dev build is the real target; Expo Go is a
+limited preview: `kv` falls back to AsyncStorage via `isExpoGo` in src/core/storage.ts, and any
+new native-only library must be guarded the same way or listed as Expo Go-incompatible),
+Expo Router (typed routes),
 TypeScript strict, TanStack Query, Zustand, react-hook-form + zod, axios, socket.io-client,
 expo-secure-store, react-native-mmkv, react-native-maps + supercluster, expo-location,
 expo-camera, @react-native-firebase/messaging + expo-notifications, react-native-razorpay,

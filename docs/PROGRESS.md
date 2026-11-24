@@ -161,7 +161,13 @@ types.ts utils.ts index.ts` (mappers merged into api.ts; queries, boot and the o
   OTP cells, input focus ring removed, onboarding with step counter, orbit art and progress
   segments.
 
-**Verified**: `tsc --noEmit`, `expo lint`, `jest` (26 suites, 186 tests), `brand:check` all pass.
+- Expo Go preview (2026-11-24, requested): `src/core/storage.ts` loads MMKV lazily and, in
+  Expo Go, uses an in-memory cache persisted to AsyncStorage under `app.kv.*` (kept apart
+  from the legacy keys the migration removes). `hydrateStorage()` runs first in
+  `restoreSession`. Push notifications stay dev-build only. Firebase messaging and Razorpay
+  (later phases) will need the same guard.
+
+**Verified**: `tsc --noEmit`, `expo lint`, `jest` (27 suites, 189 tests), `brand:check` all pass.
 Not yet verified on a device against staging (needs a test number, see open questions).
 
 **Deviations**

@@ -1,9 +1,9 @@
 import {
   queryOptions,
-  type QueryClient,
   useMutation,
   useQuery,
   useQueryClient,
+  type QueryClient,
 } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
 import type { StoreApi } from 'zustand';
@@ -11,10 +11,10 @@ import type { StoreApi } from 'zustand';
 import { statusOf } from '@/core/api';
 import { log } from '@/core/log';
 import { queryKeys } from '@/core/query';
-import { sessionStore, type SessionState, useSession, type SessionMode } from '@/core/session';
-import { migrateLegacyStorage } from '@/core/storage';
+import { sessionStore, useSession, type SessionMode, type SessionState } from '@/core/session';
+import { hydrateStorage, migrateLegacyStorage } from '@/core/storage';
 import { primeClientConfig } from '@/features/client-config';
-import { fleetMeQuery, fleetLogout } from '@/features/fleet';
+import { fleetLogout, fleetMeQuery } from '@/features/fleet';
 
 import { login, logout, toTokens, toUser, userByToken, verify } from './api';
 
@@ -25,6 +25,7 @@ export const meQuery = () =>
   });
 
 export async function restoreSession(): Promise<void> {
+  await hydrateStorage();
   try {
     await migrateLegacyStorage();
   } catch (error) {
@@ -123,10 +124,6 @@ export function useVerifyOtp() {
     mutationFn: async (otp: string) => {
       const tokens = toTokens(await verify(otp));
       await sessionStore.getState().signIn('consumer', tokens);
-      // TODO(phase-charging): GET /device-transactions/running-transaction and offer
-      // "Resume charging" (BLUEPRINT A4).
-      // TODO(phase-setup): register the FCM token (PUT /auth/fcm) once notification
-      // permission is granted.
     },
   });
 }
