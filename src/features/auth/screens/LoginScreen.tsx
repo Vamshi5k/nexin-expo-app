@@ -48,7 +48,8 @@ export function LoginScreen() {
             </Text>
             <LegalLink label="Terms" onPress={login.openTerms} />
             <Text variant="caption" tone="secondary">
-              and
+              {' '}
+              and{' '}
             </Text>
             <LegalLink label="Privacy" onPress={login.openPrivacy} />
           </View>
