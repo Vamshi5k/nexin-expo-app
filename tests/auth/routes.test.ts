@@ -5,9 +5,8 @@ import {
   isOnboardingDone,
   markOnboardingDone,
   resolveStartRoute,
-  type GuardDecision,
-  type RouteGroup,
-} from '@/features/auth/utils';
+} from '@/features/auth/hooks';
+import type { GuardDecision, RouteGroup } from '@/features/auth/types';
 
 describe('resolveStartRoute (BLUEPRINT A1)', () => {
   it('fleet session -> fleet', () => {

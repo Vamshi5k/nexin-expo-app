@@ -1,5 +1,3 @@
-import type { Tokens } from '@/core/api';
-
 export type VerifyResponseDto = {
   userAccessToken?: string | null;
   accessToken?: string | null;
@@ -37,5 +35,17 @@ export type User = {
 };
 
 export type ContactType = 'phone' | 'email';
+export type ContactForm = { contact: string };
 
-export type { Tokens };
+export type UserStatus = 'idle' | 'loading' | 'ready' | 'error';
+
+export type StartRoute = 'onboarding' | 'login' | 'setup' | 'home' | 'fleet';
+export type RouteGroup = 'auth' | 'setup' | 'app' | 'fleet';
+export type GuardDecision = 'allow' | 'redirect' | 'end-session';
+export type BootStatus = 'loading' | 'ready' | 'error';
+
+export type OnboardingSlide = {
+  key: 'find' | 'charge' | 'pay';
+  title: string;
+  description: string;
+};

@@ -49,3 +49,10 @@ jest.mock('react-native-mmkv', () => ({
     };
   },
 }));
+
+// Feature hooks only take toast and haptics from the UI kit; the real index loads Reanimated,
+// which can't start under Jest. Tests that need real UI code import the file directly.
+jest.mock('@/ui', () => ({
+  toast: { success: jest.fn(), error: jest.fn(), info: jest.fn() },
+  haptics: { selection: jest.fn(), light: jest.fn(), success: jest.fn(), warning: jest.fn(), error: jest.fn() },
+}));

@@ -1,4 +1,3 @@
-import { router } from 'expo-router';
 import { CreditCard, MapPin, Zap, type LucideIcon } from 'lucide-react-native';
 import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, useWindowDimensions, View, type FlatList } from 'react-native';
@@ -20,30 +19,11 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@/theme';
 import { AmbientBackground, Button, Reveal, Text } from '@/ui';
 
-import { markOnboardingDone, START_HREF } from '../utils';
+import { ONBOARDING_SLIDES as SLIDES } from '../constants';
+import { finishOnboarding } from '../hooks';
+import type { OnboardingSlide as Slide } from '../types';
 
-type Slide = { key: string; icon: LucideIcon; title: string; description: string };
-
-const SLIDES: Slide[] = [
-  {
-    key: 'find',
-    icon: MapPin,
-    title: 'Find Chargers',
-    description: 'Discover nearby charging stations with live availability and pricing',
-  },
-  {
-    key: 'charge',
-    icon: Zap,
-    title: 'Start Charging',
-    description: 'Select a charger, enter amount, and start or stop charging instantly',
-  },
-  {
-    key: 'pay',
-    icon: CreditCard,
-    title: 'Pay & Track',
-    description: 'Make secure payments, track sessions, manage vehicles, and get updates',
-  },
-];
+const SLIDE_ICONS: Record<Slide['key'], LucideIcon> = { find: MapPin, charge: Zap, pay: CreditCard };
 
 export function OnboardingScreen() {
   const t = useTheme();
@@ -70,13 +50,8 @@ export function OnboardingScreen() {
     opacity: interpolate(x.value, [lastOffset - width, lastOffset], [1, 0], Extrapolation.CLAMP),
   }));
 
-  const finish = () => {
-    markOnboardingDone();
-    router.replace(START_HREF.login);
-  };
-
   const next = () => {
-    if (last) return finish();
+    if (last) return finishOnboarding();
     list.current?.scrollToIndex({ index: index + 1, animated: true });
   };
 
@@ -92,7 +67,13 @@ export function OnboardingScreen() {
           </Text>
         </Animated.View>
         <Animated.View style={skip} pointerEvents={last ? 'none' : 'auto'}>
-          <Button label="Skip" variant="ghost" size="medium" haptic={false} onPress={finish} />
+          <Button
+            label="Skip"
+            variant="ghost"
+            size="medium"
+            haptic={false}
+            onPress={finishOnboarding}
+          />
         </Animated.View>
       </View>
 
@@ -199,7 +180,7 @@ function SlideView({
     >
       <Animated.View style={[styles.artArea, art]}>
         <Reveal index={0}>
-          <Art icon={slide.icon} spin={spin} />
+          <Art icon={SLIDE_ICONS[slide.key]} spin={spin} />
         </Reveal>
       </Animated.View>
       <View style={{ gap: t.space[2], paddingBottom: t.space[5] }}>

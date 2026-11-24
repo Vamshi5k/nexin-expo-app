@@ -1,7 +1,7 @@
-export { AuthProvider, useAuth, type UserStatus } from './AuthContext';
-export { useBoot } from './hooks';
+export { AuthProvider, useAuth, useBoot } from './hooks';
+export { START_HREF } from './constants';
+export type { ContactType, RouteGroup } from './types';
 export { GuardedStack } from './components/GuardedStack';
-export { guardRoute, START_HREF, type RouteGroup } from './utils';
 export { BootErrorScreen } from './screens/BootErrorScreen';
 export { LoginScreen } from './screens/LoginScreen';
 export { OnboardingScreen } from './screens/OnboardingScreen';
@@ -9,4 +9,3 @@ export { OtpScreen } from './screens/OtpScreen';
 export { SignedInPlaceholderScreen } from './screens/SignedInPlaceholderScreen';
 export { StartRedirect } from './screens/StartRedirect';
 export { TempHomeScreen } from './screens/TempHomeScreen';
-export type { ContactType } from './types';

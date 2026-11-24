@@ -21,7 +21,7 @@ import Animated, {
 import { useTheme, withAlpha } from '@/theme';
 import { Text } from '@/ui';
 
-import { otpCells, sanitizeOtp } from '../utils';
+import { otpCells, sanitizeOtp } from '../hooks';
 
 export type OtpInputProps = {
   value: string;

@@ -1,31 +1,27 @@
-import { api, unwrap, type Envelope } from '@/core/api';
+import { api, unwrap, type Envelope, type Tokens } from '@/core/api';
 import { brand } from '@/core/config';
 
-import type { UserDto, VerifyResponseDto, Tokens, User } from './types';
+import { LOGOUT_TIMEOUT_MS } from './constants';
+import type { User, UserDto, VerifyResponseDto } from './types';
 
-export async function login(contact: string): Promise<void> {
+export async function requestOtp(contact: string): Promise<void> {
   await api.post('/auth/app/login', { contact });
 }
 
-export async function verify(otp: string): Promise<VerifyResponseDto> {
+export async function verifyOtp(otp: string): Promise<Tokens> {
   const res = await api.post<VerifyResponseDto>('/auth/app/verify', {
     otp,
     appName: brand.apiAppName,
   });
-  return res.data;
+  return toTokens(res.data);
 }
 
-export async function userByToken(): Promise<UserDto> {
+export async function getUser(): Promise<User> {
   const res = await api.get<Envelope<{ user: UserDto }>>('/auth/user-by-token');
-  return unwrap(res).user;
+  return toUser(unwrap(res).user);
 }
 
-export async function registerFcm(fcmToken: string): Promise<void> {
-  await api.put('/auth/fcm', { fcmToken });
-}
-
-export const LOGOUT_TIMEOUT_MS = 8_000;
-
+// Runs after the session is cleared, so it sends the captured token and never refreshes.
 export async function logout(accessToken: string | null): Promise<void> {
   await api.post('/auth/logout', undefined, {
     authToken: accessToken,

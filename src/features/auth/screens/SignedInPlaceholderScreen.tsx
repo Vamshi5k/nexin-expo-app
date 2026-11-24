@@ -4,7 +4,7 @@ import { useAction } from '@/core/request';
 import { useTheme } from '@/theme';
 import { Button, PlaceholderScreen, toast } from '@/ui';
 
-import { useAuth } from '../AuthContext';
+import { useAuth } from '../hooks';
 
 export type SignedInPlaceholderScreenProps = { title: string; description: string };
 

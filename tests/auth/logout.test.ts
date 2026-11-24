@@ -1,6 +1,6 @@
-import { createSessionStore } from '@/core/session';
+import { createSessionStore, signOutThen } from '@/core/session';
 import type { SecureStorage } from '@/core/storage';
-import { serverLogout, signOutEverywhere } from '@/features/auth/AuthContext';
+import { serverLogout } from '@/features/auth/hooks';
 
 jest.mock('@/core/log');
 jest.mock('@/features/fleet', () => ({ fleetLogout: jest.fn(async () => undefined) }));
@@ -47,7 +47,7 @@ describe('serverLogout', () => {
   });
 });
 
-describe('signOutEverywhere', () => {
+describe('logout: signOutThen(serverLogout)', () => {
   beforeEach(() => jest.clearAllMocks());
 
   async function signedIn(mode: 'consumer' | 'fleet' = 'consumer') {
@@ -60,7 +60,7 @@ describe('signOutEverywhere', () => {
   it('clears the session locally without waiting for the server', async () => {
     logout.mockImplementationOnce(() => new Promise(() => undefined));
     const { store, storage } = await signedIn();
-    await signOutEverywhere(store);
+    await signOutThen(serverLogout, store);
     expect(store.getState().mode).toBe('none');
     expect(store.getState().tokens).toBeNull();
     expect(storage.data.size).toBe(0);
@@ -68,7 +68,7 @@ describe('signOutEverywhere', () => {
 
   it('calls the server with the token captured before clearing', async () => {
     const { store } = await signedIn('fleet');
-    await signOutEverywhere(store);
+    await signOutThen(serverLogout, store);
     expect(fleetLogout).toHaveBeenCalledWith('acc');
   });
 
@@ -77,7 +77,7 @@ describe('signOutEverywhere', () => {
       throw new Error('offline');
     });
     const { store } = await signedIn();
-    await expect(signOutEverywhere(store)).resolves.toBeUndefined();
+    await expect(signOutThen(serverLogout, store)).resolves.toBeUndefined();
     await flush();
     expect(store.getState().mode).toBe('none');
     expect(log.warn).toHaveBeenCalled();
@@ -86,7 +86,7 @@ describe('signOutEverywhere', () => {
   it('does nothing when already signed out', async () => {
     const store = createSessionStore(memoryStorage());
     await store.getState().hydrate();
-    await signOutEverywhere(store);
+    await signOutThen(serverLogout, store);
     expect(logout).not.toHaveBeenCalled();
   });
 });
