@@ -58,7 +58,7 @@ export function EmptyState({
           onPress={onAction}
           variant="secondary"
           fullWidth={false}
-          style={{ marginTop: t.space[2] }}
+          style={{ marginTop: t.space[2], alignSelf: 'center' }}
         />
       ) : null}
     </View>

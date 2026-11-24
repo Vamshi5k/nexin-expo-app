@@ -73,7 +73,6 @@ export function AppToaster() {
         borderRadius: t.radius.card,
         borderWidth: t.layout.hairline,
         borderColor: c.border,
-        ...t.shadow,
       },
       titleStyle: { ...t.type.subhead, color: c.textPrimary },
       descriptionStyle: { ...t.type.caption, color: c.textSecondary },

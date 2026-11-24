@@ -1,4 +1,4 @@
-import { Platform, StyleSheet, type TextStyle, type ViewStyle } from 'react-native';
+import { StyleSheet, type TextStyle } from 'react-native';
 
 export const space = {
   0: 0,
@@ -86,13 +86,6 @@ export function typography(family: string): Record<TypeVariant, TextStyle> {
 }
 
 export const tabularNums: TextStyle = { fontVariant: ['tabular-nums'] };
-
-export function floatingShadow(shadowColor: string): ViewStyle {
-  return Platform.select<ViewStyle>({
-    ios: { shadowColor, shadowOpacity: 1, shadowRadius: 16, shadowOffset: { width: 0, height: 4 } },
-    default: { boxShadow: `0px 4px 16px ${shadowColor}` },
-  });
-}
 
 export const motion = {
   spring: { damping: 20, stiffness: 220, mass: 1 },

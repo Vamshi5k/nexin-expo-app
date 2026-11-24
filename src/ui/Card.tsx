@@ -23,15 +23,14 @@ export function Card({
   accessibilityLabel,
 }: CardProps) {
   const t = useTheme();
+  // Flat everywhere: an elevated card is the raised surface with a stronger hairline, no shadow.
   const elevated = elevation === 'elevated';
-  const light = t.scheme === 'light';
   const base: ViewStyle = {
     backgroundColor: elevated ? t.colors.surfaceRaised : t.colors.surface,
     borderRadius: t.radius.card,
-    borderWidth: elevated && light ? 0 : t.layout.hairline,
-    borderColor: t.colors.border,
+    borderWidth: t.layout.hairline,
+    borderColor: elevated ? t.colors.borderStrong : t.colors.border,
     padding: padded ? t.layout.cardPadding : 0,
-    ...(elevated && light ? t.shadow : null),
   };
   if (onPress) {
     return (

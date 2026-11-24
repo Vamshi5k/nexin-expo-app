@@ -49,10 +49,11 @@ the driver find, start, watch or pay for a charge.
 ## Layout and shape
 - 4 pt grid. Screen padding 20. Section gap 24-32. Card padding 16.
 - Radius: controls 14, cards 20, sheets 28, pills full. Large buttons are pills.
-- Depth comes from layering (grey page, white cards) and hairline borders
-  (StyleSheet.hairlineWidth), plus one very soft shadow level for floating items (FAB, map
-  search, sheets) and hero cards (Card elevation="elevated"). In dark mode, where shadows
-  don't read, elevated cards use surfaceRaised with a hairline border. No heavy drop shadows.
+- **No shadows anywhere** (there is no shadow token). Depth comes only from layering (grey
+  page, white cards, sunken fills) and hairline borders (StyleSheet.hairlineWidth). Floating
+  items (toasts, dialogs, the offline banner, later the FAB and map search) and hero cards
+  (Card elevation="elevated") use surfaceRaised with a hairline border (borderStrong for
+  elevated cards).
 - Buttons: large = 52 high, full width (primary actions, sticky footer above the safe area on
   forms); medium = 44 high, content width (inline actions in cards, banners, empty states).
   Put two related actions side by side rather than stacking full-width buttons. Minimum touch
@@ -73,7 +74,7 @@ the driver find, start, watch or pay for a charge.
 - Skeletons match the final layout, with a subtle shimmer. A full-screen spinner only
   during payment and charger start.
 - Empty and error states: simple line icon in an accentSoft circle, one-line title, one
-  sentence, one action.
+  sentence, one centred action.
 - Floating map controls (search pill, filter, my-location) sit on a blurred translucent
   surface (expo-blur, or the native glass effect where the SDK supports it), with a solid
   fallback on Android if blur is slow.
@@ -94,7 +95,7 @@ the driver find, start, watch or pay for a charge.
 - Station details: hero image with a gradient fade at the bottom, and a sticky bottom bar
   with Directions and the primary action.
 
-## Splash, onboarding and auth (flat, no shadows)
+## Splash, onboarding, auth and first-run setup (flat)
 - Completely flat: no shadows, glows or blurs. Shape comes from flat fills (accent,
   accentSoft, surfaceSunken) and 1 pt lines.
 - `SplashOverlay` pixel-matches the native splash. If boot takes over 700 ms a thin accent
@@ -126,6 +127,17 @@ the driver find, start, watch or pay for a charge.
 - Onboarding: "01 / 03" step counter, flat orbit art (accent tile, accentSoft disc, hairline
   ring, two orbiting dots), story-style progress segments, parallax between art and text.
 
+- First-run setup (profile, vehicle, permissions) uses the same frame as auth
+  (`AuthScaffold` with a `topBar`): "Step n of 3" and segment bars in the top bar (Skip on the
+  vehicle step), the title in the brand area, the form in the bottom panel.
+- Choice grids (vehicle brand, model, capacity): 2 columns of flat cards, surfaceSunken at
+  rest; selected = accentSoft fill, 1.5 pt accent border and an accent check badge. Brand and
+  model cards carry a letter monogram tile (surface, accent when selected).
+- Permission cards: surfaceSunken card with an icon tile, title, description and a
+  secondary-style "Allow" (or "Open Settings" when blocked); once allowed the card tints to
+  accentSoft with an accent icon tile and "Allowed" check. Continue is the screen's only
+  primary button.
+
 ## Motion and feedback
 - react-native-reanimated springs of about 200-300 ms, layout animations when list items
   are added or removed, animated progress on the charging ring. Respect Reduce Motion.
@@ -138,6 +150,6 @@ the driver find, start, watch or pay for a charge.
 - Everything tappable has a pressed state (opacity, or scale 0.98). No dead taps.
 
 ## Avoid
-Gradient backgrounds (except the backdrop fades above), more than one accent colour, heavy shadows, centred paragraphs,
+Gradient backgrounds (except the backdrop fades above), more than one accent colour, shadows of any kind, centred paragraphs,
 cramped cards, emoji in the UI, mixed icon sets, grey text below AA, stock illustrations,
 and any brand value hard-coded in a component.

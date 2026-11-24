@@ -4,17 +4,8 @@ import { useColorScheme } from 'react-native';
 import { brand } from '@/core/config';
 
 import { buildPalette, type ColorScheme, type Palette } from './palette';
-import {
-  floatingShadow,
-  layout,
-  motion,
-  radius,
-  space,
-  tabularNums,
-  typography,
-  type TypeVariant,
-} from './tokens';
-import type { TextStyle, ViewStyle } from 'react-native';
+import { layout, motion, radius, space, tabularNums, typography, type TypeVariant } from './tokens';
+import type { TextStyle } from 'react-native';
 
 export type Theme = {
   scheme: ColorScheme;
@@ -24,7 +15,6 @@ export type Theme = {
   radius: typeof radius;
   type: Record<TypeVariant, TextStyle>;
   tabularNums: TextStyle;
-  shadow: ViewStyle;
   motion: typeof motion;
 };
 
@@ -46,7 +36,6 @@ export function buildTheme(scheme: ColorScheme, b = brand): Theme {
     radius,
     type: typography(b.fontFamily),
     tabularNums,
-    shadow: floatingShadow(colors.shadow),
     motion,
   };
 }

@@ -20,25 +20,30 @@ import type { VehicleWizard } from '../hooks';
 
 import { OptionGrid, OptionGridSkeleton, type Option } from './OptionGrid';
 
-// Title, step progress and the current step's body. The screen owns the header and footer.
-export function VehicleForm({ wizard }: { wizard: VehicleWizard }) {
+// Split so a screen can place the title in its brand area and the body in its panel.
+export function VehicleFormHeader({ wizard }: { wizard: VehicleWizard }) {
   const t = useTheme();
   return (
-    <View style={{ gap: t.space[6] }}>
-      <View style={{ gap: t.space[3] }}>
-        <StepBars index={wizard.stepIndex} count={wizard.stepCount} />
-        <View style={{ gap: t.space[1] }}>
-          <Text variant="title1" accessibilityRole="header">
-            {wizard.title}
-          </Text>
-          <Text variant="callout" tone="secondary">
-            {wizard.subtitle}
-          </Text>
-        </View>
+    <View style={{ gap: t.space[4] }}>
+      <StepBars index={wizard.stepIndex} count={wizard.stepCount} />
+      <View style={{ gap: t.space[2] }}>
+        <Text variant="hero" accessibilityRole="header">
+          {wizard.title}
+        </Text>
+        <Text variant="callout" tone="secondary">
+          {wizard.subtitle}
+        </Text>
       </View>
+    </View>
+  );
+}
+
+export function VehicleFormBody({ wizard }: { wizard: VehicleWizard }) {
+  return (
+    <>
       <StepBody wizard={wizard} />
       <CustomCapacitySheet wizard={wizard} />
-    </View>
+    </>
   );
 }
 
@@ -51,7 +56,12 @@ function StepBody({ wizard: w }: { wizard: VehicleWizard }) {
           request={w.brands}
           empty={EMPTY_COPY.brand}
           toOptions={(items) =>
-            items.map((b) => ({ key: b.id, label: b.name, selected: b.id === w.brand?.id }))
+            items.map((b) => ({
+              key: b.id,
+              label: b.name,
+              monogram: true,
+              selected: b.id === w.brand?.id,
+            }))
           }
           onSelect={(key) => {
             const next = w.brands.data?.find((b) => b.id === key);
@@ -65,7 +75,12 @@ function StepBody({ wizard: w }: { wizard: VehicleWizard }) {
           request={w.models}
           empty={EMPTY_COPY.model}
           toOptions={(items) =>
-            items.map((m) => ({ key: m.id, label: m.name, selected: m.id === w.model?.id }))
+            items.map((m) => ({
+              key: m.id,
+              label: m.name,
+              monogram: true,
+              selected: m.id === w.model?.id,
+            }))
           }
           onSelect={(key) => {
             const next = w.models.data?.find((m) => m.id === key);

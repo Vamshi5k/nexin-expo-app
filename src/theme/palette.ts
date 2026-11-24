@@ -36,7 +36,6 @@ export type Palette = {
   connector: Record<ConnectorStatus, string>;
   neutral: Record<NeutralStep, string>;
   overlay: string;
-  shadow: string;
   skeleton: string;
   skeletonHighlight: string;
 };
@@ -144,7 +143,6 @@ export function buildPalette(brand: BrandConfig, scheme: ColorScheme): Palette {
     connector: brand.connectorColors,
     neutral,
     overlay: withAlpha(neutral[950], light ? 0.45 : 0.6),
-    shadow: light ? withAlpha(neutral[950], 0.08) : withAlpha('#000000', 0.5),
     skeleton: light ? mix(surface, neutral[300], 0.45) : neutral[800],
     skeletonHighlight: light ? mix(surface, neutral[300], 0.15) : neutral[700],
   };

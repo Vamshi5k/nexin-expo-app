@@ -61,7 +61,6 @@ function OfflineCard() {
         borderColor: t.colors.border,
         padding: t.space[4],
         gap: t.space[3],
-        ...t.shadow,
       }}
     >
       <View style={{ flexDirection: 'row', gap: t.space[3], alignItems: 'flex-start' }}>

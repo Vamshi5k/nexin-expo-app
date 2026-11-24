@@ -6,12 +6,12 @@ import { Text } from '@/ui';
 
 import { SETUP_STEP_COUNT } from '../constants';
 
-// "Step n of 3" across the whole setup (profile, vehicle, permissions), with an optional action.
+// "Step n of 3" across the whole setup (profile, vehicle, permissions); sits in the top bar.
 export function SetupHeader({ step, right }: { step: number; right?: ReactNode }) {
   const t = useTheme();
   return (
-    <View style={{ gap: t.space[2], paddingTop: t.space[3] }}>
-      <View style={[styles.row, { minHeight: 44 }]}>
+    <View style={[styles.flex, { gap: t.space[2] }]}>
+      <View style={[styles.row, { minHeight: 36 }]}>
         <Text variant="subhead" tone="secondary" tabular>
           Step {step} of {SETUP_STEP_COUNT}
         </Text>
@@ -36,6 +36,7 @@ export function SetupHeader({ step, right }: { step: number; right?: ReactNode }
 }
 
 const styles = StyleSheet.create({
+  flex: { flex: 1 },
   row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   bar: { flex: 1, height: 4 },
 });

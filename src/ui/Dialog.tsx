@@ -55,10 +55,11 @@ export function Dialog({
             {
               backgroundColor: t.colors.surfaceRaised,
               borderRadius: t.radius.card,
+              borderWidth: t.layout.hairline,
+              borderColor: t.colors.border,
               padding: t.space[6],
               gap: t.space[2],
             },
-            t.shadow,
           ]}
         >
           <Text variant="title2">{title}</Text>

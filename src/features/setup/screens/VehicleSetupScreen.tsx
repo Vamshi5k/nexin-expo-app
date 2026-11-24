@@ -1,8 +1,9 @@
 import { View } from 'react-native';
 
-import { VehicleForm } from '@/features/vehicles';
+import { AuthScaffold } from '@/features/auth';
+import { VehicleFormBody, VehicleFormHeader } from '@/features/vehicles';
 import { useTheme } from '@/theme';
-import { Button, Screen } from '@/ui';
+import { Button, Reveal } from '@/ui';
 
 import { SetupHeader } from '../components/SetupHeader';
 import { useVehicleSetup } from '../hooks';
@@ -11,8 +12,20 @@ export function VehicleSetupScreen() {
   const t = useTheme();
   const { wizard, skip } = useVehicleSetup();
   return (
-    <Screen
-      scroll
+    <AuthScaffold
+      topBar={
+        <SetupHeader
+          step={2}
+          right={
+            <Button label="Skip" variant="ghost" size="medium" onPress={skip} haptic="selection" />
+          }
+        />
+      }
+      hero={
+        <Reveal index={0}>
+          <VehicleFormHeader wizard={wizard} />
+        </Reveal>
+      }
       footer={
         <View style={{ flexDirection: 'row', gap: t.space[3] }}>
           {wizard.stepIndex > 0 ? (
@@ -32,15 +45,10 @@ export function VehicleSetupScreen() {
           />
         </View>
       }
-      contentStyle={{ gap: t.space[6] }}
     >
-      <SetupHeader
-        step={2}
-        right={
-          <Button label="Skip" variant="ghost" size="medium" onPress={skip} haptic="selection" />
-        }
-      />
-      <VehicleForm wizard={wizard} />
-    </Screen>
+      <Reveal index={1}>
+        <VehicleFormBody wizard={wizard} />
+      </Reveal>
+    </AuthScaffold>
   );
 }

@@ -1,63 +1,50 @@
 import { Bell, MapPin } from 'lucide-react-native';
 import { View } from 'react-native';
 
-import type { PermissionResult } from '@/core/permissions';
+import { AuthScaffold } from '@/features/auth';
 import { useTheme } from '@/theme';
-import { Button, ListGroup, ListRow, Reveal, Screen, StatusChip, Text } from '@/ui';
+import { Button, Reveal, Text } from '@/ui';
 
+import { PermissionCard } from '../components/PermissionCard';
 import { SetupHeader } from '../components/SetupHeader';
 import { PERMISSIONS_COPY } from '../constants';
 import { usePermissionsSetup } from '../hooks';
-import type { SetupPermission } from '../profile';
 
 export function PermissionsScreen() {
   const t = useTheme();
   const perms = usePermissionsSetup();
-
-  const action = (kind: SetupPermission, status: PermissionResult | null) =>
-    status === 'granted' ? (
-      <StatusChip label="Allowed" tone="success" />
-    ) : (
-      <Button
-        label={status === 'blocked' ? 'Open Settings' : 'Allow'}
-        variant={status === 'blocked' ? 'secondary' : 'primary'}
-        size="medium"
-        loading={perms.pending === kind}
-        disabled={status === null}
-        onPress={() => perms.allow(kind)}
-      />
-    );
-
   return (
-    <Screen
-      scroll
+    <AuthScaffold
+      topBar={<SetupHeader step={3} />}
+      hero={
+        <Reveal index={0} style={{ gap: t.space[2] }}>
+          <Text variant="hero" accessibilityRole="header">
+            {PERMISSIONS_COPY.title}
+          </Text>
+          <Text variant="callout" tone="secondary">
+            {PERMISSIONS_COPY.subtitle}
+          </Text>
+        </Reveal>
+      }
       footer={<Button label="Continue" onPress={perms.finish} />}
-      contentStyle={{ gap: t.space[8] }}
     >
-      <SetupHeader step={3} />
-      <Reveal index={0} style={{ gap: t.space[2] }}>
-        <Text variant="hero" accessibilityRole="header">
-          {PERMISSIONS_COPY.title}
-        </Text>
-        <Text variant="callout" tone="secondary">
-          {PERMISSIONS_COPY.subtitle}
-        </Text>
-      </Reveal>
-      <Reveal index={1} style={{ gap: t.space[4] }}>
-        <ListGroup>
-          <ListRow
-            icon={MapPin}
-            title={PERMISSIONS_COPY.location.title}
-            subtitle={PERMISSIONS_COPY.location.description}
-            trailing={action('location', perms.status.location)}
-          />
-          <ListRow
-            icon={Bell}
-            title={PERMISSIONS_COPY.notifications.title}
-            subtitle={PERMISSIONS_COPY.notifications.description}
-            trailing={action('notifications', perms.status.notifications)}
-          />
-        </ListGroup>
+      <Reveal index={1} style={{ gap: t.space[3] }}>
+        <PermissionCard
+          icon={MapPin}
+          title={PERMISSIONS_COPY.location.title}
+          description={PERMISSIONS_COPY.location.description}
+          status={perms.status.location}
+          pending={perms.pending === 'location'}
+          onAllow={() => perms.allow('location')}
+        />
+        <PermissionCard
+          icon={Bell}
+          title={PERMISSIONS_COPY.notifications.title}
+          description={PERMISSIONS_COPY.notifications.description}
+          status={perms.status.notifications}
+          pending={perms.pending === 'notifications'}
+          onAllow={() => perms.allow('notifications')}
+        />
         <View style={{ gap: t.space[1], paddingHorizontal: t.space[1] }}>
           <Text variant="caption" tone="secondary">
             {PERMISSIONS_COPY.locationNote}
@@ -67,6 +54,6 @@ export function PermissionsScreen() {
           </Text>
         </View>
       </Reveal>
-    </Screen>
+    </AuthScaffold>
   );
 }
