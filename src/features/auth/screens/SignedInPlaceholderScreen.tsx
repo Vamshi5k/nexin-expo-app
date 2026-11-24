@@ -1,15 +1,16 @@
 import { View } from 'react-native';
 
+import { useAction } from '@/core/request';
 import { useTheme } from '@/theme';
 import { Button, PlaceholderScreen, toast } from '@/ui';
 
-import { useLogout } from '../hooks';
+import { useAuth } from '../AuthContext';
 
 export type SignedInPlaceholderScreenProps = { title: string; description: string };
 
 export function SignedInPlaceholderScreen({ title, description }: SignedInPlaceholderScreenProps) {
   const t = useTheme();
-  const logout = useLogout();
+  const logout = useAction(useAuth().logout);
   return (
     <PlaceholderScreen title={title} description={description}>
       <View style={{ marginTop: t.space[6] }}>
@@ -17,9 +18,7 @@ export function SignedInPlaceholderScreen({ title, description }: SignedInPlaceh
           label="Log out"
           variant="secondary"
           loading={logout.isPending}
-          onPress={() =>
-            logout.mutate(undefined, { onError: () => toast.error('Could not log out') })
-          }
+          onPress={() => void logout.run().catch(() => toast.error('Could not log out'))}
         />
       </View>
     </PlaceholderScreen>

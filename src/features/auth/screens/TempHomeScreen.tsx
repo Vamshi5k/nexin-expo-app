@@ -3,19 +3,20 @@ import { LayoutGrid, LogOut, ShieldCheck } from 'lucide-react-native';
 import { View } from 'react-native';
 
 import { APP_ENV, brand } from '@/core/config';
+import { useAction } from '@/core/request';
 import { useClientConfig } from '@/features/client-config';
 import { useTheme } from '@/theme';
 import { Card, LargeTitleScroll, ListGroup, ListRow, Text, toast } from '@/ui';
 
-import { useLogout, useMe } from '../hooks';
+import { useAuth } from '../AuthContext';
 import { formatContact } from '../utils';
 
 export function TempHomeScreen() {
   const t = useTheme();
   const config = useClientConfig();
-  const me = useMe();
-  const logout = useLogout();
-  const user = me.data;
+  const auth = useAuth();
+  const logout = useAction(auth.logout);
+  const user = auth.user;
   const name = [user?.firstName, user?.lastName].filter(Boolean).join(' ');
   const devTools = APP_ENV !== 'production';
 
@@ -53,7 +54,7 @@ export function TempHomeScreen() {
             onPress={() =>
               logout.isPending
                 ? undefined
-                : logout.mutate(undefined, { onError: () => toast.error('Could not log out') })
+                : logout.run().catch(() => toast.error('Could not log out'))
             }
           />
         </ListGroup>

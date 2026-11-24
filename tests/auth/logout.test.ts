@@ -1,9 +1,8 @@
 import { createSessionStore } from '@/core/session';
 import type { SecureStorage } from '@/core/storage';
-import { serverLogout, signOutEverywhere } from '@/features/auth/hooks';
+import { serverLogout, signOutEverywhere } from '@/features/auth/AuthContext';
 
 jest.mock('@/core/log');
-jest.mock('@/features/client-config', () => ({ primeClientConfig: jest.fn() }));
 jest.mock('@/features/fleet', () => ({ fleetLogout: jest.fn(async () => undefined) }));
 jest.mock('@/features/auth/api', () => ({
   ...jest.requireActual('@/features/auth/api'),

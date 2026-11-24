@@ -506,7 +506,7 @@ These run under every feature; set them up in Phase 0 before any screen. Each ro
 | Capability | Today | Expo choice |
 |---|---|---|
 | Navigation | React Navigation stacks | Expo Router (file-based, typed routes, protected groups) |
-| Server data | useState + useEffect per screen | TanStack Query (cache, pagination, refetch on focus) |
+| Server data | useState + useEffect per screen | Contexts for session-wide data (Auth, Fleet, ClientConfig); `useRequest` / `useAction` around plain axios for screens (drops stale responses, loading/error/refetch) |
 | Client state | 4 Contexts | Zustand (session, client config, small UI state) |
 | Forms | formik + yup | react-hook-form + zod (shared schemas, typed) |
 | Tokens | AsyncStorage | expo-secure-store |
@@ -518,7 +518,7 @@ These run under every feature; set them up in Phase 0 before any screen. Each ro
 | Local notifications | Notifee | expo-notifications (channels, foreground, tap handling) |
 | Payments | react-native-razorpay | Keep it (dev client / prebuild); add ProGuard rules + iOS UPI query schemes via config plugin |
 | PDF download | react-native-blob-util | expo-file-system download with headers + expo-sharing |
-| Network | netinfo + probes | @react-native-community/netinfo + TanStack Query onlineManager |
+| Network | netinfo + probes | @react-native-community/netinfo (`useOnline`, OfflineBanner) |
 | Toast | simple-toast (native) | sonner-native or burnt |
 | Bottom sheets | 20 hand-rolled Modals | @gorhom/bottom-sheet |
 | App update | react-native-version-check | expo-application + backend minVersion in /client/info; optional expo-updates |
@@ -656,8 +656,8 @@ src/
 1.  Route files (app/**) only read params and render a screen from features/*/screens. No fetching, no state.
 2.  api.ts holds plain typed functions that call client and return unwrapped DTOs. One file per feature; no endpoint strings anywhere else.
 3.  mappers.ts turns DTOs into the domain models the UI uses (e.g. Station, Session, Transaction). Components never touch raw API shapes, so backend quirks (charginDuration, pagination.page vs currentPage, capacity as number or object) are fixed in one place.
-4.  hooks.ts wraps api + mappers in TanStack Query (useStations, useStartCharging). Screens consume only hooks.
-5.  Zustand holds only client state: session (mode consumer | fleet | none, user), client config cache, filters. Server data stays in the query cache.
+4.  hooks.ts wraps api + mappers with `useRequest` / `useAction` (useStations, useStartCharging). Screens consume only hooks and contexts.
+5.  Zustand holds only client state: the token store (mode consumer | fleet | none, tokens) and filters. The user, fleet driver and client config live in AuthContext, FleetContext and ClientConfigContext.
 6.  Pure logic (pricing maths, QR parsing, status mapping, formatters) lives in plain .ts files with unit tests.
 7.  Features import each other only through their index.ts; ui/ and core/ never import from features/.
 
@@ -751,7 +751,7 @@ Build in 10 phases, each ending with something you can run on a device. Every fe
 - [ ] app.config.ts with APP_ENV, API host, socket URL, client token, scheme cruzeev, bundle id com.cruzeev.app (+ suffixes per env)
 - [ ] EAS build profiles: development, staging, production
 - [ ] Theme tokens, Inter font, ui/ primitives: Text, Button, Input, Card, Screen, Header, Skeleton, EmptyState, Sheet, Dialog, Toast, Tabs
-- [ ] core/api client + refresh queue + envelope helpers; TanStack Query provider; Zustand session store; SecureStore
+- [ ] core/api client + refresh queue + envelope helpers; Auth/Fleet/ClientConfig contexts; Zustand token store; SecureStore
 - [ ] Offline banner (NetInfo) and the permission-blocked dialog
 - [ ] Copy connector SVG icons, map style JSON, images
 

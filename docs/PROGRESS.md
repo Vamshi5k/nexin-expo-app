@@ -174,7 +174,18 @@ types.ts utils.ts index.ts` (mappers merged into api.ts; queries, boot and the o
   refresh first) and could save refreshed tokens just before deleting them. `clearUserData`
   now cancels in-flight user queries before removing them.
 
-**Verified**: `tsc --noEmit`, `expo lint`, `jest` (27 suites, 194 tests), `brand:check` all pass.
+- TanStack Query removed (2026-11-24, requested): `AuthProvider` (user, requestOtp,
+  verifyOtp, logout), `FleetProvider` (driver, logout) and `ClientConfigProvider` (cached config,
+  boot prime, background refresh) over plain axios. Each provider resets on a session mode
+  change and drops responses from the previous session (generation counter). The Zustand
+  token store stays underneath for the axios interceptor. `useRequest` / `useAction` in
+  `src/core/request.ts` for screens. `useBoot` takes the context loaders. Removed:
+  `@tanstack/react-query`, `src/core/query.ts`, focus/online refetch, query retries.
+  Deviation: no shared cache; data reloads per screen visit and does not refetch on app focus
+  or reconnect. Provider/hook render tests need `@testing-library/react-native` (not added).
+
+**Verified**: `tsc --noEmit`, `expo lint`, `jest` (25 suites, 187 tests); cold boot to Login on
+the Android emulator, `brand:check` all pass.
 Not yet verified on a device against staging (needs a test number, see open questions).
 
 **Deviations**

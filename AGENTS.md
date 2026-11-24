@@ -17,7 +17,8 @@ Expo SDK (latest stable) + expo-dev-client (the dev build is the real target; Ex
 limited preview: `kv` falls back to AsyncStorage via `isExpoGo` in src/core/storage.ts, and any
 new native-only library must be guarded the same way or listed as Expo Go-incompatible),
 Expo Router (typed routes),
-TypeScript strict, TanStack Query, Zustand, react-hook-form + zod, axios, socket.io-client,
+TypeScript strict, React Context (AuthContext, FleetContext, ClientConfigContext) + plain axios,
+Zustand (token store only), react-hook-form + zod, socket.io-client,
 expo-secure-store, react-native-mmkv, react-native-maps + supercluster, expo-location,
 expo-camera, @react-native-firebase/messaging + expo-notifications, react-native-razorpay,
 @gorhom/bottom-sheet, expo-file-system + expo-sharing, lucide-react-native, sonner-native (toasts,
@@ -40,10 +41,13 @@ Install native deps with `npx expo install`, never plain npm, so versions match 
 1. app/\*_ are thin route files: read params, render a screen from src/features/_/screens. No fetching.
 2. api.ts: endpoint calls + DTO -> domain model mapping. The only place endpoint strings
    appear. Components never see raw API shapes.
-3. hooks.ts: TanStack Query wrappers and feature logic that needs the query client or session.
-   Screens use only hooks.
+3. hooks.ts: feature logic that needs React or the session. Screens load data with
+   `useRequest` and run writes with `useAction` (src/core/request.ts) around api.ts calls;
+   session-wide state comes from the feature contexts (`useAuth`, `useFleet`, `useClientConfig`).
 4. utils.ts: the feature's pure logic (formatters, schemas, routing rules).
-5. Zustand = client state only (session, filters). Server data lives in the query cache.
+5. Zustand = client state only (the token store in src/core/session.ts, filters). Server data
+   lives in the contexts (user, driver, client config) or in a screen's `useRequest`. Contexts
+   reset on every session change and drop responses for the previous session.
 6. Pure logic (pricing, QR parsing, status maps, formatters) is tested in tests/.
 7. Features import each other only via index.ts. src/ui and src/core never import src/features.
 8. Money is computed in paise (integers). Format only at render time.
@@ -59,6 +63,7 @@ src/app/                 thin route files
 src/core/*.ts            flat files: api, config, log, network, permissions, query, session, storage
 src/features/<f>/
   screens/  components/  api.ts  hooks.ts  types.ts  utils.ts  index.ts
+  <Name>Context.tsx       only for session-wide state (auth, fleet, client-config)
 src/ui/  src/theme/      design system
 tests/<area>/*.test.ts   all tests live here, importing via @/ aliases
 ```

@@ -1,5 +1,4 @@
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
-import { QueryClientProvider } from '@tanstack/react-query';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
@@ -11,21 +10,17 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { log } from '@/core/log';
 import { OfflineBanner } from '@/core/network';
 import { PermissionBlockedDialog } from '@/core/permissions';
-import { createQueryClient, wireQueryManagers } from '@/core/query';
-import { BootErrorScreen, clearUserDataOnSessionChange, useBoot } from '@/features/auth';
+import { AuthProvider, BootErrorScreen, useBoot } from '@/features/auth';
+import { ClientConfigProvider } from '@/features/client-config';
+import { FleetProvider } from '@/features/fleet';
 import { ThemeProvider, useTheme } from '@/theme';
 import { useBrandFonts } from '@/theme/fonts';
 import { AppToaster, SplashOverlay } from '@/ui';
 
 void SplashScreen.preventAutoHideAsync();
 
-const queryClient = createQueryClient();
-
 export default function RootLayout() {
   const fonts = useBrandFonts();
-
-  useEffect(() => wireQueryManagers(), []);
-  useEffect(() => clearUserDataOnSessionChange(queryClient), []);
 
   useEffect(() => {
     if (fonts.error)
@@ -37,13 +32,17 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={styles.flex}>
       <SafeAreaProvider>
-        <QueryClientProvider client={queryClient}>
-          <ThemeProvider>
-            <BottomSheetModalProvider>
-              <AppShell />
-            </BottomSheetModalProvider>
-          </ThemeProvider>
-        </QueryClientProvider>
+        <ClientConfigProvider>
+          <FleetProvider>
+            <AuthProvider>
+              <ThemeProvider>
+                <BottomSheetModalProvider>
+                  <AppShell />
+                </BottomSheetModalProvider>
+              </ThemeProvider>
+            </AuthProvider>
+          </FleetProvider>
+        </ClientConfigProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );

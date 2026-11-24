@@ -3,8 +3,8 @@ import { restoreSession } from '@/features/auth/hooks';
 const calls: string[] = [];
 
 jest.mock('@/core/log');
-jest.mock('@/features/client-config', () => ({ primeClientConfig: jest.fn() }));
-jest.mock('@/features/fleet', () => ({ fleetMeQuery: jest.fn(), fleetLogout: jest.fn() }));
+jest.mock('@/features/client-config', () => ({ usePrimeClientConfig: jest.fn() }));
+jest.mock('@/features/fleet', () => ({ useFleet: jest.fn(), fleetLogout: jest.fn() }));
 jest.mock('@/core/storage', () => ({
   hydrateStorage: jest.fn(async () => {
     calls.push('storage');

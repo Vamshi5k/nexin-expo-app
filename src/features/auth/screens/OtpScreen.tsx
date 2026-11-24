@@ -4,13 +4,14 @@ import { StyleSheet, View, type TextInputInstance } from 'react-native';
 
 import { getErrorMessage, statusOf } from '@/core/api';
 import { brand } from '@/core/config';
+import { useAction } from '@/core/request';
 import { useTheme } from '@/theme';
 import { Button, Reveal, Text, haptics, toast } from '@/ui';
 
 import { AuthScaffold } from '../components/AuthScaffold';
 import { ChargingIllustration } from '../components/ChargingIllustration';
 import { OtpInput } from '../components/OtpInput';
-import { useRequestOtp, useVerifyOtp } from '../hooks';
+import { useAuth } from '../AuthContext';
 import { CONSUMER_OTP_LENGTH, formatContact, OTP_RESEND_SECONDS } from '../utils';
 import type { ContactType } from '../types';
 
@@ -40,14 +41,15 @@ export function OtpScreen({ type, value }: OtpScreenProps) {
   const [code, setCode] = useState('');
   const [wrong, setWrong] = useState(false);
   const input = useRef<TextInputInstance>(null);
-  const verify = useVerifyOtp();
-  const resend = useRequestOtp();
+  const auth = useAuth();
+  const verify = useAction(auth.verifyOtp);
+  const resend = useAction(auth.requestOtp);
   const countdown = useCountdown(OTP_RESEND_SECONDS);
 
   const submit = async (otp: string) => {
     if (otp.length !== CONSUMER_OTP_LENGTH || verify.isPending) return;
     try {
-      await verify.mutateAsync(otp);
+      await verify.run(otp);
       haptics.success();
     } catch (error) {
       setCode('');
@@ -65,7 +67,7 @@ export function OtpScreen({ type, value }: OtpScreenProps) {
 
   const onResend = async () => {
     try {
-      await resend.mutateAsync(value);
+      await resend.run(value);
       countdown.restart();
       setCode('');
       setWrong(false);

@@ -10,13 +10,14 @@ import Animated, { Easing, FadeIn } from 'react-native-reanimated';
 import { getErrorMessage } from '@/core/api';
 import { brand } from '@/core/config';
 import { log } from '@/core/log';
+import { useAction } from '@/core/request';
 import { useClientConfig } from '@/features/client-config';
 import { useTheme } from '@/theme';
 import { Button, FormInput, Reveal, Text, toast } from '@/ui';
 
 import { AuthScaffold } from '../components/AuthScaffold';
 import { ChargingIllustration } from '../components/ChargingIllustration';
-import { useRequestOtp } from '../hooks';
+import { useAuth } from '../AuthContext';
 import { emailFormSchema, phoneFormSchema, type ContactForm } from '../utils';
 import type { ContactType } from '../types';
 
@@ -43,7 +44,7 @@ export function LoginScreen() {
   const config = useClientConfig();
   const [override, setOverride] = useState<ContactType | null>(null);
   const type: ContactType = config.loginType === 'email' ? 'email' : (override ?? 'phone');
-  const requestOtp = useRequestOtp();
+  const requestOtp = useAction(useAuth().requestOtp);
 
   const form = useForm<ContactForm>({
     resolver: zodResolver(type === 'phone' ? phoneFormSchema : emailFormSchema),
@@ -64,7 +65,7 @@ export function LoginScreen() {
     const value = raw.trim();
     Keyboard.dismiss();
     try {
-      await requestOtp.mutateAsync(value);
+      await requestOtp.run(value);
       router.push({ pathname: '/(auth)/otp', params: { type, value } });
     } catch (error) {
       toast.error(getErrorMessage(error));

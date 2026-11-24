@@ -1,5 +1,5 @@
-export { useBoot, useLogout, useMe } from './hooks';
-export { clearUserDataOnSessionChange } from './hooks';
+export { AuthProvider, useAuth, type UserStatus } from './AuthContext';
+export { useBoot } from './hooks';
 export { GuardedStack } from './components/GuardedStack';
 export { guardRoute, START_HREF, type RouteGroup } from './utils';
 export { BootErrorScreen } from './screens/BootErrorScreen';

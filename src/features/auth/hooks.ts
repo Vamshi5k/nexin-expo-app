@@ -1,28 +1,14 @@
-import {
-  queryOptions,
-  useMutation,
-  useQuery,
-  useQueryClient,
-  type QueryClient,
-} from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
 import type { StoreApi } from 'zustand';
 
 import { statusOf } from '@/core/api';
 import { log } from '@/core/log';
-import { queryKeys } from '@/core/query';
-import { sessionStore, useSession, type SessionMode, type SessionState } from '@/core/session';
+import { sessionStore, type SessionState } from '@/core/session';
 import { hydrateStorage, migrateLegacyStorage } from '@/core/storage';
-import { primeClientConfig } from '@/features/client-config';
-import { fleetLogout, fleetMeQuery } from '@/features/fleet';
+import { usePrimeClientConfig } from '@/features/client-config';
+import { useFleet } from '@/features/fleet';
 
-import { login, logout, toTokens, toUser, userByToken, verify } from './api';
-
-export const meQuery = () =>
-  queryOptions({
-    queryKey: queryKeys.me(),
-    queryFn: async () => toUser(await userByToken()),
-  });
+import { useAuth } from './AuthContext';
 
 export async function restoreSession(): Promise<void> {
   await hydrateStorage();
@@ -63,43 +49,27 @@ export function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
   ]).finally(() => clearTimeout(timer));
 }
 
-export function clearUserData(queryClient: QueryClient): void {
-  const keep = queryKeys.clientConfig()[0];
-  const predicate = (q: { queryKey: readonly unknown[] }) => q.queryKey[0] !== keep;
-  // Cancel first so a response that lands after sign-out can't write the old user back.
-  void queryClient.cancelQueries({ predicate });
-  queryClient.removeQueries({ predicate });
-}
-
-export function clearUserDataOnSessionChange(
-  queryClient: QueryClient,
-  store: StoreApi<SessionState> = sessionStore,
-): () => void {
-  return store.subscribe((state, prev) => {
-    if (state.mode !== prev.mode) clearUserData(queryClient);
-  });
-}
-
 export type BootOutcome = 'ready' | 'error';
 
+export type SessionLoaders = {
+  loadUser: () => Promise<unknown>;
+  loadDriver: () => Promise<unknown>;
+};
+
 export async function checkSession(
-  queryClient: QueryClient,
+  loaders: SessionLoaders,
   timeoutMs = SESSION_CHECK_TIMEOUT_MS,
+  store: StoreApi<SessionState> = sessionStore,
 ): Promise<BootOutcome> {
-  const { mode } = sessionStore.getState();
+  const { mode } = store.getState();
   if (mode === 'none') return 'ready';
   try {
-    const check: Promise<unknown> =
-      mode === 'consumer'
-        ? queryClient.fetchQuery({ ...meQuery(), retry: false })
-        : queryClient.fetchQuery({ ...fleetMeQuery(), retry: false });
-    await withTimeout(check, timeoutMs);
+    await withTimeout(mode === 'consumer' ? loaders.loadUser() : loaders.loadDriver(), timeoutMs);
     return 'ready';
   } catch (error) {
     if (classifySessionError(error) === 'expired') {
       log.info('stored session rejected; signing out', { status: statusOf(error) });
-      await sessionStore.getState().signOut();
-      clearUserData(queryClient);
+      await store.getState().signOut();
       return 'ready';
     }
     log.warn('session check failed; showing retry', { error: String(error) });
@@ -107,51 +77,12 @@ export async function checkSession(
   }
 }
 
-export async function runBoot(queryClient: QueryClient): Promise<BootOutcome> {
+export type BootLoaders = SessionLoaders & { primeConfig: () => Promise<void> };
+
+export async function runBoot(loaders: BootLoaders): Promise<BootOutcome> {
   await restoreSession();
-  await primeClientConfig(queryClient);
-  return checkSession(queryClient);
-}
-
-export function useMe() {
-  const mode = useSession((s) => s.mode);
-  return useQuery({ ...meQuery(), enabled: mode === 'consumer' });
-}
-
-export function useRequestOtp() {
-  return useMutation({ mutationFn: (contact: string) => login(contact) });
-}
-
-export function useVerifyOtp() {
-  return useMutation({
-    mutationFn: async (otp: string) => {
-      const tokens = toTokens(await verify(otp));
-      await sessionStore.getState().signIn('consumer', tokens);
-    },
-  });
-}
-
-export async function serverLogout(mode: SessionMode, accessToken: string | null): Promise<void> {
-  if (mode === 'fleet') await fleetLogout(accessToken);
-  else if (mode === 'consumer') await logout(accessToken);
-}
-
-// Local first (BLUEPRINT: logout always clears locally): the guard sends the user to Login at
-// once, and the best-effort server call runs in the background with the captured token.
-export async function signOutEverywhere(
-  store: StoreApi<SessionState> = sessionStore,
-): Promise<void> {
-  const { mode, tokens } = store.getState();
-  if (mode === 'none') return;
-  await store.getState().signOut();
-  // TODO(phase-charging): disconnect the socket here (BLUEPRINT Profile logout).
-  void serverLogout(mode, tokens?.accessToken ?? null).catch((error: unknown) =>
-    log.warn('server logout failed; session already cleared locally', { error: String(error) }),
-  );
-}
-
-export function useLogout() {
-  return useMutation({ mutationFn: () => signOutEverywhere() });
+  await loaders.primeConfig();
+  return checkSession(loaders);
 }
 
 export type BootState = {
@@ -161,14 +92,16 @@ export type BootState = {
 };
 
 export function useBoot(): BootState {
-  const queryClient = useQueryClient();
+  const primeConfig = usePrimeClientConfig();
+  const { loadUser } = useAuth();
+  const { loadDriver } = useFleet();
   const [status, setStatus] = useState<BootState['status']>('loading');
   const [retrying, setRetrying] = useState(false);
   const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
     let alive = true;
-    void runBoot(queryClient).then((outcome) => {
+    void runBoot({ primeConfig, loadUser, loadDriver }).then((outcome) => {
       if (!alive) return;
       setStatus(outcome);
       setRetrying(false);
@@ -176,7 +109,7 @@ export function useBoot(): BootState {
     return () => {
       alive = false;
     };
-  }, [queryClient, attempt]);
+  }, [primeConfig, loadUser, loadDriver, attempt]);
 
   const retry = useCallback(() => {
     setRetrying(true);

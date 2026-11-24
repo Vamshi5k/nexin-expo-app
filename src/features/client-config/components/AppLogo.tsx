@@ -1,6 +1,6 @@
 import { BrandLogo, type BrandLogoProps } from '@/ui';
 
-import { useClientConfig } from '../hooks';
+import { useClientConfig } from '../ClientConfigContext';
 
 export function AppLogo(props: Omit<BrandLogoProps, 'uri' | 'label'>) {
   const config = useClientConfig();

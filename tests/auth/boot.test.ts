@@ -1,26 +1,12 @@
-import { QueryClient } from '@tanstack/react-query';
 import { AxiosError, AxiosHeaders } from 'axios';
 
-import { queryKeys } from '@/core/query';
-import { sessionStore } from '@/core/session';
-
+import { createSessionStore } from '@/core/session';
+import type { SecureStorage } from '@/core/storage';
 import { BootTimeoutError, checkSession, classifySessionError } from '@/features/auth/hooks';
 
 jest.mock('@/core/log');
-jest.mock('@/features/client-config', () => ({ primeClientConfig: jest.fn() }));
-jest.mock('@/features/auth/api', () => ({
-  ...jest.requireActual('@/features/auth/api'),
-  userByToken: jest.fn(),
-}));
-jest.mock('@/features/fleet', () => ({
-  fleetMeQuery: () => ({ queryKey: ['fleet-me'], queryFn: jest.fn(async () => ({ id: 'f1' })) }),
-}));
-jest.mock('@/core/session', () => {
-  const state = { mode: 'consumer', signOut: jest.fn(async () => undefined) };
-  return { sessionStore: { getState: () => state } };
-});
-
-const { userByToken } = jest.requireMock('@/features/auth/api') as { userByToken: jest.Mock };
+jest.mock('@/features/client-config', () => ({ usePrimeClientConfig: jest.fn() }));
+jest.mock('@/features/fleet', () => ({ useFleet: jest.fn(), fleetLogout: jest.fn() }));
 
 function httpError(status: number) {
   const headers = new AxiosHeaders();
@@ -31,6 +17,29 @@ function httpError(status: number) {
     config: { headers },
     data: {},
   });
+}
+
+function memoryStorage(): SecureStorage {
+  const m = new Map<string, string>();
+  return {
+    get: async (k) => m.get(k) ?? null,
+    set: async (k, v) => void m.set(k, v),
+    remove: async (k) => void m.delete(k),
+  };
+}
+
+async function storeIn(mode: 'none' | 'consumer' | 'fleet') {
+  const store = createSessionStore(memoryStorage());
+  if (mode === 'none') await store.getState().hydrate();
+  else await store.getState().signIn(mode, { accessToken: 'a', refreshToken: 'r' });
+  return store;
+}
+
+function loaders() {
+  return {
+    loadUser: jest.fn(async () => ({ id: '7' })),
+    loadDriver: jest.fn(async () => ({ id: 'f1' })),
+  };
 }
 
 describe('classifySessionError', () => {
@@ -47,56 +56,49 @@ describe('classifySessionError', () => {
 });
 
 describe('checkSession', () => {
-  const state = sessionStore.getState() as unknown as { mode: string; signOut: jest.Mock };
-  let qc: QueryClient;
-
-  beforeEach(() => {
-    // gcTime Infinity: no cache-cleanup timers left running after the test.
-    qc = new QueryClient({ defaultOptions: { queries: { gcTime: Infinity } } });
-    state.mode = 'consumer';
-    state.signOut.mockClear();
-    userByToken.mockReset();
-  });
-
-  afterEach(() => qc.clear());
-
   it('no session -> ready without any request', async () => {
-    state.mode = 'none';
-    await expect(checkSession(qc)).resolves.toBe('ready');
-    expect(userByToken).not.toHaveBeenCalled();
+    const l = loaders();
+    await expect(checkSession(l, 1000, await storeIn('none'))).resolves.toBe('ready');
+    expect(l.loadUser).not.toHaveBeenCalled();
+    expect(l.loadDriver).not.toHaveBeenCalled();
   });
 
-  it('valid consumer session -> ready and the user is cached', async () => {
-    userByToken.mockResolvedValue({ id: 7, isFirstLogin: false });
-    await expect(checkSession(qc)).resolves.toBe('ready');
-    expect(qc.getQueryData(queryKeys.me())).toMatchObject({ id: '7', isFirstLogin: false });
-    expect(state.signOut).not.toHaveBeenCalled();
+  it('valid consumer session -> loads the user, ready', async () => {
+    const l = loaders();
+    const store = await storeIn('consumer');
+    await expect(checkSession(l, 1000, store)).resolves.toBe('ready');
+    expect(l.loadUser).toHaveBeenCalledTimes(1);
+    expect(store.getState().mode).toBe('consumer');
   });
 
-  it('401 -> signs out, keeps client config, ready', async () => {
-    qc.setQueryData(queryKeys.clientConfig(), { brandName: 'x' });
-    userByToken.mockRejectedValue(httpError(401));
-    await expect(checkSession(qc)).resolves.toBe('ready');
-    expect(state.signOut).toHaveBeenCalledTimes(1);
-    expect(qc.getQueryData(queryKeys.clientConfig())).toEqual({ brandName: 'x' });
+  it('fleet session -> loads the driver, not the user', async () => {
+    const l = loaders();
+    await expect(checkSession(l, 1000, await storeIn('fleet'))).resolves.toBe('ready');
+    expect(l.loadDriver).toHaveBeenCalledTimes(1);
+    expect(l.loadUser).not.toHaveBeenCalled();
   });
 
-  it('500 -> error, tokens kept', async () => {
-    userByToken.mockRejectedValue(httpError(500));
-    await expect(checkSession(qc)).resolves.toBe('error');
-    expect(state.signOut).not.toHaveBeenCalled();
+  it('401 -> signs out, ready', async () => {
+    const l = loaders();
+    l.loadUser.mockRejectedValue(httpError(401));
+    const store = await storeIn('consumer');
+    await expect(checkSession(l, 1000, store)).resolves.toBe('ready');
+    expect(store.getState().mode).toBe('none');
   });
 
-  it('timeout -> error, tokens kept', async () => {
-    userByToken.mockImplementation(() => new Promise(() => undefined));
-    await expect(checkSession(qc, 20)).resolves.toBe('error');
-    expect(state.signOut).not.toHaveBeenCalled();
+  it('500 -> error, session kept', async () => {
+    const l = loaders();
+    l.loadUser.mockRejectedValue(httpError(500));
+    const store = await storeIn('consumer');
+    await expect(checkSession(l, 1000, store)).resolves.toBe('error');
+    expect(store.getState().mode).toBe('consumer');
   });
 
-  it('fleet session -> fleet check', async () => {
-    state.mode = 'fleet';
-    await expect(checkSession(qc)).resolves.toBe('ready');
-    expect(userByToken).not.toHaveBeenCalled();
-    expect(qc.getQueryData(['fleet-me'])).toEqual({ id: 'f1' });
+  it('timeout -> error, session kept', async () => {
+    const l = loaders();
+    l.loadUser.mockImplementation(() => new Promise(() => undefined));
+    const store = await storeIn('consumer');
+    await expect(checkSession(l, 20, store)).resolves.toBe('error');
+    expect(store.getState().mode).toBe('consumer');
   });
 });

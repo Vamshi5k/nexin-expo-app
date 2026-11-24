@@ -1,4 +1,4 @@
-import { createStore, useStore } from 'zustand';
+import { createStore, useStore, type StoreApi } from 'zustand';
 
 import type { Tokens } from '@/core/api';
 import { log } from '@/core/log';
@@ -89,6 +89,25 @@ export function createSessionStore(storage: SecureStorage = secure) {
 }
 
 export const sessionStore = createSessionStore();
+
+export type ServerLogout = (
+  mode: Exclude<SessionMode, 'none'>,
+  accessToken: string | null,
+) => Promise<void>;
+
+// Local first (BLUEPRINT: logout always clears locally): guards react at once, and the
+// best-effort server call runs in the background with the token captured before clearing.
+export async function signOutThen(
+  serverLogout: ServerLogout,
+  store: StoreApi<SessionState> = sessionStore,
+): Promise<void> {
+  const { mode, tokens } = store.getState();
+  if (mode === 'none') return;
+  await store.getState().signOut();
+  void serverLogout(mode, tokens?.accessToken ?? null).catch((error: unknown) =>
+    log.warn('server logout failed; session already cleared locally', { error: String(error) }),
+  );
+}
 
 export function useSession<T>(selector: (s: SessionState) => T): T {
   return useStore(sessionStore, selector);
