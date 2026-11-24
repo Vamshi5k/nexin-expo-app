@@ -105,7 +105,11 @@ the driver find, start, watch or pay for a charge.
   contour lines with the heading anchored to its bottom, and a flat surface panel anchored to
   the screen bottom (sheet radius, hairline border, no shadow) holding the form and actions.
   The panel rises with the keyboard (`useAnimatedKeyboard`; edge-to-edge Android never resizes).
-- OTP brand area: 48 pt accentSoft badge, heading, and the contact in a hairline pill.
+- Login and OTP brand areas show `ChargingIllustration`: a flat SVG of an EV plugged into a
+  charger, drawn only from theme tokens (accent station, outlined car on an accentSoft disc).
+  Energy dashes flow along the cable and the battery fills; static under Reduce Motion. It
+  takes the free space and shrinks away when the keyboard is up. OTP shows the contact in a
+  hairline pill under the heading.
 - Onboarding backdrop is `AmbientBackground`: a faint dot grid (borderStrong) that fades out
   by mid screen and drifts down one cell at a time.
 - Login, OTP and boot error use `ContourBackground`: 1 pt topographic contour lines in accent (30% fading to 8%)

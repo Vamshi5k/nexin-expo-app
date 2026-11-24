@@ -1,5 +1,4 @@
 import { router } from 'expo-router';
-import { Mail, MessageSquareText } from 'lucide-react-native';
 import { useEffect, useRef, useState } from 'react';
 import { StyleSheet, View, type TextInputInstance } from 'react-native';
 
@@ -9,6 +8,7 @@ import { useTheme } from '@/theme';
 import { Button, Reveal, Text, haptics, toast } from '@/ui';
 
 import { AuthScaffold } from '../components/AuthScaffold';
+import { ChargingIllustration } from '../components/ChargingIllustration';
 import { OtpInput } from '../components/OtpInput';
 import { useRequestOtp, useVerifyOtp } from '../hooks';
 import { CONSUMER_OTP_LENGTH, formatContact, OTP_RESEND_SECONDS } from '../utils';
@@ -80,24 +80,16 @@ export function OtpScreen({ type, value }: OtpScreenProps) {
     : type === 'phone'
       ? 'your number'
       : 'your email';
-  const Badge = type === 'phone' ? MessageSquareText : Mail;
 
   return (
     <AuthScaffold
       back
       hero={
         <>
-          <Reveal index={0}>
-            <View
-              style={[
-                styles.badge,
-                { backgroundColor: t.colors.accentSoft, borderRadius: t.radius.control },
-              ]}
-            >
-              <Badge color={t.colors.accentText} size={22} strokeWidth={1.75} />
-            </View>
+          <Reveal index={0} style={[styles.art, { marginBottom: t.space[6] }]}>
+            <ChargingIllustration />
           </Reveal>
-          <Reveal index={1} style={{ gap: t.space[2], marginTop: t.space[4] }}>
+          <Reveal index={1} style={{ gap: t.space[2] }}>
             <Text variant="hero" accessibilityRole="header">
               Enter verification code
             </Text>
@@ -185,7 +177,7 @@ export function OtpScreen({ type, value }: OtpScreenProps) {
 const styles = StyleSheet.create({
   help: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap' },
   resend: { minHeight: 44, alignItems: 'center', justifyContent: 'center' },
-  badge: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center' },
+  art: { flex: 1, minHeight: 0 },
   chip: {
     alignSelf: 'flex-start',
     flexDirection: 'row',

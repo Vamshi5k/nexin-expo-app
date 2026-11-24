@@ -15,6 +15,7 @@ import { useTheme } from '@/theme';
 import { Button, FormInput, Reveal, Text, toast } from '@/ui';
 
 import { AuthScaffold } from '../components/AuthScaffold';
+import { ChargingIllustration } from '../components/ChargingIllustration';
 import { useRequestOtp } from '../hooks';
 import { emailFormSchema, phoneFormSchema, type ContactForm } from '../utils';
 import type { ContactType } from '../types';
@@ -73,20 +74,25 @@ export function LoginScreen() {
   return (
     <AuthScaffold
       hero={
-        <Reveal index={0}>
-          <Animated.View
-            key={type}
-            entering={FadeIn.duration(t.motion.duration).easing(Easing.out(Easing.quad))}
-            style={{ gap: t.space[2] }}
-          >
-            <Text variant="hero" accessibilityRole="header">
-              {COPY[type].title}
-            </Text>
-            <Text variant="callout" tone="secondary">
-              {COPY[type].subtitle}
-            </Text>
-          </Animated.View>
-        </Reveal>
+        <>
+          <Reveal index={0} style={[styles.art, { marginBottom: t.space[6] }]}>
+            <ChargingIllustration />
+          </Reveal>
+          <Reveal index={1}>
+            <Animated.View
+              key={type}
+              entering={FadeIn.duration(t.motion.duration).easing(Easing.out(Easing.quad))}
+              style={{ gap: t.space[2] }}
+            >
+              <Text variant="hero" accessibilityRole="header">
+                {COPY[type].title}
+              </Text>
+              <Text variant="callout" tone="secondary">
+                {COPY[type].subtitle}
+              </Text>
+            </Animated.View>
+          </Reveal>
+        </>
       }
       footer={
         <>
@@ -110,7 +116,7 @@ export function LoginScreen() {
         </>
       }
     >
-      <Reveal index={1} style={{ gap: t.space[1] }}>
+      <Reveal index={2} style={{ gap: t.space[1] }}>
         <Animated.View
           key={type}
           entering={FadeIn.duration(t.motion.duration).easing(Easing.out(Easing.quad))}
@@ -180,6 +186,7 @@ function LegalLink({ label, onPress }: { label: string; onPress: () => void }) {
 }
 
 const styles = StyleSheet.create({
+  art: { flex: 1, minHeight: 0 },
   terms: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center' },
   links: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   linkLeft: { marginLeft: -16 },
