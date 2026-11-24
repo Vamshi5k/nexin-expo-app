@@ -33,6 +33,31 @@ export function resolveStartRoute(input: {
   return input.onboardingDone ? 'login' : 'onboarding';
 }
 
+export type RouteGroup = 'auth' | 'setup' | 'app' | 'fleet';
+
+/**
+ * What a route-group layout does. 'redirect' always goes to "/", whose start redirect picks
+ * the right place. 'end-session': a fleet session while the fleet feature is off has no valid
+ * screens, so it is signed out (then "/" sends the user to login).
+ */
+export type GuardDecision = 'allow' | 'redirect' | 'end-session';
+
+export function guardRoute(
+  group: RouteGroup,
+  input: { mode: SessionMode; fleetEnabled: boolean },
+): GuardDecision {
+  switch (group) {
+    case 'auth':
+      return input.mode === 'none' ? 'allow' : 'redirect';
+    case 'setup':
+    case 'app':
+      return input.mode === 'consumer' ? 'allow' : 'redirect';
+    case 'fleet':
+      if (input.mode !== 'fleet') return 'redirect';
+      return input.fleetEnabled ? 'allow' : 'end-session';
+  }
+}
+
 /** firstlogin = 'completed' once onboarding is finished or skipped (never on mount). */
 export const ONBOARDING_DONE_VALUE = 'completed';
 

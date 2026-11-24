@@ -9,3 +9,8 @@ export async function getFleetUserByToken(): Promise<FleetUserDto> {
   if (!data) throw new Error('Fleet user not found');
   return data;
 }
+
+/** Fleet logout is a GET (BLUEPRINT), unlike the consumer POST /auth/logout. */
+export async function fleetLogout(): Promise<void> {
+  await api.get('/fleet/logout');
+}

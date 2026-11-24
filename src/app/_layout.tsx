@@ -12,7 +12,7 @@ import { log } from '@/core/log';
 import { OfflineBanner } from '@/core/network';
 import { PermissionBlockedDialog } from '@/core/permissions';
 import { createQueryClient, wireQueryManagers } from '@/core/query';
-import { BootErrorScreen, useBoot } from '@/features/auth';
+import { BootErrorScreen, clearUserDataOnSessionChange, useBoot } from '@/features/auth';
 import { ThemeProvider, useTheme } from '@/theme';
 import { useBrandFonts } from '@/theme/fonts';
 import { AppToaster } from '@/ui';
@@ -25,6 +25,7 @@ export default function RootLayout() {
   const fonts = useBrandFonts();
 
   useEffect(() => wireQueryManagers(), []);
+  useEffect(() => clearUserDataOnSessionChange(queryClient), []);
 
   useEffect(() => {
     if (fonts.error)

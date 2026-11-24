@@ -2,10 +2,11 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect, useState } from 'react';
 
 import { log } from '@/core/log';
-import { sessionStore, useSession } from '@/core/session';
+import { sessionStore, useSession, type SessionMode } from '@/core/session';
+import { fleetLogout } from '@/features/fleet';
 
 import { login, logout, verify } from './api';
-import { clearUserData, runBoot, type BootOutcome } from './boot';
+import { runBoot, type BootOutcome } from './boot';
 import { toTokens } from './mappers';
 import { meQuery } from './queries';
 
@@ -37,18 +38,26 @@ export function useVerifyOtp() {
   });
 }
 
-/** Best-effort POST /auth/logout; always clears the session and user data locally. */
+/** Server logout for the given session; consumer and fleet use different endpoints. */
+export async function serverLogout(mode: SessionMode): Promise<void> {
+  if (mode === 'fleet') await fleetLogout();
+  else if (mode === 'consumer') await logout();
+}
+
+/**
+ * Best-effort server logout for the active session (consumer POST /auth/logout, fleet
+ * GET /fleet/logout); always signs out locally. User data is dropped by
+ * clearUserDataOnSessionChange.
+ */
 export function useLogout() {
-  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async () => {
       try {
-        await logout();
+        await serverLogout(sessionStore.getState().mode);
       } catch (error) {
         log.warn('logout request failed; clearing locally anyway', { error: String(error) });
       } finally {
         await sessionStore.getState().signOut();
-        clearUserData(queryClient);
       }
     },
   });

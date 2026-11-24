@@ -1,6 +1,13 @@
 import { KV_KEYS, kv } from '@/core/storage';
 
-import { isOnboardingDone, markOnboardingDone, resolveStartRoute } from '../routes';
+import {
+  guardRoute,
+  isOnboardingDone,
+  markOnboardingDone,
+  resolveStartRoute,
+  type GuardDecision,
+  type RouteGroup,
+} from '../routes';
 
 describe('resolveStartRoute (BLUEPRINT A1)', () => {
   it('fleet session -> fleet', () => {
@@ -35,5 +42,27 @@ describe('onboarding flag', () => {
     markOnboardingDone();
     expect(kv.getString(KV_KEYS.firstLogin)).toBe('completed');
     expect(isOnboardingDone()).toBe(true);
+  });
+});
+
+describe('guardRoute', () => {
+  const cases: [RouteGroup, 'none' | 'consumer' | 'fleet', boolean, GuardDecision][] = [
+    ['auth', 'none', false, 'allow'],
+    ['auth', 'consumer', false, 'redirect'],
+    ['auth', 'fleet', true, 'redirect'],
+    ['setup', 'consumer', false, 'allow'],
+    ['setup', 'none', false, 'redirect'],
+    ['setup', 'fleet', true, 'redirect'],
+    // Logged-out deep link (e.g. cruzeev://wallet) must never open a consumer screen.
+    ['app', 'none', true, 'redirect'],
+    ['app', 'fleet', true, 'redirect'],
+    ['app', 'consumer', false, 'allow'],
+    ['fleet', 'fleet', true, 'allow'],
+    ['fleet', 'fleet', false, 'end-session'],
+    ['fleet', 'none', true, 'redirect'],
+    ['fleet', 'consumer', true, 'redirect'],
+  ];
+  it.each(cases)('(%s) with %s session, fleet %s -> %s', (group, mode, fleetEnabled, want) => {
+    expect(guardRoute(group, { mode, fleetEnabled })).toBe(want);
   });
 });

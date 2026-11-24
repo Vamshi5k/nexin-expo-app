@@ -1,10 +1,11 @@
 import type { QueryClient } from '@tanstack/react-query';
+import type { StoreApi } from 'zustand';
 
 import { statusOf } from '@/core/api';
 import { bootstrap } from '@/core/bootstrap';
 import { log } from '@/core/log';
 import { queryKeys } from '@/core/query';
-import { sessionStore } from '@/core/session';
+import { sessionStore, type SessionState } from '@/core/session';
 import { primeClientConfig } from '@/features/client-config';
 import { fleetMeQuery } from '@/features/fleet';
 
@@ -45,6 +46,20 @@ export function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
 export function clearUserData(queryClient: QueryClient): void {
   const keep = queryKeys.clientConfig()[0];
   queryClient.removeQueries({ predicate: (q) => q.queryKey[0] !== keep });
+}
+
+/**
+ * Drops user data whenever the session mode changes (sign in, sign out, refresh 4xx,
+ * expired at start). Without this, a new login could briefly see (and route on) the previous
+ * user's cached data. Returns the unsubscribe function.
+ */
+export function clearUserDataOnSessionChange(
+  queryClient: QueryClient,
+  store: StoreApi<SessionState> = sessionStore,
+): () => void {
+  return store.subscribe((state, prev) => {
+    if (state.mode !== prev.mode) clearUserData(queryClient);
+  });
 }
 
 export type BootOutcome = 'ready' | 'error';
