@@ -2,11 +2,11 @@
 
 Phase numbers follow the project prompts, not BLUEPRINT.md section 7:
 
-| Phase | Scope                                                                          | Blueprint section 7 | Status                   |
-| ----- | ------------------------------------------------------------------------------ | ------------------- | ------------------------ |
-| 0     | Template and white-label brand layer                                           | part of Phase 0     | Done                     |
-| 1     | Foundation (theme, UI kit, core api/session/storage, root layout) + UI refresh | Phase 0             | Done, tag `phase-1-done` |
-| 2     | Client config and consumer auth (A1-A4, A9)                                    | Phase 1             | Next, branch `feat/auth` |
+| Phase | Scope                                                                          | Blueprint section 7 | Status                          |
+| ----- | ------------------------------------------------------------------------------ | ------------------- | ------------------------------- |
+| 0     | Template and white-label brand layer                                           | part of Phase 0     | Done                            |
+| 1     | Foundation (theme, UI kit, core api/session/storage, root layout) + UI refresh | Phase 0             | Done, tag `phase-1-done`        |
+| 2     | Client config and consumer auth (A1-A4, A9)                                    | Phase 1             | In progress, branch `feat/auth` |
 
 ## Phase 0: Template and brand layer (done, 2026-11-23)
 
@@ -107,8 +107,54 @@ component but not polished screen by screen; Cruze EV stays on `appearance: 'lig
 **Note**: expo-blur is native, so existing dev clients must be rebuilt (`npm run ios` /
 `npm run android`).
 
-## Phase 2: Client config and consumer auth (next)
+## Phase 2: Client config and consumer auth (in progress, branch `feat/auth`)
 
-Branch `feat/auth`. Scope: `/client/info` with cache, route groups and guards, boot/splash
-(A1), onboarding (A2), login (A3), OTP (A4), boot error screen (A9 style), logout. Plan
-pending approval.
+Scope: `/client/info` with cache, route groups and guards, boot/splash (A1), onboarding (A2),
+login (A3), OTP (A4), boot error screen (A9 style), logout.
+
+**Built**
+
+- Brand schema: `apiAppName` (default: `appName` without spaces), `phoneCountryCode`,
+  `phonePlaceholder`.
+- `client-config` feature: `GET /client/info` -> `ClientConfig` mapper, MMKV cache, brand
+  fallbacks, `primeClientConfig` at boot (waits up to 8 s only when there is no cache, never
+  blocks), runtime `AppLogo`.
+- `auth` feature: api, mappers, zod schemas, OTP helpers, `OtpInput` (one hidden TextInput for
+  iOS/Android autofill), hooks (`useMe`, `useRequestOtp`, `useVerifyOtp`, `useLogout`,
+  `useBoot`), `resolveStartRoute`, screens (Onboarding, Login, Otp, BootError, StartRedirect,
+  TempHome). Public surface in `src/features/auth/index.ts`.
+- `fleet` feature skeleton: `fleetMeQuery` and mapper (used by the boot session check).
+- Route groups in `src/app` (thin files):
+  - `index.tsx` -> StartRedirect (Phase 1 placeholder home removed).
+  - `(auth)`: onboarding, login, otp; a signed-in session is sent to `/`.
+  - `(setup)`: consumer session only; `profile` placeholder with Log out.
+  - `(app)`: consumer session only; `(tabs)` with Home (TempHome + Log out) and a Wallet stub.
+  - `(fleet)`: fleet session only; ends the session if `features.fleet` is off; `fleet/index`
+    placeholder with Log out.
+  - Logged-out deep links into `(app)` (e.g. `cruzeev-dev://wallet`) land on `/` -> login.
+- Root layout runs `useBoot` while the splash is held: legacy migration, session hydrate,
+  client config, session check (25 s timeout). Expired session -> signed out -> login;
+  network/5xx/timeout -> BootErrorScreen with Try Again (tokens kept).
+- `/dev/ui` and `/dev/cookie-check` still work and still redirect to `/` in production.
+
+**Verified**: `tsc --noEmit`, `expo lint`, `jest` (24 suites, 154 tests) all pass.
+Not yet verified on a device against staging (needs a test number, see open questions).
+
+**Deviations**
+
+- Root layout now uses `useBoot` (was `bootstrap()` only) so the A1 session check and boot
+  error screen run.
+- The "Fleet Login" link on Login is hidden until `(auth)/fleet-login` exists (fleet phase).
+- `(app)/(tabs)` has only Home and Wallet for now; Home is a temporary signed-in screen.
+- A stored fleet session with `features.fleet` off is signed out (it has no valid screens).
+
+**Left in Phase 2**
+
+- Real-device run of onboarding -> login -> OTP -> home against staging (OPEN_QUESTIONS #9
+  Part B, #10).
+- Decide the `/auth/app/verify` `appName` value (OPEN_QUESTIONS #11).
+- Remove the temporary `/dev/cookie-check` route once #9 Part B passes.
+- Tests for the route guards (currently covered by `resolveStartRoute` unit tests only).
+
+**Open questions still open**: #9 Part B (staging cookie), #10 (test OTP / number), #11
+(`appName`). See `docs/OPEN_QUESTIONS.md`.
