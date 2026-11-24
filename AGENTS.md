@@ -39,16 +39,20 @@ Install native deps with `npx expo install`, never plain npm, so versions match 
 ## Architecture rules
 
 1. app/\*_ are thin route files: read params, render a screen from src/features/_/screens. No fetching.
-2. api.ts: endpoint calls + DTO -> domain model mapping. The only place endpoint strings
-   appear. Components never see raw API shapes.
-3. hooks.ts: feature logic that needs React or the session. Screens load data with
-   `useRequest` and run writes with `useAction` (src/core/request.ts) around api.ts calls;
-   session-wide state comes from the feature contexts (`useAuth`, `useFleet`, `useClientConfig`).
-4. utils.ts: the feature's pure logic (formatters, schemas, routing rules).
+2. api.ts: every network call, and nothing else. The only place endpoint strings appear.
+   Each call returns a domain model; its DTO mapper (`toUser`, `toFleetUser`, ...) sits
+   next to it and is exported only for tests. Components never see raw API shapes.
+3. hooks.tsx: all feature logic and state: the context provider (if any), screen hooks
+   (`useLoginForm`, `useOtpForm`), side effects. Screens call these hooks and stay UI only.
+   Load data with `useRequest`, run writes with `useAction`, and keep per-account data
+   (user, driver) in `useSessionData` (all in src/core/request.ts).
+4. <topic>.ts (optional): pure rules that need no React, e.g. auth/session.ts (schemas,
+   routing rules, boot steps). No React or src/ui imports, so tests load it directly.
 5. Zustand = client state only (the token store in src/core/session.ts, filters). Server data
    lives in the contexts (user, driver, client config) or in a screen's `useRequest`. Contexts
    reset on every session change and drop responses for the previous session.
-6. Pure logic (pricing, QR parsing, status maps, formatters) is tested in tests/.
+6. Pure logic (pricing, QR parsing, status maps, formatters, mappers) is tested in tests/.
+   Logic tests import api.ts mappers and <topic>.ts files directly.
 7. Features import each other only via index.ts. src/ui and src/core never import src/features.
 8. Money is computed in paise (integers). Format only at render time.
 9. No `any` in api/hooks. No console.\* in committed code (use src/core/log.ts).
@@ -60,10 +64,16 @@ Keep it small and feature-based:
 
 ```
 src/app/                 thin route files
-src/core/*.ts            flat files: api, config, log, network, permissions, query, session, storage
+src/core/*.ts            flat files: api, config, log, network, permissions, request, session, storage
 src/features/<f>/
-  screens/  components/  api.ts  hooks.ts  types.ts  utils.ts  index.ts
-  <Name>Context.tsx       only for session-wide state (auth, fleet, client-config)
+  screens/       UI only: layout, styling, wiring to hooks. No API calls, no logic.
+  components/    UI pieces used only by this feature.
+  api.ts         network calls (+ their DTO mappers)
+  hooks.tsx      logic and state: context, screen hooks, side effects
+  <topic>.ts     optional pure rules with no React/UI imports (auth/session.ts)
+  constants.ts   static data: copy, timeouts, lengths, route hrefs. No UI imports.
+  types.ts       DTOs, models, unions
+  index.ts       public exports; src/app and other features import only from here
 src/ui/  src/theme/      design system
 tests/<area>/*.test.ts   all tests live here, importing via @/ aliases
 ```

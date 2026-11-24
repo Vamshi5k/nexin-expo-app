@@ -591,7 +591,7 @@ Runtime from /client/info: brand name, logo, legal and support URLs, login type,
 
 ## 6. Proposed clean Expo architecture
 
-Use a feature-first layout: Expo Router files in app/ are thin route shells, and all logic lives in src/features/<feature>/ with a fixed internal shape (api → mappers → hooks → components → screen). Shared infrastructure sits in src/core/ and the design system in src/ui/.
+Use a feature-first layout: Expo Router files in app/ are thin route shells, and all logic lives in src/features/<feature>/ with a fixed internal shape (types → api → hooks → components → screens; see AGENTS.md "Folder layout"). Shared infrastructure sits in src/core/ and the design system in src/ui/.
 
 ### Folder structure
 
@@ -625,26 +625,26 @@ app/                                  # Expo Router: routes only, no logic
     fleet/profile.tsx  fleet/profile-edit.tsx
 
 src/
-  core/
-    config/      env.ts (from expo-constants extra), brand.ts
-    api/         client.ts, refresh.ts, envelope.ts, errors.ts
-    query/       query-client.ts, keys.ts
-    socket/      socket.ts, useSocketEvent.ts
-    storage/     secure.ts, kv.ts, migrate-legacy.ts
-    session/     session.store.ts (zustand: mode, tokens, user)
-    notifications/ push.ts, channels.ts, routing.ts
-    permissions/ permissions.ts, PermissionBlockedDialog.tsx
-    network/     useOnline.ts, OfflineBanner.tsx
+  core/          flat files, one per concern:
+    api.ts          axios client, 401 refresh queue, envelope and error helpers
+    config.ts       env (from expo-constants extra) and brand
+    log.ts  network.tsx (useOnline, OfflineBanner)  permissions.tsx
+    request.ts      useRequest, useAction, useSessionData
+    session.ts      zustand token store (mode, tokens), signOutThen
+    storage.ts      SecureStore, MMKV kv (AsyncStorage fallback in Expo Go), legacy migration
+    # later phases: socket.ts, notifications.ts
   features/
-    auth/        api.ts  hooks.ts  schemas.ts  screens/  components/OtpInput.tsx
-    client-config/ api.ts  useClientConfig.ts
-    stations/    api.ts  types.ts  mappers.ts  hooks.ts  screens/  components/
-    charging/    api.ts  types.ts  pricing.ts  qr.ts  hooks.ts  screens/  components/
-    wallet/      api.ts  razorpay.ts  hooks.ts  screens/  components/
-    vehicles/    api.ts  schemas.ts  hooks.ts  screens/  components/VehicleForm/
-    profile/     api.ts  hooks.ts  screens/  components/
-    notifications/ api.ts  hooks.ts  screens/
-    fleet/       api.ts  types.ts  mappers.ts  hooks.ts  screens/  components/
+    # every feature: screens/ components/ api.ts hooks.tsx constants.ts types.ts index.ts
+    # plus an optional <topic>.ts for pure rules with no React/UI imports
+    auth/          + session.ts (schemas, routing rules, boot steps)
+    client-config/
+    stations/
+    charging/      + pricing.ts  qr.ts
+    wallet/        + razorpay.ts
+    vehicles/
+    profile/
+    notifications/
+    fleet/
   ui/            Text, Button, Input, Card, Sheet, Dialog, Skeleton, EmptyState,
                  Tabs, Screen, Header, Badge, Toast, ConnectorIcon
   theme/         tokens.ts (colors, spacing, radius, typography)
@@ -654,11 +654,11 @@ src/
 ### Layer rules
 
 1.  Route files (app/**) only read params and render a screen from features/*/screens. No fetching, no state.
-2.  api.ts holds plain typed functions that call client and return unwrapped DTOs. One file per feature; no endpoint strings anywhere else.
-3.  mappers.ts turns DTOs into the domain models the UI uses (e.g. Station, Session, Transaction). Components never touch raw API shapes, so backend quirks (charginDuration, pagination.page vs currentPage, capacity as number or object) are fixed in one place.
-4.  hooks.ts wraps api + mappers with `useRequest` / `useAction` (useStations, useStartCharging). Screens consume only hooks and contexts.
+2.  api.ts holds every network call and nothing else; no endpoint strings anywhere else. Each call returns a domain model (Station, Session, Transaction) through a DTO mapper that sits next to it, so backend quirks (charginDuration, pagination.page vs currentPage, capacity as number or object) are fixed in one place and components never touch raw API shapes.
+3.  hooks.tsx holds the feature's logic and state: its context provider if it has session-wide data, screen hooks built on `useRequest` / `useAction` / `useSessionData` (src/core/request.ts), and side effects. Screens are UI only and call these hooks.
+4.  constants.ts holds static data (copy, timeouts, lengths, route hrefs) and imports no UI; types.ts holds DTOs, models and unions.
 5.  Zustand holds only client state: the token store (mode consumer | fleet | none, tokens) and filters. The user, fleet driver and client config live in AuthContext, FleetContext and ClientConfigContext.
-6.  Pure logic (pricing maths, QR parsing, status mapping, formatters) lives in plain .ts files with unit tests.
+6.  Pure logic (pricing maths, QR parsing, status mapping, formatters) lives in a topic-named .ts file in the feature (charging/pricing.ts, auth/session.ts) with no React or UI imports, and has unit tests.
 7.  Features import each other only through their index.ts; ui/ and core/ never import from features/.
 
 ### Key code skeletons
@@ -692,45 +692,44 @@ export const toPage = <T>(res: any): Page<T> => ({
 
 ```ts
 // src/features/stations/api.ts
-export const stationsApi = {
-  nearby: (p: NearbyParams) =>
-    client.get('/station', { params: toNearbyQuery(p) }).then(toPage<StationDto>),
-  details: (id: string) => client.get(`/station/${id}`).then(unwrap<StationDetailDto>),
-  toggleFavourite: (id: string, isFavourite: boolean) =>
-    client.post(`/station/favourites/${id}`, { isFavourite }),
-};
+export async function getNearbyStations(p: NearbyParams): Promise<Page<Station>> {
+  const res = await api.get<Envelope<PageDto<StationDto>>>('/station', { params: toNearbyQuery(p) });
+  return toPage(unwrap(res), toStation);
+}
 
-// src/features/stations/hooks.ts
-export const useNearbyStations = (p: Omit<NearbyParams, 'page'>) =>
-  useInfiniteQuery({
-    queryKey: keys.stations.nearby(p),
-    queryFn: ({ pageParam = 1 }) => stationsApi.nearby({ ...p, page: pageParam }),
-    getNextPageParam: (last) => (last.page < last.totalPages ? last.page + 1 : undefined),
-    select: (d) => d.pages.flatMap((pg) => pg.items.map(mapStation)),
-  });
+export async function setFavourite(id: string, isFavourite: boolean): Promise<void> {
+  await api.post(`/station/favourites/${id}`, { isFavourite });
+}
+
+// src/features/stations/hooks.tsx
+export function useNearbyStations(p: NearbyParams) {
+  const load = useCallback(() => getNearbyStations(p), [p]);
+  return useRequest(load); // { data, error, loading, refetch } for skeleton / Retry / empty
+}
 ```
 
 #### Route guard
 
-```ts
-// app/(app)/_layout.tsx
+```tsx
+// src/app/(app)/_layout.tsx: every group layout is one line
 export default function AppLayout() {
-  const mode = useSession((s) => s.mode);
-  useUserSocket(mode === 'consumer');  // hooks before any early return
-  if (mode !== 'consumer') return <Redirect href="/login" />;
-  return <Stack screenOptions={{ headerShown: false }} />;
+  return <GuardedStack group="app" />;
 }
+// GuardedStack (auth/components) calls useRouteGuard -> guardRoute (auth/session.ts):
+// allow -> <Stack />, redirect -> <Redirect href="/" />, end-session -> sign out.
 ```
 
-#### Live session via socket + query
+#### Live session via socket + request
 
 ```ts
+// src/features/charging/hooks.tsx
 export function useLiveSession(sessionId: string) {
-  const q = useQuery({ queryKey: keys.session(sessionId), queryFn: () => chargingApi.running(sessionId) });
+  const load = useCallback(() => getRunningSession(sessionId), [sessionId]);
+  const session = useRequest(load);
   useSocketRoom(sessionId);
-  useSocketEvent('meterValue', () => q.refetch());
+  useSocketEvent('meterValue', () => void session.refetch());
   useSocketEvent('StopTransaction', () => router.replace(`/charging/${sessionId}/complete`));
-  return q;
+  return session;
 }
 ```
 
@@ -743,7 +742,7 @@ export function useLiveSession(sessionId: string) {
 
 ## 7. Build order
 
-Build in 10 phases, each ending with something you can run on a device. Every feature phase follows the same loop: types → api.ts → mappers → hooks → UI components → screen → compare side by side with the old app.
+Build in 10 phases, each ending with something you can run on a device. Every feature phase follows the same loop: types.ts → api.ts (calls + mappers) → constants.ts / <topic>.ts → hooks.tsx → components → screens → compare side by side with the old app.
 
 ### Phase 0: Foundation
 
