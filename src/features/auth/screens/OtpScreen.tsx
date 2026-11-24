@@ -23,7 +23,10 @@ export function OtpScreen({ type, value }: OtpScreenProps) {
       back
       hero={
         <>
-          <Reveal index={0} style={[styles.art, { marginBottom: t.space[6] }]}>
+          <Reveal
+            index={0}
+            style={[styles.art, { marginBottom: t.space[6], marginRight: -t.layout.screenPadding }]}
+          >
             <ChargingIllustration />
           </Reveal>
           <Reveal index={1} style={{ gap: t.space[2] }}>
