@@ -23,7 +23,9 @@ src/features/<feature>/
 | 3 | `32a7e6e` | `useSessionData` in `src/core/request.ts` (status + generation counter + reset on session change), used by Auth and Fleet; fleet on the new layout (`hooks.tsx`, `constants.ts`, `getDriver()` returns a model) |
 | 4 | `8386398` | client-config on the new layout: `hooks.tsx` (provider + cache helpers), `constants.ts`, `getClientConfig()` returns a model |
 | 5 | `dcf7696` | AGENTS.md, BLUEPRINT.md section 6 and this file describe the layout as built |
-| 6 | (this commit) | `@testing-library/react-native` + 3 flow tests: login submit, OTP wrong code, logout redirect (through the real router) |
+| 6 | `e7ea5a8` | `@testing-library/react-native` + 3 flow tests: login submit, OTP wrong code, logout redirect (through the real router) |
+| fix | (see log) | Login legal line read "Termsand Privacy": the refactor dropped two `{' '}` spaces; restored |
+| UI | (see log) | Charging illustration: bigger (tight viewBox, full width), charge ring on the pillar, two cable pulses |
 
 Sizes now: auth `hooks.tsx` 309 lines, `session.ts` 159; fleet `hooks.tsx` 43; client-config
 `hooks.tsx` 92.
