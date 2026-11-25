@@ -2,7 +2,7 @@ import { AxiosError, AxiosHeaders } from 'axios';
 
 import { createSessionStore } from '@/core/session';
 import type { SecureStorage } from '@/core/storage';
-import { BootTimeoutError, checkSession, classifySessionError } from '@/features/auth/session';
+import { bootTimeoutError, checkSession, classifySessionError } from '@/features/auth/session';
 
 jest.mock('@/core/log');
 jest.mock('@/features/client-config', () => ({ usePrimeClientConfig: jest.fn() }));
@@ -51,7 +51,7 @@ describe('classifySessionError', () => {
   });
   it('network errors and timeouts -> retryable', () => {
     expect(classifySessionError(new AxiosError('Network Error', 'ERR_NETWORK'))).toBe('retryable');
-    expect(classifySessionError(new BootTimeoutError())).toBe('retryable');
+    expect(classifySessionError(bootTimeoutError())).toBe('retryable');
   });
 });
 

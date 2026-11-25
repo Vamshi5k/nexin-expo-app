@@ -119,19 +119,15 @@ export function classifySessionError(error: unknown): 'expired' | 'retryable' {
   return 'retryable';
 }
 
-export class BootTimeoutError extends Error {
-  constructor() {
-    super('Session check timed out');
-    this.name = 'BootTimeoutError';
-  }
-}
+export const bootTimeoutError = (): Error =>
+  Object.assign(new Error('Session check timed out'), { name: 'BootTimeoutError' });
 
 function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
   let timer: ReturnType<typeof setTimeout> | undefined;
   return Promise.race([
     promise,
     new Promise<never>((_, reject) => {
-      timer = setTimeout(() => reject(new BootTimeoutError()), ms);
+      timer = setTimeout(() => reject(bootTimeoutError()), ms);
     }),
   ]).finally(() => clearTimeout(timer));
 }

@@ -1,7 +1,7 @@
 import { AxiosError, type AxiosResponse, type InternalAxiosRequestConfig } from 'axios';
 
 import { nextPage, toPage, unwrap, type Envelope } from '@/core/api';
-import { ApiError, getErrorMessage, statusOf, toApiError } from '@/core/api';
+import { getErrorMessage, isApiError, statusOf, toApiError } from '@/core/api';
 
 function res<T>(data: Envelope<T>): AxiosResponse<Envelope<T>> {
   return {
@@ -70,7 +70,8 @@ describe('errors', () => {
     expect(toApiError(new AxiosError('Network Error', 'ERR_NETWORK', config))).toMatchObject({
       kind: 'network',
     });
-    expect(new ApiError('x', 'http', 422).isClientError).toBe(true);
+    expect(isApiError(toApiError(httpError(422, {})))).toBe(true);
+    expect(isApiError(new Error('x'))).toBe(false);
     expect(statusOf(httpError(429, {}))).toBe(429);
   });
 });

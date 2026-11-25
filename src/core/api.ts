@@ -14,23 +14,19 @@ import { sessionStore } from '@/core/session';
 
 export type ApiErrorKind = 'http' | 'network' | 'timeout' | 'unknown';
 
-export class ApiError extends Error {
-  readonly kind: ApiErrorKind;
-  readonly status?: number;
-  readonly data?: unknown;
+export type ApiError = Error & { kind: ApiErrorKind; status?: number; data?: unknown };
 
-  constructor(message: string, kind: ApiErrorKind, status?: number, data?: unknown) {
-    super(message);
-    this.name = 'ApiError';
-    this.kind = kind;
-    this.status = status;
-    this.data = data;
-  }
-
-  get isClientError(): boolean {
-    return this.status !== undefined && this.status >= 400 && this.status < 500;
-  }
+export function apiError(
+  message: string,
+  kind: ApiErrorKind,
+  status?: number,
+  data?: unknown,
+): ApiError {
+  return Object.assign(new Error(message), { name: 'ApiError', kind, status, data });
 }
+
+export const isApiError = (error: unknown): error is ApiError =>
+  error instanceof Error && error.name === 'ApiError';
 
 function messageFromData(data: unknown): string | undefined {
   if (data && typeof data === 'object' && 'message' in data) {
@@ -52,20 +48,20 @@ export function getErrorMessage(
 }
 
 export function toApiError(error: unknown): ApiError {
-  if (error instanceof ApiError) return error;
+  if (isApiError(error)) return error;
   if (isAxiosError(error)) {
     const message = getErrorMessage(error);
     if (error.response)
-      return new ApiError(message, 'http', error.response.status, error.response.data);
+      return apiError(message, 'http', error.response.status, error.response.data);
     if (error.code === 'ECONNABORTED' || error.code === 'ETIMEDOUT')
-      return new ApiError(message, 'timeout');
-    return new ApiError(message, 'network');
+      return apiError(message, 'timeout');
+    return apiError(message, 'network');
   }
-  return new ApiError(getErrorMessage(error), 'unknown');
+  return apiError(getErrorMessage(error), 'unknown');
 }
 
 export function statusOf(error: unknown): number | undefined {
-  if (error instanceof ApiError) return error.status;
+  if (isApiError(error)) return error.status;
   if (isAxiosError(error)) return error.response?.status;
   return undefined;
 }
