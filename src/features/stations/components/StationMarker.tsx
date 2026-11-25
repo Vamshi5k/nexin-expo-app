@@ -44,8 +44,8 @@ const StationMarker = ({ pin, selected, onPress }: StationMarkerProps) => {
   }, [look]);
 
   const ring = t.space[1] / 2;
-  const tile = selected ? t.space[10] + t.space[1] : t.space[8] + t.space[1];
-  const tail = t.space[2];
+  const tile = selected ? t.space[8] : t.space[6];
+  const tail = t.space[1] + t.space[1] / 2;
   const width = tile + ring * 2;
   const height = width + tail;
   const corner = tile * CORNER_RATIO;

@@ -86,8 +86,8 @@ the driver find, start, watch or pay for a charge.
   and a pin in the nearby list takes the card's status so the two always match.
 - Map pins: a rounded-square tile (corner 30% of its size) in the station's status colour with a
   soft surface-to-clear diagonal gradient, a surface ring, a filled bolt and a short pointer,
-  all drawn in one SVG so Android's marker snapshot always includes the icon. 36 pt at rest,
-  44 pt when selected. Bolt ink uses `onConnector`, picked by contrast.
+  all drawn in one SVG so Android's marker snapshot always includes the icon. 25 pt at rest,
+  33 pt when selected. Bolt ink uses `onConnector`, picked by contrast.
 - Nearby station cards on the map: one surface with a soft vertical gradient of the station's
   status colour fading to white (`CardGradient`, an exception to the no-gradient rule chosen
   for this card), dark text, a white status pill and a "⚡ 60 kW" pill, the name (up to two
