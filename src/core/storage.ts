@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { isRunningInExpoGo } from 'expo';
 import Constants from 'expo-constants';
 import * as SecureStore from 'expo-secure-store';
 
@@ -38,8 +39,9 @@ type SyncStore = {
   hydrate: () => Promise<void>;
 };
 
-// ExecutionEnvironment.StoreClient; compared by value so test mocks of expo-constants still work.
-export const isExpoGo = (Constants?.executionEnvironment as string | undefined) === 'storeClient';
+// Android Expo Go 58.0.5 reports executionEnvironment "bare", so also ask expo directly.
+export const isExpoGo =
+  (Constants?.executionEnvironment as string | undefined) === 'storeClient' || isRunningInExpoGo();
 
 function mmkvStore(): SyncStore {
   // Required lazily so Expo Go never loads the Nitro native module.
