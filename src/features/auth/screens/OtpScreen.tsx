@@ -6,7 +6,7 @@ import { useTheme } from '@/theme';
 import { Button, Reveal, Text } from '@/ui';
 
 import { AuthScaffold } from '../components/AuthScaffold';
-import { ChargingIllustration, ILLUSTRATION_MIN_HEIGHT } from '../components/ChargingIllustration';
+import { ChargingIllustration } from '../components/ChargingIllustration';
 import { OtpInput } from '../components/OtpInput';
 import { useOtpForm } from '../hooks';
 import type { ContactType } from '../types';
@@ -23,7 +23,10 @@ export function OtpScreen({ type, value }: OtpScreenProps) {
       back
       hero={
         <>
-          <Reveal index={0} style={[styles.art, { marginBottom: t.space[6] }]}>
+          <Reveal
+            index={0}
+            style={[styles.art, { marginBottom: t.space[6], marginRight: -t.layout.screenPadding }]}
+          >
             <ChargingIllustration />
           </Reveal>
           <Reveal index={1} style={{ gap: t.space[2] }}>
@@ -111,7 +114,7 @@ export function OtpScreen({ type, value }: OtpScreenProps) {
 const styles = StyleSheet.create({
   help: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap' },
   resend: { minHeight: 44, alignItems: 'center', justifyContent: 'center' },
-  art: { flex: 1, minHeight: ILLUSTRATION_MIN_HEIGHT },
+  art: { flex: 1, minHeight: 0 },
   chip: {
     alignSelf: 'flex-start',
     flexDirection: 'row',

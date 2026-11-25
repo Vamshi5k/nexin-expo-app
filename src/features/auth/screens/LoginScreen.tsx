@@ -7,7 +7,7 @@ import { useTheme } from '@/theme';
 import { Button, FormInput, Reveal, Text } from '@/ui';
 
 import { AuthScaffold } from '../components/AuthScaffold';
-import { ChargingIllustration, ILLUSTRATION_MIN_HEIGHT } from '../components/ChargingIllustration';
+import { ChargingIllustration } from '../components/ChargingIllustration';
 import { LegalLink } from '../components/LegalLink';
 import { useLoginForm } from '../hooks';
 
@@ -20,7 +20,10 @@ export function LoginScreen() {
     <AuthScaffold
       hero={
         <>
-          <Reveal index={0} style={[styles.art, { marginBottom: t.space[6] }]}>
+          <Reveal
+            index={0}
+            style={[styles.art, { marginBottom: t.space[6], marginRight: -t.layout.screenPadding }]}
+          >
             <ChargingIllustration />
           </Reveal>
           <Reveal index={1}>
@@ -114,7 +117,7 @@ export function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-  art: { flex: 1, minHeight: ILLUSTRATION_MIN_HEIGHT },
+  art: { flex: 1, minHeight: 0 },
   terms: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center' },
   links: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   linkLeft: { marginLeft: -16 },

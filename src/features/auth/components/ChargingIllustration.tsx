@@ -1,243 +1,211 @@
-import { BatteryCharging, PlugZap } from 'lucide-react-native';
-import { useEffect, useState } from 'react';
-import { StyleSheet, View, type LayoutChangeEvent } from 'react-native';
+import { useEffect } from 'react';
+import { StyleSheet, View } from 'react-native';
 import Animated, {
   Easing,
-  FadeOut,
-  ZoomIn,
+  FadeIn,
   useAnimatedProps,
-  useAnimatedStyle,
   useReducedMotion,
   useSharedValue,
-  withDelay,
   withRepeat,
   withSequence,
   withTiming,
-  type SharedValue,
 } from 'react-native-reanimated';
-import Svg, { Circle, G, Path } from 'react-native-svg';
+import Svg, { Circle, Path, Rect } from 'react-native-svg';
 
 import { useTheme } from '@/theme';
+import { useKeyboardOpen } from '@/ui';
 
+const AnimatedPath = Animated.createAnimatedComponent(Path);
+const AnimatedRect = Animated.createAnimatedComponent(Rect);
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
-export const ILLUSTRATION_MIN_HEIGHT = 56;
-const FULL_MIN = 160;
-const FULL_MAX = 280;
-const PILLS_MIN = 210;
+// The car is drawn past the right edge (x > 360): the viewBox crops its rear half on purpose.
+const VIEW_BOX = '0 30 360 150';
 
-// Everything is drawn in a 240 box centred on (120, 120).
-const C = 120;
-const BOLT = 'M127 82 L101 126 H120 L112 158 L140 112 H121 Z';
-const TICKS = Array.from({ length: 60 }, (_, i) => {
-  const a = (i * 6 * Math.PI) / 180;
-  const inner = i % 5 === 0 ? 86 : 91;
-  const p = (r: number) => `${C + Math.sin(a) * r} ${C - Math.cos(a) * r}`;
-  return `M${p(inner)} L${p(97)}`;
-}).join(' ');
+const CABLE = 'M99 136 C112 172 160 178 178 160 C188 150 191 136 196 130';
+const PULSE = { dash: 9, gap: 60 };
+const RING = { cx: 65, cy: 91, r: 9 };
+const RING_LENGTH = 2 * Math.PI * RING.r;
+const LED = 46;
+const BAR = 50;
 
-type Box = { width: number; height: number };
+// Side profile facing left (nose at the charger). Sill at y=152, front arch around the wheel.
+const BODY =
+  'M172 148 C168 142 168 133 172 128 C177 122 187 119 199 118 L252 112 C268 97 287 85 311 81 L430 78 V152 H251 A29 29 0 0 0 193 152 H180 C175 152 172 151 172 148 Z';
+const SIDE_GLASS = 'M263 111 C277 99 293 90 313 87 L370 86 V111 Z';
+const MIRROR = 'M250 112 L258 105 H266 L263 112 Z';
+const WHEELS = [222, 400];
+const SPOKES = [0, 72, 144, 216, 288];
 
+const BOLT_SCREEN = 'M66.5 85 L61.5 92 H65.5 L64.5 97 L69.5 90 H65.5 Z';
+const BOLT_CHIP = 'M227.5 54 L221 63 H226 L224.5 68 L231 59 H226 Z';
+
+// Hidden while the keyboard is up, so the form gets the space.
 export function ChargingIllustration() {
   const t = useTheme();
-  const reduceMotion = useReducedMotion();
-  const charge = useSharedValue(reduceMotion ? 0.82 : 0.12);
-  const spin = useSharedValue(0);
-  const float = useSharedValue(0.5);
-  const [box, setBox] = useState<Box | null>(null);
-
-  useEffect(() => {
-    if (reduceMotion) return;
-    charge.set(
-      withRepeat(
-        withSequence(
-          withTiming(0.92, { duration: 3400, easing: Easing.inOut(Easing.cubic) }),
-          withDelay(900, withTiming(0.12, { duration: 0 })),
-        ),
-        -1,
-      ),
-    );
-    spin.set(withRepeat(withTiming(1, { duration: 14000, easing: Easing.linear }), -1));
-    float.set(
-      withRepeat(withTiming(1, { duration: 2400, easing: Easing.inOut(Easing.sin) }), -1, true),
-    );
-  }, [charge, spin, float, reduceMotion]);
-
-  // Keyboard animation resizes this box every frame; only re-render on 8 pt steps.
-  const onLayout = (e: LayoutChangeEvent) => {
-    const width = e.nativeEvent.layout.width;
-    const height = Math.floor(e.nativeEvent.layout.height / 8) * 8;
-    if (box?.width !== width || box?.height !== height) setBox({ width, height });
-  };
-
-  const full = box !== null && box.height >= FULL_MIN;
-  const size = box ? Math.min(box.height, box.width * 0.78, FULL_MAX) : 0;
-
+  const keyboardOpen = useKeyboardOpen();
+  if (keyboardOpen) return null;
   return (
-    <View
-      style={[styles.wrap, full ? styles.center : styles.start]}
-      onLayout={onLayout}
-      accessible
-      accessibilityRole="image"
-      accessibilityLabel="Electric vehicle charging"
-    >
-      {box === null ? null : full ? (
-        <Animated.View
-          key="full"
-          entering={ZoomIn.duration(t.motion.durationSlow)}
-          exiting={FadeOut.duration(t.motion.duration)}
-          style={{ width: size, height: size }}
-        >
-          <Orbit spin={spin} />
-          <Dial charge={charge} />
-          {size >= PILLS_MIN ? <Pills size={size} float={float} charge={charge} /> : null}
-        </Animated.View>
-      ) : (
-        <Animated.View
-          key="compact"
-          entering={ZoomIn.duration(t.motion.duration)}
-          exiting={FadeOut.duration(t.motion.duration)}
-          style={styles.compact}
-        >
-          <Dial charge={charge} compact />
-        </Animated.View>
-      )}
-    </View>
-  );
-}
-
-function Dial({ charge, compact }: { charge: SharedValue<number>; compact?: boolean }) {
-  const c = useTheme().colors;
-  const r = compact ? 96 : 76;
-  const stroke = compact ? 24 : 14;
-  const length = 2 * Math.PI * r;
-  const arc = useAnimatedProps(() => ({ strokeDashoffset: length * (1 - charge.value) }));
-
-  return (
-    <Svg width="100%" height="100%" viewBox="0 0 240 240" style={StyleSheet.absoluteFill}>
-      {compact ? null : (
-        <>
-          <Circle cx={C} cy={C} r={116} fill="none" stroke={c.accent} strokeOpacity={0.12} />
-          <Path d={TICKS} stroke={c.borderStrong} strokeWidth={1.5} strokeLinecap="round" />
-        </>
-      )}
-      <Circle cx={C} cy={C} r={r} fill="none" stroke={c.accentSoft} strokeWidth={stroke} />
-      <AnimatedCircle
-        cx={C}
-        cy={C}
-        r={r}
-        fill="none"
-        stroke={c.accent}
-        strokeWidth={stroke}
-        strokeLinecap="round"
-        strokeDasharray={[length, length]}
-        transform={`rotate(-90 ${C} ${C})`}
-        animatedProps={arc}
-      />
-      <Circle
-        cx={C}
-        cy={C}
-        r={compact ? 70 : 58}
-        fill={compact ? c.accentSoft : c.surface}
-        stroke={c.border}
-        strokeWidth={compact ? 0 : 1.5}
-      />
-      {compact ? null : <Circle cx={C} cy={C} r={44} fill={c.accentSoft} />}
-      <G
-        transform={compact ? `translate(${C} ${C}) scale(1.25) translate(${-C} ${-C})` : undefined}
-      >
-        <Path d={BOLT} fill={c.accent} />
-      </G>
-    </Svg>
-  );
-}
-
-function Orbit({ spin }: { spin: SharedValue<number> }) {
-  const c = useTheme().colors;
-  const turn = useAnimatedStyle(() => ({ transform: [{ rotate: `${spin.value * 360}deg` }] }));
-  return (
-    <Animated.View style={[StyleSheet.absoluteFill, turn]}>
-      <Svg width="100%" height="100%" viewBox="0 0 240 240">
-        <Circle
-          cx={C}
-          cy={C}
-          r={106}
-          fill="none"
-          stroke={c.accent}
-          strokeOpacity={0.35}
-          strokeDasharray={[2, 7]}
-          strokeLinecap="round"
-        />
-        <Circle cx={C} cy={14} r={6} fill={c.accent} stroke={c.bg} strokeWidth={3} />
-      </Svg>
+    <Animated.View entering={FadeIn.duration(t.motion.durationSlow)} style={styles.wrap}>
+      <ChargingScene />
     </Animated.View>
   );
 }
 
-function Pills({
-  size,
-  float,
-  charge,
-}: {
-  size: number;
-  float: SharedValue<number>;
-  charge: SharedValue<number>;
-}) {
+function ChargingScene() {
   const t = useTheme();
   const c = t.colors;
-  const up = useAnimatedStyle(() => ({ transform: [{ translateY: (float.value - 0.5) * 8 }] }));
-  const down = useAnimatedStyle(() => ({ transform: [{ translateY: (0.5 - float.value) * 8 }] }));
-  const fill = useAnimatedStyle(() => ({ transform: [{ scaleX: charge.value }] }));
-  const pill = {
-    backgroundColor: c.surface,
-    borderColor: c.border,
-    borderRadius: t.radius.pill,
-    padding: t.space[1],
-    paddingRight: t.space[3],
-    gap: t.space[2],
-  };
+  const reduceMotion = useReducedMotion();
+  const pulse = useSharedValue(0);
+  const charge = useSharedValue(reduceMotion ? 1 : 0.15);
+
+  useEffect(() => {
+    if (reduceMotion) return;
+    pulse.set(withRepeat(withTiming(1, { duration: 1100, easing: Easing.linear }), -1));
+    charge.set(
+      withRepeat(
+        withSequence(
+          withTiming(1, { duration: 3400, easing: Easing.inOut(Easing.cubic) }),
+          withTiming(1, { duration: 900 }),
+          withTiming(0.15, { duration: 0 }),
+        ),
+        -1,
+      ),
+    );
+  }, [pulse, charge, reduceMotion]);
+
+  const energy = useAnimatedProps(() => ({
+    strokeDashoffset: (PULSE.dash + PULSE.gap) * (1 - pulse.value),
+  }));
+  const ring = useAnimatedProps(() => ({ strokeDashoffset: RING_LENGTH * (1 - charge.value) }));
+  const led = useAnimatedProps(() => ({ width: LED * charge.value }));
+  const bar = useAnimatedProps(() => ({ width: BAR * charge.value }));
 
   return (
+    <View
+      style={styles.wrap}
+      accessible
+      accessibilityRole="image"
+      accessibilityLabel="Electric car charging at a station"
+    >
+      <Svg width="100%" height="100%" viewBox={VIEW_BOX} preserveAspectRatio="xMidYMid meet">
+        <Circle cx={300} cy={108} r={92} fill={c.accentSoft} />
+        <Rect x={0} y={172} width={360} height={5} rx={2.5} fill={c.surfaceSunken} />
+
+        {/* DC fast charger */}
+        <Rect x={26} y={164} width={78} height={9} rx={3} fill={c.textPrimary} />
+        <Rect
+          x={32}
+          y={46}
+          width={66}
+          height={120}
+          rx={14}
+          fill={c.surface}
+          stroke={c.border}
+          strokeWidth={1.5}
+        />
+        <Path d="M32 60 V60 Q32 46 46 46 H84 Q98 46 98 60 V64 H32 Z" fill={c.accent} />
+        <Rect x={42} y={74} width={46} height={34} rx={6} fill={c.textPrimary} />
+        <Circle
+          cx={RING.cx}
+          cy={RING.cy}
+          r={RING.r}
+          fill="none"
+          stroke={c.surface}
+          strokeOpacity={0.2}
+          strokeWidth={3}
+        />
+        <AnimatedCircle
+          cx={RING.cx}
+          cy={RING.cy}
+          r={RING.r}
+          fill="none"
+          stroke={c.accent}
+          strokeWidth={3}
+          strokeLinecap="round"
+          strokeDasharray={[RING_LENGTH, RING_LENGTH]}
+          transform={`rotate(-90 ${RING.cx} ${RING.cy})`}
+          animatedProps={ring}
+        />
+        <Path d={BOLT_SCREEN} fill={c.accent} />
+        <Rect x={42} y={116} width={LED} height={4} rx={2} fill={c.border} />
+        <AnimatedRect x={42} y={116} height={4} rx={2} fill={c.accent} animatedProps={led} />
+        <Rect x={42} y={128} width={20} height={3} rx={1.5} fill={c.border} />
+        <Rect x={42} y={136} width={30} height={3} rx={1.5} fill={c.border} />
+        <Rect x={92} y={116} width={12} height={22} rx={4} fill={c.textPrimary} />
+
+        {/* Cable, plugged into the car's front fender */}
+        <Path d={CABLE} fill="none" stroke={c.textPrimary} strokeWidth={4} strokeLinecap="round" />
+        <AnimatedPath
+          d={CABLE}
+          fill="none"
+          stroke={c.accent}
+          strokeWidth={2.5}
+          strokeLinecap="round"
+          strokeDasharray={[PULSE.dash, PULSE.gap]}
+          animatedProps={energy}
+        />
+
+        {/* Car: front half visible, rear runs off the right edge */}
+        <Path d={BODY} fill={c.textPrimary} />
+        <Path d={SIDE_GLASS} fill={c.surface} opacity={0.2} />
+        <Path d="M330 87 V111" stroke={c.textPrimary} strokeWidth={4} />
+        <Path d={MIRROR} fill={c.surface} opacity={0.3} />
+        <Path d="M174 127 L197 121" stroke={c.accent} strokeWidth={3} strokeLinecap="round" />
+        <Path d="M176 140 H190" stroke={c.surface} strokeOpacity={0.25} strokeWidth={2} />
+        <Path d="M200 132 H360" stroke={c.accent} strokeWidth={1.5} strokeLinecap="round" />
+        <Path d="M300 112 V150" stroke={c.surface} strokeOpacity={0.15} strokeWidth={1.5} />
+        <Rect x={312} y={119} width={14} height={3} rx={1.5} fill={c.surface} opacity={0.35} />
+        <Rect x={194} y={124} width={12} height={10} rx={2.5} fill={c.accent} />
+        <Rect x={188} y={125} width={8} height={8} rx={2} fill={c.textPrimary} />
+        {WHEELS.map((cx) => (
+          <Wheel key={cx} cx={cx} tire={c.textPrimary} rim={c.surface} hub={c.accent} />
+        ))}
+
+        {/* Floating battery chip above the car */}
+        <Rect
+          x={208}
+          y={45}
+          width={100}
+          height={30}
+          rx={15}
+          fill={c.surface}
+          stroke={c.border}
+          strokeWidth={1.5}
+        />
+        <Circle cx={226} cy={60} r={10} fill={c.accent} />
+        <Path d={BOLT_CHIP} fill={c.onAccent} />
+        <Rect x={243} y={57} width={BAR} height={6} rx={3} fill={c.accentSoft} />
+        <AnimatedRect x={243} y={57} height={6} rx={3} fill={c.accent} animatedProps={bar} />
+      </Svg>
+    </View>
+  );
+}
+
+function Wheel({ cx, tire, rim, hub }: { cx: number; tire: string; rim: string; hub: string }) {
+  const cy = 150;
+  return (
     <>
-      <Animated.View style={[styles.pill, pill, { top: size * 0.04, right: -size * 0.1 }, up]}>
-        <View style={[styles.tile, { backgroundColor: c.accent }]}>
-          <BatteryCharging color={c.onAccent} size={16} strokeWidth={2} />
-        </View>
-        <View style={[styles.track, { backgroundColor: c.accentSoft }]}>
-          <Animated.View style={[styles.fill, { backgroundColor: c.accent }, fill]} />
-        </View>
-      </Animated.View>
-      <Animated.View style={[styles.pill, pill, { bottom: size * 0.06, left: -size * 0.1 }, down]}>
-        <View style={[styles.tile, { backgroundColor: c.accentSoft }]}>
-          <PlugZap color={c.accentText} size={16} strokeWidth={2} />
-        </View>
-        <View style={styles.dots}>
-          {[0, 1, 2].map((i) => (
-            <View
-              key={i}
-              style={[styles.dot, { backgroundColor: c.accent, opacity: 0.35 + i * 0.3 }]}
-            />
-          ))}
-        </View>
-      </Animated.View>
+      <Circle cx={cx} cy={cy} r={22} fill={tire} />
+      <Circle cx={cx} cy={cy} r={14} fill={rim} opacity={0.85} />
+      {SPOKES.map((deg) => {
+        const a = (deg * Math.PI) / 180;
+        return (
+          <Path
+            key={deg}
+            d={`M${cx} ${cy} L${cx + Math.cos(a) * 13} ${cy + Math.sin(a) * 13}`}
+            stroke={tire}
+            strokeWidth={3}
+            strokeLinecap="round"
+          />
+        );
+      })}
+      <Circle cx={cx} cy={cy} r={4} fill={tire} />
+      <Circle cx={cx} cy={cy} r={1.8} fill={hub} />
     </>
   );
 }
 
 const styles = StyleSheet.create({
-  wrap: { flex: 1, width: '100%', minHeight: ILLUSTRATION_MIN_HEIGHT },
-  center: { alignItems: 'center', justifyContent: 'center' },
-  start: { alignItems: 'flex-start', justifyContent: 'flex-end' },
-  compact: { width: ILLUSTRATION_MIN_HEIGHT, height: ILLUSTRATION_MIN_HEIGHT },
-  pill: {
-    position: 'absolute',
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: StyleSheet.hairlineWidth,
-  },
-  tile: { width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
-  track: { width: 44, height: 6, borderRadius: 3, overflow: 'hidden' },
-  fill: { width: 44, height: 6, borderRadius: 3, transformOrigin: 'left' },
-  dots: { flexDirection: 'row', gap: 4 },
-  dot: { width: 6, height: 6, borderRadius: 3 },
+  wrap: { flex: 1, width: '100%', minHeight: 0, alignSelf: 'center' },
 });

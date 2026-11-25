@@ -106,13 +106,15 @@ the driver find, start, watch or pay for a charge.
   contour lines with the heading anchored to its bottom, and a flat surface panel anchored to
   the screen bottom (sheet radius, hairline border, no shadow) holding the form and actions.
   The panel rises with the keyboard (`useAnimatedKeyboard`; edge-to-edge Android never resizes).
-- Login and OTP brand areas show `ChargingIllustration`: a flat charging dial drawn only from
-  theme tokens: a thick accent charge arc on an accentSoft track (fills and resets in a loop),
-  a 60-tick scale, a surface core with an accent bolt, a hairline outer ring, a dashed orbit
-  ring with a dot that turns slowly, and two floating icon pills (battery with a filling bar,
-  plug with dots). It takes the free space up to 280 pt. When the keyboard leaves less than
-  160 pt it switches to a 56 pt compact dial (arc + bolt) above the heading instead of
-  shrinking, zooming between the two. Static under Reduce Motion. OTP shows the contact in a
+- Login and OTP brand areas show `ChargingIllustration`: a flat SVG of an EV plugged into a
+  charger, drawn only from theme tokens: a DC fast-charger cabinet (accent top band, dark
+  screen with a charge ring, LED strip, holster) and a realistic side-profile car facing it,
+  plugged in at the front fender. The car's rear half runs off the right edge on purpose: the
+  viewBox crops it and the screens let the art bleed into the right page margin. A floating
+  battery chip sits above the car. Pulses run down the cable while the ring, LED strip and
+  chip fill together; static under Reduce Motion. It
+  takes the free space and is hidden while the keyboard is up (switching phone/email never
+  flashes it); it fades back in 300 ms after the keyboard closes. OTP shows the contact in a
   hairline pill under the heading.
 - Onboarding backdrop is `AmbientBackground`: a faint dot grid (borderStrong) that fades out
   by mid screen and drifts down one cell at a time.
