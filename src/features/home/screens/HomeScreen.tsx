@@ -1,6 +1,5 @@
 import { View } from 'react-native';
 
-import { router } from 'expo-router';
 import { LayoutGrid, LogOut, ShieldCheck } from 'lucide-react-native';
 
 import {
@@ -11,45 +10,40 @@ import {
   AppText,
 } from '@/shared/components';
 
-import { formatContact, LogoutDialog, useAuth, useLogoutConfirm } from '@/features/auth';
-import { useClientConfig } from '@/features/client-config';
+import { LogoutDialog } from '@/features/auth';
 
 import { useTheme } from '@/shared/theme';
 
-import { APP_ENV, brand } from '@/core/config';
+import { useHome } from '../hooks/useHome';
 
-export function HomeScreen() {
+const HomeScreen = () => {
   const t = useTheme();
-  const config = useClientConfig();
-  const auth = useAuth();
-  const logout = useLogoutConfirm();
-  const user = auth.user;
-  const name = [user?.firstName, user?.lastName].filter(Boolean).join(' ');
-  const devTools = APP_ENV !== 'production';
+  const home = useHome();
+  const { logout } = home;
 
   return (
-    <AppLargeTitleScroll title={config.brandName} subtitle="You're signed in">
+    <AppLargeTitleScroll title={home.brandName} subtitle="You're signed in">
       <View style={{ gap: t.layout.sectionGapLarge }}>
         <AppCard elevation="elevated" style={{ gap: t.space[1] }}>
           <AppText variant="subhead" tone="secondary">
             Signed in as
           </AppText>
-          <AppText variant="title2">{name || 'New user'}</AppText>
-          {user?.phone ? (
+          <AppText variant="title2">{home.name}</AppText>
+          {home.phone ? (
             <AppText tone="secondary" tabular>
-              {formatContact('phone', user.phone, brand.phoneCountryCode)}
+              {home.phone}
             </AppText>
           ) : null}
-          {user?.email ? <AppText tone="secondary">{user.email}</AppText> : null}
+          {home.email ? <AppText tone="secondary">{home.email}</AppText> : null}
         </AppCard>
-        {devTools ? (
+        {home.showDevTools ? (
           <AppListGroup title="Developer">
-            <AppListRow icon={LayoutGrid} title="UI kit" onPress={() => router.push('/dev/ui')} />
+            <AppListRow icon={LayoutGrid} title="UI kit" onPress={home.openUiKit} />
             <AppListRow
               icon={ShieldCheck}
               iconTone="neutral"
               title="Cookie check"
-              onPress={() => router.push('/dev/cookie-check')}
+              onPress={home.openCookieCheck}
             />
           </AppListGroup>
         ) : null}
@@ -65,4 +59,6 @@ export function HomeScreen() {
       </View>
     </AppLargeTitleScroll>
   );
-}
+};
+
+export default HomeScreen;

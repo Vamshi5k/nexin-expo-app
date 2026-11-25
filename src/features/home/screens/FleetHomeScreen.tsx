@@ -6,7 +6,7 @@ import { LogoutDialog, useLogoutConfirm } from '@/features/auth';
 
 import { useTheme } from '@/shared/theme';
 
-export function FleetHomeScreen() {
+const FleetHomeScreen = () => {
   const t = useTheme();
   const logout = useLogoutConfirm();
 
@@ -26,4 +26,6 @@ export function FleetHomeScreen() {
       <LogoutDialog state={logout} />
     </AppPlaceholderScreen>
   );
-}
+};
+
+export default FleetHomeScreen;
