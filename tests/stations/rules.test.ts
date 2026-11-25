@@ -15,7 +15,6 @@ import {
 } from '@/features/stations/utils/geo';
 import {
   availabilityOf,
-  badgeOf,
   pinColorKey,
   toStationStatus,
   withNearbyStatus,
@@ -223,23 +222,6 @@ describe('directions', () => {
       web: 'https://www.google.com/maps/dir/?api=1&destination=17.42,78.37',
     });
     expect(directionsUrls(point, 'android').app).toBe('google.navigation:q=17.42,78.37');
-  });
-});
-
-describe('badgeOf', () => {
-  const station = { status: 'available' as const, availableConnectors: 2, totalConnectors: 4 };
-
-  it('free counts, and a full station is busy, not offline', () => {
-    expect(badgeOf(station)).toEqual({ kind: 'free', free: 2, total: 4 });
-    expect(badgeOf({ ...station, availableConnectors: 0 })).toEqual({ kind: 'busy', total: 4 });
-    expect(badgeOf({ ...station, totalConnectors: null })).toEqual({ kind: 'online' });
-  });
-
-  it('station status wins over counts', () => {
-    expect(badgeOf({ ...station, status: 'unavailable' })).toEqual({ kind: 'offline' });
-    expect(badgeOf({ ...station, status: 'maintenance' })).toEqual({ kind: 'service' });
-    expect(badgeOf({ ...station, status: 'upcoming' })).toEqual({ kind: 'soon' });
-    expect(badgeOf({ ...station, status: 'unknown' })).toEqual({ kind: 'unknown' });
   });
 });
 

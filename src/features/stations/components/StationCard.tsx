@@ -1,20 +1,18 @@
 import { StyleSheet, View } from 'react-native';
 
-import { Navigation } from 'lucide-react-native';
+import { MapPin, Navigation, Zap, type LucideIcon } from 'lucide-react-native';
 
 import { AppPressable, AppStatusChip, AppText } from '@/shared/components';
-
-import ChargeCells from './ChargeCells';
 
 import { useTheme, type Theme } from '@/shared/theme';
 
 import { brand } from '@/core/config';
 import { formatRate } from '@/shared/utils/money';
 
-import { allInUse, CARD_COPY, freeOfTotal, MAX_ETA_KM } from '../constants/stations.constants';
+import { CARD_COPY, MAX_ETA_KM } from '../constants/stations.constants';
 import type { NearbyStation } from '../types/stations.types';
 import { formatDistance, formatEta } from '../utils/geo';
-import { availabilityOf, badgeOf, pinColorKey, STATUS_LABEL } from '../utils/status';
+import { availabilityOf, pinColorKey, STATUS_LABEL } from '../utils/status';
 
 type StationCardProps = {
   station: NearbyStation;
@@ -36,19 +34,26 @@ export const stationCardHeight = (t: Theme) =>
   t.space[4] +
   t.layout.minTouch;
 
-const contextLine = (station: NearbyStation) => {
-  const distance =
-    station.distanceKm !== null ? formatDistance(station.distanceKm, brand.locale) : null;
-  return [distance, station.address].filter(Boolean).join(' · ');
+type FigureProps = { icon: LucideIcon; value: string };
+
+// A highlighted figure: power and distance are what a driver compares between stations.
+const Figure = ({ icon: Icon, value }: FigureProps) => {
+  const t = useTheme();
+
+  return (
+    <View style={[styles.row, { gap: t.space[1] }]}>
+      <Icon color={t.colors.accentText} size={t.icon.meta} strokeWidth={t.icon.stroke} />
+      <AppText variant="headline" tabular numberOfLines={1}>
+        {value}
+      </AppText>
+    </View>
+  );
 };
 
-const connectorLine = (station: NearbyStation) => {
+const contextLine = (station: NearbyStation) => {
   const [first, ...rest] = station.connectorTypes;
-  const parts = [
-    first ? (rest.length ? `${first} +${rest.length}` : first) : null,
-    station.maxPowerKw !== null ? `${station.maxPowerKw} kW` : null,
-  ];
-  return parts.filter(Boolean).join(' · ');
+  const connector = first ? (rest.length ? `${first} +${rest.length}` : first) : null;
+  return [connector, station.address].filter(Boolean).join(' · ');
 };
 
 // The action carries the drive time, so "how far" and "take me there" are one tap.
@@ -57,17 +62,11 @@ const goLabel = (km: number | null) => (km !== null && km <= MAX_ETA_KM ? format
 const StationCard = ({ station, selected, width, onPress, onDirections }: StationCardProps) => {
   const t = useTheme();
   const availability = availabilityOf(station);
-  const badge = badgeOf(station);
   const context = contextLine(station);
-  const connector = connectorLine(station);
   const eta = goLabel(station.distanceKm);
-
-  const usage =
-    badge.kind === 'free'
-      ? { text: freeOfTotal(badge.free, badge.total), color: t.colors.successText }
-      : badge.kind === 'busy'
-        ? { text: allInUse(badge.total), color: t.colors.warningText }
-        : null;
+  const power = station.maxPowerKw !== null ? `${station.maxPowerKw} kW` : null;
+  const distance =
+    station.distanceKm !== null ? formatDistance(station.distanceKm, brand.locale) : null;
 
   return (
     <AppPressable
@@ -113,20 +112,9 @@ const StationCard = ({ station, selected, width, onPress, onDirections }: Statio
       </View>
 
       <View style={[styles.row, { gap: t.space[3] }]}>
-        <View style={[styles.row, styles.grow, { gap: t.space[3] }]}>
-          <ChargeCells badge={badge} />
-          <View style={styles.shrink}>
-            {usage ? (
-              <AppText variant="caption" numberOfLines={1} tabular style={{ color: usage.color }}>
-                {usage.text}
-              </AppText>
-            ) : null}
-            {connector ? (
-              <AppText variant="caption" tone="secondary" numberOfLines={1} tabular>
-                {connector}
-              </AppText>
-            ) : null}
-          </View>
+        <View style={[styles.row, styles.grow, { gap: t.space[4] }]}>
+          {power ? <Figure icon={Zap} value={power} /> : null}
+          {distance ? <Figure icon={MapPin} value={distance} /> : null}
         </View>
 
         <AppPressable
@@ -168,9 +156,6 @@ const styles = StyleSheet.create({
   },
   grow: {
     flex: 1,
-  },
-  shrink: {
-    flexShrink: 1,
   },
   go: {
     justifyContent: 'center',

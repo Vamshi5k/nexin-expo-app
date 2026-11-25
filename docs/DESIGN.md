@@ -88,9 +88,9 @@ the driver find, start, watch or pay for a charge.
   colour; selected, it opens into a status-coloured pill with the station name and a pointer.
   Icon and text on the fill use `onConnector`, picked by contrast.
 - Nearby station cards, in reading order: status badge with the rate per kWh on the right,
-  headline name, "59 km · address" caption, then charge cells (one per connector, filled when
-  free, amber when all busy) with "2 of 4 free" / "CCS2 · 60 kW" and an accent Navigate pill
-  carrying the drive time.
+  headline name, "CCS2 · address" caption, then power and distance as highlighted figures
+  (accent icon + headline, "60 kW", "59 km") and an accent Navigate pill carrying the drive
+  time.
 - Tab bar: a floating glass capsule inset 16 from the screen edges, above the home indicator.
   Labels always visible; the active tab sits in an accentSoft pill with accentText icon and
   label. Scan is an accent circle with an onAccent icon in the middle of the capsule. Tab
