@@ -14,36 +14,36 @@ import { LogoutDialog } from '@/features/auth';
 
 import { useTheme } from '@/shared/theme';
 
-import { useHome } from '../hooks/useHome';
+import { useProfile } from '../hooks/useProfile';
 
-const HomeScreen = () => {
+const ProfileScreen = () => {
   const t = useTheme();
-  const home = useHome();
-  const { logout } = home;
+  const profile = useProfile();
+  const { logout } = profile;
 
   return (
-    <AppLargeTitleScroll title={home.brandName} subtitle="You're signed in">
+    <AppLargeTitleScroll title="Profile" subtitle={profile.brandName}>
       <View style={{ gap: t.layout.sectionGapLarge }}>
         <AppCard elevation="elevated" style={{ gap: t.space[1] }}>
           <AppText variant="subhead" tone="secondary">
             Signed in as
           </AppText>
-          <AppText variant="title2">{home.name}</AppText>
-          {home.phone ? (
+          <AppText variant="title2">{profile.name}</AppText>
+          {profile.phone ? (
             <AppText tone="secondary" tabular>
-              {home.phone}
+              {profile.phone}
             </AppText>
           ) : null}
-          {home.email ? <AppText tone="secondary">{home.email}</AppText> : null}
+          {profile.email ? <AppText tone="secondary">{profile.email}</AppText> : null}
         </AppCard>
-        {home.showDevTools ? (
+        {profile.showDevTools ? (
           <AppListGroup title="Developer">
-            <AppListRow icon={LayoutGrid} title="UI kit" onPress={home.openUiKit} />
+            <AppListRow icon={LayoutGrid} title="UI kit" onPress={profile.openUiKit} />
             <AppListRow
               icon={ShieldCheck}
               iconTone="neutral"
               title="Cookie check"
-              onPress={home.openCookieCheck}
+              onPress={profile.openCookieCheck}
             />
           </AppListGroup>
         ) : null}
@@ -61,4 +61,4 @@ const HomeScreen = () => {
   );
 };
 
-export default HomeScreen;
+export default ProfileScreen;

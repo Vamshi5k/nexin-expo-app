@@ -34,6 +34,10 @@ jest.mock('@/features/client-config/api/clientConfig.api', () => {
     },
   };
 });
+jest.mock('@/features/stations/api/stations.api', () => ({
+  ...jest.requireActual('@/features/stations/api/stations.api'),
+  stationsApi: { getLocations: jest.fn(async () => []), getNearby: jest.fn(async () => []) },
+}));
 jest.mock('@/features/auth/api/auth.api', () => {
   const actual = jest.requireActual('@/features/auth/api/auth.api');
   return {
@@ -88,7 +92,8 @@ it('a restored session whose startup check fails shows Try Again, then Home', as
   jest.mocked(getUser).mockResolvedValue(USER);
   await fireEvent.press(screen.getByText('Try Again'));
   await settle();
-  expect(screen.getByText('Signed in as')).toBeTruthy();
+  expect(screen).toHavePathname('/home');
+  expect(screen.getByTestId('station-map')).toBeTruthy();
 }, 30000);
 
 it('a user load that fails right after sign-in shows Try Again, then Home', async () => {
@@ -106,5 +111,6 @@ it('a user load that fails right after sign-in shows Try Again, then Home', asyn
   jest.mocked(getUser).mockResolvedValue(USER);
   await fireEvent.press(screen.getByText('Try Again'));
   await settle();
-  expect(screen.getByText('Signed in as')).toBeTruthy();
+  expect(screen).toHavePathname('/home');
+  expect(screen.getByTestId('station-map')).toBeTruthy();
 }, 30000);

@@ -1,10 +1,10 @@
-import { Slot } from 'expo-router';
-import { fireEvent, renderRouter, screen, waitFor } from 'expo-router/testing-library';
+import { router, Slot } from 'expo-router';
+import { act, fireEvent, renderRouter, screen, waitFor } from 'expo-router/testing-library';
 import { Text } from 'react-native';
 
 import { sessionStore } from '@/core/session';
 import { GuardedStack, StartRedirect } from '@/features/auth';
-import { HomeScreen } from '@/features/home';
+import { ProfileScreen } from '@/features/profile';
 import { authApi } from '@/features/auth/api/auth.api';
 import { markOnboardingDone } from '@/features/auth/utils/authFlow';
 
@@ -25,7 +25,7 @@ jest.mock('@/features/auth/api/auth.api', () => {
 
 const { logout } = authApi;
 
-async function renderSignedInHome() {
+async function renderSignedInProfile() {
   markOnboardingDone();
   await sessionStore.getState().signIn('consumer', { accessToken: 'a', refreshToken: 'r' });
   await renderRouter(
@@ -39,30 +39,33 @@ async function renderSignedInHome() {
       '(auth)/_layout': () => <GuardedStack group="auth" />,
       '(auth)/login': () => <Text>Login</Text>,
       '(app)/_layout': () => <GuardedStack group="app" />,
-      '(app)/(tabs)/home': HomeScreen,
+      '(app)/(tabs)/home': () => <Text>Map</Text>,
+      '(app)/(tabs)/profile': ProfileScreen,
     },
     { initialUrl: '/home' },
   );
-  // (app) waits for the user via "/" (boot loads it first in the app), then opens home.
+  // (app) waits for the user via "/" (boot loads it first in the app), then opens the map.
   await waitFor(() => expect(screen).toHavePathname('/home'));
+  await act(async () => router.push('/profile'));
+  await waitFor(() => expect(screen).toHavePathname('/profile'));
 }
 
 describe('logout', () => {
   beforeEach(() => jest.clearAllMocks());
 
   it('asks first; Cancel keeps the user signed in', async () => {
-    await renderSignedInHome();
+    await renderSignedInProfile();
     await fireEvent.press(screen.getByText('Log out'));
     expect(screen.getByText('Are you sure you want to log out of your account?')).toBeTruthy();
 
     await fireEvent.press(screen.getByRole('button', { name: 'Cancel' }));
     expect(sessionStore.getState().mode).toBe('consumer');
     expect(logout).not.toHaveBeenCalled();
-    expect(screen).toHavePathname('/home');
+    expect(screen).toHavePathname('/profile');
   });
 
   it('Yes clears the session after the dialog closes and the guard shows Login', async () => {
-    await renderSignedInHome();
+    await renderSignedInProfile();
     await fireEvent.press(screen.getByText('Log out'));
     await fireEvent.press(screen.getByRole('button', { name: 'Yes, log out' }));
 
