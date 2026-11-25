@@ -6,6 +6,7 @@ import type MapView from 'react-native-maps';
 import type { MapPressEvent } from 'react-native-maps';
 
 import { brand } from '@/core/config';
+import { haptics } from '@/shared/utils/haptics';
 
 import { useMapClusters } from './useMapClusters';
 import { useMapStations } from './useMapStations';
@@ -75,6 +76,7 @@ export const useMapScreen = () => {
   };
 
   const onPinPress = (pin: StationPin) => {
+    haptics.selection();
     setSelectedId(pin.id);
 
     const index = stations.nearby.findIndex(station => station.id === pin.id);
@@ -104,6 +106,7 @@ export const useMapScreen = () => {
     const station = stations.nearby[index];
     if (!station || station.id === selectedId) return;
 
+    haptics.selection();
     setSelectedId(station.id);
     setPeekPin(null);
     panTo(station);

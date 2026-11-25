@@ -1,18 +1,23 @@
-import { useRef, type RefObject } from 'react';
-import {
-  FlatList,
-  StyleSheet,
-  useWindowDimensions,
-  View,
-  type NativeScrollEvent,
-  type NativeSyntheticEvent,
-} from 'react-native';
+import { useEffect, type ReactNode, type RefObject } from 'react';
+import { FlatList, StyleSheet, useWindowDimensions, View } from 'react-native';
 
 import { ArrowRight, MapPinOff } from 'lucide-react-native';
+import Animated, {
+  Extrapolation,
+  FadeIn,
+  interpolate,
+  useAnimatedScrollHandler,
+  useAnimatedStyle,
+  useReducedMotion,
+  useSharedValue,
+  withTiming,
+  type SharedValue,
+} from 'react-native-reanimated';
+import { scheduleOnRN } from 'react-native-worklets';
 
-import { AppButton, AppCard, AppSkeleton, AppText } from '@/shared/components';
+import { AppButton, AppCard, AppPressable, AppSkeleton, AppText } from '@/shared/components';
 
-import StationCard from './StationCard';
+import StationCard, { STATION_CARD_HEIGHT } from './StationCard';
 
 import { useTheme } from '@/shared/theme';
 
@@ -23,6 +28,7 @@ type NearbyCarouselProps = {
   listRef: RefObject<FlatList<NearbyStation> | null>;
   stations: NearbyStation[];
   loading: boolean;
+  hidden: boolean;
   selectedId: string | null;
   hasFilters: boolean;
   onFocus: (index: number) => void;
@@ -31,13 +37,39 @@ type NearbyCarouselProps = {
   onClearFilters: () => void;
 };
 
-const CARD_WIDTH_RATIO = 0.84;
-const CARD_HEIGHT = 196;
+type CarouselItemProps = {
+  index: number;
+  step: number;
+  scrollX: SharedValue<number>;
+  animate: boolean;
+  children: ReactNode;
+};
+
+const CARD_WIDTH_RATIO = 0.86;
+const VIEW_ALL_WIDTH = 120;
+
+// Cards next to the centred one shrink and fade a little, following the finger.
+const CarouselItem = ({ index, step, scrollX, animate, children }: CarouselItemProps) => {
+  const style = useAnimatedStyle(() => {
+    if (!animate) return {};
+
+    const input = [(index - 1) * step, index * step, (index + 1) * step];
+    return {
+      opacity: interpolate(scrollX.value, input, [0.6, 1, 0.6], Extrapolation.CLAMP),
+      transform: [
+        { scale: interpolate(scrollX.value, input, [0.94, 1, 0.94], Extrapolation.CLAMP) },
+      ],
+    };
+  });
+
+  return <Animated.View style={style}>{children}</Animated.View>;
+};
 
 const NearbyCarousel = ({
   listRef,
   stations,
   loading,
+  hidden,
   selectedId,
   hasFilters,
   onFocus,
@@ -46,112 +78,155 @@ const NearbyCarousel = ({
   onClearFilters,
 }: NearbyCarouselProps) => {
   const t = useTheme();
+  const reduceMotion = useReducedMotion();
   const { width: screenWidth } = useWindowDimensions();
 
   const cardWidth = Math.round(screenWidth * CARD_WIDTH_RATIO);
   const gap = t.space[3];
   const step = cardWidth + gap;
-  // Only a swipe by the user picks a station; scroll events on mount or from code don't.
-  const dragging = useRef(false);
   const sidePadding = t.space[4];
+  const count = stations.length;
 
-  if (loading && !stations.length) {
-    return (
-      <View style={[styles.row, { paddingHorizontal: sidePadding, gap }]}>
-        <AppSkeleton width={cardWidth} height={CARD_HEIGHT} radius={t.radius.sheet} />
-        <AppSkeleton width={cardWidth} height={CARD_HEIGHT} radius={t.radius.sheet} />
-      </View>
-    );
-  }
+  const scrollX = useSharedValue(0);
+  // Only a swipe by the user picks a station; scroll events on mount or from code don't.
+  const dragging = useSharedValue(false);
+  const visible = useSharedValue(hidden ? 0 : 1);
 
-  if (!stations.length) {
-    return (
-      <View style={{ paddingHorizontal: sidePadding }}>
-        <AppCard
-          elevation="elevated"
-          style={{ gap: t.space[4], padding: t.space[5], borderRadius: t.radius.sheet }}
+  useEffect(() => {
+    visible.set(withTiming(hidden ? 0 : 1, { duration: t.motion.durationFast }));
+  }, [hidden, visible, t.motion.durationFast]);
+
+  const fadeStyle = useAnimatedStyle(() => ({
+    opacity: visible.value,
+    transform: [{ translateY: (1 - visible.value) * 16 }],
+  }));
+
+  const onScroll = useAnimatedScrollHandler({
+    onScroll: event => {
+      scrollX.value = event.contentOffset.x;
+    },
+    onBeginDrag: () => {
+      dragging.value = true;
+    },
+    onMomentumEnd: event => {
+      if (!dragging.value) return;
+      dragging.value = false;
+
+      const index = Math.min(Math.max(Math.round(event.contentOffset.x / step), 0), count - 1);
+      scheduleOnRN(onFocus, index);
+    },
+  });
+
+  const renderContent = () => {
+    if (loading && !count) {
+      return (
+        <Animated.View
+          key="loading"
+          entering={FadeIn}
+          style={[styles.row, { paddingHorizontal: sidePadding, gap }]}
         >
-          <View style={[styles.row, { gap: t.space[3] }]}>
+          <AppSkeleton width={cardWidth} height={STATION_CARD_HEIGHT} radius={t.radius.card} />
+          <AppSkeleton width={cardWidth} height={STATION_CARD_HEIGHT} radius={t.radius.card} />
+        </Animated.View>
+      );
+    }
+
+    if (!count) {
+      return (
+        <Animated.View key="empty" entering={FadeIn} style={{ paddingHorizontal: sidePadding }}>
+          <AppCard elevation="elevated" style={[styles.row, { gap: t.space[3], padding: 14 }]}>
             <View
               style={[
-                styles.arrow,
-                { backgroundColor: t.colors.accentSoft, borderRadius: t.radius.pill },
+                styles.icon,
+                { backgroundColor: t.colors.accentSoft, borderRadius: t.radius.control },
               ]}
             >
-              <MapPinOff color={t.colors.accentText} size={22} strokeWidth={1.75} />
+              <MapPinOff color={t.colors.accentText} size={20} strokeWidth={1.75} />
             </View>
             <View style={styles.grow}>
-              <AppText variant="headline">{MAP_COPY.emptyTitle}</AppText>
+              <AppText variant="headline" numberOfLines={1}>
+                {MAP_COPY.emptyTitle}
+              </AppText>
               {hasFilters ? (
-                <AppText variant="callout" tone="secondary">
+                <AppText variant="caption" tone="secondary" numberOfLines={1}>
                   {MAP_COPY.emptyFiltered}
                 </AppText>
               ) : null}
             </View>
-          </View>
-          <AppButton
-            label={hasFilters ? MAP_COPY.clearFilters : MAP_COPY.viewAll}
-            variant="secondary"
-            size="medium"
-            onPress={hasFilters ? onClearFilters : onViewAll}
-          />
-        </AppCard>
-      </View>
+            <AppButton
+              label={hasFilters ? MAP_COPY.clearFilters : MAP_COPY.viewAll}
+              variant="secondary"
+              size="medium"
+              onPress={hasFilters ? onClearFilters : onViewAll}
+            />
+          </AppCard>
+        </Animated.View>
+      );
+    }
+
+    return (
+      <Animated.View key="list" entering={FadeIn}>
+        <Animated.FlatList
+          ref={listRef}
+          horizontal
+          data={stations}
+          keyExtractor={station => station.id}
+          showsHorizontalScrollIndicator={false}
+          snapToInterval={step}
+          decelerationRate="fast"
+          scrollEventThrottle={16}
+          contentContainerStyle={{ paddingHorizontal: sidePadding, gap }}
+          getItemLayout={(_, index) => ({ length: step, offset: step * index, index })}
+          onScroll={onScroll}
+          renderItem={({ item, index }) => (
+            <CarouselItem index={index} step={step} scrollX={scrollX} animate={!reduceMotion}>
+              <StationCard
+                station={item}
+                width={cardWidth}
+                selected={item.id === selectedId}
+                onPress={onPressStation}
+              />
+            </CarouselItem>
+          )}
+          ListFooterComponent={
+            <CarouselItem index={count} step={step} scrollX={scrollX} animate={!reduceMotion}>
+              <AppPressable
+                onPress={onViewAll}
+                accessibilityRole="button"
+                accessibilityLabel={MAP_COPY.viewAll}
+                style={[
+                  styles.viewAll,
+                  {
+                    gap: t.space[2],
+                    borderRadius: t.radius.card,
+                    backgroundColor: t.colors.surfaceRaised,
+                    borderColor: t.colors.border,
+                  },
+                ]}
+              >
+                <View
+                  style={[
+                    styles.arrow,
+                    { backgroundColor: t.colors.accentSoft, borderRadius: t.radius.pill },
+                  ]}
+                >
+                  <ArrowRight color={t.colors.accentText} size={18} strokeWidth={1.75} />
+                </View>
+                <AppText variant="caption" tone="accent">
+                  {MAP_COPY.viewAll}
+                </AppText>
+              </AppPressable>
+            </CarouselItem>
+          }
+        />
+      </Animated.View>
     );
-  }
-
-  const onScrollEnd = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-    if (!dragging.current) return;
-    dragging.current = false;
-
-    const index = Math.round(event.nativeEvent.contentOffset.x / step);
-    onFocus(Math.min(Math.max(index, 0), stations.length - 1));
   };
 
   return (
-    <FlatList
-      ref={listRef}
-      horizontal
-      data={stations}
-      keyExtractor={station => station.id}
-      showsHorizontalScrollIndicator={false}
-      snapToInterval={step}
-      decelerationRate="fast"
-      contentContainerStyle={{ paddingHorizontal: sidePadding, gap }}
-      getItemLayout={(_, index) => ({ length: step, offset: step * index, index })}
-      onScrollBeginDrag={() => {
-        dragging.current = true;
-      }}
-      onMomentumScrollEnd={onScrollEnd}
-      renderItem={({ item }) => (
-        <StationCard
-          station={item}
-          width={cardWidth}
-          selected={item.id === selectedId}
-          onPress={onPressStation}
-        />
-      )}
-      ListFooterComponent={
-        <AppCard
-          elevation="elevated"
-          onPress={onViewAll}
-          accessibilityLabel={MAP_COPY.viewAll}
-          style={[styles.viewAll, { gap: t.space[3], borderRadius: t.radius.sheet }]}
-        >
-          <View
-            style={[
-              styles.arrow,
-              { backgroundColor: t.colors.accentSoft, borderRadius: t.radius.pill },
-            ]}
-          >
-            <ArrowRight color={t.colors.accentText} size={22} strokeWidth={1.75} />
-          </View>
-          <AppText variant="subhead" tone="accent">
-            {MAP_COPY.viewAll}
-          </AppText>
-        </AppCard>
-      }
-    />
+    <Animated.View pointerEvents={hidden ? 'none' : 'auto'} style={fadeStyle}>
+      {renderContent()}
+    </Animated.View>
   );
 };
 
@@ -165,15 +240,22 @@ const styles = StyleSheet.create({
   grow: {
     flex: 1,
   },
-  viewAll: {
-    width: 148,
-    alignSelf: 'stretch',
+  icon: {
+    width: 44,
+    height: 44,
     alignItems: 'center',
     justifyContent: 'center',
   },
+  viewAll: {
+    width: VIEW_ALL_WIDTH,
+    height: STATION_CARD_HEIGHT,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+  },
   arrow: {
-    width: 48,
-    height: 48,
+    width: 36,
+    height: 36,
     alignItems: 'center',
     justifyContent: 'center',
   },

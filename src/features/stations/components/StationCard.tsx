@@ -1,8 +1,8 @@
 import { StyleSheet, View } from 'react-native';
 
-import { ArrowUpRight } from 'lucide-react-native';
+import { Zap } from 'lucide-react-native';
 
-import { AppCard, AppStatusChip, AppText } from '@/shared/components';
+import { AppPressable, AppText } from '@/shared/components';
 
 import { useTheme } from '@/shared/theme';
 
@@ -11,7 +11,7 @@ import { formatPaise } from '@/shared/utils/money';
 import { CARD_COPY, MAX_ETA_KM } from '../constants/stations.constants';
 import type { NearbyStation } from '../types/stations.types';
 import { formatDistance, formatEta } from '../utils/geo';
-import { availabilityOf } from '../utils/status';
+import { availabilityOf, type Availability } from '../utils/status';
 
 type StationCardProps = {
   station: NearbyStation;
@@ -20,23 +20,7 @@ type StationCardProps = {
   onPress: (stationId: string) => void;
 };
 
-type StatProps = { label: string; value: string };
-
-const Stat = ({ label, value }: StatProps) => (
-  <View style={styles.stat}>
-    <AppText variant="headline" tabular numberOfLines={1}>
-      {value}
-    </AppText>
-    <AppText variant="caption" tone="tertiary" numberOfLines={1}>
-      {label}
-    </AppText>
-  </View>
-);
-
-const connectorSummary = (types: string[]) => {
-  if (!types.length) return '—';
-  return types.length > 1 ? `${types[0]} +${types.length - 1}` : types[0];
-};
+export const STATION_CARD_HEIGHT = 84;
 
 const distanceLabel = (km: number | null) => {
   if (km === null) return null;
@@ -48,100 +32,109 @@ const StationCard = ({ station, selected, width, onPress }: StationCardProps) =>
   const t = useTheme();
   const availability = availabilityOf(station);
 
-  const distance = distanceLabel(station.distanceKm);
+  const dotColor: Record<Availability['tone'], string> = {
+    success: t.colors.success,
+    warning: t.colors.warning,
+    danger: t.colors.danger,
+    neutral: t.colors.textTertiary,
+  };
+
+  const details = [
+    availability.label,
+    station.maxPowerKw !== null ? `${station.maxPowerKw} kW` : null,
+    distanceLabel(station.distanceKm),
+  ]
+    .filter(Boolean)
+    .join(' · ');
 
   return (
-    <AppCard
-      elevation="elevated"
+    <AppPressable
       onPress={() => onPress(station.id)}
+      accessibilityRole="button"
       accessibilityLabel={`${station.name}, ${availability.label}`}
       style={[
-        { width, gap: t.space[3], borderRadius: t.radius.sheet, padding: t.space[5] },
-        selected && { borderColor: t.colors.accent, borderWidth: 1.5 },
+        styles.card,
+        {
+          width,
+          gap: t.space[3],
+          borderRadius: t.radius.card,
+          backgroundColor: t.colors.surfaceRaised,
+          borderColor: selected ? t.colors.accent : t.colors.border,
+        },
       ]}
     >
-      <View style={[styles.row, styles.between]}>
-        <AppStatusChip label={availability.label} tone={availability.tone} />
-        {distance ? (
-          <AppText variant="caption" tone="secondary" tabular>
-            {distance}
-          </AppText>
-        ) : null}
-      </View>
-
-      <View style={[styles.row, { gap: t.space[3] }]}>
-        <View style={styles.grow}>
-          <AppText variant="title2" numberOfLines={1}>
-            {station.name}
-          </AppText>
-          {station.address ? (
-            <AppText variant="subhead" tone="secondary" numberOfLines={1}>
-              {station.address}
-            </AppText>
-          ) : null}
-        </View>
-        <View
-          style={[styles.go, { backgroundColor: t.colors.accentSoft, borderRadius: t.radius.pill }]}
-        >
-          <ArrowUpRight color={t.colors.accentText} size={22} strokeWidth={1.75} />
-        </View>
-      </View>
-
       <View
         style={[
-          styles.row,
-          styles.stats,
-          { borderRadius: t.radius.control, backgroundColor: t.colors.surfaceSunken },
+          styles.tile,
+          {
+            borderRadius: t.radius.control,
+            backgroundColor: selected ? t.colors.accent : t.colors.accentSoft,
+          },
         ]}
       >
-        <Stat
-          label={CARD_COPY.price}
-          value={
-            station.pricePerKwhPaise !== null ? `${formatPaise(station.pricePerKwhPaise)}` : '—'
-          }
+        <Zap
+          color={selected ? t.colors.onAccent : t.colors.accentText}
+          size={20}
+          strokeWidth={1.75}
         />
-        <View style={[styles.split, { backgroundColor: t.colors.border }]} />
-        <Stat
-          label={CARD_COPY.power}
-          value={station.maxPowerKw !== null ? `${station.maxPowerKw} kW` : '—'}
-        />
-        <View style={[styles.split, { backgroundColor: t.colors.border }]} />
-        <Stat label={CARD_COPY.connectors} value={connectorSummary(station.connectorTypes)} />
       </View>
-    </AppCard>
+
+      <View style={styles.body}>
+        <AppText variant="headline" numberOfLines={1}>
+          {station.name}
+        </AppText>
+        <View style={[styles.row, { gap: t.space[2] }]}>
+          <View style={[styles.dot, { backgroundColor: dotColor[availability.tone] }]} />
+          <AppText variant="caption" tone="secondary" numberOfLines={1} style={styles.body} tabular>
+            {details}
+          </AppText>
+        </View>
+      </View>
+
+      {station.pricePerKwhPaise !== null ? (
+        <View style={styles.price}>
+          <AppText variant="headline" tabular>
+            {formatPaise(station.pricePerKwhPaise)}
+          </AppText>
+          <AppText variant="caption" tone="tertiary">
+            {CARD_COPY.price}
+          </AppText>
+        </View>
+      ) : null}
+    </AppPressable>
   );
 };
 
 export default StationCard;
 
 const styles = StyleSheet.create({
+  card: {
+    height: STATION_CARD_HEIGHT,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 14,
+    borderWidth: 1,
+  },
+  tile: {
+    width: 48,
+    height: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  body: {
+    flex: 1,
+    gap: 2,
+  },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  between: {
-    justifyContent: 'space-between',
+  dot: {
+    width: 7,
+    height: 7,
+    borderRadius: 4,
   },
-  grow: {
-    flex: 1,
-    gap: 2,
-  },
-  go: {
-    width: 44,
-    height: 44,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  stats: {
-    paddingVertical: 10,
-  },
-  stat: {
-    flex: 1,
-    alignItems: 'center',
-    paddingHorizontal: 4,
-  },
-  split: {
-    width: StyleSheet.hairlineWidth,
-    alignSelf: 'stretch',
+  price: {
+    alignItems: 'flex-end',
   },
 });

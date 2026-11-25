@@ -54,9 +54,7 @@ export const MAP_COPY = {
 } as const;
 
 export const CARD_COPY = {
-  price: 'per kWh',
-  power: 'Max power',
-  connectors: 'Connectors',
+  price: '/kWh',
 } as const;
 
 export const FILTERS_COPY = {

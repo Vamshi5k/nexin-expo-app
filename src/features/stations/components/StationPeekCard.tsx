@@ -1,8 +1,11 @@
 import { StyleSheet, View } from 'react-native';
 
-import { ArrowUpRight } from 'lucide-react-native';
+import { ChevronRight, Zap } from 'lucide-react-native';
+import Animated, { FadeInDown, FadeOutDown } from 'react-native-reanimated';
 
-import { AppCard, AppStatusChip, AppText } from '@/shared/components';
+import { AppPressable, AppText } from '@/shared/components';
+
+import { STATION_CARD_HEIGHT } from './StationCard';
 
 import { useTheme } from '@/shared/theme';
 
@@ -19,53 +22,78 @@ const StationPeekCard = ({ pin, onPress }: StationPeekCardProps) => {
   const t = useTheme();
 
   return (
-    <AppCard
-      elevation="elevated"
-      onPress={() => onPress(pin.id)}
-      accessibilityLabel={`${pin.name}, ${STATUS_LABEL[pin.status]}. ${MAP_COPY.viewDetails}`}
-      style={{
-        gap: t.space[3],
-        padding: t.space[5],
-        borderRadius: t.radius.sheet,
-        borderColor: t.colors.accent,
-        borderWidth: 1.5,
-      }}
+    <Animated.View
+      entering={FadeInDown.springify().damping(18).stiffness(220)}
+      exiting={FadeOutDown.duration(t.motion.durationFast)}
     >
-      <AppStatusChip label={STATUS_LABEL[pin.status]} connector={pinColorKey(pin.status)} />
-      <View style={[styles.row, { gap: t.space[3] }]}>
-        <View style={styles.grow}>
-          <AppText variant="title2" numberOfLines={1}>
+      <AppPressable
+        onPress={() => onPress(pin.id)}
+        accessibilityRole="button"
+        accessibilityLabel={`${pin.name}, ${STATUS_LABEL[pin.status]}. ${MAP_COPY.viewDetails}`}
+        style={[
+          styles.card,
+          {
+            gap: t.space[3],
+            borderRadius: t.radius.card,
+            backgroundColor: t.colors.surfaceRaised,
+            borderColor: t.colors.accent,
+          },
+        ]}
+      >
+        <View
+          style={[
+            styles.tile,
+            { borderRadius: t.radius.control, backgroundColor: t.colors.accent },
+          ]}
+        >
+          <Zap color={t.colors.onAccent} size={20} strokeWidth={1.75} />
+        </View>
+        <View style={styles.body}>
+          <AppText variant="headline" numberOfLines={1}>
             {pin.name}
           </AppText>
-          <AppText variant="subhead" tone="accent">
-            {MAP_COPY.viewDetails}
-          </AppText>
+          <View style={[styles.row, { gap: t.space[2] }]}>
+            <View
+              style={[styles.dot, { backgroundColor: t.colors.connector[pinColorKey(pin.status)] }]}
+            />
+            <AppText variant="caption" tone="secondary">
+              {STATUS_LABEL[pin.status]} · {MAP_COPY.viewDetails}
+            </AppText>
+          </View>
         </View>
-        <View
-          style={[styles.go, { backgroundColor: t.colors.accentSoft, borderRadius: t.radius.pill }]}
-        >
-          <ArrowUpRight color={t.colors.accentText} size={22} strokeWidth={1.75} />
-        </View>
-      </View>
-    </AppCard>
+        <ChevronRight color={t.colors.textTertiary} size={20} strokeWidth={1.75} />
+      </AppPressable>
+    </Animated.View>
   );
 };
 
 export default StationPeekCard;
 
 const styles = StyleSheet.create({
+  card: {
+    height: STATION_CARD_HEIGHT,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 14,
+    borderWidth: 1,
+  },
+  tile: {
+    width: 48,
+    height: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  body: {
+    flex: 1,
+    gap: 2,
+  },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  grow: {
-    flex: 1,
-    gap: 2,
-  },
-  go: {
-    width: 44,
-    height: 44,
-    alignItems: 'center',
-    justifyContent: 'center',
+  dot: {
+    width: 7,
+    height: 7,
+    borderRadius: 4,
   },
 });

@@ -103,25 +103,21 @@ const MapScreen = () => {
         ) : null}
 
         <View>
-          <View
-            style={map.peekPin ? styles.hidden : undefined}
-            pointerEvents={map.peekPin ? 'none' : 'auto'}
-          >
-            <NearbyCarousel
-              listRef={carouselRef}
-              stations={map.nearby}
-              loading={map.loadingNearby}
-              selectedId={map.selectedId}
-              hasFilters={map.activeFilterCount > 0}
-              onFocus={map.onCardFocus}
-              onPressStation={map.openStation}
-              onViewAll={map.openStationList}
-              onClearFilters={map.onClearFilters}
-            />
-          </View>
+          <NearbyCarousel
+            listRef={carouselRef}
+            stations={map.nearby}
+            loading={map.loadingNearby}
+            hidden={map.peekPin !== null}
+            selectedId={map.selectedId}
+            hasFilters={map.activeFilterCount > 0}
+            onFocus={map.onCardFocus}
+            onPressStation={map.openStation}
+            onViewAll={map.openStationList}
+            onClearFilters={map.onClearFilters}
+          />
           {map.peekPin ? (
-            <View style={[styles.peek, { paddingHorizontal: t.space[4] }]}>
-              <StationPeekCard pin={map.peekPin} onPress={map.openStation} />
+            <View pointerEvents="box-none" style={[styles.peek, { paddingHorizontal: t.space[4] }]}>
+              <StationPeekCard key={map.peekPin.id} pin={map.peekPin} onPress={map.openStation} />
             </View>
           ) : null}
         </View>
@@ -158,9 +154,6 @@ const styles = StyleSheet.create({
   },
   grow: {
     flex: 1,
-  },
-  hidden: {
-    opacity: 0,
   },
   peek: {
     position: 'absolute',
