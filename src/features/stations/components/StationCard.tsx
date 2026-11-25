@@ -4,6 +4,7 @@ import { MapPin, Navigation, Zap } from 'lucide-react-native';
 
 import { AppPressable, AppText } from '@/shared/components';
 
+import CardGradient from './CardGradient';
 import ChargerArt from './ChargerArt';
 
 import { useTheme, withAlpha, type Theme } from '@/shared/theme';
@@ -24,11 +25,13 @@ type StationCardProps = {
   onDirections: (station: NearbyStation) => void;
 };
 
-const headerHeight = (t: Theme) => t.space[12] * 2 + t.space[6];
-const artSize = (t: Theme) => t.space[12] * 2;
+const topHeight = (t: Theme) => t.space[12] * 2 + t.space[6];
+// Sits between the pills and the footer so it never touches the Go button.
+const artSize = (t: Theme) => t.space[12] + t.space[8];
 
-// Illustrated header plus the footer row: the skeleton and the view-all tile use the same height.
-export const stationCardHeight = (t: Theme) => headerHeight(t) + t.space[3] * 2 + t.layout.minTouch;
+// Top block (pills, name, address) and the footer row: the skeleton and the view-all tile match.
+export const stationCardHeight = (t: Theme) =>
+  topHeight(t) + t.space[3] + t.space[4] + t.layout.minTouch;
 
 const tripLabel = (km: number | null) => {
   if (km === null) return null;
@@ -41,7 +44,7 @@ const StationCard = ({ station, selected, width, onPress, onDirections }: Statio
   const t = useTheme();
   const availability = availabilityOf(station);
   const trip = tripLabel(station.distanceKm);
-  const onHeader = t.colors.onAccent;
+  const statusColor = t.colors.connector[pinColorKey(station.status)];
 
   return (
     <AppPressable
@@ -59,16 +62,18 @@ const StationCard = ({ station, selected, width, onPress, onDirections }: Statio
         },
       ]}
     >
+      <CardGradient color={statusColor} id={`station-card-${station.id}`} />
+
+      <View style={[styles.art, { top: t.space[10], right: t.space[2] }]}>
+        <ChargerArt size={artSize(t)} glow={statusColor} />
+      </View>
+
       <View
         style={[
-          styles.header,
-          { height: headerHeight(t), padding: t.space[4], backgroundColor: t.colors.accent },
+          styles.top,
+          { height: topHeight(t), paddingHorizontal: t.space[4], paddingTop: t.space[4] },
         ]}
       >
-        <View style={[styles.art, { right: -t.space[1], bottom: -t.space[6] }]}>
-          <ChargerArt size={artSize(t)} />
-        </View>
-
         <View style={[styles.row, styles.between]}>
           <View
             style={[
@@ -87,7 +92,7 @@ const StationCard = ({ station, selected, width, onPress, onDirections }: Statio
                 width: t.space[2],
                 height: t.space[2],
                 borderRadius: t.radius.pill,
-                backgroundColor: t.colors.connector[pinColorKey(station.status)],
+                backgroundColor: statusColor,
               }}
             />
             <AppText variant="caption">{STATUS_LABEL[station.status]}</AppText>
@@ -102,17 +107,17 @@ const StationCard = ({ station, selected, width, onPress, onDirections }: Statio
                   paddingHorizontal: t.space[3],
                   paddingVertical: t.space[1],
                   borderRadius: t.radius.pill,
-                  backgroundColor: withAlpha(t.colors.surface, 0.2),
+                  backgroundColor: withAlpha(t.colors.surface, 0.8),
                 },
               ]}
             >
               <Zap
-                color={onHeader}
-                fill={onHeader}
+                color={t.colors.accentText}
+                fill={t.colors.accentText}
                 size={t.icon.meta}
                 strokeWidth={t.icon.stroke}
               />
-              <AppText variant="subhead" tabular style={{ color: onHeader }}>
+              <AppText variant="subhead" tabular>
                 {station.maxPowerKw} kW
               </AppText>
             </View>
@@ -120,11 +125,11 @@ const StationCard = ({ station, selected, width, onPress, onDirections }: Statio
         </View>
 
         <View style={styles.title}>
-          <AppText variant="headline" numberOfLines={2} style={{ color: onHeader }}>
+          <AppText variant="headline" numberOfLines={2}>
             {station.name}
           </AppText>
           {station.address ? (
-            <AppText variant="caption" numberOfLines={1} style={{ color: onHeader }}>
+            <AppText variant="caption" tone="secondary" numberOfLines={1}>
               {station.address}
             </AppText>
           ) : null}
@@ -134,7 +139,12 @@ const StationCard = ({ station, selected, width, onPress, onDirections }: Statio
       <View
         style={[
           styles.row,
-          { gap: t.space[3], paddingHorizontal: t.space[4], paddingVertical: t.space[3] },
+          {
+            gap: t.space[3],
+            paddingHorizontal: t.space[4],
+            paddingTop: t.space[3],
+            paddingBottom: t.space[4],
+          },
         ]}
       >
         <View style={styles.grow}>
@@ -185,9 +195,8 @@ const styles = StyleSheet.create({
   card: {
     overflow: 'hidden',
   },
-  header: {
+  top: {
     justifyContent: 'space-between',
-    overflow: 'hidden',
   },
   art: {
     position: 'absolute',
