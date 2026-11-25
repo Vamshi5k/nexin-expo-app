@@ -25,13 +25,13 @@ type StationCardProps = {
   onDirections: (station: NearbyStation) => void;
 };
 
-const topHeight = (t: Theme) => t.space[12] * 2 + t.space[6];
-// Sits between the pills and the footer so it never touches the Go button.
-const artSize = (t: Theme) => t.space[12] + t.space[8];
+// Three rows on one grid: pills, title with art, footer. Fixed row heights keep every card in
+// the carousel the same size; the skeleton and the view-all tile use the same total.
+const pillHeight = (t: Theme) => t.space[6] + t.space[1];
+const artSize = (t: Theme) => t.space[12] + t.space[6];
 
-// Top block (pills, name, address) and the footer row: the skeleton and the view-all tile match.
 export const stationCardHeight = (t: Theme) =>
-  topHeight(t) + t.space[3] + t.space[4] + t.layout.minTouch;
+  t.space[4] * 2 + pillHeight(t) + artSize(t) + t.layout.minTouch + t.space[3] * 2;
 
 const tripLabel = (km: number | null) => {
   if (km === null) return null;
@@ -47,6 +47,13 @@ const StationCard = ({ station, width, onPress, onDirections }: StationCardProps
   const trip = tripLabel(station.distanceKm);
   const statusColor = t.colors.connector[pinColorKey(station.status)];
 
+  const pill = {
+    height: pillHeight(t),
+    gap: t.space[2],
+    paddingHorizontal: t.space[3],
+    borderRadius: t.radius.pill,
+  };
+
   return (
     <AppPressable
       onPress={() => onPress(station.id)}
@@ -56,6 +63,8 @@ const StationCard = ({ station, width, onPress, onDirections }: StationCardProps
         styles.card,
         {
           width,
+          gap: t.space[3],
+          padding: t.space[4],
           borderRadius: t.radius.sheet,
           borderWidth: t.layout.hairline,
           backgroundColor: t.colors.surfaceRaised,
@@ -65,67 +74,42 @@ const StationCard = ({ station, width, onPress, onDirections }: StationCardProps
     >
       <CardGradient color={statusColor} id={`station-card-${station.id}`} />
 
-      <View style={[styles.art, { top: t.space[10], right: t.space[2] }]}>
-        <ChargerArt size={artSize(t)} glow={statusColor} />
-      </View>
+      <View style={[styles.row, styles.between]}>
+        <View style={[styles.row, pill, { backgroundColor: t.colors.surface }]}>
+          <View
+            style={{
+              width: t.space[2],
+              height: t.space[2],
+              borderRadius: t.radius.pill,
+              backgroundColor: statusColor,
+            }}
+          />
+          <AppText variant="caption">{STATUS_LABEL[station.status]}</AppText>
+        </View>
 
-      <View
-        style={[
-          styles.top,
-          { height: topHeight(t), paddingHorizontal: t.space[4], paddingTop: t.space[4] },
-        ]}
-      >
-        <View style={[styles.row, styles.between]}>
+        {station.maxPowerKw !== null ? (
           <View
             style={[
               styles.row,
-              {
-                gap: t.space[2],
-                paddingHorizontal: t.space[3],
-                paddingVertical: t.space[1],
-                borderRadius: t.radius.pill,
-                backgroundColor: t.colors.surface,
-              },
+              pill,
+              { gap: t.space[1], backgroundColor: withAlpha(t.colors.surface, 0.8) },
             ]}
           >
-            <View
-              style={{
-                width: t.space[2],
-                height: t.space[2],
-                borderRadius: t.radius.pill,
-                backgroundColor: statusColor,
-              }}
+            <Zap
+              color={t.colors.accentText}
+              fill={t.colors.accentText}
+              size={t.icon.meta}
+              strokeWidth={t.icon.stroke}
             />
-            <AppText variant="caption">{STATUS_LABEL[station.status]}</AppText>
+            <AppText variant="subhead" tabular>
+              {station.maxPowerKw} kW
+            </AppText>
           </View>
+        ) : null}
+      </View>
 
-          {station.maxPowerKw !== null ? (
-            <View
-              style={[
-                styles.row,
-                {
-                  gap: t.space[1],
-                  paddingHorizontal: t.space[3],
-                  paddingVertical: t.space[1],
-                  borderRadius: t.radius.pill,
-                  backgroundColor: withAlpha(t.colors.surface, 0.8),
-                },
-              ]}
-            >
-              <Zap
-                color={t.colors.accentText}
-                fill={t.colors.accentText}
-                size={t.icon.meta}
-                strokeWidth={t.icon.stroke}
-              />
-              <AppText variant="subhead" tabular>
-                {station.maxPowerKw} kW
-              </AppText>
-            </View>
-          ) : null}
-        </View>
-
-        <View style={styles.title}>
+      <View style={[styles.row, { height: artSize(t), gap: t.space[3] }]}>
+        <View style={styles.grow}>
           <AppText variant="headline" numberOfLines={2}>
             {station.name}
           </AppText>
@@ -135,19 +119,10 @@ const StationCard = ({ station, width, onPress, onDirections }: StationCardProps
             </AppText>
           ) : null}
         </View>
+        <ChargerArt size={artSize(t)} glow={statusColor} />
       </View>
 
-      <View
-        style={[
-          styles.row,
-          {
-            gap: t.space[3],
-            paddingHorizontal: t.space[4],
-            paddingTop: t.space[3],
-            paddingBottom: t.space[4],
-          },
-        ]}
-      >
+      <View style={[styles.row, { height: t.layout.minTouch, gap: t.space[3] }]}>
         <View style={styles.grow}>
           {trip ? (
             <View style={[styles.row, { gap: t.space[1] }]}>
@@ -196,21 +171,12 @@ const styles = StyleSheet.create({
   card: {
     overflow: 'hidden',
   },
-  top: {
-    justifyContent: 'space-between',
-  },
-  art: {
-    position: 'absolute',
-  },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   between: {
     justifyContent: 'space-between',
-  },
-  title: {
-    maxWidth: '70%',
   },
   grow: {
     flex: 1,
