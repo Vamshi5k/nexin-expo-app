@@ -1,6 +1,10 @@
 import { brand } from '@/core/config';
 
-import { fallbackClientConfig, toClientConfig, webUrl } from '@/features/client-config/api';
+import {
+  fallbackClientConfig,
+  toClientConfig,
+  webUrl,
+} from '@/features/client-config/api/clientConfig.api';
 
 const FULL = {
   clientDetails: {

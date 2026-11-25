@@ -22,12 +22,18 @@ jest.mock('@react-native-community/netinfo', () => ({
 }));
 jest.mock('@/core/log');
 jest.mock('@/shared/theme/fonts', () => ({ useBrandFonts: () => ({ loaded: true, error: null }) }));
-jest.mock('@/features/client-config/api', () => ({
-  ...jest.requireActual('@/features/client-config/api'),
-  getClientConfig: jest.fn(async () => {
-    throw new Error('offline');
-  }),
-}));
+jest.mock('@/features/client-config/api/clientConfig.api', () => {
+  const actual = jest.requireActual('@/features/client-config/api/clientConfig.api');
+  return {
+    ...actual,
+    clientConfigApi: {
+      ...actual.clientConfigApi,
+      getConfig: jest.fn(async () => {
+        throw new Error('offline');
+      }),
+    },
+  };
+});
 jest.mock('@/features/auth/api', () => ({
   ...jest.requireActual('@/features/auth/api'),
   getUser: jest.fn(),
