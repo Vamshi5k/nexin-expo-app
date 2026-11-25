@@ -1,8 +1,9 @@
+import type { ReactNode } from 'react';
+import { Platform, StyleSheet, View } from 'react-native';
+
 import { BlurView } from 'expo-blur';
 import { router } from 'expo-router';
 import { ChevronLeft } from 'lucide-react-native';
-import type { ReactNode } from 'react';
-import { Platform, StyleSheet, View } from 'react-native';
 import Animated, {
   interpolate,
   useAnimatedScrollHandler,
@@ -12,11 +13,11 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { useTheme, withAlpha } from '@/shared/theme';
-
 import { HEADER_BAR_HEIGHT, type AppHeaderProps } from './AppHeader';
 import AppPressable from './AppPressable';
 import AppText from './AppText';
+
+import { useTheme, withAlpha } from '@/shared/theme';
 
 export type AppLargeTitleScrollProps = AppHeaderProps & {
   children: ReactNode;
@@ -25,13 +26,13 @@ export type AppLargeTitleScrollProps = AppHeaderProps & {
 
 const USE_BLUR = Platform.OS === 'ios';
 
-export default function AppLargeTitleScroll({
+const AppLargeTitleScroll = ({
   title,
   subtitle,
   back,
   right,
   children,
-}: AppLargeTitleScrollProps) {
+}: AppLargeTitleScrollProps) => {
   const t = useTheme();
   const insets = useSafeAreaInsets();
   const y = useSharedValue(0);
@@ -145,7 +146,9 @@ export default function AppLargeTitleScroll({
       </View>
     </View>
   );
-}
+};
+
+export default AppLargeTitleScroll;
 
 const styles = StyleSheet.create({
   flex: { flex: 1 },

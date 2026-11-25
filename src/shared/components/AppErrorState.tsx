@@ -10,13 +10,13 @@ export type AppErrorStateProps = {
   offline?: boolean;
 };
 
-export default function AppErrorState({
+const AppErrorState = ({
   message,
   title = 'Something went wrong',
   onRetry,
   retryLabel = 'Retry',
   offline,
-}: AppErrorStateProps) {
+}: AppErrorStateProps) => {
   return (
     <AppEmptyState
       icon={offline ? WifiOff : CircleAlert}
@@ -26,4 +26,6 @@ export default function AppErrorState({
       onAction={onRetry}
     />
   );
-}
+};
+
+export default AppErrorState;

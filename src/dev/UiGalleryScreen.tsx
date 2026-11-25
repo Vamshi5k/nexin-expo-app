@@ -1,3 +1,6 @@
+import { Fragment, useEffect, useState, type ReactNode } from 'react';
+import { View } from 'react-native';
+
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Bell,
@@ -16,21 +19,9 @@ import {
   X,
   Zap,
 } from 'lucide-react-native';
-import { Fragment, useEffect, useState, type ReactNode } from 'react';
 import { useForm } from 'react-hook-form';
-import { View } from 'react-native';
 import { z } from 'zod';
 
-import { brand, phonePattern, type ConnectorStatus } from '@/core/config';
-import { showPermissionBlocked } from '@/core/permissions';
-import {
-  ThemeScope,
-  useSchemeOverride,
-  useTheme,
-  type ColorScheme,
-  type Palette,
-  type TypeVariant,
-} from '@/shared/theme';
 import {
   AppBadge,
   AppBrandLogo,
@@ -54,6 +45,18 @@ import {
   AppStatusChip,
   AppText,
 } from '@/shared/components';
+
+import {
+  ThemeScope,
+  useSchemeOverride,
+  useTheme,
+  type ColorScheme,
+  type Palette,
+  type TypeVariant,
+} from '@/shared/theme';
+
+import { brand, phonePattern, type ConnectorStatus } from '@/core/config';
+import { showPermissionBlocked } from '@/core/permissions';
 import { toast } from '@/shared/utils/toast';
 
 const SECTIONS: Record<string, () => ReactNode> = {

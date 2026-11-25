@@ -1,6 +1,7 @@
-import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
 import { Image, StyleSheet, useColorScheme } from 'react-native';
+
+import * as SplashScreen from 'expo-splash-screen';
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -13,8 +14,9 @@ import Animated, {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { scheduleOnRN } from 'react-native-worklets';
 
-import { brand } from '@/core/config';
 import { useTheme, withAlpha } from '@/shared/theme';
+
+import { brand } from '@/core/config';
 
 const SPLASH = require('../../../brand/assets/splash.png');
 const TRACK = 120;
@@ -27,7 +29,11 @@ function splashSize() {
 
 // Pixel-matches the native splash, then docks the logo into the auth top bar's logo slot
 // while the backdrop fades, so the first screen appears to grow out of the splash.
-export default function AppSplashOverlay({ ready }: { ready: boolean }) {
+type AppSplashOverlayProps = {
+  ready: boolean;
+};
+
+const AppSplashOverlay = ({ ready }: AppSplashOverlayProps) => {
   const t = useTheme();
   const device = useColorScheme();
   const insets = useSafeAreaInsets();
@@ -124,7 +130,9 @@ export default function AppSplashOverlay({ ready }: { ready: boolean }) {
       </Animated.View>
     </Animated.View>
   );
-}
+};
+
+export default AppSplashOverlay;
 
 const styles = StyleSheet.create({
   center: { alignItems: 'center', justifyContent: 'center', zIndex: 100 },

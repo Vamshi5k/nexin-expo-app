@@ -1,10 +1,11 @@
-import type { LucideIcon } from 'lucide-react-native';
 import { View } from 'react-native';
 
-import { useTheme } from '@/shared/theme';
+import type { LucideIcon } from 'lucide-react-native';
 
 import AppButton from './AppButton';
 import AppText from './AppText';
+
+import { useTheme } from '@/shared/theme';
 
 export type AppEmptyStateProps = {
   icon: LucideIcon;
@@ -14,13 +15,13 @@ export type AppEmptyStateProps = {
   onAction?: () => void;
 };
 
-export default function AppEmptyState({
+const AppEmptyState = ({
   icon: Icon,
   title,
   description,
   actionLabel,
   onAction,
-}: AppEmptyStateProps) {
+}: AppEmptyStateProps) => {
   const t = useTheme();
   return (
     <View
@@ -63,4 +64,6 @@ export default function AppEmptyState({
       ) : null}
     </View>
   );
-}
+};
+
+export default AppEmptyState;

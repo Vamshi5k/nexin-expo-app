@@ -1,13 +1,15 @@
-import { ChevronLeft } from 'lucide-react-native';
 import type { ReactNode } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
+
+import { ChevronLeft } from 'lucide-react-native';
 import Animated, { useAnimatedKeyboard, useAnimatedStyle } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { useTheme } from '@/shared/theme';
 import { AppPressable, AppReveal, AppText } from '@/shared/components';
 
 import { SetupStepper } from './SetupStepper';
+
+import { useTheme } from '@/shared/theme';
 
 // Content-first frame for the setup steps: top bar, named stepper, title, body, pinned footer.
 export function SetupLayout({

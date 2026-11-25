@@ -1,10 +1,12 @@
-import { WifiOff } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
 
-import { useTheme } from '@/shared/theme';
+import { WifiOff } from 'lucide-react-native';
+
 import { AppButton, AppReveal, AppText } from '@/shared/components';
 
 import { AuthScaffold } from '../components/AuthScaffold';
+
+import { useTheme } from '@/shared/theme';
 
 export type BootErrorScreenProps = { onRetry: () => void; retrying?: boolean };
 

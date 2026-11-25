@@ -1,13 +1,16 @@
 import { useRef } from 'react';
 import { StyleSheet, View, type FlatList } from 'react-native';
+
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { useTheme } from '@/shared/theme';
 import { AppAmbientBackground, AppButton, AppReveal, AppText } from '@/shared/components';
 
 import { OnboardingProgress } from '../components/OnboardingProgress';
 import { OnboardingSlide } from '../components/OnboardingSlide';
+
+import { useTheme } from '@/shared/theme';
+
 import { useOnboarding } from '../hooks';
 import type { OnboardingSlide as Slide } from '../types';
 

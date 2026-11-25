@@ -1,19 +1,23 @@
+import { useEffect } from 'react';
+import { StyleSheet } from 'react-native';
+
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
-import { StyleSheet } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import { log } from '@/core/log';
+import { AppOfflineBanner, AppPermissionDialog, AppSplashOverlay } from '@/shared/components';
+
 import { AuthProvider, BootErrorScreen, useBoot } from '@/features/auth';
 import { ClientConfigProvider } from '@/features/client-config';
 import { FleetProvider } from '@/features/fleet';
+
 import { ThemeProvider, useTheme } from '@/shared/theme';
 import { useBrandFonts } from '@/shared/theme/fonts';
-import { AppOfflineBanner, AppPermissionDialog, AppSplashOverlay } from '@/shared/components';
+
+import { log } from '@/core/log';
 import { AppToaster } from '@/shared/utils/toast';
 
 void SplashScreen.preventAutoHideAsync();

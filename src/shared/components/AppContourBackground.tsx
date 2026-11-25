@@ -1,5 +1,6 @@
 import { useEffect, useMemo } from 'react';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
+
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -36,7 +37,7 @@ function ring(cx: number, cy: number, r: number, phase: number): string {
 }
 
 // Flat topographic lines from the top-right corner; they slowly turn and breathe, and fade out by mid screen.
-export default function AppContourBackground() {
+const AppContourBackground = () => {
   const t = useTheme();
   const { width, height } = useWindowDimensions();
   const reduceMotion = useReducedMotion();
@@ -100,7 +101,9 @@ export default function AppContourBackground() {
       </Svg>
     </View>
   );
-}
+};
+
+export default AppContourBackground;
 
 const styles = StyleSheet.create({
   field: { position: 'absolute' },

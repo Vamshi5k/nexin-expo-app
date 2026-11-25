@@ -13,7 +13,7 @@ export const fontSources = {
   [families.Bold]: require('../../../brand/fonts/Bold.otf'),
 };
 
-export function useBrandFonts(): { loaded: boolean; error: Error | null } {
+export const useBrandFonts = (): { loaded: boolean; error: Error | null } => {
   const [loaded, error] = useFonts(fontSources);
   return { loaded, error };
-}
+};

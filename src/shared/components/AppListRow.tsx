@@ -1,13 +1,15 @@
-import type { LucideIcon } from 'lucide-react-native';
-import { ChevronRight } from 'lucide-react-native';
 import type { ReactNode } from 'react';
 import { View } from 'react-native';
+
+import type { LucideIcon } from 'lucide-react-native';
+import { ChevronRight } from 'lucide-react-native';
+
+import AppPressable from './AppPressable';
+import AppText from './AppText';
 
 import { useTheme } from '@/shared/theme';
 
 import type { HapticKind } from '@/shared/utils/haptics';
-import AppPressable from './AppPressable';
-import AppText from './AppText';
 
 export const LIST_ICON_BOX = 32;
 
@@ -25,7 +27,7 @@ export type AppListRowProps = {
   accessibilityHint?: string;
 };
 
-export default function AppListRow({
+const AppListRow = ({
   title,
   subtitle,
   icon: Icon,
@@ -37,7 +39,7 @@ export default function AppListRow({
   onPress,
   haptic = 'selection',
   accessibilityHint,
-}: AppListRowProps) {
+}: AppListRowProps) => {
   const t = useTheme();
   const c = t.colors;
   const tone = destructive ? 'danger' : iconTone;
@@ -105,4 +107,6 @@ export default function AppListRow({
       {content}
     </AppPressable>
   );
-}
+};
+
+export default AppListRow;

@@ -1,8 +1,7 @@
 import { View } from 'react-native';
 
-import { useTheme } from '@/shared/theme';
-
 import AppText from '../AppText';
+
 import BharatAcGlyph from './BharatAc';
 import BharatDcGlyph from './BharatDc';
 import Ccs1Glyph from './Ccs1';
@@ -11,6 +10,9 @@ import ChademoGlyph from './Chademo';
 import GbtGlyph from './Gbt';
 import Type1Glyph from './Type1';
 import Type2Glyph from './Type2';
+
+import { useTheme } from '@/shared/theme';
+
 import { toConnectorType, type ConnectorGlyphProps, type ConnectorType } from './types';
 
 const GLYPHS: Record<ConnectorType, (p: ConnectorGlyphProps) => React.JSX.Element> = {
@@ -31,12 +33,12 @@ export type AppConnectorIconProps = {
   showLabel?: boolean;
 };
 
-export default function AppConnectorIcon({
+const AppConnectorIcon = ({
   type,
   available = true,
   size = 40,
   showLabel,
-}: AppConnectorIconProps) {
+}: AppConnectorIconProps) => {
   const t = useTheme();
   const known = toConnectorType(type);
   const Glyph = known ? GLYPHS[known] : Type2Glyph;
@@ -54,4 +56,6 @@ export default function AppConnectorIcon({
       ) : null}
     </View>
   );
-}
+};
+
+export default AppConnectorIcon;

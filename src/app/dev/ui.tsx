@@ -1,8 +1,9 @@
 import { Redirect, useLocalSearchParams } from 'expo-router';
 
-import { APP_ENV } from '@/core/config';
 import { isDevToolsEnabled } from '@/dev/devTools';
 import { UiGalleryScreen } from '@/dev/UiGalleryScreen';
+
+import { APP_ENV } from '@/core/config';
 
 export default function DevUiRoute() {
   const { scheme, section } = useLocalSearchParams<{ scheme?: string; section?: string }>();

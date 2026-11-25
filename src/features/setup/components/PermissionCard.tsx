@@ -1,10 +1,13 @@
-import type { LucideIcon } from 'lucide-react-native';
-import { Check } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
 
-import type { PermissionResult } from '@/core/permissions';
-import { useTheme } from '@/shared/theme';
+import type { LucideIcon } from 'lucide-react-native';
+import { Check } from 'lucide-react-native';
+
 import { AppButton, AppText } from '@/shared/components';
+
+import { useTheme } from '@/shared/theme';
+
+import type { PermissionResult } from '@/core/permissions';
 
 // Flat card: sunken at rest, tinted with a check once allowed. No shadow.
 export function PermissionCard({

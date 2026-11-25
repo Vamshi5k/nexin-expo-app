@@ -1,14 +1,18 @@
-import { Mail } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
+
+import { Mail } from 'lucide-react-native';
 import Animated, { Easing, FadeIn } from 'react-native-reanimated';
 
-import { brand } from '@/core/config';
-import { useTheme } from '@/shared/theme';
 import { AppButton, AppFormInput, AppReveal, AppText } from '@/shared/components';
 
 import { AuthScaffold } from '../components/AuthScaffold';
 import { ChargingIllustration } from '../components/ChargingIllustration';
 import { LegalLink } from '../components/LegalLink';
+
+import { useTheme } from '@/shared/theme';
+
+import { brand } from '@/core/config';
+
 import { useLoginForm } from '../hooks';
 
 export function LoginScreen() {

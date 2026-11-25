@@ -1,6 +1,7 @@
-import type { LucideIcon } from 'lucide-react-native';
 import { useEffect } from 'react';
 import { ActivityIndicator, StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
+
+import type { LucideIcon } from 'lucide-react-native';
 import Animated, {
   FadeIn,
   FadeOut,
@@ -10,10 +11,11 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
+import AppPressable from './AppPressable';
+
 import { useTheme, type Palette } from '@/shared/theme';
 
 import type { HapticKind } from '@/shared/utils/haptics';
-import AppPressable from './AppPressable';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'dangerOutline';
 
@@ -50,7 +52,7 @@ function colorsFor(variant: ButtonVariant, c: Palette): VariantColors {
   }
 }
 
-export default function AppButton({
+const AppButton = ({
   label,
   onPress,
   variant = 'primary',
@@ -62,7 +64,7 @@ export default function AppButton({
   haptic = 'light',
   style,
   accessibilityHint,
-}: AppButtonProps) {
+}: AppButtonProps) => {
   const t = useTheme();
   const inactive = disabled || loading;
   const filled = variant === 'primary' || variant === 'danger';
@@ -139,7 +141,9 @@ export default function AppButton({
       )}
     </AppPressable>
   );
-}
+};
+
+export default AppButton;
 
 const styles = StyleSheet.create({
   base: { alignItems: 'center', justifyContent: 'center' },

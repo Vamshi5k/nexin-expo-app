@@ -1,9 +1,9 @@
 import NetInfo, { useNetInfo } from '@react-native-community/netinfo';
 
-export function useOnline(): boolean | null {
+export const useOnline = (): boolean | null => {
   const { isConnected } = useNetInfo();
   return isConnected;
-}
+};
 
 export async function recheckOnline(): Promise<boolean> {
   const state = await NetInfo.refresh();

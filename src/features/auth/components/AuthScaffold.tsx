@@ -1,7 +1,8 @@
-import { router } from 'expo-router';
-import { ChevronLeft } from 'lucide-react-native';
 import type { ReactNode } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
+
+import { router } from 'expo-router';
+import { ChevronLeft } from 'lucide-react-native';
 import Animated, {
   Easing,
   FadeInDown,
@@ -10,9 +11,11 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { AppLogo } from '@/features/client-config';
-import { useTheme } from '@/shared/theme';
 import { AppContourBackground, AppPressable } from '@/shared/components';
+
+import { AppLogo } from '@/features/client-config';
+
+import { useTheme } from '@/shared/theme';
 
 export type AuthScaffoldProps = {
   hero: ReactNode;

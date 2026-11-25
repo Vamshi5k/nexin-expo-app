@@ -10,11 +10,7 @@ export type AppFormInputProps<T extends FieldValues> = Omit<
   name: FieldPath<T>;
 };
 
-export default function AppFormInput<T extends FieldValues>({
-  control,
-  name,
-  ...input
-}: AppFormInputProps<T>) {
+const AppFormInput = <T extends FieldValues>({ control, name, ...input }: AppFormInputProps<T>) => {
   return (
     <Controller
       control={control}
@@ -31,4 +27,6 @@ export default function AppFormInput<T extends FieldValues>({
       )}
     />
   );
-}
+};
+
+export default AppFormInput;

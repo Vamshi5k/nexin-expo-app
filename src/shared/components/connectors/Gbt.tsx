@@ -2,7 +2,7 @@ import Svg, { Circle, Path } from 'react-native-svg';
 
 import type { ConnectorGlyphProps } from './types';
 
-export default function GbtGlyph({ color, holeColor, size = 40 }: ConnectorGlyphProps) {
+const GbtGlyph = ({ color, holeColor, size = 40 }: ConnectorGlyphProps) => {
   return (
     <Svg viewBox="0 0 20 20" width={size} height={size}>
       {/* Outer Shape */}
@@ -30,4 +30,6 @@ export default function GbtGlyph({ color, holeColor, size = 40 }: ConnectorGlyph
       <Circle cx={12.93} cy={9.81} r={0.92} fill={holeColor} />
     </Svg>
   );
-}
+};
+
+export default GbtGlyph;

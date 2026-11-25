@@ -109,6 +109,6 @@ export async function signOutThen(
   );
 }
 
-export function useSession<T>(selector: (s: SessionState) => T): T {
+export const useSession = <T>(selector: (s: SessionState) => T): T => {
   return useStore(sessionStore, selector);
-}
+};

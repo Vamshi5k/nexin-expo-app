@@ -1,11 +1,13 @@
-import type { LucideIcon } from 'lucide-react-native';
 import { Modal, StyleSheet, View } from 'react-native';
+
+import type { LucideIcon } from 'lucide-react-native';
+
+import AppButton from './AppButton';
+import AppText from './AppText';
 
 import { useTheme } from '@/shared/theme';
 
-import AppButton from './AppButton';
 import { haptics } from '@/shared/utils/haptics';
-import AppText from './AppText';
 
 export type AppDialogProps = {
   open: boolean;
@@ -20,7 +22,7 @@ export type AppDialogProps = {
   icon?: LucideIcon;
 };
 
-export default function AppDialog({
+const AppDialog = ({
   open,
   title,
   message,
@@ -31,7 +33,7 @@ export default function AppDialog({
   destructive,
   loading,
   icon: Icon,
-}: AppDialogProps) {
+}: AppDialogProps) => {
   const t = useTheme();
   return (
     <Modal
@@ -110,7 +112,9 @@ export default function AppDialog({
       </View>
     </Modal>
   );
-}
+};
+
+export default AppDialog;
 
 const styles = StyleSheet.create({
   backdrop: { flex: 1, alignItems: 'center', justifyContent: 'center' },

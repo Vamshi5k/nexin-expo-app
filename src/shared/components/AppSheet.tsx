@@ -1,16 +1,17 @@
+import { useCallback, useEffect, useRef, type ReactNode } from 'react';
+import { View } from 'react-native';
+
 import {
   BottomSheetBackdrop,
   BottomSheetModal,
   BottomSheetView,
   type BottomSheetBackdropProps,
 } from '@gorhom/bottom-sheet';
-import { useCallback, useEffect, useRef, type ReactNode } from 'react';
-import { View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { useTheme } from '@/shared/theme';
-
 import AppText from './AppText';
+
+import { useTheme } from '@/shared/theme';
 
 export type AppSheetProps = {
   open: boolean;
@@ -21,14 +22,14 @@ export type AppSheetProps = {
   dismissible?: boolean;
 };
 
-export default function AppSheet({
+const AppSheet = ({
   open,
   onClose,
   title,
   description,
   children,
   dismissible = true,
-}: AppSheetProps) {
+}: AppSheetProps) => {
   const t = useTheme();
   const insets = useSafeAreaInsets();
   const ref = useRef<BottomSheetModal>(null);
@@ -88,4 +89,6 @@ export default function AppSheet({
       </BottomSheetView>
     </BottomSheetModal>
   );
-}
+};
+
+export default AppSheet;

@@ -1,10 +1,10 @@
 import { Children, Fragment, isValidElement, type ReactNode } from 'react';
 import { View } from 'react-native';
 
-import { useTheme } from '@/shared/theme';
-
 import { LIST_ICON_BOX, type AppListRowProps } from './AppListRow';
 import AppText from './AppText';
+
+import { useTheme } from '@/shared/theme';
 
 export type AppListGroupProps = {
   title?: string;
@@ -12,7 +12,7 @@ export type AppListGroupProps = {
   children: ReactNode;
 };
 
-export default function AppListGroup({ title, footer, children }: AppListGroupProps) {
+const AppListGroup = ({ title, footer, children }: AppListGroupProps) => {
   const t = useTheme();
   const rows = Children.toArray(children).filter(isValidElement);
   const hasIcons = rows.some(r => (r.props as Partial<AppListRowProps>).icon != null);
@@ -61,4 +61,6 @@ export default function AppListGroup({ title, footer, children }: AppListGroupPr
       ) : null}
     </View>
   );
-}
+};
+
+export default AppListGroup;

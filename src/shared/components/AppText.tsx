@@ -32,7 +32,7 @@ export type AppTextProps = RNTextProps & {
   align?: TextStyle['textAlign'];
 };
 
-export default function AppText({
+const AppText = ({
   variant = 'body',
   tone = 'primary',
   tabular,
@@ -40,7 +40,7 @@ export default function AppText({
   style,
   maxFontSizeMultiplier,
   ...rest
-}: AppTextProps) {
+}: AppTextProps) => {
   const t = useTheme();
   return (
     <RNText
@@ -54,4 +54,6 @@ export default function AppText({
       {...rest}
     />
   );
-}
+};
+
+export default AppText;

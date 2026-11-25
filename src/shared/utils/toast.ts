@@ -1,5 +1,6 @@
-import { CircleAlert, CircleCheck, Info } from 'lucide-react-native';
 import { createElement } from 'react';
+
+import { CircleAlert, CircleCheck, Info } from 'lucide-react-native';
 import { Toaster, toast as sonner } from 'sonner-native';
 
 import { useTheme } from '@/shared/theme';
@@ -49,7 +50,7 @@ export const toast = {
   },
 };
 
-export function AppToaster() {
+export const AppToaster = () => {
   const t = useTheme();
   const c = t.colors;
   const icon = (Icon: typeof Info, color: string) =>
@@ -78,4 +79,4 @@ export function AppToaster() {
       descriptionStyle: { ...t.type.caption, color: c.textSecondary },
     },
   });
-}
+};

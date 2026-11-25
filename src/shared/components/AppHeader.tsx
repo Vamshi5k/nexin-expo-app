@@ -1,12 +1,13 @@
-import { router } from 'expo-router';
-import { ChevronLeft } from 'lucide-react-native';
 import type { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import { useTheme } from '@/shared/theme';
+import { router } from 'expo-router';
+import { ChevronLeft } from 'lucide-react-native';
 
 import AppPressable from './AppPressable';
 import AppText from './AppText';
+
+import { useTheme } from '@/shared/theme';
 
 export const HEADER_BAR_HEIGHT = 44;
 
@@ -16,7 +17,7 @@ export type AppHeaderProps = {
   right?: ReactNode;
 };
 
-export default function AppHeader({ title, back, right }: AppHeaderProps) {
+const AppHeader = ({ title, back, right }: AppHeaderProps) => {
   const t = useTheme();
   const onBack = typeof back === 'function' ? back : () => router.back();
   return (
@@ -39,7 +40,9 @@ export default function AppHeader({ title, back, right }: AppHeaderProps) {
       <View style={[styles.side, styles.right]}>{right}</View>
     </View>
   );
-}
+};
+
+export default AppHeader;
 
 const styles = StyleSheet.create({
   bar: { flexDirection: 'row', alignItems: 'center' },

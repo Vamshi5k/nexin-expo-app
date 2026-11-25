@@ -1,7 +1,8 @@
-import { VehicleFormBody, VehicleTrail } from '@/features/vehicles';
 import { AppButton } from '@/shared/components';
 
 import { SetupLayout } from '../components/SetupLayout';
+import { VehicleFormBody, VehicleTrail } from '@/features/vehicles';
+
 import { useVehicleSetup } from '../hooks';
 
 export function VehicleSetupScreen() {

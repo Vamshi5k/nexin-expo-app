@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
+
 import Animated, {
   Easing,
   FadeIn,
@@ -13,6 +14,7 @@ import Animated, {
 import Svg, { Circle, Path, Rect } from 'react-native-svg';
 
 import { useTheme } from '@/shared/theme';
+
 import { useKeyboardOpen } from '@/shared/utils/keyboard';
 
 const AnimatedPath = Animated.createAnimatedComponent(Path);

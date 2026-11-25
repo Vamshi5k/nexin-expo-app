@@ -1,13 +1,16 @@
-import { router } from 'expo-router';
 import { useRef } from 'react';
 import { StyleSheet, View, type TextInputInstance } from 'react-native';
 
-import { useTheme } from '@/shared/theme';
+import { router } from 'expo-router';
+
 import { AppButton, AppReveal, AppText } from '@/shared/components';
 
 import { AuthScaffold } from '../components/AuthScaffold';
 import { ChargingIllustration } from '../components/ChargingIllustration';
 import { OtpInput } from '../components/OtpInput';
+
+import { useTheme } from '@/shared/theme';
+
 import { useOtpForm } from '../hooks';
 import type { ContactType } from '../types';
 

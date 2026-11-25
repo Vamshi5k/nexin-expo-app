@@ -1,12 +1,13 @@
-import type { StoreApi } from 'zustand';
 import { z } from 'zod';
+import type { StoreApi } from 'zustand';
+
+import { fleetLogout } from '@/features/fleet';
 
 import { statusOf } from '@/core/api';
 import { brand, phonePattern } from '@/core/config';
 import { log } from '@/core/log';
 import { sessionStore, type SessionMode, type SessionState } from '@/core/session';
 import { hydrateStorage, KV_KEYS, kv, migrateLegacyStorage } from '@/core/storage';
-import { fleetLogout } from '@/features/fleet';
 
 import { logout } from './api';
 import { ONBOARDING_DONE_VALUE, SESSION_CHECK_TIMEOUT_MS } from './constants';

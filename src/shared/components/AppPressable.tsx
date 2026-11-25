@@ -6,6 +6,7 @@ import {
   type StyleProp,
   type ViewStyle,
 } from 'react-native';
+
 import Animated, {
   useAnimatedStyle,
   useReducedMotion,
@@ -27,7 +28,7 @@ export type AppPressableProps = Omit<RNPressableProps, 'style' | 'children'> & {
   haptic?: HapticKind | false;
 };
 
-export default function AppPressable({
+const AppPressable = ({
   feedback = 'scale',
   haptic = false,
   onPressIn,
@@ -37,7 +38,7 @@ export default function AppPressable({
   disabled,
   hitSlop,
   ...rest
-}: AppPressableProps) {
+}: AppPressableProps) => {
   const t = useTheme();
   const reduceMotion = useReducedMotion();
   const pressed = useSharedValue(0);
@@ -71,4 +72,6 @@ export default function AppPressable({
       {...rest}
     />
   );
-}
+};
+
+export default AppPressable;

@@ -1,10 +1,12 @@
-import { type Href } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
+
+import { type Href } from 'expo-router';
+
+import { useClientConfig, usePrimeClientConfig } from '@/features/client-config';
+import { useFleet } from '@/features/fleet';
 
 import { log } from '@/core/log';
 import { sessionStore, useSession } from '@/core/session';
-import { useClientConfig, usePrimeClientConfig } from '@/features/client-config';
-import { useFleet } from '@/features/fleet';
 
 import { START_HREF } from './constants';
 import { useAuth } from './hooks';

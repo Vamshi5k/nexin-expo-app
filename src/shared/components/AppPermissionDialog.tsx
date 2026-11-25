@@ -1,10 +1,10 @@
 import { Linking } from 'react-native';
 
-import { PERMISSION_COPY, usePermissionBlocked } from '@/core/permissions';
-
 import AppDialog from './AppDialog';
 
-export default function AppPermissionDialog() {
+import { PERMISSION_COPY, usePermissionBlocked } from '@/core/permissions';
+
+const AppPermissionDialog = () => {
   const kind = usePermissionBlocked(s => s.kind);
   const close = usePermissionBlocked(s => s.close);
   const copy = kind ? PERMISSION_COPY[kind] : null;
@@ -22,4 +22,6 @@ export default function AppPermissionDialog() {
       onCancel={() => close(false)}
     />
   );
-}
+};
+
+export default AppPermissionDialog;

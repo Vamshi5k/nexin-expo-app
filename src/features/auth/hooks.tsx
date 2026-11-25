@@ -1,6 +1,3 @@
-import { zodResolver } from '@hookform/resolvers/zod';
-import { router } from 'expo-router';
-import * as WebBrowser from 'expo-web-browser';
 import {
   createContext,
   useCallback,
@@ -11,7 +8,6 @@ import {
   type ReactNode,
   type RefObject,
 } from 'react';
-import { useForm, useWatch } from 'react-hook-form';
 import {
   Keyboard,
   useWindowDimensions,
@@ -19,6 +15,11 @@ import {
   type NativeScrollEvent,
   type NativeSyntheticEvent,
 } from 'react-native';
+
+import { zodResolver } from '@hookform/resolvers/zod';
+import { router } from 'expo-router';
+import * as WebBrowser from 'expo-web-browser';
+import { useForm, useWatch } from 'react-hook-form';
 import {
   Easing,
   Extrapolation,
@@ -31,12 +32,13 @@ import {
   withTiming,
 } from 'react-native-reanimated';
 
+import { useClientConfig } from '@/features/client-config';
+
 import { getErrorMessage, statusOf } from '@/core/api';
 import { brand } from '@/core/config';
 import { log } from '@/core/log';
 import { useAction, useSessionData, type LoadStatus } from '@/core/request';
 import { sessionStore, signOutThen, useSession, type SessionMode } from '@/core/session';
-import { useClientConfig } from '@/features/client-config';
 import { haptics } from '@/shared/utils/haptics';
 import { toast } from '@/shared/utils/toast';
 

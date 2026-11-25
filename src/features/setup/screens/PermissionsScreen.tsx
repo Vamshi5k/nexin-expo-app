@@ -1,11 +1,14 @@
-import { Bell, MapPin } from 'lucide-react-native';
 import { View } from 'react-native';
 
-import { useTheme } from '@/shared/theme';
+import { Bell, MapPin } from 'lucide-react-native';
+
 import { AppButton, AppText } from '@/shared/components';
 
 import { PermissionCard } from '../components/PermissionCard';
 import { SetupLayout } from '../components/SetupLayout';
+
+import { useTheme } from '@/shared/theme';
+
 import { PERMISSIONS_COPY } from '../constants';
 import { usePermissionsSetup } from '../hooks';
 

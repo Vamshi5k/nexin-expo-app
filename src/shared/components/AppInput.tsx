@@ -1,6 +1,7 @@
-import type { LucideIcon } from 'lucide-react-native';
 import { useEffect, useState, type ComponentRef, type ReactNode, type Ref } from 'react';
 import { StyleSheet, TextInput, View, type TextInputProps } from 'react-native';
+
+import type { LucideIcon } from 'lucide-react-native';
 import Animated, {
   FadeIn,
   interpolateColor,
@@ -11,9 +12,9 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
-import { useTheme, withAlpha } from '@/shared/theme';
-
 import AppText from './AppText';
+
+import { useTheme, withAlpha } from '@/shared/theme';
 
 export type AppInputProps = Omit<TextInputProps, 'style' | 'placeholderTextColor'> & {
   label?: string;
@@ -26,7 +27,7 @@ export type AppInputProps = Omit<TextInputProps, 'style' | 'placeholderTextColor
   ref?: Ref<ComponentRef<typeof TextInput>>;
 };
 
-export default function AppInput({
+const AppInput = ({
   label,
   hint,
   error,
@@ -39,7 +40,7 @@ export default function AppInput({
   onBlur,
   ref,
   ...rest
-}: AppInputProps) {
+}: AppInputProps) => {
   const t = useTheme();
   const c = t.colors;
   const reduceMotion = useReducedMotion();
@@ -144,7 +145,9 @@ export default function AppInput({
       ) : null}
     </View>
   );
-}
+};
+
+export default AppInput;
 
 const styles = StyleSheet.create({
   field: { flexDirection: 'row', alignItems: 'center' },

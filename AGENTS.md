@@ -125,14 +125,14 @@ Prettier (.prettierrc): `singleQuote`, `trailingComma: all`, `printWidth: 100`,
   `StyleSheet.create` at the bottom.
 - Static styles go in `StyleSheet.create` with theme tokens; theme-dependent values (colours)
   go inline as the second array item: `style={[styles.card, { backgroundColor: t.colors.surface }]}`.
-- Import order, with a blank line between groups:
+- Import order, with a blank line between groups (ESLint `import/order` enforces it):
   1. react, react-native
   2. third-party libraries
-  3. @/shared/components
+  3. @/shared/components (and `./App*` inside the kit)
   4. other features (@/features/\*) and this feature's components
   5. @/shared/theme
-  6. @/core, @/shared/utils, @/shared/assets, then this feature's hooks, api, constants,
-     types and utils
+  6. @/core, @/shared/utils, @/shared/assets, @brand
+  7. relative imports: this feature's hooks, api, constants, types and utils
 - Early returns instead of nested if/else. A blank line between logical blocks in a function.
 - Providers follow one pattern: `createContext<XContextType | undefined>(undefined)`, every
   action in `useCallback`, the value in `useMemo`, and a `useX` hook that throws when used

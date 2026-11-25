@@ -6,6 +6,7 @@ import {
   TextInput,
   type TextInputInstance,
 } from 'react-native';
+
 import Animated, {
   Easing,
   interpolateColor,
@@ -18,8 +19,9 @@ import Animated, {
   ZoomIn,
 } from 'react-native-reanimated';
 
-import { useTheme, withAlpha } from '@/shared/theme';
 import { AppText } from '@/shared/components';
+
+import { useTheme, withAlpha } from '@/shared/theme';
 
 import { otpCells, sanitizeOtp } from '../session';
 

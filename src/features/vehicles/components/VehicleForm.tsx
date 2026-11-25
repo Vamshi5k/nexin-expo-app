@@ -1,10 +1,7 @@
-import { Car, ChevronRight, Cpu, Hash, Search } from 'lucide-react-native';
 import { View } from 'react-native';
 
-import { getErrorMessage } from '@/core/api';
-import { brand as appBrand } from '@/core/config';
-import type { RequestState } from '@/core/request';
-import { useTheme } from '@/shared/theme';
+import { Car, ChevronRight, Cpu, Hash, Search } from 'lucide-react-native';
+
 import {
   AppEmptyState,
   AppErrorState,
@@ -13,6 +10,14 @@ import {
   AppPressable,
   AppText,
 } from '@/shared/components';
+
+import { OptionGrid, OptionGridSkeleton, type Option } from './OptionGrid';
+
+import { useTheme } from '@/shared/theme';
+
+import { getErrorMessage } from '@/core/api';
+import { brand as appBrand } from '@/core/config';
+import type { RequestState } from '@/core/request';
 
 import {
   CUSTOM_CAPACITY_MAX_KWH,
@@ -23,8 +28,6 @@ import {
 } from '../constants';
 import { formatCapacity, matchesQuery } from '../form';
 import type { VehicleWizard } from '../hooks';
-
-import { OptionGrid, OptionGridSkeleton, type Option } from './OptionGrid';
 
 export function VehicleFormBody({ wizard }: { wizard: VehicleWizard }) {
   return <StepBody wizard={wizard} />;

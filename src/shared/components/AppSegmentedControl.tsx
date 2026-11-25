@@ -1,9 +1,9 @@
 import { View } from 'react-native';
 
-import { useTheme } from '@/shared/theme';
-
 import AppPressable from './AppPressable';
 import AppText from './AppText';
+
+import { useTheme } from '@/shared/theme';
 
 export type Segment<T extends string> = { value: T; label: string };
 
@@ -14,12 +14,12 @@ export type AppSegmentedControlProps<T extends string> = {
   accessibilityLabel?: string;
 };
 
-export default function AppSegmentedControl<T extends string>({
+const AppSegmentedControl = <T extends string>({
   segments,
   value,
   onChange,
   accessibilityLabel,
-}: AppSegmentedControlProps<T>) {
+}: AppSegmentedControlProps<T>) => {
   const t = useTheme();
   return (
     <View
@@ -65,4 +65,6 @@ export default function AppSegmentedControl<T extends string>({
       })}
     </View>
   );
-}
+};
+
+export default AppSegmentedControl;

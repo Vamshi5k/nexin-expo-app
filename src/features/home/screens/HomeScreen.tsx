@@ -1,11 +1,8 @@
-import { router } from 'expo-router';
-import { LayoutGrid, LogOut, ShieldCheck } from 'lucide-react-native';
 import { View } from 'react-native';
 
-import { APP_ENV, brand } from '@/core/config';
-import { formatContact, LogoutDialog, useAuth, useLogoutConfirm } from '@/features/auth';
-import { useClientConfig } from '@/features/client-config';
-import { useTheme } from '@/shared/theme';
+import { router } from 'expo-router';
+import { LayoutGrid, LogOut, ShieldCheck } from 'lucide-react-native';
+
 import {
   AppCard,
   AppLargeTitleScroll,
@@ -13,6 +10,13 @@ import {
   AppListRow,
   AppText,
 } from '@/shared/components';
+
+import { formatContact, LogoutDialog, useAuth, useLogoutConfirm } from '@/features/auth';
+import { useClientConfig } from '@/features/client-config';
+
+import { useTheme } from '@/shared/theme';
+
+import { APP_ENV, brand } from '@/core/config';
 
 export function HomeScreen() {
   const t = useTheme();

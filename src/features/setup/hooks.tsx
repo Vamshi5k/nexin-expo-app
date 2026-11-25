@@ -1,18 +1,20 @@
+import { useCallback, useEffect, useState } from 'react';
+import { AppState, Keyboard, Linking, Platform } from 'react-native';
+
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as Location from 'expo-location';
 import * as Notifications from 'expo-notifications';
 import { router } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
-import { AppState, Keyboard, Linking, Platform } from 'react-native';
+
+import { markSetupDone, openLegal, registerPushToken, useAuth } from '@/features/auth';
+import { useClientConfig } from '@/features/client-config';
+import { useVehicleWizard } from '@/features/vehicles';
 
 import { getErrorMessage } from '@/core/api';
 import { log } from '@/core/log';
 import { checkPermission, requestPermission, type PermissionResult } from '@/core/permissions';
 import { useAction } from '@/core/request';
-import { markSetupDone, openLegal, registerPushToken, useAuth } from '@/features/auth';
-import { useClientConfig } from '@/features/client-config';
-import { useVehicleWizard } from '@/features/vehicles';
 import { toast } from '@/shared/utils/toast';
 
 import { updateProfile } from './api';

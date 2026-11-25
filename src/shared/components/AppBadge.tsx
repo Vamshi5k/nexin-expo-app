@@ -1,15 +1,15 @@
 import { View } from 'react-native';
 
-import { useTheme } from '@/shared/theme';
-
 import AppText from './AppText';
+
+import { useTheme } from '@/shared/theme';
 
 export type AppBadgeProps = {
   label: string | number;
   tone?: 'accent' | 'neutral' | 'danger';
 };
 
-export default function AppBadge({ label, tone = 'accent' }: AppBadgeProps) {
+const AppBadge = ({ label, tone = 'accent' }: AppBadgeProps) => {
   const t = useTheme();
   const c = t.colors;
   const palette = {
@@ -35,4 +35,6 @@ export default function AppBadge({ label, tone = 'accent' }: AppBadgeProps) {
       </AppText>
     </View>
   );
-}
+};
+
+export default AppBadge;

@@ -16,7 +16,7 @@ function assetRatio(): number {
   return s?.width && s.height ? s.width / s.height : 1;
 }
 
-export default function AppBrandLogo({ height = 40, uri, label }: AppBrandLogoProps) {
+const AppBrandLogo = ({ height = 40, uri, label }: AppBrandLogoProps) => {
   const [measured, setMeasured] = useState<{ uri: string; ratio: number } | null>(null);
   const [failedUri, setFailedUri] = useState<string | null>(null);
   const remote = uri && uri !== failedUri ? uri : null;
@@ -45,4 +45,6 @@ export default function AppBrandLogo({ height = 40, uri, label }: AppBrandLogoPr
       resizeMode="contain"
     />
   );
-}
+};
+
+export default AppBrandLogo;

@@ -1,9 +1,10 @@
-import type { ConnectorStatus } from '@brand/schema';
 import { View } from 'react-native';
+
+import AppText from './AppText';
 
 import { useTheme, withAlpha } from '@/shared/theme';
 
-import AppText from './AppText';
+import type { ConnectorStatus } from '@brand/schema';
 
 export type StatusTone = 'success' | 'warning' | 'danger' | 'neutral' | 'accent';
 
@@ -13,7 +14,7 @@ export type AppStatusChipProps = {
   connector?: ConnectorStatus;
 };
 
-export default function AppStatusChip({ label, tone = 'neutral', connector }: AppStatusChipProps) {
+const AppStatusChip = ({ label, tone = 'neutral', connector }: AppStatusChipProps) => {
   const t = useTheme();
   const c = t.colors;
   const tones = {
@@ -48,4 +49,6 @@ export default function AppStatusChip({ label, tone = 'neutral', connector }: Ap
       </AppText>
     </View>
   );
-}
+};
+
+export default AppStatusChip;

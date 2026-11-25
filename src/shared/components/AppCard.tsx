@@ -1,9 +1,9 @@
 import type { ReactNode } from 'react';
 import { View, type StyleProp, type ViewStyle } from 'react-native';
 
-import { useTheme } from '@/shared/theme';
-
 import AppPressable from './AppPressable';
+
+import { useTheme } from '@/shared/theme';
 
 export type AppCardProps = {
   children: ReactNode;
@@ -14,14 +14,14 @@ export type AppCardProps = {
   accessibilityLabel?: string;
 };
 
-export default function AppCard({
+const AppCard = ({
   children,
   onPress,
   elevation = 'flat',
   padded = true,
   style,
   accessibilityLabel,
-}: AppCardProps) {
+}: AppCardProps) => {
   const t = useTheme();
   // Flat everywhere: an elevated card is the raised surface with a stronger hairline, no shadow.
   const elevated = elevation === 'elevated';
@@ -40,4 +40,6 @@ export default function AppCard({
     );
   }
   return <View style={[base, style]}>{children}</View>;
-}
+};
+
+export default AppCard;

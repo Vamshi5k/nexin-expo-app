@@ -1,21 +1,23 @@
-import { RefreshCw, WifiOff } from 'lucide-react-native';
 import { useState } from 'react';
 import { View } from 'react-native';
+
+import { RefreshCw, WifiOff } from 'lucide-react-native';
 import Animated, { FadeInUp, FadeOutUp } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
-import { OFFLINE_COPY, recheckOnline, useOnline } from '@/core/network';
-import { useTheme } from '@/shared/theme';
 
 import AppButton from './AppButton';
 import AppText from './AppText';
 
-export default function AppOfflineBanner() {
+import { useTheme } from '@/shared/theme';
+
+import { OFFLINE_COPY, recheckOnline, useOnline } from '@/core/network';
+
+const AppOfflineBanner = () => {
   const online = useOnline();
   return online === false ? <OfflineCard /> : null;
-}
+};
 
-function OfflineCard() {
+const OfflineCard = () => {
   const t = useTheme();
   const insets = useSafeAreaInsets();
   const [checking, setChecking] = useState(false);
@@ -83,4 +85,6 @@ function OfflineCard() {
       />
     </Animated.View>
   );
-}
+};
+
+export default AppOfflineBanner;

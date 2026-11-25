@@ -8,6 +8,7 @@ import {
   type StyleProp,
   type ViewStyle,
 } from 'react-native';
+
 import { SafeAreaView, useSafeAreaInsets, type Edge } from 'react-native-safe-area-context';
 
 import { useTheme } from '@/shared/theme';
@@ -22,7 +23,7 @@ export type AppScreenProps = {
   contentStyle?: StyleProp<ViewStyle>;
 };
 
-export default function AppScreen({
+const AppScreen = ({
   children,
   scroll,
   footer,
@@ -30,7 +31,7 @@ export default function AppScreen({
   edges = ['top'],
   background = 'bg',
   contentStyle,
-}: AppScreenProps) {
+}: AppScreenProps) => {
   const t = useTheme();
   const insets = useSafeAreaInsets();
   const bg = t.colors[background];
@@ -73,6 +74,8 @@ export default function AppScreen({
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
-}
+};
+
+export default AppScreen;
 
 const styles = StyleSheet.create({ flex: { flex: 1 } });

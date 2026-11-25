@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import type { StyleProp, ViewStyle } from 'react-native';
+
 import Animated, { Easing, FadeInDown } from 'react-native-reanimated';
 
 import { motion } from '@/shared/theme';
@@ -10,7 +11,7 @@ export type AppRevealProps = {
   style?: StyleProp<ViewStyle>;
 };
 
-export default function AppReveal({ children, index = 0, style }: AppRevealProps) {
+const AppReveal = ({ children, index = 0, style }: AppRevealProps) => {
   return (
     <Animated.View
       style={style}
@@ -22,4 +23,6 @@ export default function AppReveal({ children, index = 0, style }: AppRevealProps
       {children}
     </Animated.View>
   );
-}
+};
+
+export default AppReveal;

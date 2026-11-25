@@ -1,16 +1,15 @@
 import { View } from 'react-native';
 
-import { useTheme } from '@/shared/theme';
-
 import AppSkeleton from './AppSkeleton';
 
-export default function AppSkeletonText({
-  lines = 3,
-  lineHeight = 14,
-}: {
+import { useTheme } from '@/shared/theme';
+
+type AppSkeletonTextProps = {
   lines?: number;
   lineHeight?: number;
-}) {
+};
+
+const AppSkeletonText = ({ lines = 3, lineHeight = 14 }: AppSkeletonTextProps) => {
   const t = useTheme();
   return (
     <View style={{ gap: t.space[2] }} accessibilityLabel="Loading" accessibilityRole="progressbar">
@@ -19,4 +18,6 @@ export default function AppSkeletonText({
       ))}
     </View>
   );
-}
+};
+
+export default AppSkeletonText;

@@ -1,5 +1,6 @@
-import { Redirect } from 'expo-router';
 import { View } from 'react-native';
+
+import { Redirect } from 'expo-router';
 
 import { useTheme } from '@/shared/theme';
 

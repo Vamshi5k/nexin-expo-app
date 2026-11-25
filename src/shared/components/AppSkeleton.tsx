@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { type DimensionValue, type StyleProp, type ViewStyle } from 'react-native';
+
 import Animated, {
   interpolateColor,
   useAnimatedStyle,
@@ -19,12 +20,7 @@ export type AppSkeletonProps = {
   style?: StyleProp<ViewStyle>;
 };
 
-export default function AppSkeleton({
-  width = '100%',
-  height = 16,
-  radius,
-  style,
-}: AppSkeletonProps) {
+const AppSkeleton = ({ width = '100%', height = 16, radius, style }: AppSkeletonProps) => {
   const t = useTheme();
   const reduceMotion = useReducedMotion();
   const p = useSharedValue(0);
@@ -53,4 +49,6 @@ export default function AppSkeleton({
       style={[{ width, height, borderRadius: radius ?? t.radius.control / 2 }, animated, style]}
     />
   );
-}
+};
+
+export default AppSkeleton;

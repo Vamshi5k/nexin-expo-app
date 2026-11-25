@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
+
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -15,7 +16,7 @@ import { useTheme } from '@/shared/theme';
 const CELL = 24;
 
 // Flat dot grid that fades out down the screen and drifts one cell at a time (seamless loop).
-export default function AppAmbientBackground() {
+const AppAmbientBackground = () => {
   const t = useTheme();
   const { width, height } = useWindowDimensions();
   const reduceMotion = useReducedMotion();
@@ -53,4 +54,6 @@ export default function AppAmbientBackground() {
       </Svg>
     </View>
   );
-}
+};
+
+export default AppAmbientBackground;

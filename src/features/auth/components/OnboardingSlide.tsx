@@ -1,5 +1,6 @@
-import { CreditCard, MapPin, Zap, type LucideIcon } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
+
+import { CreditCard, MapPin, Zap, type LucideIcon } from 'lucide-react-native';
 import Animated, {
   Extrapolation,
   interpolate,
@@ -7,11 +8,13 @@ import Animated, {
   type SharedValue,
 } from 'react-native-reanimated';
 
-import { useTheme } from '@/shared/theme';
 import { AppReveal, AppText } from '@/shared/components';
 
-import type { OnboardingSlide as Slide } from '../types';
 import { OnboardingArt } from './OnboardingArt';
+
+import { useTheme } from '@/shared/theme';
+
+import type { OnboardingSlide as Slide } from '../types';
 
 const SLIDE_ICONS: Record<Slide['key'], LucideIcon> = {
   find: MapPin,
