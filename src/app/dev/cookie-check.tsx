@@ -1,7 +1,6 @@
 import { Redirect, useLocalSearchParams } from 'expo-router';
 
-import { CookieCheckScreen } from '@/dev/CookieCheckScreen';
-import { isDevToolsEnabled } from '@/dev/devTools';
+import { CookieCheckScreen, isDevToolsEnabled } from '@/features/dev';
 
 import { APP_ENV } from '@/core/config';
 

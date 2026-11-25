@@ -1,4 +1,4 @@
-import { isDevToolsEnabled } from '@/dev/devTools';
+import { isDevToolsEnabled } from '@/features/dev/utils/devTools';
 
 describe('isDevToolsEnabled', () => {
   it('is off only in production', () => {

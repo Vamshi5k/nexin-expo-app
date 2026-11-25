@@ -1,7 +1,6 @@
 import { Redirect, useLocalSearchParams } from 'expo-router';
 
-import { isDevToolsEnabled } from '@/dev/devTools';
-import { UiGalleryScreen } from '@/dev/UiGalleryScreen';
+import { isDevToolsEnabled, UiGalleryScreen } from '@/features/dev';
 
 import { APP_ENV } from '@/core/config';
 

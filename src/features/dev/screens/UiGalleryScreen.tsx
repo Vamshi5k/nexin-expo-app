@@ -81,7 +81,7 @@ export type UiGalleryScreenProps = {
   section?: string;
 };
 
-export function UiGalleryScreen({ initialScheme, section }: UiGalleryScreenProps) {
+const UiGalleryScreen = ({ initialScheme, section }: UiGalleryScreenProps) => {
   const t = useTheme();
   const { setSchemeOverride } = useSchemeOverride();
   useEffect(() => {
@@ -90,6 +90,7 @@ export function UiGalleryScreen({ initialScheme, section }: UiGalleryScreenProps
   useEffect(() => () => setSchemeOverride(null), [setSchemeOverride]);
 
   const keys = section && SECTIONS[section] ? [section] : Object.keys(SECTIONS);
+
   return (
     <AppLargeTitleScroll title="UI kit" subtitle={`${brand.appName} · ${t.scheme} mode`} back>
       <View style={{ gap: t.layout.sectionGapLarge }}>
@@ -99,18 +100,17 @@ export function UiGalleryScreen({ initialScheme, section }: UiGalleryScreenProps
       </View>
     </AppLargeTitleScroll>
   );
-}
+};
 
-function Section({
-  title,
-  description,
-  children,
-}: {
+type SectionProps = {
   title: string;
   description?: string;
   children: ReactNode;
-}) {
+};
+
+const Section = ({ title, description, children }: SectionProps) => {
   const t = useTheme();
+
   return (
     <View style={{ gap: t.space[4] }}>
       <View style={{ gap: t.space[1] }}>
@@ -126,29 +126,36 @@ function Section({
       {children}
     </View>
   );
-}
+};
 
-function Pair({ children }: { children: [ReactNode, ReactNode] }) {
+type PairProps = { children: [ReactNode, ReactNode] };
+
+const Pair = ({ children }: PairProps) => {
   const t = useTheme();
+
   return (
     <View style={{ flexDirection: 'row', gap: t.space[3] }}>
       <View style={{ flex: 1 }}>{children[0]}</View>
       <View style={{ flex: 1 }}>{children[1]}</View>
     </View>
   );
-}
+};
 
-function Row({ children }: { children: ReactNode }) {
+type RowProps = { children: ReactNode };
+
+const Row = ({ children }: RowProps) => {
   const t = useTheme();
+
   return (
     <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[2], alignItems: 'center' }}>
       {children}
     </View>
   );
-}
+};
 
-function SchemeSection() {
+const SchemeSection = () => {
   const { schemeOverride, setSchemeOverride } = useSchemeOverride();
+
   return (
     <Section
       title="Appearance"
@@ -166,10 +173,11 @@ function SchemeSection() {
       />
     </Section>
   );
-}
+};
 
-function ModePreview() {
+const ModePreview = () => {
   const t = useTheme();
+
   return (
     <View
       style={{
@@ -208,10 +216,11 @@ function ModePreview() {
       </AppText>
     </View>
   );
-}
+};
 
-function ModesSection() {
+const ModesSection = () => {
   const t = useTheme();
+
   return (
     <Section
       title="Light and dark"
@@ -227,7 +236,7 @@ function ModesSection() {
       </View>
     </Section>
   );
-}
+};
 
 const SWATCHES: (keyof Palette)[] = [
   'bg',
@@ -248,8 +257,9 @@ const SWATCHES: (keyof Palette)[] = [
   'danger',
 ];
 
-function ColorsSection() {
+const ColorsSection = () => {
   const t = useTheme();
+
   return (
     <Section
       title="Colour tokens"
@@ -284,7 +294,7 @@ function ColorsSection() {
       </AppText>
     </Section>
   );
-}
+};
 
 const VARIANTS: TypeVariant[] = [
   'display',
@@ -297,8 +307,9 @@ const VARIANTS: TypeVariant[] = [
   'caption',
 ];
 
-function TypeSection() {
+const TypeSection = () => {
   const t = useTheme();
+
   return (
     <Section title="Typography">
       {VARIANTS.map(v => (
@@ -324,11 +335,12 @@ function TypeSection() {
       </Row>
     </Section>
   );
-}
+};
 
-function ButtonsSection() {
+const ButtonsSection = () => {
   const [loading, setLoading] = useState(false);
   const t = useTheme();
+
   return (
     <Section title="Buttons" description="One primary per screen. Secondary is never brand-filled.">
       <View style={{ gap: t.space[3] }}>
@@ -371,7 +383,7 @@ function ButtonsSection() {
       </View>
     </Section>
   );
-}
+};
 
 const phoneForm = z.object({
   phone: z
@@ -380,12 +392,13 @@ const phoneForm = z.object({
     .regex(phonePattern, 'Enter a valid phone number'),
 });
 
-function InputsSection() {
+const InputsSection = () => {
   const t = useTheme();
   const { control, handleSubmit } = useForm<z.infer<typeof phoneForm>>({
     resolver: zodResolver(phoneForm),
     defaultValues: { phone: '' },
   });
+
   return (
     <Section title="Inputs" description="Sunken neutral fill; brand border and ring on focus.">
       <View style={{ gap: t.space[4] }}>
@@ -415,10 +428,11 @@ function InputsSection() {
       </View>
     </Section>
   );
-}
+};
 
-function CardsSection() {
+const CardsSection = () => {
   const t = useTheme();
+
   return (
     <Section title="Cards">
       <AppCard elevation="elevated" style={{ gap: t.space[2] }}>
@@ -448,9 +462,9 @@ function CardsSection() {
       </AppCard>
     </Section>
   );
-}
+};
 
-function ListsSection() {
+const ListsSection = () => {
   return (
     <Section title="Grouped lists" description="Settings-style screens (Profile, Edit profile).">
       <AppListGroup title="Account">
@@ -473,7 +487,7 @@ function ListsSection() {
       </AppListGroup>
     </Section>
   );
-}
+};
 
 const CONNECTOR_STATUSES: ConnectorStatus[] = [
   'Available',
@@ -484,7 +498,7 @@ const CONNECTOR_STATUSES: ConnectorStatus[] = [
   'Unknown',
 ];
 
-function ChipsSection() {
+const ChipsSection = () => {
   return (
     <Section title="Status chips and badges">
       <Row>
@@ -506,10 +520,11 @@ function ChipsSection() {
       </Row>
     </Section>
   );
-}
+};
 
-function ConnectorsSection() {
+const ConnectorsSection = () => {
   const t = useTheme();
+
   return (
     <Section title="Connector icons">
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[4] }}>
@@ -525,10 +540,11 @@ function ConnectorsSection() {
       </Row>
     </Section>
   );
-}
+};
 
-function StatesSection() {
+const StatesSection = () => {
   const t = useTheme();
+
   return (
     <Section title="Loading, empty and error">
       <AppCard>
@@ -557,13 +573,14 @@ function StatesSection() {
       </AppCard>
     </Section>
   );
-}
+};
 
-function OverlaysSection() {
+const OverlaysSection = () => {
   const t = useTheme();
   const [sheet, setSheet] = useState(false);
   const [dialog, setDialog] = useState(false);
   const [tab, setTab] = useState<'ac' | 'dc'>('ac');
+
   return (
     <Section title="Header, sheet, dialog, segmented">
       <AppCard padded={false}>
@@ -621,9 +638,9 @@ function OverlaysSection() {
       />
     </Section>
   );
-}
+};
 
-function ToastsSection() {
+const ToastsSection = () => {
   const wait = (ms: number, ok: boolean) =>
     new Promise<string>((resolve, reject) =>
       setTimeout(() => (ok ? resolve('done') : reject(new Error('failed'))), ms),
@@ -675,10 +692,11 @@ function ToastsSection() {
       </AppListGroup>
     </Section>
   );
-}
+};
 
-function BrandSection() {
+const BrandSection = () => {
   const t = useTheme();
+
   return (
     <Section title="Brand">
       <AppCard style={{ alignItems: 'center', gap: t.space[3], paddingVertical: t.space[6] }}>
@@ -689,4 +707,6 @@ function BrandSection() {
       </AppCard>
     </Section>
   );
-}
+};
+
+export default UiGalleryScreen;

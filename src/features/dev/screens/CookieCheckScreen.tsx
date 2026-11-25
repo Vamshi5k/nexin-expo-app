@@ -25,12 +25,15 @@ type Line = { label: string; ok: boolean | null; detail: string };
 function describe(headers: unknown): string {
   const h = headers as Record<string, unknown> | undefined;
   const setCookie = h?.['set-cookie'];
+
   return setCookie
     ? `Set-Cookie visible to JS: ${String(setCookie).slice(0, 60)}`
     : 'no Set-Cookie visible to JS';
 }
 
-export function CookieCheckScreen({ autoRunLocal = false }: { autoRunLocal?: boolean }) {
+type CookieCheckScreenProps = { autoRunLocal?: boolean };
+
+const CookieCheckScreen = ({ autoRunLocal = false }: CookieCheckScreenProps) => {
   const t = useTheme();
   const [lines, setLines] = useState<Line[]>([]);
   const [busy, setBusy] = useState(false);
@@ -184,4 +187,6 @@ export function CookieCheckScreen({ autoRunLocal = false }: { autoRunLocal?: boo
       </View>
     </AppLargeTitleScroll>
   );
-}
+};
+
+export default CookieCheckScreen;
