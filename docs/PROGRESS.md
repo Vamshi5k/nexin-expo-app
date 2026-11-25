@@ -7,7 +7,8 @@ Phase numbers follow the project prompts, not BLUEPRINT.md section 7:
 | 0     | Template and white-label brand layer                                           | part of Phase 0           | Done                                |
 | 1     | Foundation (theme, UI kit, core api/session/storage, root layout) + UI refresh | Phase 0                   | Done, tag `phase-1-done`            |
 | 2     | Client config and consumer auth (A1-A4, A9)                                    | Phase 1                   | Merged to `main`; device check open |
-| fix   | Setup resume, fleet login (F1-F2), shared back button                          | Phase 1 + part of Phase 8 | Branch `fix/setup-flow`, not pushed |
+| fix   | Setup resume, fleet login (F1-F2), shared back button                          | Phase 1 + part of Phase 8 | Merged to `main` (PR #3)            |
+| 3a    | Tab bar and Map home (B0, B1)                                                  | Phase 3 (part)            | Branch `feat/tabs-map`              |
 
 ## Phase 0: Template and brand layer (done, 2026-11-23)
 
@@ -373,3 +374,54 @@ device or simulator.
   setup (including a restart on each step and Android back in the wizard) -> home -> logout,
   and the fleet login flow with the flag on (needs a fleet test account).
 - Fleet home is still a placeholder (rest of Phase 8).
+
+## Phase 3a: Tab bar and Map home (branch `feat/tabs-map`, 2026-11-25)
+
+**Done**
+
+- Tab bar (B0): Map, Stations, Scan, Wallet, Profile, with labels and screen-reader names. Scan
+  is a raised round button that pushes `/scan`, so the camera never mounts in the tab bar. The
+  bar hides when the keyboard is open. Tabs live in `MainTabs` (home feature); the route file
+  only renders it.
+- `/home` is the Map. The old Home content (signed-in card, dev tools, log out) moved to the
+  new Profile tab (`src/features/profile`). Stations, Scan and Station Details are placeholders.
+- New `src/features/stations`:
+  - `stationsApi.getLocations(filters)` (`GET /station/locations`) and
+    `getNearby(center, filters, 5)` (`GET /station`). Both return models: money in paise,
+    missing numbers as `null`, rows without coordinates dropped.
+  - Pins are clustered with supercluster. The index is rebuilt only when the pins change, and
+    clusters are recomputed 250 ms after the map stops moving. Tapping a cluster zooms into it.
+  - Custom markers stop `tracksViewChanges` 500 ms after they paint (and again after a colour
+    or selected change).
+  - Pin colours follow the brand's connector colours by station status.
+  - Pin tap highlights the pin. If the station is in the nearby list, the carousel scrolls to
+    its card; otherwise a single peek card shows. Card or peek tap opens Station Details.
+    Swiping the carousel highlights the matching pin and pans the map to it.
+  - Location is never asked for on open: the map starts at `brand.defaultRegion` and silently
+    moves to the user only if permission is already on. The my-location button asks; a denial
+    shows the existing "Location Access Required" dialog with Open Settings.
+  - Filters sheet (min power, Public/Private, connectors) with an active count on the filter
+    button. Nothing is filtered by default.
+  - States: skeleton cards while loading; error toast (at most once per 3 s) plus a Retry card;
+    empty card with "Clear filters" or "View all stations"; offline uses the global banner.
+- Google Maps keys go through the `react-native-maps` config plugin from env only. Without
+  `GOOGLE_MAPS_IOS_KEY` iOS uses Apple Maps (no custom style). README explains the dev build.
+- Tests: mappers, status, availability, filters, geo and clustering; station paths in
+  `endpoint-urls`; a map flow test with react-native-maps mocked in `jest.setup.ts`.
+
+**Deviations**
+
+- Min power uses preset chips instead of a slider (OPEN_QUESTIONS #16).
+- All stations load at once; the API has no bounds yet (OPEN_QUESTIONS #15).
+- Search pill and "View all stations" open the Stations tab placeholder; the active-charging
+  button waits for the charging phase.
+- The my-location denial reuses the shared permission dialog instead of new copy.
+
+**Verified**: tsc, expo lint, jest (48 suites, 329 tests). Not run on a device yet: needs a
+dev build with `GOOGLE_MAPS_ANDROID_KEY`.
+
+**Left**
+
+- Device check on Android and the iOS simulator: marker performance with many pins, carousel
+  and pin sync, my-location allow/deny, filters.
+- Stations list (B2) and Station Details (B3).
