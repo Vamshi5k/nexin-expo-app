@@ -60,25 +60,24 @@ describe('StationDetailsScreen', () => {
     await renderWithApp(<StationDetailsScreen stationId="9" />);
 
     expect(await screen.findByText('Hub One')).toBeTruthy();
-    expect(screen.getByText('Charger 1 · CRZ_01')).toBeTruthy();
+    expect(screen.getByText('Charger 1')).toBeTruthy();
     expect(screen.getByText('1/2 free')).toBeTruthy();
+    expect(screen.getByLabelText('1 of 2 connectors free')).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Get Directions' })).toBeTruthy();
     expect(screen.queryByRole('button', { name: 'Call station' })).toBeNull();
     expect(getDetails).toHaveBeenCalledWith('9');
   });
 
-  it('opens on Chargers; Info shows address, help line and connector types', async () => {
+  it('About this station lists address, help line, connector types and amenities', async () => {
+    getDetails.mockResolvedValueOnce({ ...STATION, amenities: ['Wifi'] });
     await renderWithApp(<StationDetailsScreen stationId="9" />);
 
-    const chargersTab = await screen.findByRole('tab', { name: 'Chargers' });
-    expect(chargersTab).toBeSelected();
-    expect(screen.queryByText('Help line')).toBeNull();
-
-    await fireEvent.press(screen.getByRole('tab', { name: 'Info' }));
-    expect(screen.getByText('Help line')).toBeTruthy();
+    expect(await screen.findByText('About this station')).toBeTruthy();
+    expect(screen.getAllByText('MG Road')).toHaveLength(2);
     expect(screen.getByText('Not available')).toBeTruthy();
-    expect(screen.getByText('CCS2')).toBeTruthy();
-    expect(screen.queryByText('Charger 1 · CRZ_01')).toBeNull();
+    expect(screen.getByText('Connector types')).toBeTruthy();
+    expect(screen.getAllByText('CCS2')).toHaveLength(3);
+    expect(screen.getByText('Wifi')).toBeTruthy();
   });
 
   it('a free connector opens charging; a busy one explains why not', async () => {

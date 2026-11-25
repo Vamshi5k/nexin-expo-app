@@ -18,7 +18,7 @@ import {
   DETAILS_HREF,
   MAX_ETA_KM,
 } from '../constants/stations.constants';
-import type { Charger, Connector, DetailsTab } from '../types/stations.types';
+import type { Charger, Connector } from '../types/stations.types';
 import { canStartCharging, CONNECTOR_LABEL, sortChargers } from '../utils/connector';
 import { distanceKm, formatEta } from '../utils/geo';
 import { shareMessage } from '../utils/share';
@@ -31,7 +31,6 @@ export const useStationDetails = (stationId: string) => {
   const directions = useDirections();
 
   const [refreshing, setRefreshing] = useState(false);
-  const [tab, setTab] = useState<DetailsTab>('chargers');
   const [favouriteOverride, setFavouriteOverride] = useState<boolean | null>(null);
   const [savingFavourite, setSavingFavourite] = useState(false);
 
@@ -104,8 +103,6 @@ export const useStationDetails = (stationId: string) => {
     loading: details.loading && !station,
     error: station ? null : details.error,
     refreshing,
-    tab,
-    setTab,
     distance,
     eta: distance !== null && distance <= MAX_ETA_KM ? formatEta(distance) : null,
     isFavourite,

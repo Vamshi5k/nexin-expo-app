@@ -11,7 +11,7 @@ import { useTheme } from '@/shared/theme';
 import { DETAILS_COPY } from '../constants/stations.constants';
 import type { StationDetails } from '../types/stations.types';
 
-type InfoTabProps = {
+type AboutSectionProps = {
   station: StationDetails;
   onCall: () => void;
 };
@@ -83,8 +83,9 @@ const InfoRow = ({ icon: Icon, label, value, onPress, first }: InfoRowProps) => 
   );
 };
 
-// Everything that is not a charger: where it is, who to call, what plugs and what is around.
-const InfoTab = ({ station, onCall }: InfoTabProps) => {
+// Everything that is not a charger, in one grouped card: where, who to call, what plugs fit
+// and what is around.
+const AboutSection = ({ station, onCall }: AboutSectionProps) => {
   const t = useTheme();
   const types = [
     ...new Set(
@@ -95,8 +96,19 @@ const InfoTab = ({ station, onCall }: InfoTabProps) => {
   ];
 
   return (
-    <View style={{ gap: t.space[6] }}>
-      <View>
+    <View style={{ gap: t.space[3] }}>
+      <AppText variant="title2" accessibilityRole="header">
+        {DETAILS_COPY.about}
+      </AppText>
+      <View
+        style={{
+          paddingHorizontal: t.space[4],
+          borderRadius: t.radius.card,
+          borderWidth: t.layout.hairline,
+          borderColor: t.colors.border,
+          backgroundColor: t.colors.surfaceRaised,
+        }}
+      >
         <InfoRow
           first
           icon={MapPin}
@@ -114,49 +126,58 @@ const InfoTab = ({ station, onCall }: InfoTabProps) => {
           label={DETAILS_COPY.connectorTypes}
           value={types.length ? types.join(', ') : DETAILS_COPY.notAvailable}
         />
-        <InfoRow
-          icon={Sparkles}
-          label={DETAILS_COPY.chargersCount}
-          value={String(station.chargers.length)}
-        />
-      </View>
 
-      {station.amenities.length ? (
-        <View style={{ gap: t.space[3] }}>
-          <AppText variant="title2" accessibilityRole="header">
-            {DETAILS_COPY.amenities}
-          </AppText>
-          <View style={[styles.wrap, { gap: t.space[2] }]}>
-            {station.amenities.map((amenity, index) => (
-              <View
-                key={amenity}
-                style={{
-                  paddingHorizontal: t.space[4],
-                  paddingVertical: t.space[2],
-                  borderRadius: t.radius.pill,
-                  overflow: 'hidden',
-                }}
-              >
-                <BrandGradient
-                  id={`amenity-${index}`}
-                  from={t.colors.accent}
-                  to={t.colors.accentPressed}
-                  fromOpacity={0.1}
-                  toOpacity={0.2}
-                />
-                <AppText variant="subhead" tone="accent">
-                  {amenity}
-                </AppText>
-              </View>
-            ))}
+        {station.amenities.length ? (
+          <View
+            style={{
+              gap: t.space[3],
+              paddingVertical: t.space[4],
+              borderTopWidth: t.layout.hairline,
+              borderTopColor: t.colors.border,
+            }}
+          >
+            <View style={[styles.row, { gap: t.space[3] }]}>
+              <Sparkles
+                color={t.colors.accentText}
+                size={t.icon.meta}
+                strokeWidth={t.icon.stroke}
+              />
+              <AppText variant="caption" tone="secondary">
+                {DETAILS_COPY.amenities}
+              </AppText>
+            </View>
+            <View style={[styles.wrap, { gap: t.space[2] }]}>
+              {station.amenities.map((amenity, index) => (
+                <View
+                  key={amenity}
+                  style={{
+                    paddingHorizontal: t.space[3],
+                    paddingVertical: t.space[1] + t.space[1] / 2,
+                    borderRadius: t.radius.pill,
+                    overflow: 'hidden',
+                  }}
+                >
+                  <BrandGradient
+                    id={`amenity-${index}`}
+                    from={t.colors.accent}
+                    to={t.colors.accentPressed}
+                    fromOpacity={0.1}
+                    toOpacity={0.2}
+                  />
+                  <AppText variant="subhead" tone="accent">
+                    {amenity}
+                  </AppText>
+                </View>
+              ))}
+            </View>
           </View>
-        </View>
-      ) : null}
+        ) : null}
+      </View>
     </View>
   );
 };
 
-export default InfoTab;
+export default AboutSection;
 
 const styles = StyleSheet.create({
   row: {
