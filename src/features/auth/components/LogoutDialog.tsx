@@ -1,13 +1,15 @@
 import { LogOut } from 'lucide-react-native';
 
-import { Dialog } from '@/ui';
+import { AppDialog } from '@/shared/components';
 
-import { LOGOUT_COPY } from '../constants';
-import type { useLogoutConfirm } from '../hooks';
+import { LOGOUT_COPY } from '../constants/auth.constants';
+import type { useLogoutConfirm } from '../hooks/useLogoutConfirm';
 
-export function LogoutDialog({ state }: { state: ReturnType<typeof useLogoutConfirm> }) {
+type LogoutDialogProps = { state: ReturnType<typeof useLogoutConfirm> };
+
+const LogoutDialog = ({ state }: LogoutDialogProps) => {
   return (
-    <Dialog
+    <AppDialog
       open={state.open}
       icon={LogOut}
       destructive
@@ -19,4 +21,6 @@ export function LogoutDialog({ state }: { state: ReturnType<typeof useLogoutConf
       onCancel={state.cancel}
     />
   );
-}
+};
+
+export default LogoutDialog;

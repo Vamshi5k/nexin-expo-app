@@ -1,3 +1,3 @@
-export { fleetLogout } from './api';
-export { FleetProvider, useFleet } from './hooks';
-export type { FleetUser } from './types';
+export { fleetApi } from './api/fleet.api';
+export { FleetProvider, useFleet } from './hooks/useFleet';
+export type { FleetUser } from './types/fleet.types';

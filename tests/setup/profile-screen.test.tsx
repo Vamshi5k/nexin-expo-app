@@ -2,8 +2,8 @@ import { fireEvent, screen } from '@testing-library/react-native';
 import { router } from 'expo-router';
 
 import { ProfileSetupScreen } from '@/features/setup';
-import { updateProfile } from '@/features/setup/api';
-import { toast } from '@/ui/toast';
+import { setupApi } from '@/features/setup/api/setup.api';
+import { toast } from '@/shared/utils/toast';
 
 import { renderWithApp } from '../helpers/render';
 
@@ -11,7 +11,9 @@ jest.mock('@/core/log');
 jest.mock('expo-router', () => ({
   router: { push: jest.fn(), back: jest.fn(), replace: jest.fn() },
 }));
-jest.mock('@/features/setup/api', () => ({ updateProfile: jest.fn(async () => undefined) }));
+jest.mock('@/features/setup/api/setup.api', () => ({
+  setupApi: { updateProfile: jest.fn(async () => undefined) },
+}));
 
 describe('ProfileSetupScreen', () => {
   it('needs the terms ticked, then saves the name and moves to the vehicle step', async () => {
@@ -27,7 +29,7 @@ describe('ProfileSetupScreen', () => {
     expect(continueButton).toBeEnabled();
     await fireEvent.press(continueButton);
 
-    expect(updateProfile).toHaveBeenCalledWith('Asha Rao');
+    expect(setupApi.updateProfile).toHaveBeenCalledWith('Asha Rao');
     expect(toast.success).toHaveBeenCalledWith('Profile updated successfully');
     expect(router.replace).toHaveBeenCalledWith('/(setup)/vehicle');
   });

@@ -1,7 +1,8 @@
-import { router } from 'expo-router';
-import { ChevronLeft } from 'lucide-react-native';
 import type { ReactNode } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
+
+import { router } from 'expo-router';
+import { ChevronLeft } from 'lucide-react-native';
 import Animated, {
   Easing,
   FadeInDown,
@@ -10,9 +11,11 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { AppContourBackground, AppPressable } from '@/shared/components';
+
 import { AppLogo } from '@/features/client-config';
-import { useTheme } from '@/theme';
-import { ContourBackground, Pressable } from '@/ui';
+
+import { useTheme } from '@/shared/theme';
 
 export type AuthScaffoldProps = {
   hero: ReactNode;
@@ -22,7 +25,7 @@ export type AuthScaffoldProps = {
 };
 
 // Top bar (logo or back), a brand area over the contour lines, and a flat panel anchored to the bottom.
-export function AuthScaffold({ hero, children, footer, back }: AuthScaffoldProps) {
+const AuthScaffold = ({ hero, children, footer, back }: AuthScaffoldProps) => {
   const t = useTheme();
   const insets = useSafeAreaInsets();
   // Edge-to-edge Android never resizes the window, so lift the content by the keyboard ourselves.
@@ -33,7 +36,7 @@ export function AuthScaffold({ hero, children, footer, back }: AuthScaffoldProps
 
   return (
     <View style={styles.flex}>
-      <ContourBackground />
+      <AppContourBackground />
       <Animated.View style={[styles.flex, { paddingTop: insets.top }, lift]}>
         <View
           style={[
@@ -89,12 +92,13 @@ export function AuthScaffold({ hero, children, footer, back }: AuthScaffoldProps
       </Animated.View>
     </View>
   );
-}
+};
 
-function BackButton() {
+const BackButton = () => {
   const t = useTheme();
+
   return (
-    <Pressable
+    <AppPressable
       onPress={() => router.back()}
       haptic="selection"
       accessibilityLabel="Go back"
@@ -104,9 +108,11 @@ function BackButton() {
       ]}
     >
       <ChevronLeft color={t.colors.textPrimary} size={20} strokeWidth={1.75} />
-    </Pressable>
+    </AppPressable>
   );
-}
+};
+
+export default AuthScaffold;
 
 const styles = StyleSheet.create({
   flex: { flex: 1 },

@@ -1,21 +1,22 @@
-import type { LucideIcon } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
+
+import type { LucideIcon } from 'lucide-react-native';
 import Animated, { useAnimatedStyle, type SharedValue } from 'react-native-reanimated';
 
-import { useTheme } from '@/theme';
+import { useTheme } from '@/shared/theme';
 
 const OUTER = 216;
 const INNER = 152;
 
-export function OnboardingArt({
-  icon: Icon,
-  spin,
-}: {
+type OnboardingArtProps = {
   icon: LucideIcon;
   spin: SharedValue<number>;
-}) {
+};
+
+const OnboardingArt = ({ icon: Icon, spin }: OnboardingArtProps) => {
   const t = useTheme();
   const c = t.colors;
+
   return (
     <View style={[styles.center, { width: OUTER, height: OUTER }]}>
       <View
@@ -48,24 +49,21 @@ export function OnboardingArt({
       </View>
     </View>
   );
-}
+};
 
-function Orbit({
-  size,
-  dot,
-  color,
-  spin,
-  turns,
-}: {
+type OrbitProps = {
   size: number;
   dot: number;
   color: string;
   spin: SharedValue<number>;
   turns: number;
-}) {
+};
+
+const Orbit = ({ size, dot, color, spin, turns }: OrbitProps) => {
   const style = useAnimatedStyle(() => ({
     transform: [{ rotate: `${spin.value * 360 * turns}deg` }],
   }));
+
   return (
     <Animated.View style={[styles.abs, { width: size, height: size }, style]}>
       <View
@@ -81,7 +79,9 @@ function Orbit({
       />
     </Animated.View>
   );
-}
+};
+
+export default OnboardingArt;
 
 const styles = StyleSheet.create({
   center: { alignItems: 'center', justifyContent: 'center' },

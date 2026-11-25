@@ -1,17 +1,20 @@
 import { useRef } from 'react';
 import { StyleSheet, View, type FlatList } from 'react-native';
+
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { useTheme } from '@/theme';
-import { AmbientBackground, Button, Reveal, Text } from '@/ui';
+import { AppAmbientBackground, AppButton, AppReveal, AppText } from '@/shared/components';
 
-import { OnboardingProgress } from '../components/OnboardingProgress';
-import { OnboardingSlide } from '../components/OnboardingSlide';
-import { useOnboarding } from '../hooks';
-import type { OnboardingSlide as Slide } from '../types';
+import OnboardingProgress from '../components/OnboardingProgress';
+import OnboardingSlide from '../components/OnboardingSlide';
 
-export function OnboardingScreen() {
+import { useTheme } from '@/shared/theme';
+
+import { useOnboarding } from '../hooks/useOnboarding';
+import type { OnboardingSlide as Slide } from '../types/auth.types';
+
+const OnboardingScreen = () => {
   const t = useTheme();
   const insets = useSafeAreaInsets();
   const list = useRef<FlatList<Slide>>(null);
@@ -20,17 +23,17 @@ export function OnboardingScreen() {
 
   return (
     <View style={[styles.flex, { paddingTop: insets.top }]}>
-      <AmbientBackground />
+      <AppAmbientBackground />
       <View
         style={[styles.topBar, { paddingLeft: t.layout.screenPadding, paddingRight: t.space[2] }]}
       >
         <Animated.View key={index} entering={FadeIn.duration(t.motion.duration)}>
-          <Text variant="caption" tone="secondary" tabular accessibilityElementsHidden>
+          <AppText variant="caption" tone="secondary" tabular accessibilityElementsHidden>
             {String(index + 1).padStart(2, '0')} / {String(count).padStart(2, '0')}
-          </Text>
+          </AppText>
         </Animated.View>
         <Animated.View style={onboarding.skipStyle} pointerEvents={last ? 'none' : 'auto'}>
-          <Button
+          <AppButton
             label="Skip"
             variant="ghost"
             size="medium"
@@ -43,7 +46,7 @@ export function OnboardingScreen() {
       <Animated.FlatList
         ref={list}
         data={onboarding.slides}
-        keyExtractor={(s) => s.key}
+        keyExtractor={s => s.key}
         horizontal
         pagingEnabled
         bounces={false}
@@ -65,7 +68,7 @@ export function OnboardingScreen() {
         )}
       />
 
-      <Reveal
+      <AppReveal
         index={3}
         style={{
           paddingHorizontal: t.layout.screenPadding,
@@ -74,11 +77,13 @@ export function OnboardingScreen() {
         }}
       >
         <OnboardingProgress count={count} width={width} x={x} />
-        <Button label={last ? 'Get Started' : 'Next'} onPress={onboarding.next} />
-      </Reveal>
+        <AppButton label={last ? 'Get Started' : 'Next'} onPress={onboarding.next} />
+      </AppReveal>
     </View>
   );
-}
+};
+
+export default OnboardingScreen;
 
 const styles = StyleSheet.create({
   flex: { flex: 1 },

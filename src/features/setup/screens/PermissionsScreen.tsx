@@ -1,23 +1,27 @@
-import { Bell, MapPin } from 'lucide-react-native';
 import { View } from 'react-native';
 
-import { useTheme } from '@/theme';
-import { Button, Text } from '@/ui';
+import { Bell, MapPin } from 'lucide-react-native';
 
-import { PermissionCard } from '../components/PermissionCard';
-import { SetupLayout } from '../components/SetupLayout';
-import { PERMISSIONS_COPY } from '../constants';
-import { usePermissionsSetup } from '../hooks';
+import { AppButton, AppText } from '@/shared/components';
 
-export function PermissionsScreen() {
+import PermissionCard from '../components/PermissionCard';
+import SetupLayout from '../components/SetupLayout';
+
+import { useTheme } from '@/shared/theme';
+
+import { PERMISSIONS_COPY } from '../constants/setup.constants';
+import { usePermissionsSetup } from '../hooks/usePermissionsSetup';
+
+const PermissionsScreen = () => {
   const t = useTheme();
   const perms = usePermissionsSetup();
+
   return (
     <SetupLayout
       step={3}
       title={PERMISSIONS_COPY.title}
       subtitle={PERMISSIONS_COPY.subtitle}
-      footer={<Button label="Continue" onPress={perms.finish} />}
+      footer={<AppButton label="Continue" onPress={perms.finish} />}
     >
       <View style={{ gap: t.space[3] }}>
         <PermissionCard
@@ -37,14 +41,16 @@ export function PermissionsScreen() {
           onAllow={() => perms.allow('notifications')}
         />
         <View style={{ gap: t.space[1], paddingHorizontal: t.space[1], marginTop: t.space[2] }}>
-          <Text variant="caption" tone="secondary">
+          <AppText variant="caption" tone="secondary">
             {PERMISSIONS_COPY.locationNote}
-          </Text>
-          <Text variant="caption" tone="secondary">
+          </AppText>
+          <AppText variant="caption" tone="secondary">
             {PERMISSIONS_COPY.settingsNote}
-          </Text>
+          </AppText>
         </View>
       </View>
     </SetupLayout>
   );
-}
+};
+
+export default PermissionsScreen;

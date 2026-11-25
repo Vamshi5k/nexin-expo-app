@@ -6,6 +6,7 @@ import {
   TextInput,
   type TextInputInstance,
 } from 'react-native';
+
 import Animated, {
   Easing,
   interpolateColor,
@@ -18,10 +19,11 @@ import Animated, {
   ZoomIn,
 } from 'react-native-reanimated';
 
-import { useTheme, withAlpha } from '@/theme';
-import { Text } from '@/ui';
+import { AppText } from '@/shared/components';
 
-import { otpCells, sanitizeOtp } from '../session';
+import { useTheme, withAlpha } from '@/shared/theme';
+
+import { otpCells, sanitizeOtp } from '../utils/contact';
 
 export type OtpInputProps = {
   value: string;
@@ -34,7 +36,7 @@ export type OtpInputProps = {
   ref?: Ref<TextInputInstance>;
 };
 
-export function OtpInput({
+const OtpInput = ({
   value,
   onChange,
   onComplete,
@@ -43,7 +45,7 @@ export function OtpInput({
   disabled,
   autoFocus = true,
   ref,
-}: OtpInputProps) {
+}: OtpInputProps) => {
   const t = useTheme();
   const reduceMotion = useReducedMotion();
   const inner = useRef<TextInputInstance>(null);
@@ -86,7 +88,7 @@ export function OtpInput({
       <TextInput
         ref={setRefs}
         value={value}
-        onChangeText={(text) => {
+        onChangeText={text => {
           const next = sanitizeOtp(text, length);
           onChange(next);
           if (next.length === length && value.length !== length) onComplete?.(next);
@@ -104,9 +106,11 @@ export function OtpInput({
       />
     </RNPressable>
   );
-}
+};
 
-function Cell({ digit, active, error }: { digit?: string; active: boolean; error: boolean }) {
+type CellProps = { digit?: string; active: boolean; error: boolean };
+
+const Cell = ({ digit, active, error }: CellProps) => {
   const t = useTheme();
   const c = t.colors;
   const reduceMotion = useReducedMotion();
@@ -153,16 +157,18 @@ function Cell({ digit, active, error }: { digit?: string; active: boolean; error
     >
       {filled ? (
         <Animated.View key={digit} entering={ZoomIn.springify().damping(14).stiffness(260)}>
-          <Text variant="title2" tabular>
+          <AppText variant="title2" tabular>
             {digit}
-          </Text>
+          </AppText>
         </Animated.View>
       ) : active ? (
         <Animated.View style={[styles.caret, { backgroundColor: c.accent }, caret]} />
       ) : null}
     </Animated.View>
   );
-}
+};
+
+export default OtpInput;
 
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', justifyContent: 'center' },

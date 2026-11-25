@@ -1,7 +1,10 @@
-import { PlaceholderScreen } from '@/ui';
+import { AppPlaceholderScreen } from '@/shared/components';
 
 export default function WalletRoute() {
   return (
-    <PlaceholderScreen title="Wallet" description="Your balance and transactions will show here." />
+    <AppPlaceholderScreen
+      title="Wallet"
+      description="Your balance and transactions will show here."
+    />
   );
 }

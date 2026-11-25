@@ -3,8 +3,8 @@ import { AxiosError, AxiosHeaders } from 'axios';
 
 import { sessionStore } from '@/core/session';
 import { OtpScreen } from '@/features/auth';
-import { verifyOtp } from '@/features/auth/api';
-import { toast } from '@/ui/toast';
+import { authApi } from '@/features/auth/api/auth.api';
+import { toast } from '@/shared/utils/toast';
 
 import { renderWithApp } from '../helpers/render';
 
@@ -12,10 +12,18 @@ jest.mock('@/core/log');
 jest.mock('expo-router', () => ({
   router: { push: jest.fn(), back: jest.fn(), replace: jest.fn() },
 }));
-jest.mock('@/features/auth/api', () => ({
-  ...jest.requireActual('@/features/auth/api'),
-  verifyOtp: jest.fn(),
-}));
+jest.mock('@/features/auth/api/auth.api', () => {
+  const actual = jest.requireActual('@/features/auth/api/auth.api');
+  return {
+    ...actual,
+    authApi: {
+      ...actual.authApi,
+      verifyOtp: jest.fn(),
+    },
+  };
+});
+
+const { verifyOtp } = authApi;
 
 function unauthorized() {
   const headers = new AxiosHeaders();

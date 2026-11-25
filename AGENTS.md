@@ -8,7 +8,8 @@ template; the ONLY per-client differences live in `brand/` and EAS secrets.
 
 - docs/BLUEPRINT.md: API contract, screens, navigation, bugs to fix, architecture. Follow it.
 - docs/screen-audit.md: exact UI copy per screen. Use it verbatim.
-- All UI follows docs/DESIGN.md. Never style a screen ad hoc; use src/ui and theme tokens.
+- All UI follows docs/DESIGN.md. Never style a screen ad hoc; use the App\* kit in
+  src/shared/components and the tokens in src/shared/theme.
 - ../Cruzev_nexin_whitelable_app: old app, read-only reference. Never copy its bugs (BLUEPRINT section 1 list).
 
 ## Stack (do not swap without asking)
@@ -22,7 +23,7 @@ Zustand (token store only), react-hook-form + zod, socket.io-client,
 expo-secure-store, react-native-mmkv, react-native-maps + supercluster, expo-location,
 expo-camera, @react-native-firebase/messaging + expo-notifications, react-native-razorpay,
 @gorhom/bottom-sheet, expo-file-system + expo-sharing, lucide-react-native, sonner-native (toasts,
-only via src/ui/toast.ts), @sentry/react-native.
+only via src/shared/utils/toast.ts), @sentry/react-native.
 Install native deps with `npx expo install`, never plain npm, so versions match the SDK.
 
 ## White-label rules (most important)
@@ -38,56 +39,108 @@ Install native deps with `npx expo install`, never plain npm, so versions match 
 
 ## Architecture rules
 
-1. app/\*_ are thin route files: read params, render a screen from src/features/_/screens. No fetching.
-2. api.ts: every network call, and nothing else. The only place endpoint strings appear.
-   Each call returns a domain model; its DTO mapper (`toUser`, `toFleetUser`, ...) sits
-   next to it and is exported only for tests. Components never see raw API shapes.
-3. hooks.tsx: all feature logic and state: the context provider (if any), screen hooks
-   (`useLoginForm`, `useOtpForm`), side effects. Screens call these hooks and stay UI only.
-   Load data with `useRequest`, run writes with `useAction`, and keep per-account data
-   (user, driver) in `useSessionData` (all in src/core/request.ts).
-4. <topic>.ts (optional): pure rules that need no React, e.g. auth/session.ts (schemas,
-   routing rules, boot steps). No React or src/ui imports, so tests load it directly.
-5. Zustand = client state only (the token store in src/core/session.ts, filters). Server data
+1. src/app/\*\* are thin route files: read params, render a screen from a feature's index.ts.
+   No fetching. They stay default exports because expo-router needs them.
+2. Endpoint paths live only in src/core/endpoints.ts (`ENDPOINTS.DOMAIN.ACTION`, functions for
+   paths with params). Never write a URL string anywhere else.
+3. `api/<feature>.api.ts`: every network call of the feature, and nothing else. It exports one
+   object, `<feature>Api = { getUser, ... }`. Each call returns a domain model, never raw
+   `response.data`; its DTO mapper (`toUser`, `toFleetUser`, ...) is a separate named export in
+   the same file, used by the api object and by tests. Components never see raw API shapes.
+4. `hooks/`: all feature logic and state, one hook per file (`useLoginForm.ts`). A context
+   provider sits in the file of its hook (`useAuth.tsx` holds `AuthProvider` + `useAuth`).
+   Screens call hooks and stay UI only. Load data with `useRequest`, run writes with
+   `useAction`, keep per-account data (user, driver) in `useSessionData` (src/core/request.ts).
+5. `utils/`: pure helpers and rules with no React or UI imports, so tests load them directly.
+   A file that also reads storage or calls the API says so in its first comment.
+6. Zustand = client state only (the token store in src/core/session.ts, filters). Server data
    lives in the contexts (user, driver, client config) or in a screen's `useRequest`. Contexts
    reset on every session change and drop responses for the previous session.
-6. Pure logic (pricing, QR parsing, status maps, formatters, mappers) is tested in tests/.
-   Logic tests import api.ts mappers and <topic>.ts files directly. Flow tests render
-   screens with @testing-library/react-native inside `AppProviders` (tests/helpers/render.tsx),
-   or through the real router with `renderRouter` (expo-router/testing-library); they mock
-   the feature's api.ts, never hooks.
-7. Features import each other only via index.ts. src/ui and src/core never import src/features.
-8. Money is computed in paise (integers). Format only at render time.
-9. No `any` in api/hooks. No console.\* in committed code (use src/core/log.ts).
-10. Every list/detail screen has loading (skeleton), error (+Retry), empty and offline states.
+7. Errors: `apiError` + `isX` guards from src/core/api.ts, shown with `getErrorMessage` and
+   `toast` from src/shared/utils/toast.ts. Never call sonner-native directly.
+8. Features import each other only via their index.ts. src/shared and src/core never import
+   src/features.
+9. Money is computed in paise (integers), converted with src/shared/utils/money.ts. Format only
+   at render time.
+10. No `any` in api/hooks. No console.\* in committed code (use src/core/log.ts).
+11. Every list/detail screen has loading (skeleton), error (+Retry), empty and offline states.
+12. Tests: pure logic (mappers, utils, rules) is tested directly. Flow tests render screens
+    with @testing-library/react-native inside `AppProviders` (tests/helpers/render.tsx), or
+    through the real router with `renderRouter`; they mock the feature's api file
+    (`jest.mock('@/features/auth/api/auth.api')`), never hooks.
 
 ## Folder layout
 
-Keep it small and feature-based:
-
 ```
-src/app/                 thin route files
-src/core/*.ts            flat files: api, config, log, network, permissions, request, session, storage
-src/features/<f>/
-  screens/       UI only: layout, styling, wiring to hooks. No API calls, no logic.
-  components/    UI pieces used only by this feature.
-  api.ts         network calls (+ their DTO mappers)
-  hooks.tsx      logic and state: context, screen hooks, side effects
-  <topic>.ts     optional pure rules with no React/UI imports (auth/session.ts)
-  constants.ts   static data: copy, timeouts, lengths, route hrefs. No UI imports.
-  types.ts       DTOs, models, unions
-  index.ts       public exports; src/app and other features import only from here
-src/ui/  src/theme/      design system
-tests/<area>/*.test.ts   all tests live here, importing via @/ aliases
+src/app/                  expo-router route files (thin, default exports)
+src/core/*.ts             infrastructure, flat files: api, config, endpoints, log, network,
+                          permissions, request, session, storage
+src/shared/
+  components/             App* kit (AppText, AppButton, AppScreen...), index.ts barrel
+  theme/                  tokens, palette, ThemeProvider, fonts
+  utils/                  toast, haptics, keyboard, money
+  assets/images.ts        every image the app require()s
+src/features/<feature>/   only the subfolders it needs, never empty ones
+  api/<feature>.api.ts    network calls + DTO mappers
+  hooks/useXxx.ts         one hook (or provider + hook) per file; .tsx only if it has JSX
+  types/<feature>.types.ts      DTOs, models, unions
+  constants/<feature>.constants.ts   copy, timeouts, lengths, route hrefs; no UI imports
+  utils/<topic>.ts        pure rules (contact.ts, authFlow.ts, form.ts)
+  screens/                screen components (default exports)
+  components/             UI used only by this feature (default exports)
+  index.ts                public exports; src/app and other features import only from here
+tests/<area>/*.test.ts(x) all tests, importing via @/ aliases
 ```
 
-Only add a file to a feature when it does not fit one of the above.
+## File rules and naming
+
+| Thing             | Rule                                        | Example                              |
+| ----------------- | ------------------------------------------- | ------------------------------------ |
+| Screens           | PascalCase, `Screen` suffix, default export | `LoginScreen.tsx`                    |
+| Feature component | PascalCase, default export                  | `OtpInput.tsx`                       |
+| Shared component  | `App` prefix, default export                | `AppButton.tsx`                      |
+| API file          | `<feature>.api.ts`, exports `<feature>Api`  | `auth.api.ts` -> `authApi`           |
+| Types file        | `<feature>.types.ts`                        | `vehicles.types.ts`                  |
+| Constants file    | `<feature>.constants.ts`                    | `setup.constants.ts`                 |
+| Hook file         | `useXxx.ts`, named export                   | `useOtpForm.ts`                      |
+| Endpoints         | `ENDPOINTS.DOMAIN.ACTION`                   | `ENDPOINTS.VEHICLES.MODELS(brandId)` |
+
+- Components and screens use `export default`. Hooks, api objects, mappers, utils, providers,
+  constants and types use named exports.
+- Barrels re-export defaults by name: `export { default as AppButton } from './AppButton';`,
+  so callers write `import { AppButton } from '@/shared/components'`.
+- Images are registered in src/shared/assets/images.ts and used as `images.logo`. Never
+  `require()` an image inside a component.
 
 ## Code style
 
+Prettier (.prettierrc): `singleQuote`, `trailingComma: all`, `printWidth: 100`,
+`arrowParens: avoid`. ESLint enforces the import order below (`npx expo lint --fix` sorts it).
+
+- Components, providers and hooks are arrow-function consts:
+  `const AppCard = ({ title }: AppCardProps) => { ... }`. Pure helpers may stay `function`.
+- Props use a `type` named `<Component>Props`, declared right above the component. Use `type`
+  for all data shapes (`interface` only for module augmentation).
+- Component file order: imports -> props type -> component -> `export default` ->
+  `StyleSheet.create` at the bottom.
+- Static styles go in `StyleSheet.create` with theme tokens; theme-dependent values (colours)
+  go inline as the second array item: `style={[styles.card, { backgroundColor: t.colors.surface }]}`.
+- Import order, with a blank line between groups (ESLint `import/order` enforces it):
+  1. react, react-native
+  2. third-party libraries
+  3. @/shared/components (and `./App*` inside the kit)
+  4. other features (@/features/\*) and this feature's components
+  5. @/shared/theme
+  6. @/core, @/shared/utils, @/shared/assets, @brand
+  7. relative imports: this feature's hooks, api, constants, types and utils
+- Early returns instead of nested if/else. A blank line between logical blocks in a function.
+- Providers follow one pattern: `createContext<XContextType | undefined>(undefined)`, every
+  action in `useCallback`, the value in `useMemo`, and a `useX` hook that throws when used
+  outside the provider.
+- Hooks return a flat object of state + handlers and guard against double submits
+  (`if (pending) return;`).
 - Write code that reads as hand-written. No JSDoc on every function, constant or prop.
 - Comment only a non-obvious "why", in one short line. TODO(backend|phase-x) markers stay.
-- Prefer fewer, larger feature-local files over many tiny layer files.
 - No classes, not even for errors. Use functions, hooks and plain objects. A custom error is
   `Object.assign(new Error(msg), { name, ...fields })` plus an `isX` guard (see `apiError` in
   src/core/api.ts).
@@ -96,7 +149,7 @@ Only add a file to a feature when it does not fit one of the above.
 
 - Before writing code for a phase, reply with a short plan: files to create, libraries to add,
   open questions. Wait for approval.
-- Work in small commits. After each feature, run `npx tsc --noEmit`, `npx expo lint`, `npx jest`.
+- Work in small commits. After each one, run `npx tsc --noEmit`, `npx expo lint`, `npx jest`.
 - When the blueprint marks something "confirm with backend", implement behind a clearly named
   constant and list it in docs/OPEN_QUESTIONS.md instead of guessing silently.
 - At the end of a phase, update docs/PROGRESS.md: done, deviations, open questions.

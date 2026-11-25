@@ -1,8 +1,13 @@
-import { BrandLogo, type BrandLogoProps } from '@/ui';
+import { AppBrandLogo, type AppBrandLogoProps } from '@/shared/components';
 
-import { useClientConfig } from '../hooks';
+import { useClientConfig } from '../hooks/useClientConfig';
 
-export function AppLogo(props: Omit<BrandLogoProps, 'uri' | 'label'>) {
+type AppLogoProps = Omit<AppBrandLogoProps, 'uri' | 'label'>;
+
+const AppLogo = (props: AppLogoProps) => {
   const config = useClientConfig();
-  return <BrandLogo {...props} uri={config.logoUri} label={config.brandName} />;
-}
+
+  return <AppBrandLogo {...props} uri={config.logoUri} label={config.brandName} />;
+};
+
+export default AppLogo;

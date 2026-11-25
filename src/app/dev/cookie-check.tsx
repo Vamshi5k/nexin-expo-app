@@ -1,8 +1,8 @@
 import { Redirect, useLocalSearchParams } from 'expo-router';
 
+import { CookieCheckScreen, isDevToolsEnabled } from '@/features/dev';
+
 import { APP_ENV } from '@/core/config';
-import { CookieCheckScreen } from '@/dev/CookieCheckScreen';
-import { isDevToolsEnabled } from '@/dev/devTools';
 
 export default function DevCookieCheckRoute() {
   const { auto } = useLocalSearchParams<{ auto?: string }>();

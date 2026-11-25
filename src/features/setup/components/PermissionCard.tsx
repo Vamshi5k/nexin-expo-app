@@ -1,30 +1,36 @@
-import type { LucideIcon } from 'lucide-react-native';
-import { Check } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
 
+import type { LucideIcon } from 'lucide-react-native';
+import { Check } from 'lucide-react-native';
+
+import { AppButton, AppText } from '@/shared/components';
+
+import { useTheme } from '@/shared/theme';
+
 import type { PermissionResult } from '@/core/permissions';
-import { useTheme } from '@/theme';
-import { Button, Text } from '@/ui';
 
 // Flat card: sunken at rest, tinted with a check once allowed. No shadow.
-export function PermissionCard({
-  icon: Icon,
-  title,
-  description,
-  status,
-  pending,
-  onAllow,
-}: {
+type PermissionCardProps = {
   icon: LucideIcon;
   title: string;
   description: string;
   status: PermissionResult | null;
   pending: boolean;
   onAllow: () => void;
-}) {
+};
+
+const PermissionCard = ({
+  icon: Icon,
+  title,
+  description,
+  status,
+  pending,
+  onAllow,
+}: PermissionCardProps) => {
   const t = useTheme();
   const c = t.colors;
   const granted = status === 'granted';
+
   return (
     <View
       style={[
@@ -46,10 +52,10 @@ export function PermissionCard({
           <Icon color={granted ? c.onAccent : c.accentText} size={22} strokeWidth={1.75} />
         </View>
         <View style={[styles.flex, { gap: t.space[1] }]}>
-          <Text variant="headline">{title}</Text>
-          <Text variant="callout" tone="secondary">
+          <AppText variant="headline">{title}</AppText>
+          <AppText variant="callout" tone="secondary">
             {description}
-          </Text>
+          </AppText>
         </View>
       </View>
       {granted ? (
@@ -57,12 +63,12 @@ export function PermissionCard({
           <View style={[styles.check, { backgroundColor: c.accent, borderRadius: t.radius.pill }]}>
             <Check color={c.onAccent} size={14} strokeWidth={3} />
           </View>
-          <Text variant="subhead" tone="accent">
+          <AppText variant="subhead" tone="accent">
             Allowed
-          </Text>
+          </AppText>
         </View>
       ) : (
-        <Button
+        <AppButton
           label={status === 'blocked' ? 'Open Settings' : 'Allow'}
           variant="secondary"
           size="medium"
@@ -75,7 +81,9 @@ export function PermissionCard({
       )}
     </View>
   );
-}
+};
+
+export default PermissionCard;
 
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center' },

@@ -1,17 +1,21 @@
-import { Mail } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
+
+import { Mail } from 'lucide-react-native';
 import Animated, { Easing, FadeIn } from 'react-native-reanimated';
 
+import { AppButton, AppFormInput, AppReveal, AppText } from '@/shared/components';
+
+import AuthScaffold from '../components/AuthScaffold';
+import ChargingIllustration from '../components/ChargingIllustration';
+import LegalLink from '../components/LegalLink';
+
+import { useTheme } from '@/shared/theme';
+
 import { brand } from '@/core/config';
-import { useTheme } from '@/theme';
-import { Button, FormInput, Reveal, Text } from '@/ui';
 
-import { AuthScaffold } from '../components/AuthScaffold';
-import { ChargingIllustration } from '../components/ChargingIllustration';
-import { LegalLink } from '../components/LegalLink';
-import { useLoginForm } from '../hooks';
+import { useLoginForm } from '../hooks/useLoginForm';
 
-export function LoginScreen() {
+const LoginScreen = () => {
   const t = useTheme();
   const login = useLoginForm();
   const fadeIn = FadeIn.duration(t.motion.duration).easing(Easing.out(Easing.quad));
@@ -20,50 +24,50 @@ export function LoginScreen() {
     <AuthScaffold
       hero={
         <>
-          <Reveal
+          <AppReveal
             index={0}
             style={[styles.art, { marginBottom: t.space[6], marginRight: -t.layout.screenPadding }]}
           >
             <ChargingIllustration />
-          </Reveal>
-          <Reveal index={1}>
+          </AppReveal>
+          <AppReveal index={1}>
             <Animated.View key={login.type} entering={fadeIn} style={{ gap: t.space[2] }}>
-              <Text variant="hero" accessibilityRole="header">
+              <AppText variant="hero" accessibilityRole="header">
                 {login.copy.title}
-              </Text>
-              <Text variant="callout" tone="secondary">
+              </AppText>
+              <AppText variant="callout" tone="secondary">
                 {login.copy.subtitle}
-              </Text>
+              </AppText>
             </Animated.View>
-          </Reveal>
+          </AppReveal>
         </>
       }
       footer={
         <>
-          <Button
+          <AppButton
             label="Continue"
             onPress={login.submit}
             disabled={!login.valid}
             loading={login.submitting}
           />
           <View style={styles.terms}>
-            <Text variant="caption" tone="secondary">
+            <AppText variant="caption" tone="secondary">
               By continuing, you agree to our{' '}
-            </Text>
+            </AppText>
             <LegalLink label="Terms" onPress={login.openTerms} />
-            <Text variant="caption" tone="secondary">
+            <AppText variant="caption" tone="secondary">
               {' '}
               and{' '}
-            </Text>
+            </AppText>
             <LegalLink label="Privacy" onPress={login.openPrivacy} />
           </View>
         </>
       }
     >
-      <Reveal index={2} style={{ gap: t.space[1] }}>
+      <AppReveal index={2} style={{ gap: t.space[1] }}>
         <Animated.View key={login.type} entering={fadeIn}>
           {login.type === 'phone' ? (
-            <FormInput
+            <AppFormInput
               control={login.control}
               name="contact"
               size="large"
@@ -79,7 +83,7 @@ export function LoginScreen() {
               onSubmitEditing={login.submit}
             />
           ) : (
-            <FormInput
+            <AppFormInput
               control={login.control}
               name="contact"
               size="large"
@@ -99,7 +103,7 @@ export function LoginScreen() {
         </Animated.View>
         {login.canSwitchType ? (
           <View style={styles.links}>
-            <Button
+            <AppButton
               label={login.type === 'phone' ? 'Use email instead' : 'Use phone instead'}
               variant="ghost"
               size="medium"
@@ -111,10 +115,12 @@ export function LoginScreen() {
         ) : null}
         {/* TODO(phase-fleet): "Fleet Login" link to /(auth)/fleet-login when
             config.features.fleet is on (BLUEPRINT A3). Hidden until that route exists. */}
-      </Reveal>
+      </AppReveal>
     </AuthScaffold>
   );
-}
+};
+
+export default LoginScreen;
 
 const styles = StyleSheet.create({
   art: { flex: 1, minHeight: 0 },

@@ -1,17 +1,21 @@
-import { UserRound } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
 
-import { useTheme } from '@/theme';
-import { Button, FormInput, Text } from '@/ui';
+import { UserRound } from 'lucide-react-native';
 
-import { SetupLayout } from '../components/SetupLayout';
-import { TermsCheckbox } from '../components/TermsCheckbox';
-import { PROFILE_COPY } from '../constants';
-import { useProfileSetup } from '../hooks';
+import { AppButton, AppFormInput, AppText } from '@/shared/components';
 
-export function ProfileSetupScreen() {
+import SetupLayout from '../components/SetupLayout';
+import TermsCheckbox from '../components/TermsCheckbox';
+
+import { useTheme } from '@/shared/theme';
+
+import { PROFILE_COPY } from '../constants/setup.constants';
+import { useProfileSetup } from '../hooks/useProfileSetup';
+
+const ProfileSetupScreen = () => {
   const t = useTheme();
   const profile = useProfileSetup();
+
   return (
     <SetupLayout
       step={1}
@@ -24,16 +28,16 @@ export function ProfileSetupScreen() {
           accessibilityElementsHidden
         >
           {profile.initials ? (
-            <Text variant="title1" tone="accent">
+            <AppText variant="title1" tone="accent">
               {profile.initials}
-            </Text>
+            </AppText>
           ) : (
             <UserRound color={t.colors.accentText} size={34} strokeWidth={1.75} />
           )}
         </View>
       }
       footer={
-        <Button
+        <AppButton
           label="Continue"
           onPress={profile.submit}
           disabled={!profile.valid}
@@ -42,7 +46,7 @@ export function ProfileSetupScreen() {
       }
     >
       <View style={{ gap: t.space[5] }}>
-        <FormInput
+        <AppFormInput
           control={profile.control}
           name="name"
           size="large"
@@ -62,7 +66,9 @@ export function ProfileSetupScreen() {
       </View>
     </SetupLayout>
   );
-}
+};
+
+export default ProfileSetupScreen;
 
 const styles = StyleSheet.create({
   avatar: {

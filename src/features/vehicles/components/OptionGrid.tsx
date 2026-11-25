@@ -1,8 +1,10 @@
-import { Check } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
 
-import { useTheme } from '@/theme';
-import { Pressable, Skeleton, Text } from '@/ui';
+import { Check } from 'lucide-react-native';
+
+import { AppPressable, AppText } from '@/shared/components';
+
+import { useTheme } from '@/shared/theme';
 
 export type Option = {
   key: string;
@@ -12,20 +14,20 @@ export type Option = {
   selected: boolean;
 };
 
-// Flat cards: sunken at rest; tinted with an accent border and check when selected.
-export function OptionGrid({
-  options,
-  onSelect,
-}: {
+type OptionGridProps = {
   options: Option[];
   onSelect: (key: string) => void;
-}) {
+};
+
+// Flat cards: sunken at rest; tinted with an accent border and check when selected.
+const OptionGrid = ({ options, onSelect }: OptionGridProps) => {
   const t = useTheme();
   const c = t.colors;
+
   return (
     <View style={[styles.grid, { gap: t.space[3] }]} accessibilityRole="radiogroup">
-      {options.map((o) => (
-        <Pressable
+      {options.map(o => (
+        <AppPressable
           key={o.key}
           onPress={() => onSelect(o.key)}
           haptic="selection"
@@ -55,19 +57,19 @@ export function OptionGrid({
                 },
               ]}
             >
-              <Text variant="headline" style={{ color: o.selected ? c.onAccent : c.accentText }}>
+              <AppText variant="headline" style={{ color: o.selected ? c.onAccent : c.accentText }}>
                 {o.label.trim().charAt(0).toUpperCase()}
-              </Text>
+              </AppText>
             </View>
           ) : null}
           <View style={{ gap: 2 }}>
-            <Text variant="headline" numberOfLines={2} style={styles.label}>
+            <AppText variant="headline" numberOfLines={2} style={styles.label}>
               {o.label}
-            </Text>
+            </AppText>
             {o.subtitle ? (
-              <Text variant="caption" tone="secondary" numberOfLines={1}>
+              <AppText variant="caption" tone="secondary" numberOfLines={1}>
                 {o.subtitle}
-              </Text>
+              </AppText>
             ) : null}
           </View>
           {o.selected ? (
@@ -85,24 +87,13 @@ export function OptionGrid({
               <Check color={c.onAccent} size={12} strokeWidth={3} />
             </View>
           ) : null}
-        </Pressable>
+        </AppPressable>
       ))}
     </View>
   );
-}
+};
 
-export function OptionGridSkeleton() {
-  const t = useTheme();
-  return (
-    <View style={[styles.grid, { gap: t.space[3] }]} accessibilityLabel="Loading">
-      {Array.from({ length: 6 }, (_, i) => (
-        <View key={i} style={styles.cell}>
-          <Skeleton height={104} radius={t.radius.card} />
-        </View>
-      ))}
-    </View>
-  );
-}
+export default OptionGrid;
 
 const styles = StyleSheet.create({
   grid: { flexDirection: 'row', flexWrap: 'wrap' },

@@ -1,4 +1,5 @@
-import { rupeesToPaise, toTokens, toUser } from '@/features/auth/api';
+import { toTokens, toUser } from '@/features/auth/api/auth.api';
+import { rupeesToPaise } from '@/shared/utils/money';
 
 describe('toTokens', () => {
   it('accepts userAccessToken / userRefreshToken', () => {

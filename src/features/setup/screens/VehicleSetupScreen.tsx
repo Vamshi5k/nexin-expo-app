@@ -1,11 +1,13 @@
+import { AppButton } from '@/shared/components';
+
+import SetupLayout from '../components/SetupLayout';
 import { VehicleFormBody, VehicleTrail } from '@/features/vehicles';
-import { Button } from '@/ui';
 
-import { SetupLayout } from '../components/SetupLayout';
-import { useVehicleSetup } from '../hooks';
+import { useVehicleSetup } from '../hooks/useVehicleSetup';
 
-export function VehicleSetupScreen() {
+const VehicleSetupScreen = () => {
   const { wizard, skip } = useVehicleSetup();
+
   return (
     <SetupLayout
       step={2}
@@ -13,11 +15,11 @@ export function VehicleSetupScreen() {
       subtitle={wizard.subtitle}
       onBack={wizard.stepIndex > 0 ? () => wizard.back() : undefined}
       right={
-        <Button label="Skip" variant="ghost" size="medium" onPress={skip} haptic="selection" />
+        <AppButton label="Skip" variant="ghost" size="medium" onPress={skip} haptic="selection" />
       }
       aboveTitle={<VehicleTrail wizard={wizard} />}
       footer={
-        <Button
+        <AppButton
           label={wizard.isLastStep ? 'Add Vehicle' : 'Continue'}
           onPress={wizard.next}
           disabled={!wizard.canContinue}
@@ -28,4 +30,6 @@ export function VehicleSetupScreen() {
       <VehicleFormBody wizard={wizard} />
     </SetupLayout>
   );
-}
+};
+
+export default VehicleSetupScreen;

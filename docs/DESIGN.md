@@ -20,7 +20,7 @@ the driver find, start, watch or pay for a charge.
 - Components use semantic tokens only: bg, surface, surfaceRaised, surfaceSunken, border,
   borderStrong, textPrimary, textSecondary, textTertiary, accent, accentSoft, accentText,
   onAccent, success, warning, danger (each with Soft and Text), plus connector status colours.
-  No raw hex outside src/theme and brand/.
+  No raw hex outside src/shared/theme and brand/.
 - accent = the brand colour as a FILL. It comes from `colors.accentFill`, which defaults to
   `colors.primary`. accentText = the brand colour as TEXT or ICONS on light surfaces (links,
   "See all", selected tab label, icons in accentSoft circles). Never use accent itself as text

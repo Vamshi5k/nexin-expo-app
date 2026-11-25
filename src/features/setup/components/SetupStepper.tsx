@@ -1,15 +1,20 @@
-import { Check } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
 
-import { useTheme } from '@/theme';
-import { Text } from '@/ui';
+import { Check } from 'lucide-react-native';
 
-import { SETUP_STEPS } from '../constants';
+import { AppText } from '@/shared/components';
+
+import { useTheme } from '@/shared/theme';
+
+import { SETUP_STEPS } from '../constants/setup.constants';
 
 // Profile · Vehicle · Permissions: done steps show a check, the current one is accent.
-export function SetupStepper({ current }: { current: number }) {
+type SetupStepperProps = { current: number };
+
+const SetupStepper = ({ current }: SetupStepperProps) => {
   const t = useTheme();
   const c = t.colors;
+
   return (
     <View
       style={[styles.row, { gap: t.space[2] }]}
@@ -35,24 +40,26 @@ export function SetupStepper({ current }: { current: number }) {
               {done ? (
                 <Check color={c.accentText} size={14} strokeWidth={2.5} />
               ) : (
-                <Text variant="caption" tone={active ? 'accent' : 'tertiary'} tabular>
+                <AppText variant="caption" tone={active ? 'accent' : 'tertiary'} tabular>
                   {n}
-                </Text>
+                </AppText>
               )}
-              <Text
+              <AppText
                 variant="caption"
                 tone={active ? 'primary' : done ? 'secondary' : 'tertiary'}
                 numberOfLines={1}
               >
                 {label}
-              </Text>
+              </AppText>
             </View>
           </View>
         );
       })}
     </View>
   );
-}
+};
+
+export default SetupStepper;
 
 const styles = StyleSheet.create({
   row: { flexDirection: 'row' },

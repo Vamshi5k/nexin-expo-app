@@ -1,4 +1,5 @@
 import { StyleSheet, View } from 'react-native';
+
 import Animated, {
   Extrapolation,
   interpolate,
@@ -6,18 +7,17 @@ import Animated, {
   type SharedValue,
 } from 'react-native-reanimated';
 
-import { useTheme } from '@/theme';
+import { useTheme } from '@/shared/theme';
 
-export function OnboardingProgress({
-  count,
-  width,
-  x,
-}: {
+type OnboardingProgressProps = {
   count: number;
   width: number;
   x: SharedValue<number>;
-}) {
+};
+
+const OnboardingProgress = ({ count, width, x }: OnboardingProgressProps) => {
   const t = useTheme();
+
   return (
     <View style={[styles.row, { gap: t.space[2] }]} accessibilityElementsHidden>
       {Array.from({ length: count }, (_, i) => (
@@ -25,15 +25,18 @@ export function OnboardingProgress({
       ))}
     </View>
   );
-}
+};
 
-function Segment({ index, width, x }: { index: number; width: number; x: SharedValue<number> }) {
+type SegmentProps = { index: number; width: number; x: SharedValue<number> };
+
+const Segment = ({ index, width, x }: SegmentProps) => {
   const t = useTheme();
   const fill = useAnimatedStyle(() => ({
     transform: [
       { scaleX: interpolate(x.value / width, [index - 1, index], [0, 1], Extrapolation.CLAMP) },
     ],
   }));
+
   return (
     <View
       style={[styles.segment, { backgroundColor: t.colors.border, borderRadius: t.radius.pill }]}
@@ -47,7 +50,9 @@ function Segment({ index, width, x }: { index: number; width: number; x: SharedV
       />
     </View>
   );
-}
+};
+
+export default OnboardingProgress;
 
 const styles = StyleSheet.create({
   row: { flexDirection: 'row' },

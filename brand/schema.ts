@@ -185,7 +185,7 @@ const BrandObjectSchema = z.object({
 
 /**
  * A grey at least as dark as any derived neutral light background or sunken surface
- * (src/theme/palette.ts). Text that passes on it passes on all of them.
+ * (src/shared/theme/palette.ts). Text that passes on it passes on all of them.
  */
 export const DERIVED_LIGHT_SURFACE_FLOOR = '#E8ECEC';
 

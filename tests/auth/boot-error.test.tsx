@@ -1,9 +1,9 @@
 import { act, fireEvent, renderRouter, screen } from 'expo-router/testing-library';
 
 import { sessionStore } from '@/core/session';
-import { getUser } from '@/features/auth/api';
-import { markOnboardingDone } from '@/features/auth/session';
-import type { User } from '@/features/auth/types';
+import { authApi } from '@/features/auth/api/auth.api';
+import { markOnboardingDone } from '@/features/auth/utils/authFlow';
+import type { User } from '@/features/auth/types/auth.types';
 
 const mockSecureMap = new Map<string, string>();
 jest.mock('expo-secure-store', () => ({
@@ -21,18 +21,32 @@ jest.mock('@react-native-community/netinfo', () => ({
   useNetInfo: () => ({ isConnected: true }),
 }));
 jest.mock('@/core/log');
-jest.mock('@/theme/fonts', () => ({ useBrandFonts: () => ({ loaded: true, error: null }) }));
-jest.mock('@/features/client-config/api', () => ({
-  ...jest.requireActual('@/features/client-config/api'),
-  getClientConfig: jest.fn(async () => {
-    throw new Error('offline');
-  }),
-}));
-jest.mock('@/features/auth/api', () => ({
-  ...jest.requireActual('@/features/auth/api'),
-  getUser: jest.fn(),
-  logout: jest.fn(async () => undefined),
-}));
+jest.mock('@/shared/theme/fonts', () => ({ useBrandFonts: () => ({ loaded: true, error: null }) }));
+jest.mock('@/features/client-config/api/clientConfig.api', () => {
+  const actual = jest.requireActual('@/features/client-config/api/clientConfig.api');
+  return {
+    ...actual,
+    clientConfigApi: {
+      ...actual.clientConfigApi,
+      getConfig: jest.fn(async () => {
+        throw new Error('offline');
+      }),
+    },
+  };
+});
+jest.mock('@/features/auth/api/auth.api', () => {
+  const actual = jest.requireActual('@/features/auth/api/auth.api');
+  return {
+    ...actual,
+    authApi: {
+      ...actual.authApi,
+      getUser: jest.fn(),
+      logout: jest.fn(async () => undefined),
+    },
+  };
+});
+
+const { getUser } = authApi;
 
 const USER: User = {
   id: '7',

@@ -1,17 +1,21 @@
-import { Redirect, Stack } from 'expo-router';
 import { View } from 'react-native';
 
-import { useTheme } from '@/theme';
+import { Redirect, Stack } from 'expo-router';
 
-import { useRouteGuard } from '../routing';
-import type { RouteGroup } from '../types';
+import { useTheme } from '@/shared/theme';
 
-export function GuardedStack({ group }: { group: RouteGroup }) {
+import { useRouteGuard } from '../hooks/useRouteGuard';
+import type { RouteGroup } from '../types/auth.types';
+
+type GuardedStackProps = { group: RouteGroup };
+
+const GuardedStack = ({ group }: GuardedStackProps) => {
   const t = useTheme();
   const decision = useRouteGuard(group);
 
   if (decision === 'redirect') return <Redirect href="/" />;
   if (decision === 'end-session') return <View style={{ flex: 1, backgroundColor: t.colors.bg }} />;
+
   return (
     <Stack
       screenOptions={{
@@ -21,4 +25,6 @@ export function GuardedStack({ group }: { group: RouteGroup }) {
       }}
     />
   );
-}
+};
+
+export default GuardedStack;

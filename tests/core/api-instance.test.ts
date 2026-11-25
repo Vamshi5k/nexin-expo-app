@@ -21,7 +21,7 @@ describe('app api instance', () => {
   it('uses the active session token and the brand client token', async () => {
     await sessionStore.getState().signIn('consumer', { accessToken: 'tok', refreshToken: 'ref' });
     let seen: InternalAxiosRequestConfig | undefined;
-    api.defaults.adapter = async (config) => {
+    api.defaults.adapter = async config => {
       seen = config;
       return { config, status: 200, statusText: 'OK', headers: {}, data: { data: 1 } };
     };

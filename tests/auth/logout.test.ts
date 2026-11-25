@@ -1,29 +1,40 @@
 import { createSessionStore, signOutThen } from '@/core/session';
 import type { SecureStorage } from '@/core/storage';
-import { serverLogout } from '@/features/auth/session';
+import { serverLogout } from '@/features/auth/utils/authFlow';
 
 jest.mock('@/core/log');
-jest.mock('@/features/fleet', () => ({ fleetLogout: jest.fn(async () => undefined) }));
-jest.mock('@/features/auth/api', () => ({
-  ...jest.requireActual('@/features/auth/api'),
-  logout: jest.fn(async () => undefined),
+jest.mock('@/features/fleet', () => ({
+  fleetApi: { logout: jest.fn(async () => undefined) },
 }));
+jest.mock('@/features/auth/api/auth.api', () => {
+  const actual = jest.requireActual('@/features/auth/api/auth.api');
+  return {
+    ...actual,
+    authApi: {
+      ...actual.authApi,
+      logout: jest.fn(async () => undefined),
+    },
+  };
+});
 
-const { fleetLogout } = jest.requireMock('@/features/fleet') as { fleetLogout: jest.Mock };
-const { logout } = jest.requireMock('@/features/auth/api') as { logout: jest.Mock };
+const fleetLogout = (jest.requireMock('@/features/fleet') as { fleetApi: { logout: jest.Mock } })
+  .fleetApi.logout;
+const { logout } = (
+  jest.requireMock('@/features/auth/api/auth.api') as { authApi: { logout: jest.Mock } }
+).authApi;
 const { log } = jest.requireMock('@/core/log') as { log: { warn: jest.Mock } };
 
 function memoryStorage(): SecureStorage & { data: Map<string, string> } {
   const data = new Map<string, string>();
   return {
     data,
-    get: async (k) => data.get(k) ?? null,
+    get: async k => data.get(k) ?? null,
     set: async (k, v) => void data.set(k, v),
-    remove: async (k) => void data.delete(k),
+    remove: async k => void data.delete(k),
   };
 }
 
-const flush = () => new Promise((r) => setImmediate(r));
+const flush = () => new Promise(r => setImmediate(r));
 
 describe('serverLogout', () => {
   beforeEach(() => jest.clearAllMocks());

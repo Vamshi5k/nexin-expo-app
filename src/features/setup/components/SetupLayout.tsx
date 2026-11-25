@@ -1,25 +1,18 @@
-import { ChevronLeft } from 'lucide-react-native';
 import type { ReactNode } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
+
+import { ChevronLeft } from 'lucide-react-native';
 import Animated, { useAnimatedKeyboard, useAnimatedStyle } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { useTheme } from '@/theme';
-import { Pressable, Reveal, Text } from '@/ui';
+import { AppPressable, AppReveal, AppText } from '@/shared/components';
 
-import { SetupStepper } from './SetupStepper';
+import SetupStepper from './SetupStepper';
+
+import { useTheme } from '@/shared/theme';
 
 // Content-first frame for the setup steps: top bar, named stepper, title, body, pinned footer.
-export function SetupLayout({
-  step,
-  title,
-  subtitle,
-  onBack,
-  right,
-  aboveTitle,
-  children,
-  footer,
-}: {
+type SetupLayoutProps = {
   step: number;
   title: string;
   subtitle?: string;
@@ -28,7 +21,18 @@ export function SetupLayout({
   aboveTitle?: ReactNode;
   children: ReactNode;
   footer: ReactNode;
-}) {
+};
+
+const SetupLayout = ({
+  step,
+  title,
+  subtitle,
+  onBack,
+  right,
+  aboveTitle,
+  children,
+  footer,
+}: SetupLayoutProps) => {
   const t = useTheme();
   const insets = useSafeAreaInsets();
   // Edge-to-edge Android never resizes the window, so lift the footer by the keyboard ourselves.
@@ -48,7 +52,7 @@ export function SetupLayout({
         ]}
       >
         {onBack ? (
-          <Pressable
+          <AppPressable
             onPress={onBack}
             haptic="selection"
             accessibilityLabel="Back"
@@ -58,7 +62,7 @@ export function SetupLayout({
             ]}
           >
             <ChevronLeft color={t.colors.textPrimary} size={20} strokeWidth={1.75} />
-          </Pressable>
+          </AppPressable>
         ) : (
           <View style={styles.back} />
         )}
@@ -78,20 +82,20 @@ export function SetupLayout({
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        <Reveal index={0} style={{ gap: t.space[4] }}>
+        <AppReveal index={0} style={{ gap: t.space[4] }}>
           {aboveTitle}
           <View style={{ gap: t.space[2] }}>
-            <Text variant="hero" accessibilityRole="header">
+            <AppText variant="hero" accessibilityRole="header">
               {title}
-            </Text>
+            </AppText>
             {subtitle ? (
-              <Text variant="callout" tone="secondary">
+              <AppText variant="callout" tone="secondary">
                 {subtitle}
-              </Text>
+              </AppText>
             ) : null}
           </View>
-        </Reveal>
-        <Reveal index={1}>{children}</Reveal>
+        </AppReveal>
+        <AppReveal index={1}>{children}</AppReveal>
       </ScrollView>
       <View
         style={{
@@ -105,7 +109,9 @@ export function SetupLayout({
       </View>
     </Animated.View>
   );
-}
+};
+
+export default SetupLayout;
 
 const styles = StyleSheet.create({
   flex: { flex: 1 },

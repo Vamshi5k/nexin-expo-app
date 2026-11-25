@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
+
 import Animated, {
   Easing,
   FadeIn,
@@ -12,8 +13,9 @@ import Animated, {
 } from 'react-native-reanimated';
 import Svg, { Circle, Path, Rect } from 'react-native-svg';
 
-import { useTheme } from '@/theme';
-import { useKeyboardOpen } from '@/ui';
+import { useTheme } from '@/shared/theme';
+
+import { useKeyboardOpen } from '@/shared/utils/keyboard';
 
 const AnimatedPath = Animated.createAnimatedComponent(Path);
 const AnimatedRect = Animated.createAnimatedComponent(Rect);
@@ -41,18 +43,19 @@ const BOLT_SCREEN = 'M66.5 85 L61.5 92 H65.5 L64.5 97 L69.5 90 H65.5 Z';
 const BOLT_CHIP = 'M227.5 54 L221 63 H226 L224.5 68 L231 59 H226 Z';
 
 // Hidden while the keyboard is up, so the form gets the space.
-export function ChargingIllustration() {
+const ChargingIllustration = () => {
   const t = useTheme();
   const keyboardOpen = useKeyboardOpen();
   if (keyboardOpen) return null;
+
   return (
     <Animated.View entering={FadeIn.duration(t.motion.durationSlow)} style={styles.wrap}>
       <ChargingScene />
     </Animated.View>
   );
-}
+};
 
-function ChargingScene() {
+const ChargingScene = () => {
   const t = useTheme();
   const c = t.colors;
   const reduceMotion = useReducedMotion();
@@ -158,7 +161,7 @@ function ChargingScene() {
         <Rect x={312} y={119} width={14} height={3} rx={1.5} fill={c.surface} opacity={0.35} />
         <Rect x={194} y={124} width={12} height={10} rx={2.5} fill={c.accent} />
         <Rect x={188} y={125} width={8} height={8} rx={2} fill={c.textPrimary} />
-        {WHEELS.map((cx) => (
+        {WHEELS.map(cx => (
           <Wheel key={cx} cx={cx} tire={c.textPrimary} rim={c.surface} hub={c.accent} />
         ))}
 
@@ -180,15 +183,18 @@ function ChargingScene() {
       </Svg>
     </View>
   );
-}
+};
 
-function Wheel({ cx, tire, rim, hub }: { cx: number; tire: string; rim: string; hub: string }) {
+type WheelProps = { cx: number; tire: string; rim: string; hub: string };
+
+const Wheel = ({ cx, tire, rim, hub }: WheelProps) => {
   const cy = 150;
+
   return (
     <>
       <Circle cx={cx} cy={cy} r={22} fill={tire} />
       <Circle cx={cx} cy={cy} r={14} fill={rim} opacity={0.85} />
-      {SPOKES.map((deg) => {
+      {SPOKES.map(deg => {
         const a = (deg * Math.PI) / 180;
         return (
           <Path
@@ -204,7 +210,9 @@ function Wheel({ cx, tire, rim, hub }: { cx: number; tire: string; rim: string; 
       <Circle cx={cx} cy={cy} r={1.8} fill={hub} />
     </>
   );
-}
+};
+
+export default ChargingIllustration;
 
 const styles = StyleSheet.create({
   wrap: { flex: 1, width: '100%', minHeight: 0, alignSelf: 'center' },

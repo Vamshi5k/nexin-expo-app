@@ -1,5 +1,6 @@
-import { CreditCard, MapPin, Zap, type LucideIcon } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
+
+import { CreditCard, MapPin, Zap, type LucideIcon } from 'lucide-react-native';
 import Animated, {
   Extrapolation,
   interpolate,
@@ -7,11 +8,13 @@ import Animated, {
   type SharedValue,
 } from 'react-native-reanimated';
 
-import { useTheme } from '@/theme';
-import { Reveal, Text } from '@/ui';
+import { AppReveal, AppText } from '@/shared/components';
 
-import type { OnboardingSlide as Slide } from '../types';
-import { OnboardingArt } from './OnboardingArt';
+import OnboardingArt from './OnboardingArt';
+
+import { useTheme } from '@/shared/theme';
+
+import type { OnboardingSlide as Slide } from '../types/auth.types';
 
 const SLIDE_ICONS: Record<Slide['key'], LucideIcon> = {
   find: MapPin,
@@ -19,21 +22,16 @@ const SLIDE_ICONS: Record<Slide['key'], LucideIcon> = {
   pay: CreditCard,
 };
 
-export function OnboardingSlide({
-  slide,
-  index,
-  count,
-  width,
-  x,
-  spin,
-}: {
+type OnboardingSlideProps = {
   slide: Slide;
   index: number;
   count: number;
   width: number;
   x: SharedValue<number>;
   spin: SharedValue<number>;
-}) {
+};
+
+const OnboardingSlide = ({ slide, index, count, width, x, spin }: OnboardingSlideProps) => {
   const t = useTheme();
   const range = [(index - 1) * width, index * width, (index + 1) * width];
 
@@ -86,27 +84,29 @@ export function OnboardingSlide({
       style={[styles.slide, { width, paddingHorizontal: t.layout.screenPadding }]}
     >
       <Animated.View style={[styles.artArea, art]}>
-        <Reveal index={0}>
+        <AppReveal index={0}>
           <OnboardingArt icon={SLIDE_ICONS[slide.key]} spin={spin} />
-        </Reveal>
+        </AppReveal>
       </Animated.View>
       <View style={{ gap: t.space[2], paddingBottom: t.space[5] }}>
         <Animated.View style={title}>
-          <Reveal index={1}>
-            <Text variant="hero">{slide.title}</Text>
-          </Reveal>
+          <AppReveal index={1}>
+            <AppText variant="hero">{slide.title}</AppText>
+          </AppReveal>
         </Animated.View>
         <Animated.View style={body}>
-          <Reveal index={2}>
-            <Text variant="callout" tone="secondary">
+          <AppReveal index={2}>
+            <AppText variant="callout" tone="secondary">
               {slide.description}
-            </Text>
-          </Reveal>
+            </AppText>
+          </AppReveal>
         </Animated.View>
       </View>
     </View>
   );
-}
+};
+
+export default OnboardingSlide;
 
 const styles = StyleSheet.create({
   slide: { flex: 1, justifyContent: 'flex-end' },

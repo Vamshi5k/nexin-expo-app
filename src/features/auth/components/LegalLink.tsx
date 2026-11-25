@@ -1,16 +1,20 @@
 import { Pressable, StyleSheet } from 'react-native';
 
-import { Text } from '@/ui';
+import { AppText } from '@/shared/components';
 
-export function LegalLink({ label, onPress }: { label: string; onPress: () => void }) {
+type LegalLinkProps = { label: string; onPress: () => void };
+
+const LegalLink = ({ label, onPress }: LegalLinkProps) => {
   return (
     <Pressable onPress={onPress} hitSlop={12} accessibilityRole="link">
-      <Text variant="caption" tone="accent" style={styles.underline}>
+      <AppText variant="caption" tone="accent" style={styles.underline}>
         {label}
-      </Text>
+      </AppText>
     </Pressable>
   );
-}
+};
+
+export default LegalLink;
 
 const styles = StyleSheet.create({
   underline: { textDecorationLine: 'underline' },

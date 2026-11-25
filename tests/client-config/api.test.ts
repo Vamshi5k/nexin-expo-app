@@ -1,6 +1,10 @@
 import { brand } from '@/core/config';
 
-import { fallbackClientConfig, toClientConfig, webUrl } from '@/features/client-config/api';
+import {
+  fallbackClientConfig,
+  toClientConfig,
+  webUrl,
+} from '@/features/client-config/api/clientConfig.api';
 
 const FULL = {
   clientDetails: {
@@ -81,7 +85,7 @@ describe('webUrl', () => {
   });
   it.each([null, undefined, '', '  ', 'example.com', 'javascript:alert(1)', 'ftp://x', 'https://'])(
     'rejects %p',
-    (v) => {
+    v => {
       expect(webUrl(v)).toBeNull();
     },
   );

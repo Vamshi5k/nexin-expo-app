@@ -1,58 +1,64 @@
-import { router } from 'expo-router';
-import { LayoutGrid, LogOut, ShieldCheck } from 'lucide-react-native';
 import { View } from 'react-native';
 
-import { APP_ENV, brand } from '@/core/config';
-import { formatContact, LogoutDialog, useAuth, useLogoutConfirm } from '@/features/auth';
-import { useClientConfig } from '@/features/client-config';
-import { useTheme } from '@/theme';
-import { Card, LargeTitleScroll, ListGroup, ListRow, Text } from '@/ui';
+import { LayoutGrid, LogOut, ShieldCheck } from 'lucide-react-native';
 
-export function HomeScreen() {
+import {
+  AppCard,
+  AppLargeTitleScroll,
+  AppListGroup,
+  AppListRow,
+  AppText,
+} from '@/shared/components';
+
+import { LogoutDialog } from '@/features/auth';
+
+import { useTheme } from '@/shared/theme';
+
+import { useHome } from '../hooks/useHome';
+
+const HomeScreen = () => {
   const t = useTheme();
-  const config = useClientConfig();
-  const auth = useAuth();
-  const logout = useLogoutConfirm();
-  const user = auth.user;
-  const name = [user?.firstName, user?.lastName].filter(Boolean).join(' ');
-  const devTools = APP_ENV !== 'production';
+  const home = useHome();
+  const { logout } = home;
 
   return (
-    <LargeTitleScroll title={config.brandName} subtitle="You're signed in">
+    <AppLargeTitleScroll title={home.brandName} subtitle="You're signed in">
       <View style={{ gap: t.layout.sectionGapLarge }}>
-        <Card elevation="elevated" style={{ gap: t.space[1] }}>
-          <Text variant="subhead" tone="secondary">
+        <AppCard elevation="elevated" style={{ gap: t.space[1] }}>
+          <AppText variant="subhead" tone="secondary">
             Signed in as
-          </Text>
-          <Text variant="title2">{name || 'New user'}</Text>
-          {user?.phone ? (
-            <Text tone="secondary" tabular>
-              {formatContact('phone', user.phone, brand.phoneCountryCode)}
-            </Text>
+          </AppText>
+          <AppText variant="title2">{home.name}</AppText>
+          {home.phone ? (
+            <AppText tone="secondary" tabular>
+              {home.phone}
+            </AppText>
           ) : null}
-          {user?.email ? <Text tone="secondary">{user.email}</Text> : null}
-        </Card>
-        {devTools ? (
-          <ListGroup title="Developer">
-            <ListRow icon={LayoutGrid} title="UI kit" onPress={() => router.push('/dev/ui')} />
-            <ListRow
+          {home.email ? <AppText tone="secondary">{home.email}</AppText> : null}
+        </AppCard>
+        {home.showDevTools ? (
+          <AppListGroup title="Developer">
+            <AppListRow icon={LayoutGrid} title="UI kit" onPress={home.openUiKit} />
+            <AppListRow
               icon={ShieldCheck}
               iconTone="neutral"
               title="Cookie check"
-              onPress={() => router.push('/dev/cookie-check')}
+              onPress={home.openCookieCheck}
             />
-          </ListGroup>
+          </AppListGroup>
         ) : null}
-        <ListGroup>
-          <ListRow
+        <AppListGroup>
+          <AppListRow
             icon={LogOut}
             title={logout.leaving ? 'Logging out…' : 'Log out'}
             destructive
             onPress={logout.leaving ? undefined : logout.ask}
           />
-        </ListGroup>
+        </AppListGroup>
         <LogoutDialog state={logout} />
       </View>
-    </LargeTitleScroll>
+    </AppLargeTitleScroll>
   );
-}
+};
+
+export default HomeScreen;

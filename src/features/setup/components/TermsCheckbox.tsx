@@ -1,25 +1,25 @@
-import { Check } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
 
-import { useTheme } from '@/theme';
-import { Pressable, Text } from '@/ui';
+import { Check } from 'lucide-react-native';
+
+import { AppPressable, AppText } from '@/shared/components';
+
+import { useTheme } from '@/shared/theme';
 
 // The whole row toggles (the old app's 18 pt box alone was too small to hit).
-export function TermsCheckbox({
-  checked,
-  onToggle,
-  onOpenTerms,
-  onOpenPrivacy,
-}: {
+type TermsCheckboxProps = {
   checked: boolean;
   onToggle: () => void;
   onOpenTerms: () => void;
   onOpenPrivacy: () => void;
-}) {
+};
+
+const TermsCheckbox = ({ checked, onToggle, onOpenTerms, onOpenPrivacy }: TermsCheckboxProps) => {
   const t = useTheme();
   const c = t.colors;
+
   return (
-    <Pressable
+    <AppPressable
       onPress={onToggle}
       haptic="selection"
       feedback="opacity"
@@ -40,17 +40,19 @@ export function TermsCheckbox({
       >
         {checked ? <Check color={c.onAccent} size={16} strokeWidth={3} /> : null}
       </View>
-      <Text variant="callout" tone="secondary" style={styles.text}>
+      <AppText variant="callout" tone="secondary" style={styles.text}>
         I accept the <Link label="Terms & Conditions" onPress={onOpenTerms} /> and{' '}
         <Link label="Privacy Policy" onPress={onOpenPrivacy} />
-      </Text>
-    </Pressable>
+      </AppText>
+    </AppPressable>
   );
-}
+};
 
-function Link({ label, onPress }: { label: string; onPress: () => void }) {
+type LinkProps = { label: string; onPress: () => void };
+
+const Link = ({ label, onPress }: LinkProps) => {
   return (
-    <Text
+    <AppText
       variant="callout"
       tone="accent"
       style={styles.link}
@@ -58,9 +60,11 @@ function Link({ label, onPress }: { label: string; onPress: () => void }) {
       accessibilityRole="link"
     >
       {label}
-    </Text>
+    </AppText>
   );
-}
+};
+
+export default TermsCheckbox;
 
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center' },

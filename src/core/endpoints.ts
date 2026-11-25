@@ -1,0 +1,26 @@
+export const ENDPOINTS = {
+  AUTH: {
+    LOGIN: '/auth/app/login',
+    VERIFY: '/auth/app/verify',
+    REFRESH: '/auth/refresh',
+    USER: '/auth/user-by-token',
+    FCM: '/auth/fcm',
+    LOGOUT: '/auth/logout',
+  },
+  FLEET: {
+    DRIVER: '/fleet/get-by-token',
+    LOGOUT: '/fleet/logout',
+  },
+  CLIENT: {
+    INFO: '/client/info',
+  },
+  PROFILE: {
+    UPDATE: '/profile',
+  },
+  VEHICLES: {
+    ADD: '/vehicle',
+    BRANDS: '/vehicle/brand',
+    MODELS: (brandId: string) => `/vehicle/model/${brandId}`,
+    CAPACITIES: (modelId: string) => `/vehicle/capacity/${modelId}`,
+  },
+} as const;

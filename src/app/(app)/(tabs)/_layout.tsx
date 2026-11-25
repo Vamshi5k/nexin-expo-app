@@ -1,7 +1,7 @@
 import { Tabs } from 'expo-router';
 import { House, Wallet } from 'lucide-react-native';
 
-import { useTheme } from '@/theme';
+import { useTheme } from '@/shared/theme';
 
 export default function TabsLayout() {
   const t = useTheme();

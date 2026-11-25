@@ -44,7 +44,7 @@ Cruze EV is a bare React Native 0.83.1 (React 19.2, TypeScript) white-label EV c
 | src/navigations/  | AppNavigator.tsx (root stack + offline overlay), AppStack.tsx (tabs), linking.ts               |
 | src/screens/      | auth, map, stations, charging, scanner, wallet, profile, fleet, Nointernet                     |
 | src/components/   | Buttons, Cards, Forms, Headers, Modals, Sections, Skeletons, Maps, Tabs, ConnectorTypes SVGs   |
-| src/theme/        | colors (teal #00C8D0, bg #F4FBFC), fonts, fontSizes, radius, spacing                           |
+| src/theme/ (old app) | colors (teal #00C8D0, bg #F4FBFC), fonts, fontSizes, radius, spacing                           |
 | src/utils/        | Mappers (station, fleet, invoice), status, distance, currency, date, permissions, network hook |
 
 ### Environments and config
@@ -602,7 +602,7 @@ Runtime from /client/info: brand name, logo, legal and support URLs, login type,
 
 ## 6. Proposed clean Expo architecture
 
-Use a feature-first layout: Expo Router files in app/ are thin route shells, and all logic lives in src/features/<feature>/ with a fixed internal shape (types → api → hooks → components → screens; see AGENTS.md "Folder layout"). Shared infrastructure sits in src/core/ and the design system in src/ui/.
+Use a feature-first layout: Expo Router files in app/ are thin route shells, and all logic lives in src/features/<feature>/ with a fixed internal shape (types → api → hooks → components → screens; see AGENTS.md "Folder layout"). Shared infrastructure sits in src/core/ and the design system in src/shared/ (App* components, theme, utils).
 
 ### Folder structure
 
@@ -645,7 +645,7 @@ src/
     storage.ts      SecureStore, MMKV kv (AsyncStorage fallback in Expo Go), legacy migration
     # later phases: socket.ts, notifications.ts
   features/
-    # every feature: screens/ components/ api.ts hooks.tsx constants.ts types.ts index.ts
+    # every feature: api/ hooks/ types/ constants/ utils/ screens/ components/ index.ts
     # plus an optional <topic>.ts for pure rules with no React/UI imports
     auth/          + session.ts (schemas, routing rules, boot steps)
     client-config/
@@ -666,10 +666,10 @@ src/
 
 1.  Route files (app/**) only read params and render a screen from features/*/screens. No fetching, no state.
 2.  api.ts holds every network call and nothing else; no endpoint strings anywhere else. Each call returns a domain model (Station, Session, Transaction) through a DTO mapper that sits next to it, so backend quirks (charginDuration, pagination.page vs currentPage, capacity as number or object) are fixed in one place and components never touch raw API shapes.
-3.  hooks.tsx holds the feature's logic and state: its context provider if it has session-wide data, screen hooks built on `useRequest` / `useAction` / `useSessionData` (src/core/request.ts), and side effects. Screens are UI only and call these hooks.
+3.  hooks/ holds the feature's logic and state, one hook per file: its context provider if it has session-wide data, screen hooks built on `useRequest` / `useAction` / `useSessionData` (src/core/request.ts), and side effects. Screens are UI only and call these hooks.
 4.  constants.ts holds static data (copy, timeouts, lengths, route hrefs) and imports no UI; types.ts holds DTOs, models and unions.
 5.  Zustand holds only client state: the token store (mode consumer | fleet | none, tokens) and filters. The user, fleet driver and client config live in AuthContext, FleetContext and ClientConfigContext.
-6.  Pure logic (pricing maths, QR parsing, status mapping, formatters) lives in a topic-named .ts file in the feature (charging/pricing.ts, auth/session.ts) with no React or UI imports, and has unit tests.
+6.  Pure logic (pricing maths, QR parsing, status mapping, formatters) lives in a topic-named file in the feature's utils/ (charging/utils/pricing.ts, auth/utils/contact.ts) with no React or UI imports, and has unit tests.
 7.  Features import each other only through their index.ts; ui/ and core/ never import from features/.
 
 ### Key code skeletons
@@ -706,7 +706,7 @@ export const toPage = <T>(res: any): Page<T> => ({
 #### Feature api + hook
 
 ```ts
-// src/features/stations/api.ts
+// src/features/stations/api/stations.api.ts
 export async function getNearbyStations(p: NearbyParams): Promise<Page<Station>> {
   const res = await api.get<Envelope<PageDto<StationDto>>>('/station', {
     params: toNearbyQuery(p),
@@ -718,7 +718,7 @@ export async function setFavourite(id: string, isFavourite: boolean): Promise<vo
   await api.post(`/station/favourites/${id}`, { isFavourite });
 }
 
-// src/features/stations/hooks.tsx
+// src/features/stations/hooks/useStations.ts
 export function useNearbyStations(p: NearbyParams) {
   const load = useCallback(() => getNearbyStations(p), [p]);
   return useRequest(load); // { data, error, loading, refetch } for skeleton / Retry / empty
@@ -732,14 +732,14 @@ export function useNearbyStations(p: NearbyParams) {
 export default function AppLayout() {
   return <GuardedStack group="app" />;
 }
-// GuardedStack (auth/components) calls useRouteGuard -> guardRoute (auth/session.ts):
+// GuardedStack (auth/components) calls useRouteGuard -> guardRoute (auth/utils/authFlow.ts):
 // allow -> <Stack />, redirect -> <Redirect href="/" />, end-session -> sign out.
 ```
 
 #### Live session via socket + request
 
 ```ts
-// src/features/charging/hooks.tsx
+// src/features/charging/hooks/useCharging.ts
 export function useLiveSession(sessionId: string) {
   const load = useCallback(() => getRunningSession(sessionId), [sessionId]);
   const session = useRequest(load);
@@ -759,7 +759,7 @@ export function useLiveSession(sessionId: string) {
 
 ## 7. Build order
 
-Build in 10 phases, each ending with something you can run on a device. Every feature phase follows the same loop: types.ts → api.ts (calls + mappers) → constants.ts / <topic>.ts → hooks.tsx → components → screens → compare side by side with the old app.
+Build in 10 phases, each ending with something you can run on a device. Every feature phase follows the same loop: types/ → api/ (api object + mappers, paths in core/endpoints.ts) → constants/ and utils/ → hooks/ → components → screens → compare side by side with the old app.
 
 ### Phase 0: Foundation
 

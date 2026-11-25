@@ -2,11 +2,15 @@ import { AxiosError, AxiosHeaders } from 'axios';
 
 import { createSessionStore } from '@/core/session';
 import type { SecureStorage } from '@/core/storage';
-import { bootTimeoutError, checkSession, classifySessionError } from '@/features/auth/session';
+import {
+  bootTimeoutError,
+  checkSession,
+  classifySessionError,
+} from '@/features/auth/utils/authFlow';
 
 jest.mock('@/core/log');
 jest.mock('@/features/client-config', () => ({ usePrimeClientConfig: jest.fn() }));
-jest.mock('@/features/fleet', () => ({ useFleet: jest.fn(), fleetLogout: jest.fn() }));
+jest.mock('@/features/fleet', () => ({ useFleet: jest.fn(), fleetApi: { logout: jest.fn() } }));
 
 function httpError(status: number) {
   const headers = new AxiosHeaders();
@@ -22,9 +26,9 @@ function httpError(status: number) {
 function memoryStorage(): SecureStorage {
   const m = new Map<string, string>();
   return {
-    get: async (k) => m.get(k) ?? null,
+    get: async k => m.get(k) ?? null,
     set: async (k, v) => void m.set(k, v),
-    remove: async (k) => void m.delete(k),
+    remove: async k => void m.delete(k),
   };
 }
 
@@ -43,10 +47,10 @@ function loaders() {
 }
 
 describe('classifySessionError', () => {
-  it.each([400, 401, 403, 404, 422])('%i -> expired', (s) => {
+  it.each([400, 401, 403, 404, 422])('%i -> expired', s => {
     expect(classifySessionError(httpError(s))).toBe('expired');
   });
-  it.each([408, 429, 500, 503])('%i -> retryable', (s) => {
+  it.each([408, 429, 500, 503])('%i -> retryable', s => {
     expect(classifySessionError(httpError(s))).toBe('retryable');
   });
   it('network errors and timeouts -> retryable', () => {

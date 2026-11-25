@@ -15,7 +15,7 @@ const perm = (granted: boolean, canAskAgain: boolean) => ({
 
 const mockLocation = { check: jest.fn(), request: jest.fn() };
 // the blocked dialog lives in the same module; keep the UI kit out of this test
-jest.mock('@/ui', () => ({ Dialog: () => null }));
+jest.mock('@/shared/components', () => ({ AppDialog: () => null }));
 jest.mock('expo-location', () => ({
   getForegroundPermissionsAsync: () => mockLocation.check(),
   requestForegroundPermissionsAsync: () => mockLocation.request(),
@@ -62,7 +62,7 @@ describe('ensurePermission', () => {
   it('shows the blocked dialog and always settles', async () => {
     mockLocation.check.mockResolvedValue(perm(false, false));
     const pending = ensurePermission('location');
-    await new Promise((r) => setTimeout(r, 0));
+    await new Promise(r => setTimeout(r, 0));
     expect(usePermissionBlocked.getState().kind).toBe('location');
     usePermissionBlocked.getState().close(false);
     await expect(pending).resolves.toBe('blocked');

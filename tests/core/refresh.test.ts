@@ -25,7 +25,7 @@ function fail(config: InternalAxiosRequestConfig, status: number): never {
 
 function deferred() {
   let resolve!: () => void;
-  const promise = new Promise<void>((r) => (resolve = r));
+  const promise = new Promise<void>(r => (resolve = r));
   return { promise, resolve };
 }
 
@@ -47,7 +47,7 @@ function setup(opts: {
     clientToken: 'tenant-1',
     getAccessToken: () => access,
     getRefreshToken: () => refreshToken,
-    saveTokens: (t) => {
+    saveTokens: t => {
       access = t.accessToken;
       refreshToken = t.refreshToken;
     },
@@ -55,7 +55,7 @@ function setup(opts: {
     refreshClient: createAxios({ adapter: opts.refreshAdapter }),
   });
 
-  client.defaults.adapter = async (config) => {
+  client.defaults.adapter = async config => {
     const auth = String(config.headers.get('Authorization') ?? '');
     seen.push({ url: config.url, auth, clientToken: String(config.headers.get('x-client-token')) });
     await opts.serverDelay?.(config.url);
@@ -70,21 +70,21 @@ describe('401 refresh queue', () => {
   it('3 concurrent 401s cause exactly 1 refresh call, then all replay with the new token', async () => {
     const gate = deferred();
     const refreshAdapter = jest.fn<ReturnType<AxiosAdapter>, Parameters<AxiosAdapter>>(
-      async (config) => {
+      async config => {
         await gate.promise; // hold the refresh until all three 401s are in
         return response(config, 200, { accessToken: 'new-access', refreshToken: 'new-refresh' });
       },
     );
     const { client, seen, tokens } = setup({ refreshAdapter });
 
-    const calls = Promise.all(['/a', '/b', '/c'].map((u) => client.get(u)));
-    await new Promise((r) => setTimeout(r, 10));
-    expect(seen.filter((s) => s.auth === 'Bearer old-access')).toHaveLength(3);
+    const calls = Promise.all(['/a', '/b', '/c'].map(u => client.get(u)));
+    await new Promise(r => setTimeout(r, 10));
+    expect(seen.filter(s => s.auth === 'Bearer old-access')).toHaveLength(3);
     gate.resolve();
 
     const results = await calls;
     expect(refreshAdapter).toHaveBeenCalledTimes(1);
-    expect(results.map((r) => r.data.data.url)).toEqual(['/a', '/b', '/c']);
+    expect(results.map(r => r.data.data.url)).toEqual(['/a', '/b', '/c']);
     expect(tokens()).toEqual({ access: 'new-access', refreshToken: 'new-refresh' });
 
     const refreshCall = refreshAdapter.mock.calls[0][0];
@@ -96,12 +96,12 @@ describe('401 refresh queue', () => {
   it('a late 401 for an already-replaced token replays without a second refresh', async () => {
     const lateB = deferred();
     const refreshAdapter = jest.fn<ReturnType<AxiosAdapter>, Parameters<AxiosAdapter>>(
-      async (config) =>
+      async config =>
         response(config, 200, { accessToken: 'new-access', refreshToken: 'new-refresh' }),
     );
     const { client } = setup({
       refreshAdapter,
-      serverDelay: async (url) => {
+      serverDelay: async url => {
         if (url === '/b') await lateB.promise;
       },
     });
@@ -114,14 +114,14 @@ describe('401 refresh queue', () => {
   });
 
   it('refresh 4xx ends the session and rejects with the original 401', async () => {
-    const refreshAdapter: AxiosAdapter = async (config) => fail(config, 401);
+    const refreshAdapter: AxiosAdapter = async config => fail(config, 401);
     const { client, onSessionExpired } = setup({ refreshAdapter });
     await expect(client.get('/a')).rejects.toMatchObject({ response: { status: 401 } });
     expect(onSessionExpired).toHaveBeenCalledTimes(1);
   });
 
   it('refresh 5xx or network failure keeps the session', async () => {
-    const refreshAdapter: AxiosAdapter = async (config) => fail(config, 503);
+    const refreshAdapter: AxiosAdapter = async config => fail(config, 503);
     const { client, onSessionExpired, tokens } = setup({ refreshAdapter });
     await expect(client.get('/a')).rejects.toMatchObject({ response: { status: 401 } });
     expect(onSessionExpired).not.toHaveBeenCalled();
@@ -136,17 +136,17 @@ describe('401 refresh queue', () => {
     ).rejects.toMatchObject({
       response: { status: 401 },
     });
-    expect(seen.map((s) => s.auth)).toEqual(['Bearer captured']);
+    expect(seen.map(s => s.auth)).toEqual(['Bearer captured']);
     expect(refreshAdapter).not.toHaveBeenCalled();
     expect(onSessionExpired).not.toHaveBeenCalled();
   });
 
   it('sends x-client-token and the bearer token on every request', async () => {
-    const refreshAdapter: AxiosAdapter = async (config) =>
+    const refreshAdapter: AxiosAdapter = async config =>
       response(config, 200, { accessToken: 'new-access', refreshToken: 'new-refresh' });
     const { client, seen } = setup({ refreshAdapter });
     await client.get('/a');
-    expect(seen.every((s) => s.clientToken === 'tenant-1')).toBe(true);
-    expect(seen.map((s) => s.auth)).toEqual(['Bearer old-access', 'Bearer new-access']);
+    expect(seen.every(s => s.clientToken === 'tenant-1')).toBe(true);
+    expect(seen.map(s => s.auth)).toEqual(['Bearer old-access', 'Bearer new-access']);
   });
 });

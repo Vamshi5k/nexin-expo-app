@@ -1,5 +1,5 @@
-import { fromCache, toCache } from '@/features/client-config/hooks';
-import type { ClientConfig } from '@/features/client-config/types';
+import { fromCache, toCache } from '@/features/client-config/utils/cache';
+import type { ClientConfig } from '@/features/client-config/types/clientConfig.types';
 
 const CONFIG: ClientConfig = {
   brandName: 'CRUZE ev',

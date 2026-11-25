@@ -1,7 +1,7 @@
 import brandConfig from '@brand/brand.config';
 import { parseBrand } from '@brand/schema';
 
-import { contrastRatio, ensureContrast } from '@/theme/color';
+import { contrastRatio, ensureContrast } from '@/shared/theme/color';
 import {
   AA_TEXT,
   AA_UI,
@@ -9,8 +9,8 @@ import {
   neutralScale,
   type ColorScheme,
   type Palette,
-} from '@/theme/palette';
-import { resolveScheme } from '@/theme/ThemeProvider';
+} from '@/shared/theme/palette';
+import { resolveScheme } from '@/shared/theme/ThemeProvider';
 
 const base = parseBrand(brandConfig);
 
@@ -58,11 +58,11 @@ function failures(p: Palette): string[] {
 
 describe('palette contrast (WCAG AA)', () => {
   const schemes: ColorScheme[] = ['light', 'dark'];
-  it.each(schemes)('Cruze EV passes every pair in %s', (scheme) => {
+  it.each(schemes)('Cruze EV passes every pair in %s', scheme => {
     expect(failures(buildPalette(base, scheme))).toEqual([]);
   });
 
-  it.each(PRIMARIES.flatMap((p) => schemes.map((s) => [p, s] as const)))(
+  it.each(PRIMARIES.flatMap(p => schemes.map(s => [p, s] as const)))(
     'primary %s passes every pair in %s',
     (primary, scheme) => {
       expect(failures(buildPalette(brandWith(primary), scheme))).toEqual([]);
@@ -115,14 +115,14 @@ describe('palette derivation', () => {
 describe('neutrals by default (DESIGN.md)', () => {
   /** Saturation of a colour, 0 to 1: how far it is from grey. */
   function saturation(hex: string): number {
-    const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255);
+    const [r, g, b] = [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16) / 255);
     const max = Math.max(r, g, b);
     const min = Math.min(r, g, b);
     const l = (max + min) / 2;
     return max === min ? 0 : (max - min) / (1 - Math.abs(2 * l - 1));
   }
 
-  it.each(PRIMARIES)('derives near-grey light surfaces for primary %s', (primary) => {
+  it.each(PRIMARIES)('derives near-grey light surfaces for primary %s', primary => {
     const p = buildPalette(brandWith(primary), 'light');
     expect(p.surface).toBe('#FFFFFF');
     for (const k of ['bg', 'surfaceSunken', 'border', 'borderStrong'] as const) {
