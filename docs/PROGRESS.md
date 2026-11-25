@@ -107,6 +107,32 @@ component but not polished screen by screen; Cruze EV stays on `appearance: 'lig
 **Note**: expo-blur is native, so existing dev clients must be rebuilt (`npm run ios` /
 `npm run android`).
 
+## Structure cleanup (2026-11-25, branch `feat/setup`)
+
+Move/rename refactor so every feature has the same shape; behaviour unchanged.
+Guide for new developers: `docs/HOW_THIS_APP_WORKS.md`.
+
+- Home screen moved from `auth` to new `features/home` (`HomeScreen`); the fleet placeholder
+  also lives there (`FleetHomeScreen`).
+- `auth/routing.tsx`: `useBoot`, `useStartRoute`, `useRouteGuard` (out of `auth/hooks.tsx`).
+- `useOnboarding` holds the onboarding logic; `OnboardingScreen` only renders.
+- `BootErrorScreen` is shown only by the root layout (startup failure and first user-load
+  failure); `StartRedirect` only redirects.
+- `OfflineBanner` and `PermissionDialog` moved from `src/core` to `src/ui`; `core/network.ts`
+  and `core/permissions.ts` are logic only. `SetupPermission` is in `setup/types.ts`.
+- `npm start` opens in Expo Go; `npm run start:dev` for a development build.
+
+**Deviations**
+
+- `FleetHomeScreen` is in `home`, not `fleet`: `auth` imports `fleet` (driver load,
+  `fleetLogout`), so a fleet screen importing `auth` for logout made a require cycle.
+- `finishOnboarding` stays in `auth/hooks.tsx` (private to `useOnboarding`), not in
+  `routing.tsx`, so `hooks.tsx` and `routing.tsx` don't import each other.
+
+**Verified**: `tsc --noEmit`, `expo lint`, `jest` (37 suites, 224 tests, including new boot
+error and onboarding tests); Android and iOS bundles build in Expo Go mode; onboarding and
+Login render in Expo Go on the iOS simulator with no require-cycle warning.
+
 ## Phase 2b: First-run setup (in progress, branch `feat/setup`)
 
 Scope: BLUEPRINT A5-A8. Flow after OTP for a first-time user: `/(setup)/profile` ->
