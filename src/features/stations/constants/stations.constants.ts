@@ -60,6 +60,13 @@ export const CARD_COPY = {
   distance: 'Distance',
   drive: 'Drive',
   perKwh: 'per kWh',
+  tabChargers: 'Chargers',
+  tabInfo: 'Info',
+  address: 'Address',
+  helpLine: 'Help line',
+  connectorTypes: 'Connector types',
+  chargersCount: 'Chargers',
+  notAvailable: 'Not available',
 } as const;
 
 export const FILTERS_COPY = {
@@ -103,6 +110,13 @@ export const DETAILS_COPY = {
   drive: 'Drive',
   power: 'Max power',
   perKwh: 'per kWh',
+  tabChargers: 'Chargers',
+  tabInfo: 'Info',
+  address: 'Address',
+  helpLine: 'Help line',
+  connectorTypes: 'Connector types',
+  chargersCount: 'Chargers',
+  notAvailable: 'Not available',
 } as const;
 
 export const chargerTitle = (index: number) => `Charger ${index + 1}`;

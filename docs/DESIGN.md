@@ -111,14 +111,15 @@ the driver find, start, watch or pay for a charge.
   inputs are large chips; the price breakdown is collapsed by default.
 - Wallet: the balance card is the hero (large tabular number); transactions are grouped
   by date.
-- Station details (Uber-style, brand palette): a still map of the station with its pin (brand
-  charger art on the status gradient when maps are missing) and floating glass back, share and
-  heart buttons. A white sheet with a grabber overlaps the map: title1 name, a status dot with
-  status and address, 2x2 sunken info tiles (distance, drive, max power, lowest rate), then
-  "Chargers" as plain list rows (connector icon in a grey circle, bold "CCS2 · 60 kW DC",
-  "Connector n" or charging progress, rate and a status dot on the right, chevron only when it
-  can start) and amenity chips. A sticky accent "Get Directions · 1h 58m" button, with Call
-  only when there is a phone number.
+- Station details (Uber-style, brand palette, no shadows): a still map of the station with its
+  pin and floating glass back, share and heart buttons. A white sheet with a grabber overlaps
+  the map; its top carries a soft accent wash. Title1 name, status dot with status and address,
+  2x2 info tiles with a faint accent gradient (distance, drive, max power, lowest rate). Then
+  Chargers / Info tabs (pill track, active pill in the accent-to-accentPressed gradient),
+  Chargers first: plain connector rows (icon circle, bold "CCS2 · 60 kW DC", rate and status
+  dot). Info: address, help line (tappable when present), connector types, charger count and
+  amenity chips in a light accent gradient. A sticky gradient "Get Directions · 1h 58m" button,
+  with Call only when there is a phone number. Brand gradients only run between accent tokens.
 
 ## Splash, onboarding, auth and first-run setup (flat)
 - Completely flat: no shadows, glows or blurs. Shape comes from flat fills (accent,

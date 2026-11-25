@@ -5,6 +5,8 @@ import { Clock, IndianRupee, MapPin, Zap, type LucideIcon } from 'lucide-react-n
 
 import { AppText } from '@/shared/components';
 
+import BrandGradient from './BrandGradient';
+
 import { useTheme } from '@/shared/theme';
 
 import { brand } from '@/core/config';
@@ -108,11 +110,19 @@ const StationInfo = ({ station, distance }: StationInfoProps) => {
                   gap: t.space[2],
                   padding: t.space[3],
                   borderRadius: t.radius.control,
+                  overflow: 'hidden',
                   backgroundColor: t.colors.surfaceSunken,
                 },
               ]}
             >
-              <Icon color={t.colors.textPrimary} size={t.icon.meta} strokeWidth={t.icon.stroke} />
+              <BrandGradient
+                id={`tile-${label.replace(/\W/g, '')}`}
+                from={t.colors.accent}
+                to={t.colors.accentPressed}
+                fromOpacity={0.14}
+                toOpacity={0.03}
+              />
+              <Icon color={t.colors.accentText} size={t.icon.meta} strokeWidth={t.icon.stroke} />
               <View>
                 <AppText variant="headline" tabular numberOfLines={1}>
                   {value}

@@ -3,7 +3,9 @@ import { StyleSheet, View } from 'react-native';
 import { Navigation, Phone } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { AppButton, AppPressable } from '@/shared/components';
+import { AppPressable, AppText } from '@/shared/components';
+
+import BrandGradient from './BrandGradient';
 
 import { useTheme, type Theme } from '@/shared/theme';
 
@@ -22,6 +24,7 @@ export const actionBarHeight = (t: Theme, bottomInset: number) =>
 const DetailsActionBar = ({ eta, onDirections, onCall }: DetailsActionBarProps) => {
   const t = useTheme();
   const insets = useSafeAreaInsets();
+  const label = eta ? `${DETAILS_COPY.directions} · ${eta}` : DETAILS_COPY.directions;
 
   return (
     <View
@@ -38,12 +41,29 @@ const DetailsActionBar = ({ eta, onDirections, onCall }: DetailsActionBarProps) 
         },
       ]}
     >
-      <AppButton
-        label={eta ? `${DETAILS_COPY.directions} · ${eta}` : DETAILS_COPY.directions}
-        icon={Navigation}
+      <AppPressable
         onPress={onDirections}
-        style={styles.grow}
-      />
+        haptic="light"
+        accessibilityRole="button"
+        accessibilityLabel={label}
+        style={[
+          styles.grow,
+          styles.center,
+          styles.row,
+          {
+            gap: t.space[2],
+            height: t.layout.buttonHeight,
+            borderRadius: t.radius.pill,
+            overflow: 'hidden',
+          },
+        ]}
+      >
+        <BrandGradient id="directions-button" from={t.colors.accent} to={t.colors.accentPressed} />
+        <Navigation color={t.colors.onAccent} size={t.icon.control} strokeWidth={t.icon.stroke} />
+        <AppText variant="headline" tone="onAccent" tabular>
+          {label}
+        </AppText>
+      </AppPressable>
       {onCall ? (
         <AppPressable
           onPress={onCall}
@@ -79,6 +99,9 @@ const styles = StyleSheet.create({
     bottom: 0,
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  row: {
+    flexDirection: 'row',
   },
   center: {
     alignItems: 'center',

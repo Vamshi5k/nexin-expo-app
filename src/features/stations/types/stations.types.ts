@@ -143,3 +143,5 @@ export type StationDetails = Coordinates & {
   imageUrl: string | null;
   chargers: Charger[];
 };
+
+export type DetailsTab = 'chargers' | 'info';

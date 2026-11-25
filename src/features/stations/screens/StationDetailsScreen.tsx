@@ -11,9 +11,12 @@ import {
   AppText,
 } from '@/shared/components';
 
+import BrandGradient from '../components/BrandGradient';
 import ChargerSection from '../components/ChargerSection';
 import DetailsActionBar, { actionBarHeight } from '../components/DetailsActionBar';
 import DetailsHero, { heroHeight, sheetOverlap } from '../components/DetailsHero';
+import DetailsTabs from '../components/DetailsTabs';
+import InfoTab from '../components/InfoTab';
 import MapsChooserSheet from '../components/MapsChooserSheet';
 import StationInfo from '../components/StationInfo';
 
@@ -124,9 +127,20 @@ const StationDetailsScreen = ({ stationId }: StationDetailsScreenProps) => {
             paddingTop: t.space[3],
             borderTopLeftRadius: t.radius.sheet,
             borderTopRightRadius: t.radius.sheet,
+            overflow: 'hidden',
             backgroundColor: t.colors.surface,
           }}
         >
+          <View style={[styles.sheetWash, { height: t.space[12] * 4 }]} pointerEvents="none">
+            <BrandGradient
+              id="sheet-wash"
+              direction="down"
+              from={t.colors.accent}
+              to={t.colors.accent}
+              fromOpacity={0.16}
+              toOpacity={0}
+            />
+          </View>
           <View
             style={[
               styles.grabber,
@@ -141,56 +155,42 @@ const StationDetailsScreen = ({ stationId }: StationDetailsScreenProps) => {
 
           <StationInfo station={station} distance={details.distance} />
 
-          <View style={{ gap: t.space[2] }}>
-            <AppText variant="title2" accessibilityRole="header">
-              {DETAILS_COPY.chargers}
-            </AppText>
-            {details.chargers.length ? (
-              <AppText variant="subhead" tone="secondary">
-                {DETAILS_COPY.tip}
-              </AppText>
-            ) : null}
-          </View>
+          <DetailsTabs
+            value={details.tab}
+            onChange={details.setTab}
+            tabs={[
+              { value: 'chargers', label: DETAILS_COPY.tabChargers },
+              { value: 'info', label: DETAILS_COPY.tabInfo },
+            ]}
+          />
 
-          {details.chargers.length ? (
-            details.chargers.map((charger, index) => (
-              <ChargerSection
-                key={charger.id}
-                charger={charger}
-                index={index}
-                onConnectorPress={details.openConnector}
-              />
-            ))
+          {details.tab === 'info' ? (
+            <InfoTab station={station} onCall={details.call} />
           ) : (
-            <AppEmptyState
-              icon={PlugZap}
-              title={DETAILS_COPY.noChargers}
-              description={DETAILS_COPY.noChargersBody}
-            />
-          )}
-
-          {station.amenities.length ? (
-            <View style={{ gap: t.space[3] }}>
-              <AppText variant="title2" accessibilityRole="header">
-                {DETAILS_COPY.amenities}
-              </AppText>
-              <View style={[styles.wrap, { gap: t.space[2] }]}>
-                {station.amenities.map(amenity => (
-                  <View
-                    key={amenity}
-                    style={{
-                      paddingHorizontal: t.space[4],
-                      paddingVertical: t.space[2],
-                      borderRadius: t.radius.pill,
-                      backgroundColor: t.colors.surfaceSunken,
-                    }}
-                  >
-                    <AppText variant="subhead">{amenity}</AppText>
-                  </View>
-                ))}
-              </View>
+            <View style={{ gap: t.space[6] }}>
+              {details.chargers.length ? (
+                <AppText variant="subhead" tone="secondary">
+                  {DETAILS_COPY.tip}
+                </AppText>
+              ) : null}
+              {details.chargers.length ? (
+                details.chargers.map((charger, index) => (
+                  <ChargerSection
+                    key={charger.id}
+                    charger={charger}
+                    index={index}
+                    onConnectorPress={details.openConnector}
+                  />
+                ))
+              ) : (
+                <AppEmptyState
+                  icon={PlugZap}
+                  title={DETAILS_COPY.noChargers}
+                  description={DETAILS_COPY.noChargersBody}
+                />
+              )}
             </View>
-          ) : null}
+          )}
         </View>
       </ScrollView>
 
@@ -219,6 +219,12 @@ const styles = StyleSheet.create({
   center: {
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  sheetWash: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
   },
   grabber: {
     alignSelf: 'center',

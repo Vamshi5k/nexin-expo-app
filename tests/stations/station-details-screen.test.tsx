@@ -60,11 +60,25 @@ describe('StationDetailsScreen', () => {
     await renderWithApp(<StationDetailsScreen stationId="9" />);
 
     expect(await screen.findByText('Hub One')).toBeTruthy();
-    expect(screen.getByText('Charger 1')).toBeTruthy();
+    expect(screen.getByText('Charger 1 · CRZ_01')).toBeTruthy();
     expect(screen.getByText('1/2 free')).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Get Directions' })).toBeTruthy();
     expect(screen.queryByRole('button', { name: 'Call station' })).toBeNull();
     expect(getDetails).toHaveBeenCalledWith('9');
+  });
+
+  it('opens on Chargers; Info shows address, help line and connector types', async () => {
+    await renderWithApp(<StationDetailsScreen stationId="9" />);
+
+    const chargersTab = await screen.findByRole('tab', { name: 'Chargers' });
+    expect(chargersTab).toBeSelected();
+    expect(screen.queryByText('Help line')).toBeNull();
+
+    await fireEvent.press(screen.getByRole('tab', { name: 'Info' }));
+    expect(screen.getByText('Help line')).toBeTruthy();
+    expect(screen.getByText('Not available')).toBeTruthy();
+    expect(screen.getByText('CCS2')).toBeTruthy();
+    expect(screen.queryByText('Charger 1 · CRZ_01')).toBeNull();
   });
 
   it('a free connector opens charging; a busy one explains why not', async () => {
