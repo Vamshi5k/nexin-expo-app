@@ -5,110 +5,117 @@ import { log } from '@/core/log';
 import { SECURE_KEYS, secure, type SecureKey, type SecureStorage } from '@/core/storage';
 
 export type SessionMode = 'none' | 'consumer' | 'fleet';
+type SignedInMode = Exclude<SessionMode, 'none'>;
 
 export type SessionState = {
   status: 'loading' | 'ready';
   mode: SessionMode;
   tokens: Tokens | null;
   hydrate: () => Promise<void>;
-  signIn: (mode: Exclude<SessionMode, 'none'>, tokens: Tokens) => Promise<void>;
+  signIn: (mode: SignedInMode, tokens: Tokens) => Promise<void>;
   updateTokens: (tokens: Tokens) => Promise<void>;
   signOut: () => Promise<void>;
 };
 
-const KEYS: Record<Exclude<SessionMode, 'none'>, { access: SecureKey; refresh: SecureKey }> = {
-  consumer: { access: SECURE_KEYS.accessToken, refresh: SECURE_KEYS.refreshToken },
-  fleet: { access: SECURE_KEYS.fleetToken, refresh: SECURE_KEYS.fleetRefreshToken },
+export type ServerLogout = (mode: SignedInMode, accessToken: string | null) => Promise<void>;
+
+const CONSUMER_KEYS: SecureKey[] = [SECURE_KEYS.accessToken, SECURE_KEYS.refreshToken];
+const FLEET_KEYS: SecureKey[] = [SECURE_KEYS.fleetToken, SECURE_KEYS.fleetRefreshToken];
+const ALL_KEYS: SecureKey[] = [...CONSUMER_KEYS, ...FLEET_KEYS];
+
+const keysFor = (mode: SignedInMode) => (mode === 'consumer' ? CONSUMER_KEYS : FLEET_KEYS);
+
+const signedOut = { status: 'ready', mode: 'none', tokens: null } as const;
+
+const saveTokens = async (storage: SecureStorage, mode: SignedInMode, tokens: Tokens) => {
+  const [accessKey, refreshKey] = keysFor(mode);
+  await storage.set(accessKey, tokens.accessToken);
+  await storage.set(refreshKey, tokens.refreshToken);
 };
-const ALL_KEYS = Object.values(SECURE_KEYS) as SecureKey[];
 
-async function removeAll(storage: SecureStorage, keys: SecureKey[]) {
-  const results = await Promise.allSettled(keys.map(k => storage.remove(k)));
-  const failed = results.filter(r => r.status === 'rejected').length;
+const readTokens = async (storage: SecureStorage, mode: SignedInMode) => {
+  const [accessKey, refreshKey] = keysFor(mode);
+  const accessToken = await storage.get(accessKey);
+  const refreshToken = await storage.get(refreshKey);
+
+  if (!accessToken || !refreshToken) return null;
+  return { accessToken, refreshToken };
+};
+
+const removeTokens = async (storage: SecureStorage, keys: SecureKey[]) => {
+  const results = await Promise.allSettled(keys.map(key => storage.remove(key)));
+  const failed = results.filter(result => result.status === 'rejected').length;
   if (failed) log.warn('could not delete some stored tokens', { failed });
-}
+};
 
-export function createSessionStore(storage: SecureStorage = secure) {
-  return createStore<SessionState>()((set, get) => ({
+export const createSessionStore = (storage: SecureStorage = secure) =>
+  createStore<SessionState>()((set, get) => ({
     status: 'loading',
     mode: 'none',
     tokens: null,
 
-    async hydrate() {
+    hydrate: async () => {
       try {
-        const [access, refresh, fleetAccess, fleetRefresh] = await Promise.all(
-          [KEYS.consumer.access, KEYS.consumer.refresh, KEYS.fleet.access, KEYS.fleet.refresh].map(
-            k => storage.get(k),
-          ),
-        );
-        if (access && refresh) {
+        const consumerTokens = await readTokens(storage, 'consumer');
+        const fleetTokens = await readTokens(storage, 'fleet');
+
+        if (consumerTokens) {
           // BLUEPRINT bug 12: both sessions stored -> keep consumer, drop fleet.
-          if (fleetAccess || fleetRefresh)
-            await removeAll(storage, [KEYS.fleet.access, KEYS.fleet.refresh]);
-          set({
-            status: 'ready',
-            mode: 'consumer',
-            tokens: { accessToken: access, refreshToken: refresh },
-          });
-        } else if (fleetAccess && fleetRefresh) {
-          set({
-            status: 'ready',
-            mode: 'fleet',
-            tokens: { accessToken: fleetAccess, refreshToken: fleetRefresh },
-          });
-        } else {
-          set({ status: 'ready', mode: 'none', tokens: null });
+          await removeTokens(storage, FLEET_KEYS);
+          set({ status: 'ready', mode: 'consumer', tokens: consumerTokens });
+          return;
         }
+
+        if (fleetTokens) {
+          set({ status: 'ready', mode: 'fleet', tokens: fleetTokens });
+          return;
+        }
+
+        set(signedOut);
       } catch (error) {
         log.warn('session hydrate failed; starting signed out', { error: String(error) });
-        set({ status: 'ready', mode: 'none', tokens: null });
+        set(signedOut);
       }
     },
 
-    async signIn(mode, tokens) {
-      const other = mode === 'consumer' ? KEYS.fleet : KEYS.consumer;
-      set({ mode, tokens, status: 'ready' });
-      await removeAll(storage, [other.access, other.refresh]);
-      await storage.set(KEYS[mode].access, tokens.accessToken);
-      await storage.set(KEYS[mode].refresh, tokens.refreshToken);
+    signIn: async (mode, tokens) => {
+      set({ status: 'ready', mode, tokens });
+
+      const otherMode = mode === 'consumer' ? 'fleet' : 'consumer';
+      await removeTokens(storage, keysFor(otherMode));
+      await saveTokens(storage, mode, tokens);
     },
 
-    async updateTokens(tokens) {
+    updateTokens: async tokens => {
       const { mode } = get();
       if (mode === 'none') return;
+
       set({ tokens });
-      await storage.set(KEYS[mode].access, tokens.accessToken);
-      await storage.set(KEYS[mode].refresh, tokens.refreshToken);
+      await saveTokens(storage, mode, tokens);
     },
 
-    async signOut() {
-      set({ mode: 'none', tokens: null, status: 'ready' });
-      await removeAll(storage, ALL_KEYS);
+    signOut: async () => {
+      set(signedOut);
+      await removeTokens(storage, ALL_KEYS);
     },
   }));
-}
 
 export const sessionStore = createSessionStore();
 
-export type ServerLogout = (
-  mode: Exclude<SessionMode, 'none'>,
-  accessToken: string | null,
-) => Promise<void>;
+export const useSession = <T>(selector: (state: SessionState) => T): T =>
+  useStore(sessionStore, selector);
 
-// Local first (BLUEPRINT: logout always clears locally): guards react at once, and the
-// best-effort server call runs in the background with the token captured before clearing.
-export async function signOutThen(
+// Clear the phone first so the app reacts at once; tell the server in the background.
+export const signOutThen = async (
   serverLogout: ServerLogout,
   store: StoreApi<SessionState> = sessionStore,
-): Promise<void> {
+) => {
   const { mode, tokens } = store.getState();
   if (mode === 'none') return;
+
   await store.getState().signOut();
-  void serverLogout(mode, tokens?.accessToken ?? null).catch((error: unknown) =>
+
+  serverLogout(mode, tokens?.accessToken ?? null).catch((error: unknown) =>
     log.warn('server logout failed; session already cleared locally', { error: String(error) }),
   );
-}
-
-export const useSession = <T>(selector: (s: SessionState) => T): T => {
-  return useStore(sessionStore, selector);
 };
