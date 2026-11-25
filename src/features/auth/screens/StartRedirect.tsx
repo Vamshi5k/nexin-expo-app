@@ -5,12 +5,9 @@ import { useTheme } from '@/theme';
 
 import { useStartRoute } from '../routing';
 
-import { BootErrorScreen } from './BootErrorScreen';
-
 export function StartRedirect() {
   const t = useTheme();
-  const start = useStartRoute();
-  if (start.href) return <Redirect href={start.href} />;
-  if (start.failed) return <BootErrorScreen onRetry={start.retry} />;
+  const href = useStartRoute();
+  if (href) return <Redirect href={href} />;
   return <View style={{ flex: 1, backgroundColor: t.colors.bg }} />;
 }

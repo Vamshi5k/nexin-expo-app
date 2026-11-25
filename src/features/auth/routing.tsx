@@ -19,9 +19,12 @@ import {
 } from './session';
 import type { BootStatus, GuardDecision, RouteGroup } from './types';
 
-export function useBoot(): { status: BootStatus; retrying: boolean; retry: () => void } {
+type Boot = { status: BootStatus; retrying: boolean; retry: () => void };
+
+// The root layout shows the retry screen for both a failed startup check and a first user load that failed.
+export function useBoot(): Boot {
   const primeConfig = usePrimeClientConfig();
-  const { loadUser } = useAuth();
+  const { mode, user, userStatus, userError, loadUser } = useAuth();
   const { loadDriver } = useFleet();
   const [status, setStatus] = useState<BootStatus>('loading');
   const [retrying, setRetrying] = useState(false);
@@ -47,14 +50,27 @@ export function useBoot(): { status: BootStatus; retrying: boolean; retry: () =>
     setAttempt((n) => n + 1);
   }, []);
 
+  const userLoadFailed =
+    status === 'ready' &&
+    mode === 'consumer' &&
+    !user &&
+    userStatus === 'error' &&
+    classifySessionError(userError) !== 'expired';
+
+  if (userLoadFailed) {
+    return {
+      status: 'error',
+      retrying: false,
+      retry: () => void loadUser().catch(() => undefined),
+    };
+  }
   return { status, retrying, retry };
 }
 
-// What "/" shows: a redirect, the retry screen, or nothing while the user loads.
-export function useStartRoute(): { href: Href | null; failed: boolean; retry: () => void } {
+// Where "/" sends the user, or null while the user is still loading.
+export function useStartRoute(): Href | null {
   const { mode, user, userStatus, userError, loadUser } = useAuth();
-  const failed = userStatus === 'error';
-  const expired = failed && classifySessionError(userError) === 'expired';
+  const expired = userStatus === 'error' && classifySessionError(userError) === 'expired';
 
   // After OTP sign-in the user isn't loaded yet; boot already loaded it for a restored session.
   useEffect(() => {
@@ -71,11 +87,7 @@ export function useStartRoute(): { href: Href | null; failed: boolean; retry: ()
     onboardingDone: isOnboardingDone(),
     setupDone: user ? isSetupDone(user.id) : false,
   });
-  return {
-    href: route ? START_HREF[route] : null,
-    failed: failed && !expired,
-    retry: () => void loadUser().catch(() => undefined),
-  };
+  return route ? START_HREF[route] : null;
 }
 
 export function useRouteGuard(group: RouteGroup): GuardDecision {
