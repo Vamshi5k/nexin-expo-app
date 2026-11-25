@@ -12,6 +12,7 @@ export {
   space,
   layout,
   radius,
+  icon,
   motion,
   tabularNums,
   fontFamilies,

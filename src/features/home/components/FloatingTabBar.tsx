@@ -19,13 +19,12 @@ const ICONS: Record<string, LucideIcon> = {
   profile: User,
 };
 
-const BAR_HEIGHT = 68;
-const SCAN_SIZE = 52;
-
 const FloatingTabBar = ({ state, descriptors, emitter, navigateToTab }: BottomTabBarProps) => {
   const t = useTheme();
   const insets = useSafeAreaInsets();
   const reportHeight = useContext(BottomTabBarHeightCallbackContext);
+  // Tab: nav icon + caption label + breathing room; the scan circle uses the large button height.
+  const barHeight = t.space[12] + t.space[5];
 
   return (
     <View
@@ -36,7 +35,10 @@ const FloatingTabBar = ({ state, descriptors, emitter, navigateToTab }: BottomTa
         { paddingHorizontal: t.space[4], paddingBottom: Math.max(insets.bottom, t.space[3]) },
       ]}
     >
-      <AppGlass radius={t.radius.pill} style={[styles.bar, { padding: 6, gap: 2 }]}>
+      <AppGlass
+        radius={t.radius.pill}
+        style={[styles.bar, { height: barHeight, padding: t.space[1] }]}
+      >
         {state.routes.map((route, index) => {
           if (route.name === SCAN_ROUTE) {
             return (
@@ -46,9 +48,21 @@ const FloatingTabBar = ({ state, descriptors, emitter, navigateToTab }: BottomTa
                   haptic="light"
                   accessibilityRole="button"
                   accessibilityLabel={TAB_LABELS.scan}
-                  style={[styles.scan, { backgroundColor: t.colors.accent }]}
+                  style={[
+                    styles.scan,
+                    {
+                      width: t.layout.buttonHeight,
+                      height: t.layout.buttonHeight,
+                      borderRadius: t.radius.pill,
+                      backgroundColor: t.colors.accent,
+                    },
+                  ]}
                 >
-                  <ScanLine color={t.colors.onAccent} size={24} strokeWidth={2} />
+                  <ScanLine
+                    color={t.colors.onAccent}
+                    size={t.icon.nav}
+                    strokeWidth={t.icon.stroke}
+                  />
                 </AppPressable>
               </View>
             );
@@ -78,18 +92,17 @@ const FloatingTabBar = ({ state, descriptors, emitter, navigateToTab }: BottomTa
               accessibilityLabel={label}
               style={[
                 styles.item,
-                styles.tab,
                 {
                   borderRadius: t.radius.pill,
                   backgroundColor: focused ? t.colors.accentSoft : 'transparent',
                 },
               ]}
             >
-              <Icon color={color} size={22} strokeWidth={focused ? 2 : 1.75} />
+              <Icon color={color} size={t.icon.nav} strokeWidth={t.icon.stroke} />
               <AppText
                 variant="caption"
                 numberOfLines={1}
-                style={[styles.label, { color }]}
+                style={{ color }}
                 maxFontSizeMultiplier={1.1}
               >
                 {label}
@@ -112,7 +125,6 @@ const styles = StyleSheet.create({
     bottom: 0,
   },
   bar: {
-    height: BAR_HEIGHT,
     flexDirection: 'row',
     alignItems: 'center',
   },
@@ -122,17 +134,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  tab: {
-    gap: 2,
-  },
-  label: {
-    fontSize: 11,
-    lineHeight: 14,
-  },
   scan: {
-    width: SCAN_SIZE,
-    height: SCAN_SIZE,
-    borderRadius: SCAN_SIZE / 2,
     alignItems: 'center',
     justifyContent: 'center',
   },

@@ -26,6 +26,16 @@ export const layout = {
   // Auth top bar; the splash logo docks into its logo slot.
   topBarHeight: 56,
   logoHeight: 28,
+  // Accent border on a selected card or choice (DESIGN.md "1.5 pt accent border").
+  selectedBorder: 1.5,
+} as const;
+
+// DESIGN.md: lucide only, stroke 1.75, 20 inline and 24 in navigation; 16 for meta beside caption text.
+export const icon = {
+  meta: 16,
+  control: 20,
+  nav: 24,
+  stroke: 1.75,
 } as const;
 
 export const radius = {

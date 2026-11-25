@@ -1,17 +1,20 @@
 import { StyleSheet, View } from 'react-native';
 
-import { Navigation, ZapOff } from 'lucide-react-native';
+import { Navigation } from 'lucide-react-native';
 
 import { AppConnectorIcon, AppPressable, AppText } from '@/shared/components';
 
-import { useTheme } from '@/shared/theme';
+import StationBadge from './StationBadge';
 
-import { formatPaise } from '@/shared/utils/money';
+import { useTheme, type Theme } from '@/shared/theme';
+
+import { brand } from '@/core/config';
+import { formatRate } from '@/shared/utils/money';
 
 import { CARD_COPY, MAX_ETA_KM } from '../constants/stations.constants';
 import type { NearbyStation } from '../types/stations.types';
 import { formatDistance, formatEta } from '../utils/geo';
-import { availabilityOf, type Availability } from '../utils/status';
+import { availabilityOf, badgeOf } from '../utils/status';
 
 type StationCardProps = {
   station: NearbyStation;
@@ -21,14 +24,15 @@ type StationCardProps = {
   onDirections: (station: NearbyStation) => void;
 };
 
-export const STATION_CARD_HEIGHT = 136;
-const BADGE_SIZE = 56;
-const GO_SIZE = 36;
+// Padding, badge, gap and the footer's touch target: the skeleton and the view-all tile match it.
+export const stationCardHeight = (t: Theme) =>
+  t.space[4] * 2 + t.space[12] + t.space[2] + t.space[4] + t.layout.minTouch;
 
 const distanceLabel = (km: number | null) => {
   if (km === null) return null;
-  if (km > MAX_ETA_KM) return formatDistance(km);
-  return `${formatDistance(km)} · ${formatEta(km)}`;
+
+  const distance = formatDistance(km, brand.locale);
+  return km > MAX_ETA_KM ? distance : `${distance} · ${formatEta(km)}`;
 };
 
 const connectorLabel = (station: NearbyStation) => {
@@ -43,19 +47,8 @@ const connectorLabel = (station: NearbyStation) => {
 const StationCard = ({ station, selected, width, onPress, onDirections }: StationCardProps) => {
   const t = useTheme();
   const availability = availabilityOf(station);
-  const { availableConnectors: free, totalConnectors: total } = station;
-
-  const tones: Record<Availability['tone'], { bg: string; fg: string }> = {
-    success: { bg: t.colors.successSoft, fg: t.colors.successText },
-    warning: { bg: t.colors.warningSoft, fg: t.colors.warningText },
-    danger: { bg: t.colors.dangerSoft, fg: t.colors.dangerText },
-    neutral: { bg: t.colors.surfaceSunken, fg: t.colors.textSecondary },
-  };
-  const tone = tones[availability.tone];
-  const hasCounts = availability.tone === 'success' && free !== null && total !== null;
-
-  const connectors = connectorLabel(station);
   const distance = distanceLabel(station.distanceKm);
+  const connector = station.connectorTypes[0];
 
   return (
     <AppPressable
@@ -66,39 +59,17 @@ const StationCard = ({ station, selected, width, onPress, onDirections }: Statio
         styles.card,
         {
           width,
-          gap: t.space[3],
+          gap: t.space[4],
+          padding: t.space[4],
           borderRadius: t.radius.card,
+          borderWidth: t.layout.selectedBorder,
           backgroundColor: t.colors.surfaceRaised,
           borderColor: selected ? t.colors.accent : t.colors.border,
-          borderWidth: selected ? 1.5 : t.layout.hairline,
         },
       ]}
     >
       <View style={[styles.row, { gap: t.space[3] }]}>
-        <View style={[styles.badge, { backgroundColor: tone.bg, borderRadius: t.radius.control }]}>
-          {hasCounts ? (
-            <>
-              <AppText variant="headline" tabular style={{ color: tone.fg }}>
-                {Math.min(free, total)}/{total}
-              </AppText>
-              <AppText variant="caption" style={[styles.badgeLabel, { color: tone.fg }]}>
-                {CARD_COPY.free}
-              </AppText>
-            </>
-          ) : (
-            <>
-              <ZapOff color={tone.fg} size={18} strokeWidth={1.75} />
-              <AppText
-                variant="caption"
-                numberOfLines={1}
-                style={[styles.badgeLabel, { color: tone.fg }]}
-              >
-                {availability.tone === 'neutral' ? CARD_COPY.unknown : CARD_COPY.off}
-              </AppText>
-            </>
-          )}
-        </View>
-
+        <StationBadge badge={badgeOf(station)} />
         <View style={styles.grow}>
           <AppText variant="headline" numberOfLines={1}>
             {station.name}
@@ -116,19 +87,17 @@ const StationCard = ({ station, selected, width, onPress, onDirections }: Statio
         </View>
       </View>
 
-      <View style={[styles.footer, { gap: t.space[3], borderTopColor: t.colors.border }]}>
-        <View style={[styles.row, styles.grow, { gap: 6 }]}>
-          {station.connectorTypes[0] ? (
-            <AppConnectorIcon type={station.connectorTypes[0]} size={16} />
-          ) : null}
+      <View style={[styles.row, { gap: t.space[3] }]}>
+        <View style={[styles.row, styles.grow, { gap: t.space[2] }]}>
+          {connector ? <AppConnectorIcon type={connector} size={t.icon.meta} /> : null}
           <AppText variant="caption" tone="secondary" numberOfLines={1} tabular>
-            {connectors}
+            {connectorLabel(station)}
           </AppText>
         </View>
 
         {station.pricePerKwhPaise !== null ? (
           <AppText variant="subhead" tabular>
-            {formatPaise(station.pricePerKwhPaise)}
+            {formatRate(station.pricePerKwhPaise)}
             <AppText variant="caption" tone="tertiary">
               {' '}
               {CARD_COPY.price}
@@ -139,12 +108,23 @@ const StationCard = ({ station, selected, width, onPress, onDirections }: Statio
         <AppPressable
           onPress={() => onDirections(station)}
           haptic="light"
-          hitSlop={8}
           accessibilityRole="button"
           accessibilityLabel={`${CARD_COPY.directions} ${station.name}`}
-          style={[styles.go, { backgroundColor: t.colors.accent }]}
+          style={[
+            styles.go,
+            {
+              width: t.layout.minTouch,
+              height: t.layout.minTouch,
+              borderRadius: t.radius.pill,
+              backgroundColor: selected ? t.colors.accent : t.colors.surfaceSunken,
+            },
+          ]}
         >
-          <Navigation color={t.colors.onAccent} size={16} strokeWidth={2} />
+          <Navigation
+            color={selected ? t.colors.onAccent : t.colors.accentText}
+            size={t.icon.meta}
+            strokeWidth={t.icon.stroke}
+          />
         </AppPressable>
       </View>
     </AppPressable>
@@ -155,8 +135,7 @@ export default StationCard;
 
 const styles = StyleSheet.create({
   card: {
-    minHeight: STATION_CARD_HEIGHT,
-    padding: 14,
+    justifyContent: 'space-between',
   },
   row: {
     flexDirection: 'row',
@@ -164,28 +143,8 @@ const styles = StyleSheet.create({
   },
   grow: {
     flex: 1,
-    gap: 1,
-  },
-  badge: {
-    width: BADGE_SIZE,
-    height: BADGE_SIZE,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  badgeLabel: {
-    fontSize: 11,
-    lineHeight: 13,
-  },
-  footer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingTop: 10,
-    borderTopWidth: StyleSheet.hairlineWidth,
   },
   go: {
-    width: GO_SIZE,
-    height: GO_SIZE,
-    borderRadius: GO_SIZE / 2,
     alignItems: 'center',
     justifyContent: 'center',
   },

@@ -25,10 +25,15 @@ const MapUnavailable = ({ reason }: MapUnavailableProps) => {
         <View
           style={[
             styles.icon,
-            { backgroundColor: t.colors.accentSoft, borderRadius: t.radius.pill },
+            {
+              width: t.space[12] + t.space[4],
+              height: t.space[12] + t.space[4],
+              backgroundColor: t.colors.accentSoft,
+              borderRadius: t.radius.pill,
+            },
           ]}
         >
-          <MapPinned color={t.colors.accentText} size={28} strokeWidth={1.75} />
+          <MapPinned color={t.colors.accentText} size={t.icon.nav} strokeWidth={t.icon.stroke} />
         </View>
         <AppText variant="headline" align="center">
           {MAP_COPY.unavailableTitle}
@@ -50,11 +55,8 @@ const styles = StyleSheet.create({
   },
   copy: {
     alignItems: 'center',
-    marginBottom: 160,
   },
   icon: {
-    width: 64,
-    height: 64,
     alignItems: 'center',
     justifyContent: 'center',
   },

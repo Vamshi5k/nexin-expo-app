@@ -43,7 +43,7 @@ export const MAP_COPY = {
   loadErrorShort: "Couldn't load stations",
   retry: 'Retry',
   emptyTitle: 'No stations found here',
-  emptyFiltered: 'Try clearing your filters.',
+  emptyFiltered: 'Try clearing your filters',
   clearFilters: 'Clear filters',
   locationError: "Couldn't find your location. Please try again.",
   viewDetails: 'View details',
@@ -55,10 +55,17 @@ export const MAP_COPY = {
 
 export const CARD_COPY = {
   price: '/kWh',
-  free: 'free',
-  off: 'Offline',
-  unknown: 'No data',
   directions: 'Directions to',
+} as const;
+
+export const BADGE_COPY = {
+  free: 'free',
+  busy: 'Busy',
+  online: 'Online',
+  soon: 'Soon',
+  service: 'Service',
+  offline: 'Offline',
+  unknown: 'No data',
 } as const;
 
 export const FILTERS_COPY = {

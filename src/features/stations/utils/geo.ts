@@ -18,8 +18,13 @@ export function distanceKm(from: Coordinates, to: Coordinates): number {
   return EARTH_RADIUS_KM * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-export function formatDistance(km: number): string {
-  return `${km.toFixed(km < 10 ? 1 : 0)} km`;
+export function formatDistance(km: number, locale?: string): string {
+  const digits = km < 10 ? 1 : 0;
+  const value = km.toLocaleString(locale, {
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits,
+  });
+  return `${value} km`;
 }
 
 // Rough drive time at city speed, same rule as the old app.

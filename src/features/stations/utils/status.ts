@@ -69,3 +69,27 @@ export function availabilityOf(
   if (available <= 0) return { label: 'Unavailable', tone: 'danger' };
   return { label: `${Math.min(available, total)} Available`, tone: 'success' };
 }
+
+export type BadgeKind = 'free' | 'busy' | 'online' | 'soon' | 'service' | 'offline' | 'unknown';
+
+export type Badge =
+  { kind: 'free'; free: number; total: number } | { kind: Exclude<BadgeKind, 'free'> };
+
+const BADGE_BY_STATUS: Record<Exclude<StationStatus, 'available'>, Exclude<BadgeKind, 'free'>> = {
+  upcoming: 'soon',
+  maintenance: 'service',
+  unavailable: 'offline',
+  unknown: 'unknown',
+};
+
+// What the bay-sign badge on a card shows. A full station is busy, not offline.
+export function badgeOf(
+  station: Pick<NearbyStation, 'status' | 'availableConnectors' | 'totalConnectors'>,
+): Badge {
+  if (station.status !== 'available') return { kind: BADGE_BY_STATUS[station.status] };
+
+  const { availableConnectors: free, totalConnectors: total } = station;
+  if (free === null || total === null || total <= 0) return { kind: 'online' };
+  if (free <= 0) return { kind: 'busy' };
+  return { kind: 'free', free: Math.min(free, total), total };
+}

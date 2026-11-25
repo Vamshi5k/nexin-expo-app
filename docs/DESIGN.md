@@ -86,7 +86,9 @@ the driver find, start, watch or pay for a charge.
   Labels always visible; the active tab sits in an accentSoft pill with accentText icon and
   label. Scan is an accent circle with an onAccent icon in the middle of the capsule. Tab
   screens pad their content by the tab bar height (`BottomTabBarHeightContext`).
-- Icons: lucide only, stroke 1.75, size 20 inline and 24 in navigation.
+- Icons: lucide only, sizes and stroke from `t.icon` (meta 16 beside captions, control 20,
+  nav 24, stroke 1.75). A selected card or choice uses `t.layout.selectedBorder` (1.5 pt) at
+  all times and only changes its colour, so nothing shifts on select.
 - Status chips: soft tinted background + coloured dot + text label. Colour is never the
   only signal.
 

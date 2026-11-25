@@ -17,7 +17,7 @@ import { scheduleOnRN } from 'react-native-worklets';
 
 import { AppButton, AppCard, AppPressable, AppSkeleton, AppText } from '@/shared/components';
 
-import StationCard, { STATION_CARD_HEIGHT } from './StationCard';
+import StationCard, { stationCardHeight } from './StationCard';
 
 import { useTheme } from '@/shared/theme';
 
@@ -47,7 +47,8 @@ type CarouselItemProps = {
 };
 
 const CARD_WIDTH_RATIO = 0.86;
-const VIEW_ALL_WIDTH = 120;
+const NEIGHBOUR_OPACITY = 0.85;
+const NEIGHBOUR_SCALE = 0.96;
 
 // Cards next to the centred one shrink and fade a little, following the finger.
 const CarouselItem = ({ index, step, scrollX, animate, children }: CarouselItemProps) => {
@@ -56,9 +57,21 @@ const CarouselItem = ({ index, step, scrollX, animate, children }: CarouselItemP
 
     const input = [(index - 1) * step, index * step, (index + 1) * step];
     return {
-      opacity: interpolate(scrollX.value, input, [0.6, 1, 0.6], Extrapolation.CLAMP),
+      opacity: interpolate(
+        scrollX.value,
+        input,
+        [NEIGHBOUR_OPACITY, 1, NEIGHBOUR_OPACITY],
+        Extrapolation.CLAMP,
+      ),
       transform: [
-        { scale: interpolate(scrollX.value, input, [0.94, 1, 0.94], Extrapolation.CLAMP) },
+        {
+          scale: interpolate(
+            scrollX.value,
+            input,
+            [NEIGHBOUR_SCALE, 1, NEIGHBOUR_SCALE],
+            Extrapolation.CLAMP,
+          ),
+        },
       ],
     };
   });
@@ -88,6 +101,7 @@ const NearbyCarousel = ({
   const step = cardWidth + gap;
   const sidePadding = t.space[4];
   const count = stations.length;
+  const cardHeight = stationCardHeight(t);
 
   const scrollX = useSharedValue(0);
   // Only a swipe by the user picks a station; scroll events on mount or from code don't.
@@ -127,8 +141,8 @@ const NearbyCarousel = ({
           entering={FadeIn}
           style={[styles.row, { paddingHorizontal: sidePadding, gap }]}
         >
-          <AppSkeleton width={cardWidth} height={STATION_CARD_HEIGHT} radius={t.radius.card} />
-          <AppSkeleton width={cardWidth} height={STATION_CARD_HEIGHT} radius={t.radius.card} />
+          <AppSkeleton width={cardWidth} height={cardHeight} radius={t.radius.card} />
+          <AppSkeleton width={cardWidth} height={cardHeight} radius={t.radius.card} />
         </Animated.View>
       );
     }
@@ -136,14 +150,26 @@ const NearbyCarousel = ({
     if (!count) {
       return (
         <Animated.View key="empty" entering={FadeIn} style={{ paddingHorizontal: sidePadding }}>
-          <AppCard elevation="elevated" style={[styles.row, { gap: t.space[3], padding: 14 }]}>
+          <AppCard
+            elevation="elevated"
+            style={[styles.row, { gap: t.space[3], padding: t.space[4] }]}
+          >
             <View
               style={[
                 styles.icon,
-                { backgroundColor: t.colors.accentSoft, borderRadius: t.radius.control },
+                {
+                  width: t.layout.minTouch,
+                  height: t.layout.minTouch,
+                  backgroundColor: t.colors.accentSoft,
+                  borderRadius: t.radius.card - t.space[4],
+                },
               ]}
             >
-              <MapPinOff color={t.colors.accentText} size={20} strokeWidth={1.75} />
+              <MapPinOff
+                color={t.colors.accentText}
+                size={t.icon.control}
+                strokeWidth={t.icon.stroke}
+              />
             </View>
             <View style={styles.grow}>
               <AppText variant="headline" numberOfLines={1}>
@@ -201,7 +227,10 @@ const NearbyCarousel = ({
                   styles.viewAll,
                   {
                     gap: t.space[2],
+                    width: t.space[12] * 2 + t.space[6],
+                    height: cardHeight,
                     borderRadius: t.radius.card,
+                    borderWidth: t.layout.selectedBorder,
                     backgroundColor: t.colors.surfaceRaised,
                     borderColor: t.colors.border,
                   },
@@ -210,10 +239,19 @@ const NearbyCarousel = ({
                 <View
                   style={[
                     styles.arrow,
-                    { backgroundColor: t.colors.accentSoft, borderRadius: t.radius.pill },
+                    {
+                      width: t.space[10],
+                      height: t.space[10],
+                      backgroundColor: t.colors.accentSoft,
+                      borderRadius: t.radius.pill,
+                    },
                   ]}
                 >
-                  <ArrowRight color={t.colors.accentText} size={18} strokeWidth={1.75} />
+                  <ArrowRight
+                    color={t.colors.accentText}
+                    size={t.icon.control}
+                    strokeWidth={t.icon.stroke}
+                  />
                 </View>
                 <AppText variant="caption" tone="accent">
                   {MAP_COPY.viewAll}
@@ -244,22 +282,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   icon: {
-    width: 44,
-    height: 44,
     alignItems: 'center',
     justifyContent: 'center',
   },
   viewAll: {
-    width: VIEW_ALL_WIDTH,
-    minHeight: STATION_CARD_HEIGHT,
-    alignSelf: 'stretch',
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
   },
   arrow: {
-    width: 36,
-    height: 36,
     alignItems: 'center',
     justifyContent: 'center',
   },

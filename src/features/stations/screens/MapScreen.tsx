@@ -8,7 +8,7 @@ import { AppButton, AppGlass, AppText } from '@/shared/components';
 
 import FiltersSheet from '../components/FiltersSheet';
 import MapLocateButton from '../components/MapLocateButton';
-import MapTopBar, { MAP_TOP_BAR_HEIGHT } from '../components/MapTopBar';
+import MapTopBar, { mapTopBarHeight } from '../components/MapTopBar';
 import MapUnavailable from '../components/MapUnavailable';
 import NearbyCarousel from '../components/NearbyCarousel';
 import type { StationMapProps } from '../components/StationMap';
@@ -36,7 +36,7 @@ const MapScreen = () => {
   const { mapRef, carouselRef, ...map } = useMapScreen();
 
   const mapPadding = {
-    top: insets.top + MAP_TOP_BAR_HEIGHT + t.space[2],
+    top: insets.top + mapTopBarHeight(t) + t.space[2],
     right: 0,
     bottom: tabBarHeight + overlayHeight,
     left: 0,

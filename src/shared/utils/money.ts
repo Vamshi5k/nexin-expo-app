@@ -13,3 +13,10 @@ export const formatPaise = (paise: number): string => {
     maximumFractionDigits: 2,
   })}`;
 };
+
+// Rates always show paise, so cards side by side read in one format.
+export const formatRate = (paise: number): string =>
+  `${brand.currency.symbol}${(paise / 100).toLocaleString(brand.locale, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;

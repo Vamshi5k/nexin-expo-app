@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppBadge, AppGlass, AppPressable, AppText } from '@/shared/components';
 
-import { useTheme } from '@/shared/theme';
+import { useTheme, type Theme } from '@/shared/theme';
 
 import { MAP_COPY } from '../constants/stations.constants';
 
@@ -15,11 +15,14 @@ type MapTopBarProps = {
   onFilters: () => void;
 };
 
-export const MAP_TOP_BAR_HEIGHT = 56;
+export const mapTopBarHeight = (t: Theme) => t.space[12] + t.space[2];
 
 const MapTopBar = ({ activeFilterCount, onSearch, onFilters }: MapTopBarProps) => {
   const t = useTheme();
   const insets = useSafeAreaInsets();
+  const height = mapTopBarHeight(t);
+  // The filter button sits centred in the capsule, the same distance from top, bottom and edge.
+  const inset = (height - t.layout.minTouch) / 2;
 
   const filtersLabel = activeFilterCount
     ? `${MAP_COPY.filters}, ${activeFilterCount} active`
@@ -30,7 +33,7 @@ const MapTopBar = ({ activeFilterCount, onSearch, onFilters }: MapTopBarProps) =
       pointerEvents="box-none"
       style={[styles.wrap, { top: insets.top + t.space[2], paddingHorizontal: t.space[4] }]}
     >
-      <AppGlass radius={t.radius.pill} style={styles.capsule}>
+      <AppGlass radius={t.radius.pill} style={[styles.capsule, { height, paddingRight: inset }]}>
         <AppPressable
           onPress={onSearch}
           feedback="opacity"
@@ -38,13 +41,22 @@ const MapTopBar = ({ activeFilterCount, onSearch, onFilters }: MapTopBarProps) =
           accessibilityLabel={MAP_COPY.searchPlaceholder}
           style={[styles.search, { gap: t.space[3], paddingLeft: t.space[5] }]}
         >
-          <Search color={t.colors.textSecondary} size={20} strokeWidth={1.75} />
+          <Search
+            color={t.colors.textSecondary}
+            size={t.icon.control}
+            strokeWidth={t.icon.stroke}
+          />
           <AppText variant="callout" tone="tertiary" numberOfLines={1}>
             {MAP_COPY.searchPlaceholder}
           </AppText>
         </AppPressable>
 
-        <View style={[styles.divider, { backgroundColor: t.colors.borderStrong }]} />
+        <View
+          style={[
+            styles.divider,
+            { height: t.space[6], marginHorizontal: inset, backgroundColor: t.colors.borderStrong },
+          ]}
+        />
 
         <AppPressable
           onPress={onFilters}
@@ -54,6 +66,8 @@ const MapTopBar = ({ activeFilterCount, onSearch, onFilters }: MapTopBarProps) =
           style={[
             styles.filter,
             {
+              width: t.layout.minTouch,
+              height: t.layout.minTouch,
               borderRadius: t.radius.pill,
               backgroundColor: activeFilterCount ? t.colors.accentSoft : 'transparent',
             },
@@ -61,11 +75,11 @@ const MapTopBar = ({ activeFilterCount, onSearch, onFilters }: MapTopBarProps) =
         >
           <SlidersHorizontal
             color={activeFilterCount ? t.colors.accentText : t.colors.textPrimary}
-            size={20}
-            strokeWidth={1.75}
+            size={t.icon.control}
+            strokeWidth={t.icon.stroke}
           />
           {activeFilterCount ? (
-            <View style={styles.badge}>
+            <View style={[styles.badge, { top: -t.space[1], right: -t.space[1] }]}>
               <AppBadge label={activeFilterCount} />
             </View>
           ) : null}
@@ -84,10 +98,8 @@ const styles = StyleSheet.create({
     right: 0,
   },
   capsule: {
-    height: MAP_TOP_BAR_HEIGHT,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingRight: 6,
   },
   search: {
     flex: 1,
@@ -97,18 +109,12 @@ const styles = StyleSheet.create({
   },
   divider: {
     width: StyleSheet.hairlineWidth,
-    height: 24,
-    marginHorizontal: 6,
   },
   filter: {
-    width: 44,
-    height: 44,
     alignItems: 'center',
     justifyContent: 'center',
   },
   badge: {
     position: 'absolute',
-    top: -2,
-    right: -2,
   },
 });
