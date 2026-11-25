@@ -6,7 +6,13 @@ import { APP_ENV, brand } from '@/core/config';
 import { formatContact, LogoutDialog, useAuth, useLogoutConfirm } from '@/features/auth';
 import { useClientConfig } from '@/features/client-config';
 import { useTheme } from '@/shared/theme';
-import { Card, LargeTitleScroll, ListGroup, ListRow, Text } from '@/shared/components';
+import {
+  AppCard,
+  AppLargeTitleScroll,
+  AppListGroup,
+  AppListRow,
+  AppText,
+} from '@/shared/components';
 
 export function HomeScreen() {
   const t = useTheme();
@@ -18,41 +24,41 @@ export function HomeScreen() {
   const devTools = APP_ENV !== 'production';
 
   return (
-    <LargeTitleScroll title={config.brandName} subtitle="You're signed in">
+    <AppLargeTitleScroll title={config.brandName} subtitle="You're signed in">
       <View style={{ gap: t.layout.sectionGapLarge }}>
-        <Card elevation="elevated" style={{ gap: t.space[1] }}>
-          <Text variant="subhead" tone="secondary">
+        <AppCard elevation="elevated" style={{ gap: t.space[1] }}>
+          <AppText variant="subhead" tone="secondary">
             Signed in as
-          </Text>
-          <Text variant="title2">{name || 'New user'}</Text>
+          </AppText>
+          <AppText variant="title2">{name || 'New user'}</AppText>
           {user?.phone ? (
-            <Text tone="secondary" tabular>
+            <AppText tone="secondary" tabular>
               {formatContact('phone', user.phone, brand.phoneCountryCode)}
-            </Text>
+            </AppText>
           ) : null}
-          {user?.email ? <Text tone="secondary">{user.email}</Text> : null}
-        </Card>
+          {user?.email ? <AppText tone="secondary">{user.email}</AppText> : null}
+        </AppCard>
         {devTools ? (
-          <ListGroup title="Developer">
-            <ListRow icon={LayoutGrid} title="UI kit" onPress={() => router.push('/dev/ui')} />
-            <ListRow
+          <AppListGroup title="Developer">
+            <AppListRow icon={LayoutGrid} title="UI kit" onPress={() => router.push('/dev/ui')} />
+            <AppListRow
               icon={ShieldCheck}
               iconTone="neutral"
               title="Cookie check"
               onPress={() => router.push('/dev/cookie-check')}
             />
-          </ListGroup>
+          </AppListGroup>
         ) : null}
-        <ListGroup>
-          <ListRow
+        <AppListGroup>
+          <AppListRow
             icon={LogOut}
             title={logout.leaving ? 'Logging out…' : 'Log out'}
             destructive
             onPress={logout.leaving ? undefined : logout.ask}
           />
-        </ListGroup>
+        </AppListGroup>
         <LogoutDialog state={logout} />
       </View>
-    </LargeTitleScroll>
+    </AppLargeTitleScroll>
   );
 }

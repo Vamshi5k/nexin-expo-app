@@ -2,7 +2,7 @@ import { Bell, MapPin } from 'lucide-react-native';
 import { View } from 'react-native';
 
 import { useTheme } from '@/shared/theme';
-import { Button, Text } from '@/shared/components';
+import { AppButton, AppText } from '@/shared/components';
 
 import { PermissionCard } from '../components/PermissionCard';
 import { SetupLayout } from '../components/SetupLayout';
@@ -17,7 +17,7 @@ export function PermissionsScreen() {
       step={3}
       title={PERMISSIONS_COPY.title}
       subtitle={PERMISSIONS_COPY.subtitle}
-      footer={<Button label="Continue" onPress={perms.finish} />}
+      footer={<AppButton label="Continue" onPress={perms.finish} />}
     >
       <View style={{ gap: t.space[3] }}>
         <PermissionCard
@@ -37,12 +37,12 @@ export function PermissionsScreen() {
           onAllow={() => perms.allow('notifications')}
         />
         <View style={{ gap: t.space[1], paddingHorizontal: t.space[1], marginTop: t.space[2] }}>
-          <Text variant="caption" tone="secondary">
+          <AppText variant="caption" tone="secondary">
             {PERMISSIONS_COPY.locationNote}
-          </Text>
-          <Text variant="caption" tone="secondary">
+          </AppText>
+          <AppText variant="caption" tone="secondary">
             {PERMISSIONS_COPY.settingsNote}
-          </Text>
+          </AppText>
         </View>
       </View>
     </SetupLayout>

@@ -2,14 +2,14 @@ import { View } from 'react-native';
 
 import { useTheme } from '@/shared/theme';
 
-import { Text } from './Text';
+import AppText from './AppText';
 
-export type BadgeProps = {
+export type AppBadgeProps = {
   label: string | number;
   tone?: 'accent' | 'neutral' | 'danger';
 };
 
-export function Badge({ label, tone = 'accent' }: BadgeProps) {
+export default function AppBadge({ label, tone = 'accent' }: AppBadgeProps) {
   const t = useTheme();
   const c = t.colors;
   const palette = {
@@ -30,9 +30,9 @@ export function Badge({ label, tone = 'accent' }: BadgeProps) {
         alignSelf: 'flex-start',
       }}
     >
-      <Text variant="caption" tabular style={{ color: palette.fg }}>
+      <AppText variant="caption" tabular style={{ color: palette.fg }}>
         {label}
-      </Text>
+      </AppText>
     </View>
   );
 }

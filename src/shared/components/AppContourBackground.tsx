@@ -36,7 +36,7 @@ function ring(cx: number, cy: number, r: number, phase: number): string {
 }
 
 // Flat topographic lines from the top-right corner; they slowly turn and breathe, and fade out by mid screen.
-export function ContourBackground() {
+export default function AppContourBackground() {
   const t = useTheme();
   const { width, height } = useWindowDimensions();
   const reduceMotion = useReducedMotion();

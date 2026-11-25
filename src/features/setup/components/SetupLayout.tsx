@@ -5,7 +5,7 @@ import Animated, { useAnimatedKeyboard, useAnimatedStyle } from 'react-native-re
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTheme } from '@/shared/theme';
-import { Pressable, Reveal, Text } from '@/shared/components';
+import { AppPressable, AppReveal, AppText } from '@/shared/components';
 
 import { SetupStepper } from './SetupStepper';
 
@@ -48,7 +48,7 @@ export function SetupLayout({
         ]}
       >
         {onBack ? (
-          <Pressable
+          <AppPressable
             onPress={onBack}
             haptic="selection"
             accessibilityLabel="Back"
@@ -58,7 +58,7 @@ export function SetupLayout({
             ]}
           >
             <ChevronLeft color={t.colors.textPrimary} size={20} strokeWidth={1.75} />
-          </Pressable>
+          </AppPressable>
         ) : (
           <View style={styles.back} />
         )}
@@ -78,20 +78,20 @@ export function SetupLayout({
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        <Reveal index={0} style={{ gap: t.space[4] }}>
+        <AppReveal index={0} style={{ gap: t.space[4] }}>
           {aboveTitle}
           <View style={{ gap: t.space[2] }}>
-            <Text variant="hero" accessibilityRole="header">
+            <AppText variant="hero" accessibilityRole="header">
               {title}
-            </Text>
+            </AppText>
             {subtitle ? (
-              <Text variant="callout" tone="secondary">
+              <AppText variant="callout" tone="secondary">
                 {subtitle}
-              </Text>
+              </AppText>
             ) : null}
           </View>
-        </Reveal>
-        <Reveal index={1}>{children}</Reveal>
+        </AppReveal>
+        <AppReveal index={1}>{children}</AppReveal>
       </ScrollView>
       <View
         style={{

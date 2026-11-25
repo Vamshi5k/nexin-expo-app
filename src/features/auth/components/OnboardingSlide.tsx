@@ -8,7 +8,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { useTheme } from '@/shared/theme';
-import { Reveal, Text } from '@/shared/components';
+import { AppReveal, AppText } from '@/shared/components';
 
 import type { OnboardingSlide as Slide } from '../types';
 import { OnboardingArt } from './OnboardingArt';
@@ -86,22 +86,22 @@ export function OnboardingSlide({
       style={[styles.slide, { width, paddingHorizontal: t.layout.screenPadding }]}
     >
       <Animated.View style={[styles.artArea, art]}>
-        <Reveal index={0}>
+        <AppReveal index={0}>
           <OnboardingArt icon={SLIDE_ICONS[slide.key]} spin={spin} />
-        </Reveal>
+        </AppReveal>
       </Animated.View>
       <View style={{ gap: t.space[2], paddingBottom: t.space[5] }}>
         <Animated.View style={title}>
-          <Reveal index={1}>
-            <Text variant="hero">{slide.title}</Text>
-          </Reveal>
+          <AppReveal index={1}>
+            <AppText variant="hero">{slide.title}</AppText>
+          </AppReveal>
         </Animated.View>
         <Animated.View style={body}>
-          <Reveal index={2}>
-            <Text variant="callout" tone="secondary">
+          <AppReveal index={2}>
+            <AppText variant="callout" tone="secondary">
               {slide.description}
-            </Text>
-          </Reveal>
+            </AppText>
+          </AppReveal>
         </Animated.View>
       </View>
     </View>

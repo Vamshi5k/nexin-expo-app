@@ -3,17 +3,17 @@ import { View } from 'react-native';
 
 import { useTheme, withAlpha } from '@/shared/theme';
 
-import { Text } from './Text';
+import AppText from './AppText';
 
 export type StatusTone = 'success' | 'warning' | 'danger' | 'neutral' | 'accent';
 
-export type StatusChipProps = {
+export type AppStatusChipProps = {
   label: string;
   tone?: StatusTone;
   connector?: ConnectorStatus;
 };
 
-export function StatusChip({ label, tone = 'neutral', connector }: StatusChipProps) {
+export default function AppStatusChip({ label, tone = 'neutral', connector }: AppStatusChipProps) {
   const t = useTheme();
   const c = t.colors;
   const tones = {
@@ -43,9 +43,9 @@ export function StatusChip({ label, tone = 'neutral', connector }: StatusChipPro
       }}
     >
       <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: dot }} />
-      <Text variant="caption" style={{ color: fg }}>
+      <AppText variant="caption" style={{ color: fg }}>
         {label}
-      </Text>
+      </AppText>
     </View>
   );
 }

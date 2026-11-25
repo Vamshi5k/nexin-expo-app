@@ -13,7 +13,7 @@ import { ClientConfigProvider } from '@/features/client-config';
 import { FleetProvider } from '@/features/fleet';
 import { ThemeProvider, useTheme } from '@/shared/theme';
 import { useBrandFonts } from '@/shared/theme/fonts';
-import { OfflineBanner, PermissionDialog, SplashOverlay } from '@/shared/components';
+import { AppOfflineBanner, AppPermissionDialog, AppSplashOverlay } from '@/shared/components';
 import { AppToaster } from '@/shared/utils/toast';
 
 void SplashScreen.preventAutoHideAsync();
@@ -66,10 +66,10 @@ function AppShell() {
           }}
         />
       )}
-      <OfflineBanner />
-      <PermissionDialog />
+      <AppOfflineBanner />
+      <AppPermissionDialog />
       <AppToaster />
-      <SplashOverlay ready={!loading} />
+      <AppSplashOverlay ready={!loading} />
     </>
   );
 }

@@ -5,7 +5,14 @@ import { getErrorMessage } from '@/core/api';
 import { brand as appBrand } from '@/core/config';
 import type { RequestState } from '@/core/request';
 import { useTheme } from '@/shared/theme';
-import { EmptyState, ErrorState, FormInput, Input, Pressable, Text } from '@/shared/components';
+import {
+  AppEmptyState,
+  AppErrorState,
+  AppFormInput,
+  AppInput,
+  AppPressable,
+  AppText,
+} from '@/shared/components';
 
 import {
   CUSTOM_CAPACITY_MAX_KWH,
@@ -99,7 +106,7 @@ function StepBody({ wizard: w }: { wizard: VehicleWizard }) {
             }}
           />
           {w.customMode ? (
-            <Input
+            <AppInput
               label="Battery capacity (kWh)"
               placeholder="e.g. 40"
               hint={`Between ${CUSTOM_CAPACITY_MIN_KWH} and ${CUSTOM_CAPACITY_MAX_KWH} kWh`}
@@ -115,7 +122,7 @@ function StepBody({ wizard: w }: { wizard: VehicleWizard }) {
     case 'details':
       return (
         <View style={{ gap: t.space[5] }}>
-          <FormInput
+          <AppFormInput
             control={w.control}
             name="regNo"
             label="Registration Number *"
@@ -125,10 +132,10 @@ function StepBody({ wizard: w }: { wizard: VehicleWizard }) {
             autoCorrect={false}
             maxLength={REG_NO_MAX_LENGTH}
           />
-          <Text variant="caption" tone="tertiary" style={{ letterSpacing: 0.6 }}>
+          <AppText variant="caption" tone="tertiary" style={{ letterSpacing: 0.6 }}>
             FOR AUTO CHARGE
-          </Text>
-          <FormInput
+          </AppText>
+          <AppFormInput
             control={w.control}
             name="macId"
             label="MAC ID"
@@ -138,7 +145,7 @@ function StepBody({ wizard: w }: { wizard: VehicleWizard }) {
             autoCorrect={false}
             maxLength={MAC_ID_MAX_LENGTH}
           />
-          <FormInput
+          <AppFormInput
             control={w.control}
             name="maxAmount"
             label={`Max Charging Amount (${appBrand.currency.symbol})`}
@@ -174,14 +181,17 @@ function Choices<T>({
   if (request.loading) return <OptionGridSkeleton />;
   if (request.error) {
     return (
-      <ErrorState message={getErrorMessage(request.error)} onRetry={() => void request.refetch()} />
+      <AppErrorState
+        message={getErrorMessage(request.error)}
+        onRetry={() => void request.refetch()}
+      />
     );
   }
   const items = request.data ?? [];
   // Capacity keeps its grid when empty: "Custom" is still a valid choice.
   if (items.length === 0 && !allowEmpty) {
     return (
-      <EmptyState
+      <AppEmptyState
         icon={Car}
         title={empty}
         actionLabel="Retry"
@@ -193,7 +203,7 @@ function Choices<T>({
   return (
     <View style={{ gap: t.space[4] }}>
       {search && items.length > SEARCH_AFTER ? (
-        <Input
+        <AppInput
           icon={Search}
           placeholder={search.placeholder}
           value={search.query}
@@ -206,9 +216,9 @@ function Choices<T>({
       {options.length > 0 ? (
         <OptionGrid options={options} onSelect={onSelect} />
       ) : (
-        <Text variant="callout" tone="secondary" align="center">
+        <AppText variant="callout" tone="secondary" align="center">
           No matches
-        </Text>
+        </AppText>
       )}
     </View>
   );
@@ -226,7 +236,7 @@ export function VehicleTrail({ wizard }: { wizard: VehicleWizard }) {
           style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[1] }}
         >
           {i > 0 ? <ChevronRight color={t.colors.textTertiary} size={14} strokeWidth={2} /> : null}
-          <Pressable
+          <AppPressable
             onPress={() => wizard.goTo(item.index)}
             haptic="selection"
             feedback="opacity"
@@ -240,10 +250,10 @@ export function VehicleTrail({ wizard }: { wizard: VehicleWizard }) {
               backgroundColor: t.colors.accentSoft,
             }}
           >
-            <Text variant="subhead" tone="accent" numberOfLines={1}>
+            <AppText variant="subhead" tone="accent" numberOfLines={1}>
               {item.label}
-            </Text>
-          </Pressable>
+            </AppText>
+          </AppPressable>
         </View>
       ))}
     </View>

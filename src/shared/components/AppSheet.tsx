@@ -10,9 +10,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTheme } from '@/shared/theme';
 
-import { Text } from './Text';
+import AppText from './AppText';
 
-export type SheetProps = {
+export type AppSheetProps = {
   open: boolean;
   onClose: () => void;
   title?: string;
@@ -21,14 +21,14 @@ export type SheetProps = {
   dismissible?: boolean;
 };
 
-export function Sheet({
+export default function AppSheet({
   open,
   onClose,
   title,
   description,
   children,
   dismissible = true,
-}: SheetProps) {
+}: AppSheetProps) {
   const t = useTheme();
   const insets = useSafeAreaInsets();
   const ref = useRef<BottomSheetModal>(null);
@@ -73,14 +73,14 @@ export function Sheet({
         {title || description ? (
           <View style={{ gap: t.space[1] }}>
             {title ? (
-              <Text variant="title2" accessibilityRole="header">
+              <AppText variant="title2" accessibilityRole="header">
                 {title}
-              </Text>
+              </AppText>
             ) : null}
             {description ? (
-              <Text variant="callout" tone="secondary">
+              <AppText variant="callout" tone="secondary">
                 {description}
-              </Text>
+              </AppText>
             ) : null}
           </View>
         ) : null}

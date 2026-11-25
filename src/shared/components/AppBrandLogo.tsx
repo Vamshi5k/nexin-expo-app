@@ -5,7 +5,7 @@ import { brand } from '@/core/config';
 
 const LOGO = require('../../../brand/assets/logo.png');
 
-export type BrandLogoProps = {
+export type AppBrandLogoProps = {
   height?: number;
   uri?: string | null;
   label?: string;
@@ -16,7 +16,7 @@ function assetRatio(): number {
   return s?.width && s.height ? s.width / s.height : 1;
 }
 
-export function BrandLogo({ height = 40, uri, label }: BrandLogoProps) {
+export default function AppBrandLogo({ height = 40, uri, label }: AppBrandLogoProps) {
   const [measured, setMeasured] = useState<{ uri: string; ratio: number } | null>(null);
   const [failedUri, setFailedUri] = useState<string | null>(null);
   const remote = uri && uri !== failedUri ? uri : null;

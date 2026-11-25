@@ -15,7 +15,7 @@ import { useTheme } from '@/shared/theme';
 const CELL = 24;
 
 // Flat dot grid that fades out down the screen and drifts one cell at a time (seamless loop).
-export function AmbientBackground() {
+export default function AppAmbientBackground() {
   const t = useTheme();
   const { width, height } = useWindowDimensions();
   const reduceMotion = useReducedMotion();

@@ -2,7 +2,7 @@ import Svg, { Circle, Rect } from 'react-native-svg';
 
 import type { ConnectorGlyphProps } from './types';
 
-export function Ccs1Glyph({ color, holeColor, size = 40 }: ConnectorGlyphProps) {
+export default function Ccs1Glyph({ color, holeColor, size = 40 }: ConnectorGlyphProps) {
   return (
     <Svg viewBox="0 0 20 20" width={size} height={size}>
       <Rect x={3.62} y={12.32} width={12.76} height={6.27} rx={3.14} ry={3.14} fill={color} />

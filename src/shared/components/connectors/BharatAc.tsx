@@ -2,7 +2,7 @@ import Svg, { Circle } from 'react-native-svg';
 
 import type { ConnectorGlyphProps } from './types';
 
-export function BharatAcGlyph({ color, holeColor, size = 40 }: ConnectorGlyphProps) {
+export default function BharatAcGlyph({ color, holeColor, size = 40 }: ConnectorGlyphProps) {
   return (
     <Svg viewBox="0 0 20 20" width={size} height={size}>
       {/* Outer Circle */}

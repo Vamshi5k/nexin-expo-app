@@ -7,10 +7,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { OFFLINE_COPY, recheckOnline, useOnline } from '@/core/network';
 import { useTheme } from '@/shared/theme';
 
-import { Button } from './Button';
-import { Text } from './Text';
+import AppButton from './AppButton';
+import AppText from './AppText';
 
-export function OfflineBanner() {
+export default function AppOfflineBanner() {
   const online = useOnline();
   return online === false ? <OfflineCard /> : null;
 }
@@ -62,18 +62,18 @@ function OfflineCard() {
           <WifiOff color={t.colors.dangerText} size={20} strokeWidth={1.75} />
         </View>
         <View style={{ flex: 1, gap: t.space[1] }}>
-          <Text variant="headline">{OFFLINE_COPY.title}</Text>
-          <Text variant="callout" tone="secondary">
+          <AppText variant="headline">{OFFLINE_COPY.title}</AppText>
+          <AppText variant="callout" tone="secondary">
             {OFFLINE_COPY.body}
-          </Text>
+          </AppText>
           {stillOffline ? (
-            <Text variant="caption" tone="danger">
+            <AppText variant="caption" tone="danger">
               {OFFLINE_COPY.stillOffline}
-            </Text>
+            </AppText>
           ) : null}
         </View>
       </View>
-      <Button
+      <AppButton
         label={OFFLINE_COPY.retry}
         icon={RefreshCw}
         variant="secondary"

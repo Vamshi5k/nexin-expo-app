@@ -12,7 +12,7 @@ import { SafeAreaView, useSafeAreaInsets, type Edge } from 'react-native-safe-ar
 
 import { useTheme } from '@/shared/theme';
 
-export type ScreenProps = {
+export type AppScreenProps = {
   children: ReactNode;
   scroll?: boolean;
   footer?: ReactNode;
@@ -22,7 +22,7 @@ export type ScreenProps = {
   contentStyle?: StyleProp<ViewStyle>;
 };
 
-export function Screen({
+export default function AppScreen({
   children,
   scroll,
   footer,
@@ -30,7 +30,7 @@ export function Screen({
   edges = ['top'],
   background = 'bg',
   contentStyle,
-}: ScreenProps) {
+}: AppScreenProps) {
   const t = useTheme();
   const insets = useSafeAreaInsets();
   const bg = t.colors[background];

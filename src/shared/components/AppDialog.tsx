@@ -3,11 +3,11 @@ import { Modal, StyleSheet, View } from 'react-native';
 
 import { useTheme } from '@/shared/theme';
 
-import { Button } from './Button';
+import AppButton from './AppButton';
 import { haptics } from '@/shared/utils/haptics';
-import { Text } from './Text';
+import AppText from './AppText';
 
-export type DialogProps = {
+export type AppDialogProps = {
   open: boolean;
   title: string;
   message?: string;
@@ -20,7 +20,7 @@ export type DialogProps = {
   icon?: LucideIcon;
 };
 
-export function Dialog({
+export default function AppDialog({
   open,
   title,
   message,
@@ -31,7 +31,7 @@ export function Dialog({
   destructive,
   loading,
   icon: Icon,
-}: DialogProps) {
+}: AppDialogProps) {
   const t = useTheme();
   return (
     <Modal
@@ -83,14 +83,14 @@ export function Dialog({
               />
             </View>
           ) : null}
-          <Text variant="title2">{title}</Text>
+          <AppText variant="title2">{title}</AppText>
           {message ? (
-            <Text variant="body" tone="secondary">
+            <AppText variant="body" tone="secondary">
               {message}
-            </Text>
+            </AppText>
           ) : null}
           <View style={{ gap: t.space[2], marginTop: t.space[4] }}>
-            <Button
+            <AppButton
               label={confirmLabel}
               onPress={onConfirm}
               variant={destructive ? 'danger' : 'primary'}
@@ -98,7 +98,12 @@ export function Dialog({
               loading={loading}
             />
             {onCancel ? (
-              <Button label={cancelLabel} onPress={onCancel} variant="secondary" haptic={false} />
+              <AppButton
+                label={cancelLabel}
+                onPress={onCancel}
+                variant="secondary"
+                haptic={false}
+              />
             ) : null}
           </View>
         </View>

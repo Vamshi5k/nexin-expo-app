@@ -1,13 +1,13 @@
 import { LogOut } from 'lucide-react-native';
 
-import { Dialog } from '@/shared/components';
+import { AppDialog } from '@/shared/components';
 
 import { LOGOUT_COPY } from '../constants';
 import type { useLogoutConfirm } from '../hooks';
 
 export function LogoutDialog({ state }: { state: ReturnType<typeof useLogoutConfirm> }) {
   return (
-    <Dialog
+    <AppDialog
       open={state.open}
       icon={LogOut}
       destructive

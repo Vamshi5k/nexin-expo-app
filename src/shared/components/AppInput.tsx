@@ -13,9 +13,9 @@ import Animated, {
 
 import { useTheme, withAlpha } from '@/shared/theme';
 
-import { Text } from './Text';
+import AppText from './AppText';
 
-export type InputProps = Omit<TextInputProps, 'style' | 'placeholderTextColor'> & {
+export type AppInputProps = Omit<TextInputProps, 'style' | 'placeholderTextColor'> & {
   label?: string;
   hint?: string;
   error?: string;
@@ -26,7 +26,7 @@ export type InputProps = Omit<TextInputProps, 'style' | 'placeholderTextColor'> 
   ref?: Ref<ComponentRef<typeof TextInput>>;
 };
 
-export function Input({
+export default function AppInput({
   label,
   hint,
   error,
@@ -39,7 +39,7 @@ export function Input({
   onBlur,
   ref,
   ...rest
-}: InputProps) {
+}: AppInputProps) {
   const t = useTheme();
   const c = t.colors;
   const reduceMotion = useReducedMotion();
@@ -80,9 +80,9 @@ export function Input({
   return (
     <View style={{ gap: t.space[2] }}>
       {label ? (
-        <Text variant="subhead" tone="secondary">
+        <AppText variant="subhead" tone="secondary">
           {label}
-        </Text>
+        </AppText>
       ) : null}
       <Animated.View
         style={[
@@ -104,9 +104,9 @@ export function Input({
         ) : null}
         {prefix ? (
           <View style={[styles.prefix, { gap: t.space[3] }]}>
-            <Text variant={large ? 'headline' : 'body'} tone="secondary" tabular>
+            <AppText variant={large ? 'headline' : 'body'} tone="secondary" tabular>
               {prefix}
-            </Text>
+            </AppText>
             <View style={[styles.divider, { backgroundColor: c.borderStrong, height: 20 }]} />
           </View>
         ) : null}
@@ -133,14 +133,14 @@ export function Input({
       </Animated.View>
       {error ? (
         <Animated.View key={error} entering={FadeIn.duration(t.motion.durationFast)}>
-          <Text variant="caption" tone="danger" accessibilityLiveRegion="polite">
+          <AppText variant="caption" tone="danger" accessibilityLiveRegion="polite">
             {error}
-          </Text>
+          </AppText>
         </Animated.View>
       ) : hint ? (
-        <Text variant="caption" tone="tertiary">
+        <AppText variant="caption" tone="tertiary">
           {hint}
-        </Text>
+        </AppText>
       ) : null}
     </View>
   );

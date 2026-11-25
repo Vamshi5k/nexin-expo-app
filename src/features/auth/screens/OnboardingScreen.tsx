@@ -4,7 +4,7 @@ import Animated, { FadeIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTheme } from '@/shared/theme';
-import { AmbientBackground, Button, Reveal, Text } from '@/shared/components';
+import { AppAmbientBackground, AppButton, AppReveal, AppText } from '@/shared/components';
 
 import { OnboardingProgress } from '../components/OnboardingProgress';
 import { OnboardingSlide } from '../components/OnboardingSlide';
@@ -20,17 +20,17 @@ export function OnboardingScreen() {
 
   return (
     <View style={[styles.flex, { paddingTop: insets.top }]}>
-      <AmbientBackground />
+      <AppAmbientBackground />
       <View
         style={[styles.topBar, { paddingLeft: t.layout.screenPadding, paddingRight: t.space[2] }]}
       >
         <Animated.View key={index} entering={FadeIn.duration(t.motion.duration)}>
-          <Text variant="caption" tone="secondary" tabular accessibilityElementsHidden>
+          <AppText variant="caption" tone="secondary" tabular accessibilityElementsHidden>
             {String(index + 1).padStart(2, '0')} / {String(count).padStart(2, '0')}
-          </Text>
+          </AppText>
         </Animated.View>
         <Animated.View style={onboarding.skipStyle} pointerEvents={last ? 'none' : 'auto'}>
-          <Button
+          <AppButton
             label="Skip"
             variant="ghost"
             size="medium"
@@ -65,7 +65,7 @@ export function OnboardingScreen() {
         )}
       />
 
-      <Reveal
+      <AppReveal
         index={3}
         style={{
           paddingHorizontal: t.layout.screenPadding,
@@ -74,8 +74,8 @@ export function OnboardingScreen() {
         }}
       >
         <OnboardingProgress count={count} width={width} x={x} />
-        <Button label={last ? 'Get Started' : 'Next'} onPress={onboarding.next} />
-      </Reveal>
+        <AppButton label={last ? 'Get Started' : 'Next'} onPress={onboarding.next} />
+      </AppReveal>
     </View>
   );
 }

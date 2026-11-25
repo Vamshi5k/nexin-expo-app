@@ -2,7 +2,7 @@ import { Check } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
 
 import { useTheme } from '@/shared/theme';
-import { Text } from '@/shared/components';
+import { AppText } from '@/shared/components';
 
 import { SETUP_STEPS } from '../constants';
 
@@ -35,17 +35,17 @@ export function SetupStepper({ current }: { current: number }) {
               {done ? (
                 <Check color={c.accentText} size={14} strokeWidth={2.5} />
               ) : (
-                <Text variant="caption" tone={active ? 'accent' : 'tertiary'} tabular>
+                <AppText variant="caption" tone={active ? 'accent' : 'tertiary'} tabular>
                   {n}
-                </Text>
+                </AppText>
               )}
-              <Text
+              <AppText
                 variant="caption"
                 tone={active ? 'primary' : done ? 'secondary' : 'tertiary'}
                 numberOfLines={1}
               >
                 {label}
-              </Text>
+              </AppText>
             </View>
           </View>
         );

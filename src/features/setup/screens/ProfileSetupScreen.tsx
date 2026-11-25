@@ -2,7 +2,7 @@ import { UserRound } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
 
 import { useTheme } from '@/shared/theme';
-import { Button, FormInput, Text } from '@/shared/components';
+import { AppButton, AppFormInput, AppText } from '@/shared/components';
 
 import { SetupLayout } from '../components/SetupLayout';
 import { TermsCheckbox } from '../components/TermsCheckbox';
@@ -24,16 +24,16 @@ export function ProfileSetupScreen() {
           accessibilityElementsHidden
         >
           {profile.initials ? (
-            <Text variant="title1" tone="accent">
+            <AppText variant="title1" tone="accent">
               {profile.initials}
-            </Text>
+            </AppText>
           ) : (
             <UserRound color={t.colors.accentText} size={34} strokeWidth={1.75} />
           )}
         </View>
       }
       footer={
-        <Button
+        <AppButton
           label="Continue"
           onPress={profile.submit}
           disabled={!profile.valid}
@@ -42,7 +42,7 @@ export function ProfileSetupScreen() {
       }
     >
       <View style={{ gap: t.space[5] }}>
-        <FormInput
+        <AppFormInput
           control={profile.control}
           name="name"
           size="large"

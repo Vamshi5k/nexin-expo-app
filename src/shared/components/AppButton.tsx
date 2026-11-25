@@ -13,13 +13,13 @@ import Animated, {
 import { useTheme, type Palette } from '@/shared/theme';
 
 import type { HapticKind } from '@/shared/utils/haptics';
-import { Pressable } from './Pressable';
+import AppPressable from './AppPressable';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'dangerOutline';
 
 export type ButtonSize = 'large' | 'medium';
 
-export type ButtonProps = {
+export type AppButtonProps = {
   label: string;
   onPress?: () => void;
   variant?: ButtonVariant;
@@ -50,7 +50,7 @@ function colorsFor(variant: ButtonVariant, c: Palette): VariantColors {
   }
 }
 
-export function Button({
+export default function AppButton({
   label,
   onPress,
   variant = 'primary',
@@ -62,7 +62,7 @@ export function Button({
   haptic = 'light',
   style,
   accessibilityHint,
-}: ButtonProps) {
+}: AppButtonProps) {
   const t = useTheme();
   const inactive = disabled || loading;
   const filled = variant === 'primary' || variant === 'danger';
@@ -85,7 +85,7 @@ export function Button({
   const iconColor = disabled && filled ? off.fg : fg;
 
   return (
-    <Pressable
+    <AppPressable
       onPress={onPress}
       disabled={inactive}
       haptic={haptic}
@@ -137,7 +137,7 @@ export function Button({
           </Animated.Text>
         </Animated.View>
       )}
-    </Pressable>
+    </AppPressable>
   );
 }
 

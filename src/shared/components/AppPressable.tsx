@@ -20,14 +20,14 @@ import { haptics, type HapticKind } from '@/shared/utils/haptics';
 
 const AnimatedPressable = Animated.createAnimatedComponent(RNPressable);
 
-export type PressableProps = Omit<RNPressableProps, 'style' | 'children'> & {
+export type AppPressableProps = Omit<RNPressableProps, 'style' | 'children'> & {
   style?: StyleProp<AnimatedStyle<ViewStyle>>;
   children?: ReactNode;
   feedback?: 'scale' | 'opacity';
   haptic?: HapticKind | false;
 };
 
-export function Pressable({
+export default function AppPressable({
   feedback = 'scale',
   haptic = false,
   onPressIn,
@@ -37,7 +37,7 @@ export function Pressable({
   disabled,
   hitSlop,
   ...rest
-}: PressableProps) {
+}: AppPressableProps) {
   const t = useTheme();
   const reduceMotion = useReducedMotion();
   const pressed = useSharedValue(0);

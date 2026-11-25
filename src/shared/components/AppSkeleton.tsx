@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { View, type DimensionValue, type StyleProp, type ViewStyle } from 'react-native';
+import { type DimensionValue, type StyleProp, type ViewStyle } from 'react-native';
 import Animated, {
   interpolateColor,
   useAnimatedStyle,
@@ -12,14 +12,19 @@ import Animated, {
 
 import { useTheme } from '@/shared/theme';
 
-export type SkeletonProps = {
+export type AppSkeletonProps = {
   width?: DimensionValue;
   height?: number;
   radius?: number;
   style?: StyleProp<ViewStyle>;
 };
 
-export function Skeleton({ width = '100%', height = 16, radius, style }: SkeletonProps) {
+export default function AppSkeleton({
+  width = '100%',
+  height = 16,
+  radius,
+  style,
+}: AppSkeletonProps) {
   const t = useTheme();
   const reduceMotion = useReducedMotion();
   const p = useSharedValue(0);
@@ -47,22 +52,5 @@ export function Skeleton({ width = '100%', height = 16, radius, style }: Skeleto
       importantForAccessibility="no-hide-descendants"
       style={[{ width, height, borderRadius: radius ?? t.radius.control / 2 }, animated, style]}
     />
-  );
-}
-
-export function SkeletonText({
-  lines = 3,
-  lineHeight = 14,
-}: {
-  lines?: number;
-  lineHeight?: number;
-}) {
-  const t = useTheme();
-  return (
-    <View style={{ gap: t.space[2] }} accessibilityLabel="Loading" accessibilityRole="progressbar">
-      {Array.from({ length: lines }, (_, i) => (
-        <Skeleton key={i} height={lineHeight} width={i === lines - 1 ? '60%' : '100%'} />
-      ))}
-    </View>
   );
 }

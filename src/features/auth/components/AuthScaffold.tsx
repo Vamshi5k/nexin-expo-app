@@ -12,7 +12,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppLogo } from '@/features/client-config';
 import { useTheme } from '@/shared/theme';
-import { ContourBackground, Pressable } from '@/shared/components';
+import { AppContourBackground, AppPressable } from '@/shared/components';
 
 export type AuthScaffoldProps = {
   hero: ReactNode;
@@ -33,7 +33,7 @@ export function AuthScaffold({ hero, children, footer, back }: AuthScaffoldProps
 
   return (
     <View style={styles.flex}>
-      <ContourBackground />
+      <AppContourBackground />
       <Animated.View style={[styles.flex, { paddingTop: insets.top }, lift]}>
         <View
           style={[
@@ -94,7 +94,7 @@ export function AuthScaffold({ hero, children, footer, back }: AuthScaffoldProps
 function BackButton() {
   const t = useTheme();
   return (
-    <Pressable
+    <AppPressable
       onPress={() => router.back()}
       haptic="selection"
       accessibilityLabel="Go back"
@@ -104,7 +104,7 @@ function BackButton() {
       ]}
     >
       <ChevronLeft color={t.colors.textPrimary} size={20} strokeWidth={1.75} />
-    </Pressable>
+    </AppPressable>
   );
 }
 

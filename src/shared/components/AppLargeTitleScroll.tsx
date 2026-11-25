@@ -1,7 +1,7 @@
+import { BlurView } from 'expo-blur';
 import { router } from 'expo-router';
 import { ChevronLeft } from 'lucide-react-native';
 import type { ReactNode } from 'react';
-import { BlurView } from 'expo-blur';
 import { Platform, StyleSheet, View } from 'react-native';
 import Animated, {
   interpolate,
@@ -14,56 +14,24 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTheme, withAlpha } from '@/shared/theme';
 
-import { Pressable } from './Pressable';
-import { Text } from './Text';
+import { HEADER_BAR_HEIGHT, type AppHeaderProps } from './AppHeader';
+import AppPressable from './AppPressable';
+import AppText from './AppText';
 
-const BAR_HEIGHT = 44;
-
-export type HeaderProps = {
-  title?: string;
-  back?: boolean | (() => void);
-  right?: ReactNode;
-};
-
-export function Header({ title, back, right }: HeaderProps) {
-  const t = useTheme();
-  const onBack = typeof back === 'function' ? back : () => router.back();
-  return (
-    <View style={[styles.bar, { height: BAR_HEIGHT, paddingHorizontal: t.space[2] }]}>
-      <View style={styles.side}>
-        {back ? (
-          <Pressable
-            onPress={onBack}
-            accessibilityLabel="Back"
-            style={styles.icon}
-            feedback="opacity"
-          >
-            <ChevronLeft color={t.colors.textPrimary} size={24} strokeWidth={1.75} />
-          </Pressable>
-        ) : null}
-      </View>
-      <Text variant="headline" numberOfLines={1} style={styles.title} accessibilityRole="header">
-        {title}
-      </Text>
-      <View style={[styles.side, styles.right]}>{right}</View>
-    </View>
-  );
-}
-
-export type LargeTitleScrollProps = HeaderProps & {
+export type AppLargeTitleScrollProps = AppHeaderProps & {
   children: ReactNode;
   subtitle?: string;
 };
 
 const USE_BLUR = Platform.OS === 'ios';
 
-export function LargeTitleScroll({
+export default function AppLargeTitleScroll({
   title,
   subtitle,
   back,
   right,
   children,
-}: LargeTitleScrollProps) {
+}: AppLargeTitleScrollProps) {
   const t = useTheme();
   const insets = useSafeAreaInsets();
   const y = useSharedValue(0);
@@ -71,7 +39,7 @@ export function LargeTitleScroll({
     y.value = e.contentOffset.y;
   });
   const largeHeight = t.type.title1.lineHeight ?? 34;
-  const barHeight = BAR_HEIGHT + insets.top;
+  const barHeight = HEADER_BAR_HEIGHT + insets.top;
 
   const compactTitle = useAnimatedStyle(() => ({
     opacity: interpolate(y.value, [largeHeight * 0.6, largeHeight], [0, 1], Extrapolation.CLAMP),
@@ -107,7 +75,7 @@ export function LargeTitleScroll({
           paddingHorizontal: t.layout.screenPadding,
           paddingBottom: Math.max(insets.bottom, t.space[4]) + t.space[8],
         }}
-        scrollIndicatorInsets={{ top: BAR_HEIGHT }}
+        scrollIndicatorInsets={{ top: HEADER_BAR_HEIGHT }}
       >
         <Animated.View
           style={[
@@ -116,13 +84,13 @@ export function LargeTitleScroll({
             { paddingTop: t.space[2], paddingBottom: t.space[6], gap: t.space[1] },
           ]}
         >
-          <Text variant="title1" accessibilityRole="header">
+          <AppText variant="title1" accessibilityRole="header">
             {title}
-          </Text>
+          </AppText>
           {subtitle ? (
-            <Text variant="callout" tone="secondary">
+            <AppText variant="callout" tone="secondary">
               {subtitle}
-            </Text>
+            </AppText>
           ) : null}
         </Animated.View>
         {children}
@@ -152,25 +120,25 @@ export function LargeTitleScroll({
         <View
           style={[
             styles.bar,
-            { marginTop: insets.top, height: BAR_HEIGHT, paddingHorizontal: t.space[2] },
+            { marginTop: insets.top, height: HEADER_BAR_HEIGHT, paddingHorizontal: t.space[2] },
           ]}
         >
           <View style={styles.side}>
             {back ? (
-              <Pressable
+              <AppPressable
                 onPress={onBack}
                 accessibilityLabel="Back"
                 style={styles.icon}
                 feedback="opacity"
               >
                 <ChevronLeft color={t.colors.textPrimary} size={24} strokeWidth={1.75} />
-              </Pressable>
+              </AppPressable>
             ) : null}
           </View>
           <Animated.View style={[styles.title, compactTitle]}>
-            <Text variant="headline" numberOfLines={1} align="center">
+            <AppText variant="headline" numberOfLines={1} align="center">
               {title}
-            </Text>
+            </AppText>
           </Animated.View>
           <View style={[styles.side, styles.right]}>{right}</View>
         </View>

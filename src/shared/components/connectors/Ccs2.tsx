@@ -2,7 +2,7 @@ import Svg, { Circle, Path, Rect } from 'react-native-svg';
 
 import type { ConnectorGlyphProps } from './types';
 
-export function Ccs2Glyph({ color, holeColor, size = 40 }: ConnectorGlyphProps) {
+export default function Ccs2Glyph({ color, holeColor, size = 40 }: ConnectorGlyphProps) {
   return (
     <Svg viewBox="0 0 20 20" width={size} height={size}>
       {/* Top body OUTLINE instead of filled */}

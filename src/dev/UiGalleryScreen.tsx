@@ -32,27 +32,27 @@ import {
   type TypeVariant,
 } from '@/shared/theme';
 import {
-  Badge,
-  BrandLogo,
-  Button,
-  Card,
+  AppBadge,
+  AppBrandLogo,
+  AppButton,
+  AppCard,
   CONNECTOR_TYPES,
-  ConnectorIcon,
-  Dialog,
-  EmptyState,
-  ErrorState,
-  FormInput,
-  Header,
-  Input,
-  LargeTitleScroll,
-  ListGroup,
-  ListRow,
-  SegmentedControl,
-  Sheet,
-  Skeleton,
-  SkeletonText,
-  StatusChip,
-  Text,
+  AppConnectorIcon,
+  AppDialog,
+  AppEmptyState,
+  AppErrorState,
+  AppFormInput,
+  AppHeader,
+  AppInput,
+  AppLargeTitleScroll,
+  AppListGroup,
+  AppListRow,
+  AppSegmentedControl,
+  AppSheet,
+  AppSkeleton,
+  AppSkeletonText,
+  AppStatusChip,
+  AppText,
 } from '@/shared/components';
 import { toast } from '@/shared/utils/toast';
 
@@ -88,13 +88,13 @@ export function UiGalleryScreen({ initialScheme, section }: UiGalleryScreenProps
 
   const keys = section && SECTIONS[section] ? [section] : Object.keys(SECTIONS);
   return (
-    <LargeTitleScroll title="UI kit" subtitle={`${brand.appName} · ${t.scheme} mode`} back>
+    <AppLargeTitleScroll title="UI kit" subtitle={`${brand.appName} · ${t.scheme} mode`} back>
       <View style={{ gap: t.layout.sectionGapLarge }}>
         {keys.map(k => (
           <Fragment key={k}>{SECTIONS[k]()}</Fragment>
         ))}
       </View>
-    </LargeTitleScroll>
+    </AppLargeTitleScroll>
   );
 }
 
@@ -111,13 +111,13 @@ function Section({
   return (
     <View style={{ gap: t.space[4] }}>
       <View style={{ gap: t.space[1] }}>
-        <Text variant="title2" accessibilityRole="header">
+        <AppText variant="title2" accessibilityRole="header">
           {title}
-        </Text>
+        </AppText>
         {description ? (
-          <Text variant="callout" tone="secondary">
+          <AppText variant="callout" tone="secondary">
             {description}
-          </Text>
+          </AppText>
         ) : null}
       </View>
       {children}
@@ -151,7 +151,7 @@ function SchemeSection() {
       title="Appearance"
       description={`The app follows brand.appearance (${brand.appearance}). Force a scheme here.`}
     >
-      <SegmentedControl
+      <AppSegmentedControl
         accessibilityLabel="Colour scheme"
         segments={[
           { value: 'brand', label: `Brand (${brand.appearance})` },
@@ -179,20 +179,20 @@ function ModePreview() {
         gap: t.space[3],
       }}
     >
-      <Text variant="caption" tone="secondary">
+      <AppText variant="caption" tone="secondary">
         {t.scheme === 'light' ? 'Light' : 'Dark'}
-      </Text>
-      <Card padded={false} style={{ padding: t.space[3], gap: t.space[1] }}>
-        <Text variant="caption" tone="secondary">
+      </AppText>
+      <AppCard padded={false} style={{ padding: t.space[3], gap: t.space[1] }}>
+        <AppText variant="caption" tone="secondary">
           Wallet balance
-        </Text>
-        <Text variant="title2" tabular>
+        </AppText>
+        <AppText variant="title2" tabular>
           {brand.currency.symbol}1,250
-        </Text>
-      </Card>
-      <StatusChip label="Available" connector="Available" />
-      <Button label="Start" size="medium" fullWidth haptic={false} onPress={() => undefined} />
-      <Button
+        </AppText>
+      </AppCard>
+      <AppStatusChip label="Available" connector="Available" />
+      <AppButton label="Start" size="medium" fullWidth haptic={false} onPress={() => undefined} />
+      <AppButton
         label="Details"
         size="medium"
         variant="secondary"
@@ -200,9 +200,9 @@ function ModePreview() {
         haptic={false}
         onPress={() => undefined}
       />
-      <Text variant="subhead" tone="accent">
+      <AppText variant="subhead" tone="accent">
         See all
-      </Text>
+      </AppText>
     </View>
   );
 }
@@ -264,10 +264,10 @@ function ColorsSection() {
                 borderColor: t.colors.border,
               }}
             />
-            <Text variant="caption">{key}</Text>
-            <Text variant="caption" tone="tertiary">
+            <AppText variant="caption">{key}</AppText>
+            <AppText variant="caption" tone="tertiary">
               {t.colors[key] as string}
-            </Text>
+            </AppText>
           </View>
         ))}
       </View>
@@ -276,9 +276,9 @@ function ColorsSection() {
           <View key={step} style={{ flex: 1, height: 28, backgroundColor: color }} />
         ))}
       </View>
-      <Text variant="caption" tone="tertiary">
+      <AppText variant="caption" tone="tertiary">
         Neutral scale 50–950, tinted towards the brand hue
-      </Text>
+      </AppText>
     </Section>
   );
 }
@@ -299,25 +299,25 @@ function TypeSection() {
   return (
     <Section title="Typography">
       {VARIANTS.map(v => (
-        <Text key={v} variant={v}>
+        <AppText key={v} variant={v}>
           {v} · {t.type[v].fontSize}/{t.type[v].lineHeight}
-        </Text>
+        </AppText>
       ))}
       <Row>
-        <Text variant="title1" tabular>
+        <AppText variant="title1" tabular>
           ₹1,234.50
-        </Text>
-        <Text variant="title1" tabular tone="accent">
+        </AppText>
+        <AppText variant="title1" tabular tone="accent">
           42.7 kWh
-        </Text>
+        </AppText>
       </Row>
       <Row>
-        <Text tone="secondary">secondary</Text>
-        <Text tone="tertiary">tertiary</Text>
-        <Text tone="accent">accent</Text>
-        <Text tone="success">success</Text>
-        <Text tone="warning">warning</Text>
-        <Text tone="danger">danger</Text>
+        <AppText tone="secondary">secondary</AppText>
+        <AppText tone="tertiary">tertiary</AppText>
+        <AppText tone="accent">accent</AppText>
+        <AppText tone="success">success</AppText>
+        <AppText tone="warning">warning</AppText>
+        <AppText tone="danger">danger</AppText>
       </Row>
     </Section>
   );
@@ -329,11 +329,15 @@ function ButtonsSection() {
   return (
     <Section title="Buttons" description="One primary per screen. Secondary is never brand-filled.">
       <View style={{ gap: t.space[3] }}>
-        <Button label="Start charging" icon={Zap} onPress={() => toast.info('Primary pressed')} />
-        <Button label="View details" variant="secondary" onPress={() => undefined} />
+        <AppButton
+          label="Start charging"
+          icon={Zap}
+          onPress={() => toast.info('Primary pressed')}
+        />
+        <AppButton label="View details" variant="secondary" onPress={() => undefined} />
         <Pair>
-          <Button label="Ghost" variant="ghost" onPress={() => undefined} />
-          <Button
+          <AppButton label="Ghost" variant="ghost" onPress={() => undefined} />
+          <AppButton
             label={loading ? 'Loading' : 'Load'}
             variant="secondary"
             loading={loading}
@@ -344,22 +348,22 @@ function ButtonsSection() {
           />
         </Pair>
         <Pair>
-          <Button label="Delete" variant="danger" haptic="warning" onPress={() => undefined} />
-          <Button label="Disabled" disabled onPress={() => undefined} />
+          <AppButton label="Delete" variant="danger" haptic="warning" onPress={() => undefined} />
+          <AppButton label="Disabled" disabled onPress={() => undefined} />
         </Pair>
-        <Button
+        <AppButton
           label="Stop charging"
           variant="dangerOutline"
           haptic="warning"
           onPress={() => undefined}
         />
-        <Text variant="subhead" tone="secondary" style={{ marginTop: t.space[2] }}>
+        <AppText variant="subhead" tone="secondary" style={{ marginTop: t.space[2] }}>
           Medium (44) for inline actions
-        </Text>
+        </AppText>
         <Row>
-          <Button label="Add vehicle" size="medium" icon={Plus} onPress={() => undefined} />
-          <Button label="Retry" size="medium" variant="secondary" onPress={() => undefined} />
-          <Button label="Skip" size="medium" variant="ghost" onPress={() => undefined} />
+          <AppButton label="Add vehicle" size="medium" icon={Plus} onPress={() => undefined} />
+          <AppButton label="Retry" size="medium" variant="secondary" onPress={() => undefined} />
+          <AppButton label="Skip" size="medium" variant="ghost" onPress={() => undefined} />
         </Row>
       </View>
     </Section>
@@ -382,16 +386,16 @@ function InputsSection() {
   return (
     <Section title="Inputs" description="Sunken neutral fill; brand border and ring on focus.">
       <View style={{ gap: t.space[4] }}>
-        <Input label="Plain" placeholder="Type here" />
-        <Input
+        <AppInput label="Plain" placeholder="Type here" />
+        <AppInput
           label="With icon and hint"
           icon={Phone}
           placeholder="Phone"
           hint="We'll send an OTP"
         />
-        <Input label="Error" defaultValue="abc" error="This value is not valid" />
-        <Input label="Disabled" defaultValue="Read only" editable={false} />
-        <FormInput
+        <AppInput label="Error" defaultValue="abc" error="This value is not valid" />
+        <AppInput label="Disabled" defaultValue="Read only" editable={false} />
+        <AppFormInput
           control={control}
           name="phone"
           label="FormInput (react-hook-form + zod)"
@@ -400,7 +404,7 @@ function InputsSection() {
           maxLength={brand.phoneLength}
           placeholder="Phone number"
         />
-        <Button
+        <AppButton
           label="Validate form"
           variant="secondary"
           onPress={handleSubmit(v => toast.success(`Valid: ${v.phone}`))}
@@ -414,31 +418,31 @@ function CardsSection() {
   const t = useTheme();
   return (
     <Section title="Cards">
-      <Card elevation="elevated" style={{ gap: t.space[2] }}>
-        <Text variant="subhead" tone="secondary">
+      <AppCard elevation="elevated" style={{ gap: t.space[2] }}>
+        <AppText variant="subhead" tone="secondary">
           Wallet balance
-        </Text>
-        <Text variant="display" tabular>
+        </AppText>
+        <AppText variant="display" tabular>
           {brand.currency.symbol}1,250.00
-        </Text>
+        </AppText>
         <View style={{ flexDirection: 'row', gap: t.space[2], marginTop: t.space[2] }}>
-          <Button label="Add money" size="medium" icon={Plus} onPress={() => undefined} />
-          <Button label="History" size="medium" variant="secondary" onPress={() => undefined} />
+          <AppButton label="Add money" size="medium" icon={Plus} onPress={() => undefined} />
+          <AppButton label="History" size="medium" variant="secondary" onPress={() => undefined} />
         </View>
-      </Card>
-      <Card style={{ gap: t.space[1] }}>
-        <Text variant="headline">Flat card</Text>
-        <Text tone="secondary">White surface, neutral hairline border, radius 16.</Text>
-      </Card>
-      <Card onPress={() => toast.info('Card pressed')} accessibilityLabel="Pressable card">
+      </AppCard>
+      <AppCard style={{ gap: t.space[1] }}>
+        <AppText variant="headline">Flat card</AppText>
+        <AppText tone="secondary">White surface, neutral hairline border, radius 16.</AppText>
+      </AppCard>
+      <AppCard onPress={() => toast.info('Card pressed')} accessibilityLabel="Pressable card">
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[3] }}>
           <View style={{ flex: 1, gap: t.space[1] }}>
-            <Text variant="headline">Pressable card</Text>
-            <Text tone="secondary">Scales to 0.98 when pressed.</Text>
+            <AppText variant="headline">Pressable card</AppText>
+            <AppText tone="secondary">Scales to 0.98 when pressed.</AppText>
           </View>
-          <Badge label="New" />
+          <AppBadge label="New" />
         </View>
-      </Card>
+      </AppCard>
     </Section>
   );
 }
@@ -446,24 +450,24 @@ function CardsSection() {
 function ListsSection() {
   return (
     <Section title="Grouped lists" description="Settings-style screens (Profile, Edit profile).">
-      <ListGroup title="Account">
-        <ListRow
+      <AppListGroup title="Account">
+        <AppListRow
           icon={Wallet}
           title="Wallet"
           value={`${brand.currency.symbol}1,250`}
           onPress={() => undefined}
         />
-        <ListRow
+        <AppListRow
           icon={CreditCard}
           title="Payment history"
           subtitle="Top-ups and charging sessions"
           onPress={() => undefined}
         />
-        <ListRow icon={Bell} title="Notifications" value="On" onPress={() => undefined} />
-      </ListGroup>
-      <ListGroup footer="You can sign back in at any time.">
-        <ListRow icon={LogOut} title="Log out" destructive onPress={() => undefined} />
-      </ListGroup>
+        <AppListRow icon={Bell} title="Notifications" value="On" onPress={() => undefined} />
+      </AppListGroup>
+      <AppListGroup footer="You can sign back in at any time.">
+        <AppListRow icon={LogOut} title="Log out" destructive onPress={() => undefined} />
+      </AppListGroup>
     </Section>
   );
 }
@@ -481,21 +485,21 @@ function ChipsSection() {
   return (
     <Section title="Status chips and badges">
       <Row>
-        <StatusChip label="Success" tone="success" />
-        <StatusChip label="Warning" tone="warning" />
-        <StatusChip label="Danger" tone="danger" />
-        <StatusChip label="Accent" tone="accent" />
-        <StatusChip label="Neutral" />
+        <AppStatusChip label="Success" tone="success" />
+        <AppStatusChip label="Warning" tone="warning" />
+        <AppStatusChip label="Danger" tone="danger" />
+        <AppStatusChip label="Accent" tone="accent" />
+        <AppStatusChip label="Neutral" />
       </Row>
       <Row>
         {CONNECTOR_STATUSES.map(s => (
-          <StatusChip key={s} label={s} connector={s} />
+          <AppStatusChip key={s} label={s} connector={s} />
         ))}
       </Row>
       <Row>
-        <Badge label={3} />
-        <Badge label="Primary" tone="neutral" />
-        <Badge label={12} tone="danger" />
+        <AppBadge label={3} />
+        <AppBadge label="Primary" tone="neutral" />
+        <AppBadge label={12} tone="danger" />
       </Row>
     </Section>
   );
@@ -507,14 +511,14 @@ function ConnectorsSection() {
     <Section title="Connector icons">
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[4] }}>
         {CONNECTOR_TYPES.map(type => (
-          <ConnectorIcon key={type} type={type} showLabel />
+          <AppConnectorIcon key={type} type={type} showLabel />
         ))}
       </View>
       <Row>
-        <ConnectorIcon type="CCS2" available={false} showLabel />
-        <Text variant="caption" tone="tertiary">
+        <AppConnectorIcon type="CCS2" available={false} showLabel />
+        <AppText variant="caption" tone="tertiary">
           Unavailable
-        </Text>
+        </AppText>
       </Row>
     </Section>
   );
@@ -524,30 +528,30 @@ function StatesSection() {
   const t = useTheme();
   return (
     <Section title="Loading, empty and error">
-      <Card>
+      <AppCard>
         <View style={{ flexDirection: 'row', gap: t.space[3] }}>
-          <Skeleton width={56} height={56} radius={t.radius.control} />
+          <AppSkeleton width={56} height={56} radius={t.radius.control} />
           <View style={{ flex: 1, gap: t.space[2] }}>
-            <Skeleton height={16} width="70%" />
-            <SkeletonText lines={2} />
+            <AppSkeleton height={16} width="70%" />
+            <AppSkeletonText lines={2} />
           </View>
         </View>
-      </Card>
-      <Card>
-        <EmptyState
+      </AppCard>
+      <AppCard>
+        <AppEmptyState
           icon={Inbox}
           title="No sessions yet"
           description="Your charging sessions will show up here."
           actionLabel="Find a charger"
           onAction={() => toast.info('Empty state action')}
         />
-      </Card>
-      <Card>
-        <ErrorState
+      </AppCard>
+      <AppCard>
+        <AppErrorState
           message="We couldn't load this. Check your connection and try again."
           onRetry={() => toast.info('Retry')}
         />
-      </Card>
+      </AppCard>
     </Section>
   );
 }
@@ -559,14 +563,14 @@ function OverlaysSection() {
   const [tab, setTab] = useState<'ac' | 'dc'>('ac');
   return (
     <Section title="Header, sheet, dialog, segmented">
-      <Card padded={false}>
-        <Header
+      <AppCard padded={false}>
+        <AppHeader
           title="Compact header"
           back={() => toast.info('Back')}
-          right={<Badge label={2} />}
+          right={<AppBadge label={2} />}
         />
-      </Card>
-      <SegmentedControl
+      </AppCard>
+      <AppSegmentedControl
         segments={[
           { value: 'ac', label: 'AC' },
           { value: 'dc', label: 'DC' },
@@ -574,33 +578,33 @@ function OverlaysSection() {
         value={tab}
         onChange={setTab}
       />
-      <ListGroup>
-        <ListRow icon={Layers} title="Open bottom sheet" onPress={() => setSheet(true)} />
-        <ListRow
+      <AppListGroup>
+        <AppListRow icon={Layers} title="Open bottom sheet" onPress={() => setSheet(true)} />
+        <AppListRow
           icon={CircleAlert}
           iconTone="danger"
           title="Open destructive dialog"
           onPress={() => setDialog(true)}
         />
-        <ListRow
+        <AppListRow
           icon={Camera}
           iconTone="neutral"
           title="Permission blocked (camera)"
           onPress={() => void showPermissionBlocked('camera')}
         />
-      </ListGroup>
-      <Sheet
+      </AppListGroup>
+      <AppSheet
         open={sheet}
         onClose={() => setSheet(false)}
         title="Bottom sheet"
         description="For choices, filters and confirmations."
       >
         <View style={{ gap: t.space[3] }}>
-          <Button label="Confirm" onPress={() => setSheet(false)} />
-          <Button label="Cancel" variant="secondary" onPress={() => setSheet(false)} />
+          <AppButton label="Confirm" onPress={() => setSheet(false)} />
+          <AppButton label="Cancel" variant="secondary" onPress={() => setSheet(false)} />
         </View>
-      </Sheet>
-      <Dialog
+      </AppSheet>
+      <AppDialog
         open={dialog}
         destructive
         title="Remove vehicle?"
@@ -623,25 +627,25 @@ function ToastsSection() {
     );
   return (
     <Section title="Toasts">
-      <ListGroup>
-        <ListRow
+      <AppListGroup>
+        <AppListRow
           icon={SquareCheck}
           title="Success"
           onPress={() => toast.success('Payment successful')}
         />
-        <ListRow
+        <AppListRow
           icon={X}
           iconTone="danger"
           title="Error"
           onPress={() => toast.error('Payment failed', { description: 'No money was taken.' })}
         />
-        <ListRow
+        <AppListRow
           icon={Info}
           iconTone="neutral"
           title="Info"
           onPress={() => toast.info('Charger is preparing')}
         />
-        <ListRow
+        <AppListRow
           icon={Loader}
           iconTone="neutral"
           title="Promise (resolves)"
@@ -653,7 +657,7 @@ function ToastsSection() {
             })
           }
         />
-        <ListRow
+        <AppListRow
           icon={Loader}
           iconTone="neutral"
           title="Promise (rejects)"
@@ -665,7 +669,7 @@ function ToastsSection() {
             })
           }
         />
-      </ListGroup>
+      </AppListGroup>
     </Section>
   );
 }
@@ -674,12 +678,12 @@ function BrandSection() {
   const t = useTheme();
   return (
     <Section title="Brand">
-      <Card style={{ alignItems: 'center', gap: t.space[3], paddingVertical: t.space[6] }}>
-        <BrandLogo height={44} />
-        <Text variant="caption" tone="tertiary" align="center">
+      <AppCard style={{ alignItems: 'center', gap: t.space[3], paddingVertical: t.space[6] }}>
+        <AppBrandLogo height={44} />
+        <AppText variant="caption" tone="tertiary" align="center">
           Build-time logo. The runtime logo arrives in Phase 2.
-        </Text>
-      </Card>
+        </AppText>
+      </AppCard>
     </Section>
   );
 }

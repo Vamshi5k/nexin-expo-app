@@ -2,7 +2,7 @@ import { WifiOff } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
 
 import { useTheme } from '@/shared/theme';
-import { Button, Reveal, Text } from '@/shared/components';
+import { AppButton, AppReveal, AppText } from '@/shared/components';
 
 import { AuthScaffold } from '../components/AuthScaffold';
 
@@ -14,7 +14,7 @@ export function BootErrorScreen({ onRetry, retrying }: BootErrorScreenProps) {
     <AuthScaffold
       hero={
         <>
-          <Reveal index={0}>
+          <AppReveal index={0}>
             <View
               style={[
                 styles.badge,
@@ -23,18 +23,18 @@ export function BootErrorScreen({ onRetry, retrying }: BootErrorScreenProps) {
             >
               <WifiOff color={t.colors.dangerText} size={22} strokeWidth={1.75} />
             </View>
-          </Reveal>
-          <Reveal index={1} style={{ gap: t.space[2], marginTop: t.space[4] }}>
-            <Text variant="hero" accessibilityRole="header">
+          </AppReveal>
+          <AppReveal index={1} style={{ gap: t.space[2], marginTop: t.space[4] }}>
+            <AppText variant="hero" accessibilityRole="header">
               Can&apos;t connect right now
-            </Text>
-            <Text variant="callout" tone="secondary">
+            </AppText>
+            <AppText variant="callout" tone="secondary">
               Check your internet connection and try again.
-            </Text>
-          </Reveal>
+            </AppText>
+          </AppReveal>
         </>
       }
-      footer={<Button label="Try Again" onPress={onRetry} loading={retrying} />}
+      footer={<AppButton label="Try Again" onPress={onRetry} loading={retrying} />}
     />
   );
 }

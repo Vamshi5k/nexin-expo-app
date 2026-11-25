@@ -4,7 +4,7 @@ import { StyleSheet, View } from 'react-native';
 
 import type { PermissionResult } from '@/core/permissions';
 import { useTheme } from '@/shared/theme';
-import { Button, Text } from '@/shared/components';
+import { AppButton, AppText } from '@/shared/components';
 
 // Flat card: sunken at rest, tinted with a check once allowed. No shadow.
 export function PermissionCard({
@@ -46,10 +46,10 @@ export function PermissionCard({
           <Icon color={granted ? c.onAccent : c.accentText} size={22} strokeWidth={1.75} />
         </View>
         <View style={[styles.flex, { gap: t.space[1] }]}>
-          <Text variant="headline">{title}</Text>
-          <Text variant="callout" tone="secondary">
+          <AppText variant="headline">{title}</AppText>
+          <AppText variant="callout" tone="secondary">
             {description}
-          </Text>
+          </AppText>
         </View>
       </View>
       {granted ? (
@@ -57,12 +57,12 @@ export function PermissionCard({
           <View style={[styles.check, { backgroundColor: c.accent, borderRadius: t.radius.pill }]}>
             <Check color={c.onAccent} size={14} strokeWidth={3} />
           </View>
-          <Text variant="subhead" tone="accent">
+          <AppText variant="subhead" tone="accent">
             Allowed
-          </Text>
+          </AppText>
         </View>
       ) : (
-        <Button
+        <AppButton
           label={status === 'blocked' ? 'Open Settings' : 'Allow'}
           variant="secondary"
           size="medium"

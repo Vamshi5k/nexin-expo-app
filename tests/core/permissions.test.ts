@@ -15,7 +15,7 @@ const perm = (granted: boolean, canAskAgain: boolean) => ({
 
 const mockLocation = { check: jest.fn(), request: jest.fn() };
 // the blocked dialog lives in the same module; keep the UI kit out of this test
-jest.mock('@/shared/components', () => ({ Dialog: () => null }));
+jest.mock('@/shared/components', () => ({ AppDialog: () => null }));
 jest.mock('expo-location', () => ({
   getForegroundPermissionsAsync: () => mockLocation.check(),
   requestForegroundPermissionsAsync: () => mockLocation.request(),

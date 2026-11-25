@@ -2,24 +2,24 @@ import { View } from 'react-native';
 
 import { useTheme } from '@/shared/theme';
 
-import { Pressable } from './Pressable';
-import { Text } from './Text';
+import AppPressable from './AppPressable';
+import AppText from './AppText';
 
 export type Segment<T extends string> = { value: T; label: string };
 
-export type SegmentedControlProps<T extends string> = {
+export type AppSegmentedControlProps<T extends string> = {
   segments: Segment<T>[];
   value: T;
   onChange: (value: T) => void;
   accessibilityLabel?: string;
 };
 
-export function SegmentedControl<T extends string>({
+export default function AppSegmentedControl<T extends string>({
   segments,
   value,
   onChange,
   accessibilityLabel,
-}: SegmentedControlProps<T>) {
+}: AppSegmentedControlProps<T>) {
   const t = useTheme();
   return (
     <View
@@ -36,7 +36,7 @@ export function SegmentedControl<T extends string>({
       {segments.map(s => {
         const selected = s.value === value;
         return (
-          <Pressable
+          <AppPressable
             key={s.value}
             accessibilityRole="tab"
             accessibilityState={{ selected }}
@@ -57,10 +57,10 @@ export function SegmentedControl<T extends string>({
               },
             ]}
           >
-            <Text variant="subhead" tone={selected ? 'primary' : 'secondary'} numberOfLines={1}>
+            <AppText variant="subhead" tone={selected ? 'primary' : 'secondary'} numberOfLines={1}>
               {s.label}
-            </Text>
-          </Pressable>
+            </AppText>
+          </AppPressable>
         );
       })}
     </View>

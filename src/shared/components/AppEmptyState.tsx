@@ -3,10 +3,10 @@ import { View } from 'react-native';
 
 import { useTheme } from '@/shared/theme';
 
-import { Button } from './Button';
-import { Text } from './Text';
+import AppButton from './AppButton';
+import AppText from './AppText';
 
-export type EmptyStateProps = {
+export type AppEmptyStateProps = {
   icon: LucideIcon;
   title: string;
   description?: string;
@@ -14,13 +14,13 @@ export type EmptyStateProps = {
   onAction?: () => void;
 };
 
-export function EmptyState({
+export default function AppEmptyState({
   icon: Icon,
   title,
   description,
   actionLabel,
   onAction,
-}: EmptyStateProps) {
+}: AppEmptyStateProps) {
   const t = useTheme();
   return (
     <View
@@ -44,16 +44,16 @@ export function EmptyState({
       >
         <Icon color={t.colors.accentText} size={28} strokeWidth={1.75} />
       </View>
-      <Text variant="headline" align="center" numberOfLines={1}>
+      <AppText variant="headline" align="center" numberOfLines={1}>
         {title}
-      </Text>
+      </AppText>
       {description ? (
-        <Text variant="callout" tone="secondary" align="center">
+        <AppText variant="callout" tone="secondary" align="center">
           {description}
-        </Text>
+        </AppText>
       ) : null}
       {actionLabel && onAction ? (
-        <Button
+        <AppButton
           label={actionLabel}
           onPress={onAction}
           variant="secondary"

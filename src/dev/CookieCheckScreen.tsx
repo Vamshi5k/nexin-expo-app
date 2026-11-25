@@ -4,7 +4,7 @@ import { View } from 'react-native';
 import { api, createApiClient, getErrorMessage, statusOf } from '@/core/api';
 import { brand, CLIENT_TOKEN } from '@/core/config';
 import { useTheme } from '@/shared/theme';
-import { Button, Card, Input, LargeTitleScroll, Text } from '@/shared/components';
+import { AppButton, AppCard, AppInput, AppLargeTitleScroll, AppText } from '@/shared/components';
 
 const LOCAL_BASE_URL = 'http://localhost:8787';
 
@@ -115,44 +115,44 @@ export function CookieCheckScreen({ autoRunLocal = false }: { autoRunLocal?: boo
   }
 
   return (
-    <LargeTitleScroll title="Cookie check" subtitle="Temporary Phase 2 tool" back>
+    <AppLargeTitleScroll title="Cookie check" subtitle="Temporary Phase 2 tool" back>
       <View style={{ gap: t.layout.sectionGap }}>
-        <Card style={{ gap: t.space[3] }}>
-          <Text variant="headline">A. Local cookie round-trip</Text>
-          <Text tone="secondary">
+        <AppCard style={{ gap: t.space[3] }}>
+          <AppText variant="headline">A. Local cookie round-trip</AppText>
+          <AppText tone="secondary">
             Needs the scratch cookie server on port 8787 (adb reverse on Android).
-          </Text>
-          <Button label="Run local check" size="medium" loading={busy} onPress={runLocal} />
-        </Card>
-        <Card style={{ gap: t.space[3] }}>
-          <Text variant="headline">B. Staging login and verify</Text>
-          <Input
+          </AppText>
+          <AppButton label="Run local check" size="medium" loading={busy} onPress={runLocal} />
+        </AppCard>
+        <AppCard style={{ gap: t.space[3] }}>
+          <AppText variant="headline">B. Staging login and verify</AppText>
+          <AppInput
             label="Phone or email"
             value={contact}
             onChangeText={setContact}
             autoCapitalize="none"
           />
-          <Button
+          <AppButton
             label="Send OTP"
             size="medium"
             disabled={!contact}
             loading={busy}
             onPress={runLogin}
           />
-          <Input
+          <AppInput
             label="appName sent to verify"
             value={appName}
             onChangeText={setAppName}
             autoCapitalize="none"
           />
-          <Input
+          <AppInput
             label="OTP"
             value={otp}
             onChangeText={setOtp}
             keyboardType="number-pad"
             maxLength={6}
           />
-          <Button
+          <AppButton
             label="Verify"
             size="medium"
             variant="secondary"
@@ -160,25 +160,25 @@ export function CookieCheckScreen({ autoRunLocal = false }: { autoRunLocal?: boo
             loading={busy}
             onPress={runVerify}
           />
-        </Card>
-        <Card style={{ gap: t.space[2] }}>
-          <Text variant="headline">Results ({brand.appName})</Text>
-          {lines.length === 0 ? <Text tone="tertiary">Nothing run yet.</Text> : null}
+        </AppCard>
+        <AppCard style={{ gap: t.space[2] }}>
+          <AppText variant="headline">Results ({brand.appName})</AppText>
+          {lines.length === 0 ? <AppText tone="tertiary">Nothing run yet.</AppText> : null}
           {lines.map((l, i) => (
             <View key={i} style={{ gap: 2 }}>
-              <Text
+              <AppText
                 variant="subhead"
                 tone={l.ok ? 'success' : l.ok === false ? 'danger' : 'primary'}
               >
                 {l.ok ? 'PASS' : 'FAIL'} · {l.label}
-              </Text>
-              <Text variant="caption" tone="secondary" selectable>
+              </AppText>
+              <AppText variant="caption" tone="secondary" selectable>
                 {l.detail}
-              </Text>
+              </AppText>
             </View>
           ))}
-        </Card>
+        </AppCard>
       </View>
-    </LargeTitleScroll>
+    </AppLargeTitleScroll>
   );
 }

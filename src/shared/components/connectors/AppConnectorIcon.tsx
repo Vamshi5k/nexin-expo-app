@@ -2,18 +2,16 @@ import { View } from 'react-native';
 
 import { useTheme } from '@/shared/theme';
 
-import { Text } from '../Text';
-import { BharatAcGlyph } from './BharatAc';
-import { BharatDcGlyph } from './BharatDc';
-import { Ccs1Glyph } from './Ccs1';
-import { Ccs2Glyph } from './Ccs2';
-import { ChademoGlyph } from './Chademo';
-import { GbtGlyph } from './Gbt';
-import { Type1Glyph } from './Type1';
-import { Type2Glyph } from './Type2';
+import AppText from '../AppText';
+import BharatAcGlyph from './BharatAc';
+import BharatDcGlyph from './BharatDc';
+import Ccs1Glyph from './Ccs1';
+import Ccs2Glyph from './Ccs2';
+import ChademoGlyph from './Chademo';
+import GbtGlyph from './Gbt';
+import Type1Glyph from './Type1';
+import Type2Glyph from './Type2';
 import { toConnectorType, type ConnectorGlyphProps, type ConnectorType } from './types';
-
-export { CONNECTOR_TYPES, toConnectorType, type ConnectorType } from './types';
 
 const GLYPHS: Record<ConnectorType, (p: ConnectorGlyphProps) => React.JSX.Element> = {
   CCS1: Ccs1Glyph,
@@ -26,19 +24,19 @@ const GLYPHS: Record<ConnectorType, (p: ConnectorGlyphProps) => React.JSX.Elemen
   GBT: GbtGlyph,
 };
 
-export type ConnectorIconProps = {
+export type AppConnectorIconProps = {
   type: string;
   available?: boolean;
   size?: number;
   showLabel?: boolean;
 };
 
-export function ConnectorIcon({
+export default function AppConnectorIcon({
   type,
   available = true,
   size = 40,
   showLabel,
-}: ConnectorIconProps) {
+}: AppConnectorIconProps) {
   const t = useTheme();
   const known = toConnectorType(type);
   const Glyph = known ? GLYPHS[known] : Type2Glyph;
@@ -50,9 +48,9 @@ export function ConnectorIcon({
     >
       <Glyph color={color} holeColor={t.colors.surface} size={size} />
       {showLabel ? (
-        <Text variant="caption" tone="secondary">
+        <AppText variant="caption" tone="secondary">
           {known ?? type}
-        </Text>
+        </AppText>
       ) : null}
     </View>
   );

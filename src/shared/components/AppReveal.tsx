@@ -4,13 +4,13 @@ import Animated, { Easing, FadeInDown } from 'react-native-reanimated';
 
 import { motion } from '@/shared/theme';
 
-export type RevealProps = {
+export type AppRevealProps = {
   children: ReactNode;
   index?: number;
   style?: StyleProp<ViewStyle>;
 };
 
-export function Reveal({ children, index = 0, style }: RevealProps) {
+export default function AppReveal({ children, index = 0, style }: AppRevealProps) {
   return (
     <Animated.View
       style={style}

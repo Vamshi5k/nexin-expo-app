@@ -19,7 +19,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { useTheme, withAlpha } from '@/shared/theme';
-import { Text } from '@/shared/components';
+import { AppText } from '@/shared/components';
 
 import { otpCells, sanitizeOtp } from '../session';
 
@@ -153,9 +153,9 @@ function Cell({ digit, active, error }: { digit?: string; active: boolean; error
     >
       {filled ? (
         <Animated.View key={digit} entering={ZoomIn.springify().damping(14).stiffness(260)}>
-          <Text variant="title2" tabular>
+          <AppText variant="title2" tabular>
             {digit}
-          </Text>
+          </AppText>
         </Animated.View>
       ) : active ? (
         <Animated.View style={[styles.caret, { backgroundColor: c.accent }, caret]} />

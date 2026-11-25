@@ -2,7 +2,7 @@ import { Check } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
 
 import { useTheme } from '@/shared/theme';
-import { Pressable, Skeleton, Text } from '@/shared/components';
+import { AppPressable, AppSkeleton, AppText } from '@/shared/components';
 
 export type Option = {
   key: string;
@@ -25,7 +25,7 @@ export function OptionGrid({
   return (
     <View style={[styles.grid, { gap: t.space[3] }]} accessibilityRole="radiogroup">
       {options.map(o => (
-        <Pressable
+        <AppPressable
           key={o.key}
           onPress={() => onSelect(o.key)}
           haptic="selection"
@@ -55,19 +55,19 @@ export function OptionGrid({
                 },
               ]}
             >
-              <Text variant="headline" style={{ color: o.selected ? c.onAccent : c.accentText }}>
+              <AppText variant="headline" style={{ color: o.selected ? c.onAccent : c.accentText }}>
                 {o.label.trim().charAt(0).toUpperCase()}
-              </Text>
+              </AppText>
             </View>
           ) : null}
           <View style={{ gap: 2 }}>
-            <Text variant="headline" numberOfLines={2} style={styles.label}>
+            <AppText variant="headline" numberOfLines={2} style={styles.label}>
               {o.label}
-            </Text>
+            </AppText>
             {o.subtitle ? (
-              <Text variant="caption" tone="secondary" numberOfLines={1}>
+              <AppText variant="caption" tone="secondary" numberOfLines={1}>
                 {o.subtitle}
-              </Text>
+              </AppText>
             ) : null}
           </View>
           {o.selected ? (
@@ -85,7 +85,7 @@ export function OptionGrid({
               <Check color={c.onAccent} size={12} strokeWidth={3} />
             </View>
           ) : null}
-        </Pressable>
+        </AppPressable>
       ))}
     </View>
   );
@@ -97,7 +97,7 @@ export function OptionGridSkeleton() {
     <View style={[styles.grid, { gap: t.space[3] }]} accessibilityLabel="Loading">
       {Array.from({ length: 6 }, (_, i) => (
         <View key={i} style={styles.cell}>
-          <Skeleton height={104} radius={t.radius.card} />
+          <AppSkeleton height={104} radius={t.radius.card} />
         </View>
       ))}
     </View>

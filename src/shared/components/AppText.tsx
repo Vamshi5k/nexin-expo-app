@@ -25,14 +25,14 @@ const TONE: Record<TextTone, keyof Palette> = {
   onDanger: 'onDanger',
 };
 
-export type TextProps = RNTextProps & {
+export type AppTextProps = RNTextProps & {
   variant?: TypeVariant;
   tone?: TextTone;
   tabular?: boolean;
   align?: TextStyle['textAlign'];
 };
 
-export function Text({
+export default function AppText({
   variant = 'body',
   tone = 'primary',
   tabular,
@@ -40,7 +40,7 @@ export function Text({
   style,
   maxFontSizeMultiplier,
   ...rest
-}: TextProps) {
+}: AppTextProps) {
   const t = useTheme();
   return (
     <RNText

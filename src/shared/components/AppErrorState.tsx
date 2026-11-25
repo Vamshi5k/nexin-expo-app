@@ -1,8 +1,8 @@
 import { CircleAlert, WifiOff } from 'lucide-react-native';
 
-import { EmptyState } from './EmptyState';
+import AppEmptyState from './AppEmptyState';
 
-export type ErrorStateProps = {
+export type AppErrorStateProps = {
   message: string;
   title?: string;
   onRetry?: () => void;
@@ -10,15 +10,15 @@ export type ErrorStateProps = {
   offline?: boolean;
 };
 
-export function ErrorState({
+export default function AppErrorState({
   message,
   title = 'Something went wrong',
   onRetry,
   retryLabel = 'Retry',
   offline,
-}: ErrorStateProps) {
+}: AppErrorStateProps) {
   return (
-    <EmptyState
+    <AppEmptyState
       icon={offline ? WifiOff : CircleAlert}
       title={title}
       description={message}

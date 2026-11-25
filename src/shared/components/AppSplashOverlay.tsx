@@ -27,7 +27,7 @@ function splashSize() {
 
 // Pixel-matches the native splash, then docks the logo into the auth top bar's logo slot
 // while the backdrop fades, so the first screen appears to grow out of the splash.
-export function SplashOverlay({ ready }: { ready: boolean }) {
+export default function AppSplashOverlay({ ready }: { ready: boolean }) {
   const t = useTheme();
   const device = useColorScheme();
   const insets = useSafeAreaInsets();

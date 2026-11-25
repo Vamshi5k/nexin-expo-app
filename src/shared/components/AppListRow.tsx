@@ -1,74 +1,17 @@
 import type { LucideIcon } from 'lucide-react-native';
 import { ChevronRight } from 'lucide-react-native';
-import { Children, Fragment, isValidElement, type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { View } from 'react-native';
 
 import { useTheme } from '@/shared/theme';
 
 import type { HapticKind } from '@/shared/utils/haptics';
-import { Pressable } from './Pressable';
-import { Text } from './Text';
+import AppPressable from './AppPressable';
+import AppText from './AppText';
 
-export type ListGroupProps = {
-  title?: string;
-  footer?: string;
-  children: ReactNode;
-};
+export const LIST_ICON_BOX = 32;
 
-const ICON_BOX = 32;
-
-export function ListGroup({ title, footer, children }: ListGroupProps) {
-  const t = useTheme();
-  const rows = Children.toArray(children).filter(isValidElement);
-  const hasIcons = rows.some(r => (r.props as Partial<ListRowProps>).icon != null);
-  const inset = t.space[4] + (hasIcons ? ICON_BOX + t.space[3] : 0);
-
-  return (
-    <View style={{ gap: t.space[2] }}>
-      {title ? (
-        <Text
-          variant="subhead"
-          tone="secondary"
-          accessibilityRole="header"
-          style={{ paddingHorizontal: t.space[1] }}
-        >
-          {title}
-        </Text>
-      ) : null}
-      <View
-        style={{
-          backgroundColor: t.colors.surface,
-          borderRadius: t.radius.card,
-          borderWidth: t.layout.hairline,
-          borderColor: t.colors.border,
-          overflow: 'hidden',
-        }}
-      >
-        {rows.map((row, i) => (
-          <Fragment key={row.key ?? i}>
-            {i > 0 ? (
-              <View
-                style={{
-                  height: t.layout.hairline,
-                  marginLeft: inset,
-                  backgroundColor: t.colors.border,
-                }}
-              />
-            ) : null}
-            {row}
-          </Fragment>
-        ))}
-      </View>
-      {footer ? (
-        <Text variant="caption" tone="tertiary" style={{ paddingHorizontal: t.space[1] }}>
-          {footer}
-        </Text>
-      ) : null}
-    </View>
-  );
-}
-
-export type ListRowProps = {
+export type AppListRowProps = {
   title: string;
   subtitle?: string;
   icon?: LucideIcon;
@@ -82,7 +25,7 @@ export type ListRowProps = {
   accessibilityHint?: string;
 };
 
-export function ListRow({
+export default function AppListRow({
   title,
   subtitle,
   icon: Icon,
@@ -94,7 +37,7 @@ export function ListRow({
   onPress,
   haptic = 'selection',
   accessibilityHint,
-}: ListRowProps) {
+}: AppListRowProps) {
   const t = useTheme();
   const c = t.colors;
   const tone = destructive ? 'danger' : iconTone;
@@ -119,8 +62,8 @@ export function ListRow({
       {Icon ? (
         <View
           style={{
-            width: ICON_BOX,
-            height: ICON_BOX,
+            width: LIST_ICON_BOX,
+            height: LIST_ICON_BOX,
             borderRadius: t.radius.pill,
             backgroundColor: iconColors.bg,
             alignItems: 'center',
@@ -131,20 +74,20 @@ export function ListRow({
         </View>
       ) : null}
       <View style={{ flex: 1, gap: 2 }}>
-        <Text variant="body" tone={destructive ? 'danger' : 'primary'} numberOfLines={1}>
+        <AppText variant="body" tone={destructive ? 'danger' : 'primary'} numberOfLines={1}>
           {title}
-        </Text>
+        </AppText>
         {subtitle ? (
-          <Text variant="subhead" tone="secondary" numberOfLines={2}>
+          <AppText variant="subhead" tone="secondary" numberOfLines={2}>
             {subtitle}
-          </Text>
+          </AppText>
         ) : null}
       </View>
       {trailing ??
         (value ? (
-          <Text variant="callout" tone="secondary" tabular numberOfLines={1}>
+          <AppText variant="callout" tone="secondary" tabular numberOfLines={1}>
             {value}
-          </Text>
+          </AppText>
         ) : null)}
       {showChevron ? <ChevronRight color={c.textTertiary} size={20} strokeWidth={1.75} /> : null}
     </View>
@@ -152,7 +95,7 @@ export function ListRow({
 
   if (!onPress) return content;
   return (
-    <Pressable
+    <AppPressable
       onPress={onPress}
       haptic={haptic}
       feedback="opacity"
@@ -160,6 +103,6 @@ export function ListRow({
       accessibilityHint={accessibilityHint}
     >
       {content}
-    </Pressable>
+    </AppPressable>
   );
 }
