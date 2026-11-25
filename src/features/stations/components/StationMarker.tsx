@@ -4,8 +4,6 @@ import { StyleSheet, View } from 'react-native';
 import { Zap } from 'lucide-react-native';
 import { Marker } from 'react-native-maps';
 
-import { AppText } from '@/shared/components';
-
 import { useTheme, withAlpha } from '@/shared/theme';
 
 import { MARKER_TRACK_MS } from '../constants/stations.constants';
@@ -18,9 +16,10 @@ type StationMarkerProps = {
   onPress: (pin: StationPin) => void;
 };
 
-const HALO_ALPHA = 0.22;
+const HALO_ALPHA = 0.25;
 
-// Resting: a status-coloured dot in a soft halo. Selected: it opens into a pill with the name.
+// Resting: a small status dot in a faint halo, so a busy map stays readable. Selected: a compact
+// round pin with a bolt and a pointer; the station name is already on the card below.
 const StationMarker = ({ pin, selected, onPress }: StationMarkerProps) => {
   const t = useTheme();
   const key = pinColorKey(pin.status);
@@ -37,8 +36,9 @@ const StationMarker = ({ pin, selected, onPress }: StationMarkerProps) => {
   }, [look]);
 
   const ring = t.space[1] / 2;
-  const halo = t.space[8] + t.space[1];
-  const dot = t.space[6];
+  const halo = t.space[6];
+  const dot = t.space[4];
+  const head = t.space[6] + t.space[1];
 
   return (
     <Marker
@@ -53,12 +53,10 @@ const StationMarker = ({ pin, selected, onPress }: StationMarkerProps) => {
         <View style={styles.center}>
           <View
             style={[
-              styles.pill,
+              styles.center,
               {
-                gap: t.space[1],
-                height: t.space[8],
-                maxWidth: t.space[12] * 4,
-                paddingHorizontal: t.space[3],
+                width: head,
+                height: head,
                 borderRadius: t.radius.pill,
                 borderWidth: ring,
                 borderColor: t.colors.surface,
@@ -67,18 +65,15 @@ const StationMarker = ({ pin, selected, onPress }: StationMarkerProps) => {
             ]}
           >
             <Zap color={ink} fill={ink} size={t.space[3]} strokeWidth={t.icon.stroke} />
-            <AppText variant="caption" numberOfLines={1} style={[styles.shrink, { color: ink }]}>
-              {pin.name}
-            </AppText>
           </View>
           <View
             style={[
               styles.tail,
               {
                 marginTop: -ring,
-                borderLeftWidth: t.space[1] + ring,
-                borderRightWidth: t.space[1] + ring,
-                borderTopWidth: t.space[2],
+                borderLeftWidth: t.space[1],
+                borderRightWidth: t.space[1],
+                borderTopWidth: t.space[1] + ring,
                 borderTopColor: fill,
               },
             ]}
@@ -97,20 +92,15 @@ const StationMarker = ({ pin, selected, onPress }: StationMarkerProps) => {
           ]}
         >
           <View
-            style={[
-              styles.center,
-              {
-                width: dot,
-                height: dot,
-                borderRadius: t.radius.pill,
-                borderWidth: ring,
-                borderColor: t.colors.surface,
-                backgroundColor: fill,
-              },
-            ]}
-          >
-            <Zap color={ink} fill={ink} size={t.space[3]} strokeWidth={t.icon.stroke} />
-          </View>
+            style={{
+              width: dot,
+              height: dot,
+              borderRadius: t.radius.pill,
+              borderWidth: ring,
+              borderColor: t.colors.surface,
+              backgroundColor: fill,
+            }}
+          />
         </View>
       )}
     </Marker>
@@ -123,13 +113,6 @@ const styles = StyleSheet.create({
   center: {
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  pill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  shrink: {
-    flexShrink: 1,
   },
   tail: {
     width: 0,

@@ -84,9 +84,9 @@ the driver find, start, watch or pay for a charge.
   Unavailable red, Under maintenance yellow, Upcoming amber, unknown grey. The same colour is
   used by the status badge on the card (`AppStatusChip` with `connector`) and by the map pin,
   and a pin in the nearby list takes the card's status so the two always match.
-- Map pins: resting, a status-coloured dot with a surface ring inside a soft halo of the same
-  colour; selected, it opens into a status-coloured pill with the station name and a pointer.
-  Icon and text on the fill use `onConnector`, picked by contrast.
+- Map pins are small so a busy map stays readable: resting, a 16 pt status-coloured dot with a
+  surface ring in a faint 24 pt halo; selected, a 28 pt round status pin with a bolt and a small
+  pointer (the name is on the card). Ink on the fill uses `onConnector`, picked by contrast.
 - Nearby station cards on the map: one surface with a soft vertical gradient of the station's
   status colour fading to white (`CardGradient`, an exception to the no-gradient rule chosen
   for this card), dark text, a white status pill and a "⚡ 60 kW" pill, the name (up to two
