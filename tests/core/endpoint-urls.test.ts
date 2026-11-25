@@ -6,6 +6,7 @@ import { authApi } from '@/features/auth/api/auth.api';
 import { clientConfigApi } from '@/features/client-config/api/clientConfig.api';
 import { fleetApi } from '@/features/fleet/api/fleet.api';
 import { setupApi } from '@/features/setup/api/setup.api';
+import { stationsApi } from '@/features/stations/api/stations.api';
 import { vehiclesApi } from '@/features/vehicles/api/vehicles.api';
 
 // Paths are written out by hand from the old app (src/api/endpoints.ts and its call sites),
@@ -164,6 +165,31 @@ describe('api functions call the same paths as the old app', () => {
       method: 'POST',
       url: '/vehicle',
       data: { modelId: 42, regNo: 'TS09AB1234', capacityId: 3, vinNumber: 'AB12', maxAmount: 500 },
+    });
+  });
+});
+
+describe('stationsApi calls the same paths as the old app', () => {
+  const noFilters = { minPowerKw: null, access: 'any' as const, connectorTypes: [] };
+
+  it('getLocations -> GET /station/locations with only the filters that are set', async () => {
+    await stationsApi.getLocations({ minPowerKw: 50, access: 'public', connectorTypes: ['CCS2'] });
+    expect(lastCall()).toMatchObject({
+      method: 'GET',
+      url: '/station/locations',
+      params: { min_power_output: 50, stationType: 'Public', connectorTypes: 'CCS2' },
+    });
+
+    await stationsApi.getLocations(noFilters);
+    expect(lastCall().params).toEqual({});
+  });
+
+  it('getNearby -> GET /station?latitude&longitude&limit&page=1', async () => {
+    await stationsApi.getNearby({ latitude: 12.9, longitude: 77.6 }, noFilters, 5);
+    expect(lastCall()).toMatchObject({
+      method: 'GET',
+      url: '/station',
+      params: { latitude: 12.9, longitude: 77.6, limit: 5, page: 1 },
     });
   });
 });
