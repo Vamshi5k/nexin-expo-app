@@ -1,10 +1,7 @@
 import { Camera } from 'expo-camera';
 import * as Location from 'expo-location';
 import * as Notifications from 'expo-notifications';
-import { Linking } from 'react-native';
 import { create } from 'zustand';
-
-import { Dialog } from '@/ui';
 
 export type PermissionKind = 'location' | 'camera' | 'notifications';
 export type PermissionResult = 'granted' | 'denied' | 'blocked';
@@ -89,23 +86,3 @@ export const PERMISSION_COPY: Record<PermissionKind, { title: string; message: s
     message: 'Please enable notifications in settings to receive important updates.',
   },
 };
-
-export function PermissionBlockedDialog() {
-  const kind = usePermissionBlocked((s) => s.kind);
-  const close = usePermissionBlocked((s) => s.close);
-  const copy = kind ? PERMISSION_COPY[kind] : null;
-  return (
-    <Dialog
-      open={!!copy}
-      title={copy?.title ?? ''}
-      message={copy?.message}
-      confirmLabel="Open Settings"
-      cancelLabel="Cancel"
-      onConfirm={() => {
-        close(true);
-        void Linking.openSettings();
-      }}
-      onCancel={() => close(false)}
-    />
-  );
-}

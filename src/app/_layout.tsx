@@ -8,14 +8,12 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { log } from '@/core/log';
-import { OfflineBanner } from '@/core/network';
-import { PermissionBlockedDialog } from '@/core/permissions';
 import { AuthProvider, BootErrorScreen, useBoot } from '@/features/auth';
 import { ClientConfigProvider } from '@/features/client-config';
 import { FleetProvider } from '@/features/fleet';
 import { ThemeProvider, useTheme } from '@/theme';
 import { useBrandFonts } from '@/theme/fonts';
-import { AppToaster, SplashOverlay } from '@/ui';
+import { AppToaster, OfflineBanner, PermissionDialog, SplashOverlay } from '@/ui';
 
 void SplashScreen.preventAutoHideAsync();
 
@@ -68,7 +66,7 @@ function AppShell() {
         />
       )}
       <OfflineBanner />
-      <PermissionBlockedDialog />
+      <PermissionDialog />
       <AppToaster />
       <SplashOverlay ready={!loading} />
     </>
