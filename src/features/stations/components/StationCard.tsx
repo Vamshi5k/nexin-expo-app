@@ -1,7 +1,6 @@
-import type { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import { MapPin, Zap } from 'lucide-react-native';
+import { Zap } from 'lucide-react-native';
 
 import { AppConnectorIcon, AppPressable, AppText } from '@/shared/components';
 
@@ -21,13 +20,27 @@ type StationCardProps = {
   onPress: (stationId: string) => void;
 };
 
-type ChipProps = { background: string; children: ReactNode };
+type MeterProps = { free: number; total: number; freeColor: string; busyColor: string };
 
-export const STATION_CARD_HEIGHT = 116;
+export const STATION_CARD_HEIGHT = 120;
+const MAX_METER_BARS = 6;
 
-const Chip = ({ background, children }: ChipProps) => (
-  <View style={[styles.chip, { backgroundColor: background }]}>{children}</View>
-);
+// One bar per connector, free ones filled: availability at a glance.
+const Meter = ({ free, total, freeColor, busyColor }: MeterProps) => {
+  const bars = Math.min(total, MAX_METER_BARS);
+  const filled = Math.round((Math.min(free, total) / total) * bars);
+
+  return (
+    <View style={styles.meter}>
+      {Array.from({ length: bars }, (_, index) => (
+        <View
+          key={index}
+          style={[styles.bar, { backgroundColor: index < filled ? freeColor : busyColor }]}
+        />
+      ))}
+    </View>
+  );
+};
 
 const distanceLabel = (km: number | null) => {
   if (km === null) return null;
@@ -35,27 +48,24 @@ const distanceLabel = (km: number | null) => {
   return `${formatDistance(km)} · ${formatEta(km)}`;
 };
 
-// "2/4 free" reads faster than "2 Available" when both counts are known.
-const freeLabel = (station: NearbyStation, availability: Availability) => {
-  const { availableConnectors: free, totalConnectors: total } = station;
-  if (availability.tone !== 'success' || free === null || total === null) return availability.label;
-  return `${Math.min(free, total)}/${total} ${CARD_COPY.free}`;
-};
-
 const StationCard = ({ station, selected, width, onPress }: StationCardProps) => {
   const t = useTheme();
   const availability = availabilityOf(station);
+  const { availableConnectors: free, totalConnectors: total } = station;
 
-  const tones: Record<Availability['tone'], { bg: string; dot: string; fg: string }> = {
-    success: { bg: t.colors.successSoft, dot: t.colors.success, fg: t.colors.successText },
-    warning: { bg: t.colors.warningSoft, dot: t.colors.warning, fg: t.colors.warningText },
-    danger: { bg: t.colors.dangerSoft, dot: t.colors.danger, fg: t.colors.dangerText },
-    neutral: { bg: t.colors.surfaceSunken, dot: t.colors.textTertiary, fg: t.colors.textSecondary },
+  const toneColor: Record<Availability['tone'], string> = {
+    success: t.colors.successText,
+    warning: t.colors.warningText,
+    danger: t.colors.dangerText,
+    neutral: t.colors.textSecondary,
   };
-  const tone = tones[availability.tone];
 
-  const distance = distanceLabel(station.distanceKm);
-  const where = [distance, station.address].filter(Boolean).join(' · ');
+  const showMeter = availability.tone === 'success' && free !== null && total !== null && total > 0;
+  const statusLabel = showMeter
+    ? `${Math.min(free, total)} of ${total} ${CARD_COPY.free}`
+    : availability.label;
+
+  const where = [distanceLabel(station.distanceKm), station.address].filter(Boolean).join(' · ');
   const [firstConnector, ...otherConnectors] = station.connectorTypes;
 
   return (
@@ -70,27 +80,25 @@ const StationCard = ({ station, selected, width, onPress }: StationCardProps) =>
           borderRadius: t.radius.card,
           backgroundColor: t.colors.surfaceRaised,
           borderColor: selected ? t.colors.accent : t.colors.border,
+          borderWidth: selected ? 1.5 : t.layout.hairline,
         },
       ]}
     >
-      <View style={[styles.row, { gap: t.space[3] }]}>
+      <View style={[styles.row, styles.top, { gap: t.space[3] }]}>
         <View style={styles.grow}>
           <AppText variant="headline" numberOfLines={1}>
             {station.name}
           </AppText>
           {where ? (
-            <View style={[styles.row, { gap: t.space[1] }]}>
-              <MapPin color={t.colors.textTertiary} size={13} strokeWidth={1.75} />
-              <AppText variant="caption" tone="secondary" numberOfLines={1} style={styles.grow}>
-                {where}
-              </AppText>
-            </View>
+            <AppText variant="caption" tone="tertiary" numberOfLines={1} tabular>
+              {where}
+            </AppText>
           ) : null}
         </View>
 
         {station.pricePerKwhPaise !== null ? (
           <View style={styles.price}>
-            <AppText variant="headline" tabular>
+            <AppText variant="title2" tabular>
               {formatPaise(station.pricePerKwhPaise)}
             </AppText>
             <AppText variant="caption" tone="tertiary">
@@ -100,32 +108,45 @@ const StationCard = ({ station, selected, width, onPress }: StationCardProps) =>
         ) : null}
       </View>
 
-      <View style={[styles.row, { gap: t.space[2] }]}>
-        <Chip background={tone.bg}>
-          <View style={[styles.dot, { backgroundColor: tone.dot }]} />
-          <AppText variant="caption" numberOfLines={1} style={{ color: tone.fg }}>
-            {freeLabel(station, availability)}
+      <View style={[styles.row, { gap: t.space[4] }]}>
+        <View style={[styles.row, styles.grow, { gap: t.space[2] }]}>
+          {showMeter ? (
+            <Meter
+              free={free}
+              total={total}
+              freeColor={t.colors.success}
+              busyColor={t.colors.surfaceSunken}
+            />
+          ) : (
+            <View style={[styles.dot, { backgroundColor: toneColor[availability.tone] }]} />
+          )}
+          <AppText
+            variant="caption"
+            numberOfLines={1}
+            style={{ color: toneColor[availability.tone] }}
+          >
+            {statusLabel}
           </AppText>
-        </Chip>
+        </View>
 
         {station.maxPowerKw !== null ? (
-          <Chip background={t.colors.surfaceSunken}>
-            <Zap color={t.colors.accentText} size={12} strokeWidth={2} />
-            <AppText variant="caption" tabular>
+          <View style={[styles.row, { gap: 3 }]}>
+            <Zap color={t.colors.accentText} size={13} strokeWidth={2} />
+            <AppText variant="caption" tone="secondary" tabular>
               {station.maxPowerKw} kW
             </AppText>
-          </Chip>
+          </View>
         ) : null}
 
         {firstConnector ? (
-          <Chip background={t.colors.surfaceSunken}>
-            <AppConnectorIcon type={firstConnector} size={14} />
-            <AppText variant="caption" numberOfLines={1}>
+          <View style={[styles.row, { gap: 4 }]}>
+            <AppConnectorIcon type={firstConnector} size={15} />
+            <AppText variant="caption" tone="secondary" numberOfLines={1}>
               {otherConnectors.length
                 ? `${firstConnector} +${otherConnectors.length}`
                 : firstConnector}
             </AppText>
-          </Chip>
+          </View>
         ) : null}
       </View>
     </AppPressable>
@@ -138,13 +159,15 @@ const styles = StyleSheet.create({
   card: {
     height: STATION_CARD_HEIGHT,
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    borderWidth: 1,
+    paddingHorizontal: 18,
+    paddingVertical: 16,
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  top: {
+    alignItems: 'flex-start',
   },
   grow: {
     flex: 1,
@@ -152,20 +175,19 @@ const styles = StyleSheet.create({
   },
   price: {
     alignItems: 'flex-end',
-    alignSelf: 'flex-start',
   },
-  chip: {
-    height: 26,
+  meter: {
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-    paddingHorizontal: 10,
-    borderRadius: 13,
-    flexShrink: 1,
+    gap: 3,
   },
-  dot: {
-    width: 6,
+  bar: {
+    width: 12,
     height: 6,
     borderRadius: 3,
+  },
+  dot: {
+    width: 7,
+    height: 7,
+    borderRadius: 4,
   },
 });
