@@ -55,6 +55,7 @@ export const MAP_COPY = {
 
 export const CARD_COPY = {
   price: '/kWh',
+  free: 'free',
 } as const;
 
 export const FILTERS_COPY = {

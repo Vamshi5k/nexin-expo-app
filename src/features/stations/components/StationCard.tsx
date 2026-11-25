@@ -1,8 +1,9 @@
+import type { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import { Zap } from 'lucide-react-native';
+import { MapPin, Zap } from 'lucide-react-native';
 
-import { AppPressable, AppText } from '@/shared/components';
+import { AppConnectorIcon, AppPressable, AppText } from '@/shared/components';
 
 import { useTheme } from '@/shared/theme';
 
@@ -20,7 +21,13 @@ type StationCardProps = {
   onPress: (stationId: string) => void;
 };
 
-export const STATION_CARD_HEIGHT = 84;
+type ChipProps = { background: string; children: ReactNode };
+
+export const STATION_CARD_HEIGHT = 116;
+
+const Chip = ({ background, children }: ChipProps) => (
+  <View style={[styles.chip, { backgroundColor: background }]}>{children}</View>
+);
 
 const distanceLabel = (km: number | null) => {
   if (km === null) return null;
@@ -28,24 +35,28 @@ const distanceLabel = (km: number | null) => {
   return `${formatDistance(km)} · ${formatEta(km)}`;
 };
 
+// "2/4 free" reads faster than "2 Available" when both counts are known.
+const freeLabel = (station: NearbyStation, availability: Availability) => {
+  const { availableConnectors: free, totalConnectors: total } = station;
+  if (availability.tone !== 'success' || free === null || total === null) return availability.label;
+  return `${Math.min(free, total)}/${total} ${CARD_COPY.free}`;
+};
+
 const StationCard = ({ station, selected, width, onPress }: StationCardProps) => {
   const t = useTheme();
   const availability = availabilityOf(station);
 
-  const dotColor: Record<Availability['tone'], string> = {
-    success: t.colors.success,
-    warning: t.colors.warning,
-    danger: t.colors.danger,
-    neutral: t.colors.textTertiary,
+  const tones: Record<Availability['tone'], { bg: string; dot: string; fg: string }> = {
+    success: { bg: t.colors.successSoft, dot: t.colors.success, fg: t.colors.successText },
+    warning: { bg: t.colors.warningSoft, dot: t.colors.warning, fg: t.colors.warningText },
+    danger: { bg: t.colors.dangerSoft, dot: t.colors.danger, fg: t.colors.dangerText },
+    neutral: { bg: t.colors.surfaceSunken, dot: t.colors.textTertiary, fg: t.colors.textSecondary },
   };
+  const tone = tones[availability.tone];
 
-  const details = [
-    availability.label,
-    station.maxPowerKw !== null ? `${station.maxPowerKw} kW` : null,
-    distanceLabel(station.distanceKm),
-  ]
-    .filter(Boolean)
-    .join(' · ');
+  const distance = distanceLabel(station.distanceKm);
+  const where = [distance, station.address].filter(Boolean).join(' · ');
+  const [firstConnector, ...otherConnectors] = station.connectorTypes;
 
   return (
     <AppPressable
@@ -56,51 +67,67 @@ const StationCard = ({ station, selected, width, onPress }: StationCardProps) =>
         styles.card,
         {
           width,
-          gap: t.space[3],
           borderRadius: t.radius.card,
           backgroundColor: t.colors.surfaceRaised,
           borderColor: selected ? t.colors.accent : t.colors.border,
         },
       ]}
     >
-      <View
-        style={[
-          styles.tile,
-          {
-            borderRadius: t.radius.control,
-            backgroundColor: selected ? t.colors.accent : t.colors.accentSoft,
-          },
-        ]}
-      >
-        <Zap
-          color={selected ? t.colors.onAccent : t.colors.accentText}
-          size={20}
-          strokeWidth={1.75}
-        />
+      <View style={[styles.row, { gap: t.space[3] }]}>
+        <View style={styles.grow}>
+          <AppText variant="headline" numberOfLines={1}>
+            {station.name}
+          </AppText>
+          {where ? (
+            <View style={[styles.row, { gap: t.space[1] }]}>
+              <MapPin color={t.colors.textTertiary} size={13} strokeWidth={1.75} />
+              <AppText variant="caption" tone="secondary" numberOfLines={1} style={styles.grow}>
+                {where}
+              </AppText>
+            </View>
+          ) : null}
+        </View>
+
+        {station.pricePerKwhPaise !== null ? (
+          <View style={styles.price}>
+            <AppText variant="headline" tabular>
+              {formatPaise(station.pricePerKwhPaise)}
+            </AppText>
+            <AppText variant="caption" tone="tertiary">
+              {CARD_COPY.price}
+            </AppText>
+          </View>
+        ) : null}
       </View>
 
-      <View style={styles.body}>
-        <AppText variant="headline" numberOfLines={1}>
-          {station.name}
-        </AppText>
-        <View style={[styles.row, { gap: t.space[2] }]}>
-          <View style={[styles.dot, { backgroundColor: dotColor[availability.tone] }]} />
-          <AppText variant="caption" tone="secondary" numberOfLines={1} style={styles.body} tabular>
-            {details}
+      <View style={[styles.row, { gap: t.space[2] }]}>
+        <Chip background={tone.bg}>
+          <View style={[styles.dot, { backgroundColor: tone.dot }]} />
+          <AppText variant="caption" numberOfLines={1} style={{ color: tone.fg }}>
+            {freeLabel(station, availability)}
           </AppText>
-        </View>
-      </View>
+        </Chip>
 
-      {station.pricePerKwhPaise !== null ? (
-        <View style={styles.price}>
-          <AppText variant="headline" tabular>
-            {formatPaise(station.pricePerKwhPaise)}
-          </AppText>
-          <AppText variant="caption" tone="tertiary">
-            {CARD_COPY.price}
-          </AppText>
-        </View>
-      ) : null}
+        {station.maxPowerKw !== null ? (
+          <Chip background={t.colors.surfaceSunken}>
+            <Zap color={t.colors.accentText} size={12} strokeWidth={2} />
+            <AppText variant="caption" tabular>
+              {station.maxPowerKw} kW
+            </AppText>
+          </Chip>
+        ) : null}
+
+        {firstConnector ? (
+          <Chip background={t.colors.surfaceSunken}>
+            <AppConnectorIcon type={firstConnector} size={14} />
+            <AppText variant="caption" numberOfLines={1}>
+              {otherConnectors.length
+                ? `${firstConnector} +${otherConnectors.length}`
+                : firstConnector}
+            </AppText>
+          </Chip>
+        ) : null}
+      </View>
     </AppPressable>
   );
 };
@@ -110,31 +137,35 @@ export default StationCard;
 const styles = StyleSheet.create({
   card: {
     height: STATION_CARD_HEIGHT,
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 14,
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
     borderWidth: 1,
-  },
-  tile: {
-    width: 48,
-    height: 48,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  body: {
-    flex: 1,
-    gap: 2,
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  dot: {
-    width: 7,
-    height: 7,
-    borderRadius: 4,
+  grow: {
+    flex: 1,
+    gap: 3,
   },
   price: {
     alignItems: 'flex-end',
+    alignSelf: 'flex-start',
+  },
+  chip: {
+    height: 26,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    paddingHorizontal: 10,
+    borderRadius: 13,
+    flexShrink: 1,
+  },
+  dot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
   },
 });
