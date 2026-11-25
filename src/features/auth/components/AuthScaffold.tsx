@@ -1,8 +1,6 @@
 import type { ReactNode } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 
-import { router } from 'expo-router';
-import { ChevronLeft } from 'lucide-react-native';
 import Animated, {
   Easing,
   FadeInDown,
@@ -11,7 +9,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { AppContourBackground, AppPressable } from '@/shared/components';
+import { AppBackButton, AppContourBackground } from '@/shared/components';
 
 import { AppLogo } from '@/features/client-config';
 
@@ -44,7 +42,7 @@ const AuthScaffold = ({ hero, children, footer, back }: AuthScaffoldProps) => {
             { height: t.layout.topBarHeight, paddingHorizontal: t.layout.screenPadding },
           ]}
         >
-          {back ? <BackButton /> : <AppLogo height={t.layout.logoHeight} />}
+          {back ? <AppBackButton /> : <AppLogo height={t.layout.logoHeight} />}
         </View>
         <ScrollView
           style={styles.flex}
@@ -94,24 +92,6 @@ const AuthScaffold = ({ hero, children, footer, back }: AuthScaffoldProps) => {
   );
 };
 
-const BackButton = () => {
-  const t = useTheme();
-
-  return (
-    <AppPressable
-      onPress={() => router.back()}
-      haptic="selection"
-      accessibilityLabel="Go back"
-      style={[
-        styles.back,
-        { backgroundColor: t.colors.surfaceSunken, borderRadius: t.radius.pill },
-      ]}
-    >
-      <ChevronLeft color={t.colors.textPrimary} size={20} strokeWidth={1.75} />
-    </AppPressable>
-  );
-};
-
 export default AuthScaffold;
 
 const styles = StyleSheet.create({
@@ -120,5 +100,4 @@ const styles = StyleSheet.create({
   bar: { flexDirection: 'row', alignItems: 'center' },
   hero: { flex: 1, justifyContent: 'flex-end' },
   panel: { borderWidth: StyleSheet.hairlineWidth, borderBottomWidth: 0 },
-  back: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
 });

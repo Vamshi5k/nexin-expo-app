@@ -1,4 +1,5 @@
 export { default as AppAmbientBackground } from './AppAmbientBackground';
+export { default as AppBackButton, type AppBackButtonProps } from './AppBackButton';
 export { default as AppBadge, type AppBadgeProps } from './AppBadge';
 export { default as AppBrandLogo, type AppBrandLogoProps } from './AppBrandLogo';
 export {
