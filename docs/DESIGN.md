@@ -79,9 +79,12 @@ the driver find, start, watch or pay for a charge.
   solid surfaceRaised with a hairline borderStrong edge on Android. Still no shadows.
 - Map: full bleed under the status bar and the tab bar. One glass capsule at the top holds
   search and a filter button (accentSoft + count badge when filters are on). A glass
-  my-location circle sits above the cards. Nearby stations are elevated cards (sheet radius):
-  status chip and distance, title2 name and address, then a sunken strip of three tabular
-  stats (price, max power, connectors) and an accentSoft arrow tile.
+  my-location circle sits above the cards. Nearby station cards answer, in reading order:
+  can I charge now (status dot + "Busy · All 2 in use"), what it costs (rate per kWh as the
+  one large figure, top right), where (title2 name, then "59 km · address"), how fast (charge
+  cells, one per connector, then "CCS2 · 60 kW") and take me there (accent pill with the
+  drive time inside). Charge cells are the signature detail; colour appears only where it
+  means a state.
 - Tab bar: a floating glass capsule inset 16 from the screen edges, above the home indicator.
   Labels always visible; the active tab sits in an accentSoft pill with accentText icon and
   label. Scan is an accent circle with an onAccent icon in the middle of the capsule. Tab
