@@ -36,16 +36,26 @@ export const stationCardHeight = (t: Theme) =>
 type StatProps = { value: string; label: string };
 
 // One footer figure: the value people compare, with a quiet label under it.
-const Stat = ({ value, label }: StatProps) => (
-  <View style={styles.stat}>
-    <AppText variant="subhead" tabular numberOfLines={1}>
-      {value}
-    </AppText>
-    <AppText variant="caption" tone="tertiary" numberOfLines={1}>
-      {label}
-    </AppText>
-  </View>
-);
+const Stat = ({ value, label }: StatProps) => {
+  const t = useTheme();
+
+  return (
+    <View style={styles.stat}>
+      {/* Subhead size with the headline's semibold face: compact but still the figure to read. */}
+      <AppText
+        variant="subhead"
+        tabular
+        numberOfLines={1}
+        style={{ fontFamily: t.type.headline.fontFamily }}
+      >
+        {value}
+      </AppText>
+      <AppText variant="caption" tone="tertiary" numberOfLines={1}>
+        {label}
+      </AppText>
+    </View>
+  );
+};
 
 const footerStats = (station: NearbyStation): StatProps[] => {
   const km = station.distanceKm;
