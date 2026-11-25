@@ -4,7 +4,7 @@ import { MapPin, Navigation, Zap, type LucideIcon } from 'lucide-react-native';
 
 import { AppPressable, AppStatusChip, AppText } from '@/shared/components';
 
-import { useTheme, type Theme } from '@/shared/theme';
+import { useTheme, withAlpha, type Theme } from '@/shared/theme';
 
 import { brand } from '@/core/config';
 import { formatRate } from '@/shared/utils/money';
@@ -22,16 +22,16 @@ type StationCardProps = {
   onDirections: (station: NearbyStation) => void;
 };
 
-// Status chip and price row, name, context line, the gap and the action row: the skeleton and the
+// Tinted header (status chip and price, name, context line) and the action row: the skeleton and the
 // view-all tile use the same height.
 export const stationCardHeight = (t: Theme) =>
-  t.space[5] * 2 +
+  t.space[5] +
   t.space[6] +
   t.space[1] +
   Number(t.type.headline.lineHeight) +
   Number(t.type.caption.lineHeight) +
   t.space[1] * 2 +
-  t.space[4] +
+  t.space[4] * 3 +
   t.layout.minTouch;
 
 type FigureProps = { icon: LucideIcon; value: string };
@@ -57,6 +57,9 @@ const contextLine = (station: NearbyStation) => {
 };
 
 // The action carries the drive time, so "how far" and "take me there" are one tap.
+const HEADER_TINT_LIGHT = 0.1;
+const HEADER_TINT_DARK = 0.18;
+
 const goLabel = (km: number | null) => (km !== null && km <= MAX_ETA_KM ? formatEta(km) : null);
 
 const StationCard = ({ station, selected, width, onPress, onDirections }: StationCardProps) => {
@@ -67,23 +70,36 @@ const StationCard = ({ station, selected, width, onPress, onDirections }: Statio
   const power = station.maxPowerKw !== null ? `${station.maxPowerKw} kW` : null;
   const distance =
     station.distanceKm !== null ? formatDistance(station.distanceKm, brand.locale) : null;
+  // The header carries a light wash of the station's status colour, so the card reads at a glance.
+  const tint = withAlpha(
+    t.colors.connector[pinColorKey(station.status)],
+    t.scheme === 'light' ? HEADER_TINT_LIGHT : HEADER_TINT_DARK,
+  );
 
   return (
     <AppPressable
       onPress={() => onPress(station.id)}
       accessibilityRole="button"
       accessibilityLabel={`${station.name}, ${availability.label}`}
-      style={{
-        width,
-        gap: t.space[4],
-        padding: t.space[5],
-        borderRadius: t.radius.sheet,
-        borderWidth: t.layout.selectedBorder,
-        backgroundColor: t.colors.surfaceRaised,
-        borderColor: selected ? t.colors.accent : t.colors.border,
-      }}
+      style={[
+        styles.card,
+        {
+          width,
+          borderRadius: t.radius.sheet,
+          borderWidth: t.layout.selectedBorder,
+          backgroundColor: t.colors.surfaceRaised,
+          borderColor: selected ? t.colors.accent : t.colors.border,
+        },
+      ]}
     >
-      <View style={{ gap: t.space[1] }}>
+      <View
+        style={{
+          gap: t.space[1],
+          padding: t.space[5],
+          paddingBottom: t.space[4],
+          backgroundColor: tint,
+        }}
+      >
         <View style={[styles.row, { gap: t.space[3] }]}>
           <View style={styles.grow}>
             <AppStatusChip
@@ -111,7 +127,12 @@ const StationCard = ({ station, selected, width, onPress, onDirections }: Statio
         ) : null}
       </View>
 
-      <View style={[styles.row, { gap: t.space[3] }]}>
+      <View
+        style={[
+          styles.row,
+          { gap: t.space[3], paddingHorizontal: t.space[5], paddingVertical: t.space[4] },
+        ]}
+      >
         <View style={[styles.row, styles.grow, { gap: t.space[4] }]}>
           {power ? <Figure icon={Zap} value={power} /> : null}
           {distance ? <Figure icon={MapPin} value={distance} /> : null}
@@ -150,6 +171,9 @@ const StationCard = ({ station, selected, width, onPress, onDirections }: Statio
 export default StationCard;
 
 const styles = StyleSheet.create({
+  card: {
+    overflow: 'hidden',
+  },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
