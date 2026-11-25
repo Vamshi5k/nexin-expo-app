@@ -38,7 +38,7 @@ type StatProps = { value: string; label: string };
 // One footer figure: the value people compare, with a quiet label under it.
 const Stat = ({ value, label }: StatProps) => (
   <View style={styles.stat}>
-    <AppText variant="headline" tabular numberOfLines={1}>
+    <AppText variant="subhead" tabular numberOfLines={1}>
       {value}
     </AppText>
     <AppText variant="caption" tone="tertiary" numberOfLines={1}>
@@ -150,7 +150,7 @@ const StationCard = ({ station, width, onPress, onDirections }: StationCardProps
                   style={[
                     styles.divider,
                     {
-                      height: t.space[8],
+                      height: t.space[6],
                       marginHorizontal: t.space[3],
                       backgroundColor: t.colors.borderStrong,
                     },
