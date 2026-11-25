@@ -280,3 +280,33 @@ Not yet verified on a device against staging (needs a test number, see open ques
 
 **Open questions still open**: #9 Part B (staging cookie), #10 (test OTP / number), #11
 (`appName`), #12 (Cruze EV legal/support URLs). See `docs/OPEN_QUESTIONS.md`.
+
+## Refactor: reference code style (2026-11-25, branch refactor/code-style)
+
+Requested: adopt the Nexin EV (RN CLI) code style without its stack. Expo, expo-router,
+MMKV, sonner-native, apiError/useAction/useRequest, log.ts and the domain mappers stay.
+
+**Done**
+
+- AGENTS.md rewritten first so every later commit follows it.
+- Prettier `arrowParens: avoid`; ESLint `import/order` enforces the 7 import groups.
+- src/ui -> src/shared/components (App* kit, one default-exported component per file, barrel),
+  src/theme -> src/shared/theme, toast/haptics/keyboard -> src/shared/utils, new
+  src/shared/utils/money.ts and src/shared/assets/images.ts.
+- src/core/endpoints.ts holds every API path; REFRESH_PATH and FLEET_REFRESH_PATH removed.
+- Every feature uses api/, hooks/ (one hook per file), types/, constants/, utils/, screens/,
+  components/. API files export one object (`authApi`, `fleetApi`, ...) plus mappers.
+- auth/session.ts split into utils/contact.ts and utils/authFlow.ts; openLegal in utils/legal.ts.
+- HomeScreen logic moved to useHome; src/dev moved to features/dev.
+- Providers follow one pattern (undefined default, useMemo value, throwing useX).
+- Login, OTP resend, profile save and add-vehicle ignore a second tap while pending.
+
+**Deviations**
+
+- Import groups are 7, not 6: @/core and @/shared/utils are separated from relative imports
+  by ESLint's group rules.
+- Pure helpers in core, theme and utils may stay `function` declarations.
+- FleetHomeScreen stays in home (auth -> fleet require cycle).
+
+**Verified**: tsc, expo lint, jest (39 suites, 228 tests) after every commit; Android and iOS
+bundles build in Expo Go mode; Login renders on the iOS simulator.
