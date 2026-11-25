@@ -1,4 +1,4 @@
-# Design direction: modern, clean, professional (2026)
+# Design direction: modern, clean, professional (2027)
 
 ## Feel
 Calm and confident, like a good banking or mobility app. Content first, generous whitespace,
@@ -75,11 +75,17 @@ the driver find, start, watch or pay for a charge.
   during payment and charger start.
 - Empty and error states: simple line icon in an accentSoft circle, one-line title, one
   sentence, one centred action.
-- Floating map controls (search pill, filter, my-location) sit on a blurred translucent
-  surface (expo-blur, or the native glass effect where the SDK supports it), with a solid
-  fallback on Android if blur is slow.
-- Tab bar: labels always visible, raised circular Scan button in accent with onAccent icon,
-  hairline top border, translucent background.
+- Floating surfaces use `AppGlass`: native liquid glass on iOS 26+, expo-blur on older iOS,
+  solid surfaceRaised with a hairline borderStrong edge on Android. Still no shadows.
+- Map: full bleed under the status bar and the tab bar. One glass capsule at the top holds
+  search and a filter button (accentSoft + count badge when filters are on). A glass
+  my-location circle sits above the cards. Nearby stations are elevated cards (sheet radius):
+  status chip and distance, title2 name and address, then a sunken strip of three tabular
+  stats (price, max power, connectors) and an accentSoft arrow tile.
+- Tab bar: a floating glass capsule inset 16 from the screen edges, above the home indicator.
+  Labels always visible; the active tab sits in an accentSoft pill with accentText icon and
+  label. Scan is an accent circle with an onAccent icon in the middle of the capsule. Tab
+  screens pad their content by the tab bar height (`BottomTabBarHeightContext`).
 - Icons: lucide only, stroke 1.75, size 20 inline and 24 in navigation.
 - Status chips: soft tinted background + coloured dot + text label. Colour is never the
   only signal.

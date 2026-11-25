@@ -85,3 +85,6 @@ jest.mock('react-native-maps', () => {
 
   return { __esModule: true, default: MapView, Marker, PROVIDER_GOOGLE: 'google' };
 });
+
+// The native maps module and keys don't exist in Jest; the mock above stands in for the map.
+jest.mock('@/core/maps', () => ({ mapsSupport: 'ready' }));

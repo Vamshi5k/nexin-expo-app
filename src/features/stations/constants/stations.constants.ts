@@ -12,6 +12,9 @@ export const MY_LOCATION_ZOOM_DELTA = 0.01;
 
 export const ERROR_TOAST_COOLDOWN_MS = 3_000;
 
+// Past this a drive-time estimate stops meaning anything.
+export const MAX_ETA_KM = 300;
+
 export const POWER_OPTIONS_KW = [7, 22, 50, 120] as const;
 
 export const ACCESS_OPTIONS: { value: StationAccess; label: string }[] = [
@@ -44,6 +47,16 @@ export const MAP_COPY = {
   clearFilters: 'Clear filters',
   locationError: "Couldn't find your location. Please try again.",
   viewDetails: 'View details',
+  nearby: 'Nearby',
+  unavailableTitle: "Map isn't available in this build",
+  unavailableBuild: 'Install the latest app build to see stations on the map.',
+  unavailableKey: 'This build has no Google Maps key. Stations still show below.',
+} as const;
+
+export const CARD_COPY = {
+  price: 'per kWh',
+  power: 'Max power',
+  connectors: 'Connectors',
 } as const;
 
 export const FILTERS_COPY = {

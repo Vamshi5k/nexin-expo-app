@@ -409,6 +409,18 @@ device or simulator.
 - Tests: mappers, status, availability, filters, geo and clustering; station paths in
   `endpoint-urls`; a map flow test with react-native-maps mocked in `jest.setup.ts`.
 
+- Crash fix: an Android dev build made before react-native-maps was added crashed with
+  "RNMapsAirModule could not be found". `src/core/maps.ts` now checks the native module and,
+  on Android, the Google Maps key; the map component loads only when both are there, otherwise
+  a notice shows and the station cards still work. Fix for the device itself: rebuild the dev
+  build (`npx expo prebuild --clean` + `npx expo run:android`).
+- 2027 refresh: floating glass tab bar (`FloatingTabBar`, `AppGlass`), one glass capsule for
+  search + filters, glass my-location button, larger station cards with a stats strip, map
+  padded around the overlays, no shadows (DESIGN.md updated). The map centres on the user only
+  after `onMapReady`, and only a user swipe selects a card.
+- Checked on the iOS simulator (Apple Maps, liquid glass) and the Android emulator (no key, so
+  the notice shows).
+
 **Deviations**
 
 - Min power uses preset chips instead of a slider (OPEN_QUESTIONS #16).
@@ -417,8 +429,8 @@ device or simulator.
   button waits for the charging phase.
 - The my-location denial reuses the shared permission dialog instead of new copy.
 
-**Verified**: tsc, expo lint, jest (48 suites, 329 tests). Not run on a device yet: needs a
-dev build with `GOOGLE_MAPS_ANDROID_KEY`.
+**Verified**: tsc, expo lint, jest (49 suites, 330 tests); iOS simulator and Android emulator.
+The Android map itself still needs `GOOGLE_MAPS_ANDROID_KEY`.
 
 **Left**
 

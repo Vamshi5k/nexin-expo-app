@@ -1,7 +1,8 @@
-import type { ReactNode } from 'react';
+import { useContext, type ReactNode } from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
 
 import { BlurView } from 'expo-blur';
+import { BottomTabBarHeightContext } from 'expo-router/tabs';
 import Animated, {
   interpolate,
   useAnimatedScrollHandler,
@@ -33,6 +34,8 @@ const AppLargeTitleScroll = ({
 }: AppLargeTitleScrollProps) => {
   const t = useTheme();
   const insets = useSafeAreaInsets();
+  // The tab bar floats over the content, so leave room for it inside tab screens.
+  const tabBarHeight = useContext(BottomTabBarHeightContext) ?? 0;
   const y = useSharedValue(0);
   const onScroll = useAnimatedScrollHandler(e => {
     y.value = e.contentOffset.y;
@@ -71,7 +74,7 @@ const AppLargeTitleScroll = ({
         contentContainerStyle={{
           paddingTop: barHeight,
           paddingHorizontal: t.layout.screenPadding,
-          paddingBottom: Math.max(insets.bottom, t.space[4]) + t.space[8],
+          paddingBottom: Math.max(insets.bottom, tabBarHeight, t.space[4]) + t.space[8],
         }}
         scrollIndicatorInsets={{ top: HEADER_BAR_HEIGHT }}
       >

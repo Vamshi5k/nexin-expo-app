@@ -87,7 +87,7 @@ it('a signed-in user logs out from Profile and lands on Login (no redirect loop)
   expect(screen).toHavePathname('/home');
   expect(screen.getByTestId('station-map')).toBeTruthy();
 
-  await fireEvent.press(screen.getByLabelText('Profile, tab, 5 of 5'));
+  await fireEvent.press(screen.getByRole('tab', { name: 'Profile' }));
   await settle();
   await fireEvent.press(screen.getByText('Log out'));
   await fireEvent.press(screen.getByRole('button', { name: 'Yes, log out' }));

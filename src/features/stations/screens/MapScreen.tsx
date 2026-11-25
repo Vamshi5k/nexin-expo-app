@@ -1,64 +1,66 @@
-import { Platform, StyleSheet, View } from 'react-native';
+import { useContext, useState, type ComponentType } from 'react';
+import { StyleSheet, View } from 'react-native';
 
-import MapView, { PROVIDER_GOOGLE } from 'react-native-maps';
+import { BottomTabBarHeightContext } from 'expo-router/tabs';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { AppButton, AppCard, AppText } from '@/shared/components';
+import { AppButton, AppGlass, AppText } from '@/shared/components';
 
-import ClusterMarker from '../components/ClusterMarker';
 import FiltersSheet from '../components/FiltersSheet';
 import MapLocateButton from '../components/MapLocateButton';
-import MapTopBar from '../components/MapTopBar';
+import MapTopBar, { MAP_TOP_BAR_HEIGHT } from '../components/MapTopBar';
+import MapUnavailable from '../components/MapUnavailable';
 import NearbyCarousel from '../components/NearbyCarousel';
-import StationMarker from '../components/StationMarker';
+import type { StationMapProps } from '../components/StationMap';
 import StationPeekCard from '../components/StationPeekCard';
 
 import { useTheme } from '@/shared/theme';
 
-import { googleMapsOnIos, mapStyle } from '@/core/config';
+import { mapsSupport } from '@/core/maps';
 
 import { MAP_COPY } from '../constants/stations.constants';
 import { useMapScreen } from '../hooks/useMapScreen';
 
-const useGoogle = Platform.OS === 'android' || googleMapsOnIos;
+// Loaded only when the native module exists, so an old build shows a notice instead of crashing.
+const StationMap: ComponentType<StationMapProps> | null =
+  mapsSupport === 'ready'
+    ? // eslint-disable-next-line @typescript-eslint/no-require-imports
+      (require('../components/StationMap') as typeof import('../components/StationMap')).default
+    : null;
 
 const MapScreen = () => {
   const t = useTheme();
+  const insets = useSafeAreaInsets();
+  const tabBarHeight = useContext(BottomTabBarHeightContext) ?? insets.bottom;
+  const [overlayHeight, setOverlayHeight] = useState(0);
   const { mapRef, carouselRef, ...map } = useMapScreen();
 
+  const mapPadding = {
+    top: insets.top + MAP_TOP_BAR_HEIGHT + t.space[2],
+    right: 0,
+    bottom: tabBarHeight + overlayHeight,
+    left: 0,
+  };
+
   return (
-    <View style={[styles.screen, { backgroundColor: t.colors.bg }]}>
-      <MapView
-        ref={mapRef}
-        testID="station-map"
-        style={StyleSheet.absoluteFill}
-        provider={useGoogle ? PROVIDER_GOOGLE : undefined}
-        customMapStyle={useGoogle ? mapStyle : undefined}
-        initialRegion={map.initialRegion}
-        showsUserLocation={map.showUserDot}
-        showsMyLocationButton={false}
-        toolbarEnabled={false}
-        onRegionChangeComplete={map.onRegionChangeComplete}
-        onPress={map.onMapPress}
-      >
-        {map.mapItems.map(item =>
-          item.kind === 'cluster' ? (
-            <ClusterMarker
-              key={item.key}
-              clusterId={item.clusterId}
-              count={item.count}
-              coordinate={item.coordinate}
-              onPress={map.onClusterPress}
-            />
-          ) : (
-            <StationMarker
-              key={item.key}
-              pin={item.pin}
-              selected={item.pin.id === map.selectedId}
-              onPress={map.onPinPress}
-            />
-          ),
-        )}
-      </MapView>
+    <View style={[styles.screen, { backgroundColor: t.colors.surfaceSunken }]}>
+      {StationMap ? (
+        <StationMap
+          mapRef={mapRef}
+          initialRegion={map.initialRegion}
+          items={map.mapItems}
+          selectedId={map.selectedId}
+          showUserDot={map.showUserDot}
+          padding={mapPadding}
+          onMapReady={map.onMapReady}
+          onRegionChangeComplete={map.onRegionChangeComplete}
+          onMapPress={map.onMapPress}
+          onPinPress={map.onPinPress}
+          onClusterPress={map.onClusterPress}
+        />
+      ) : (
+        <MapUnavailable reason={mapsSupport === 'ready' ? 'needs-rebuild' : mapsSupport} />
+      )}
 
       <MapTopBar
         activeFilterCount={map.activeFilterCount}
@@ -68,19 +70,26 @@ const MapScreen = () => {
 
       <View
         pointerEvents="box-none"
-        style={[styles.bottom, { gap: t.space[3], paddingBottom: t.space[4] }]}
+        onLayout={event => setOverlayHeight(event.nativeEvent.layout.height)}
+        style={[
+          styles.bottom,
+          { bottom: tabBarHeight, gap: t.space[3], paddingBottom: t.space[3] },
+        ]}
       >
-        <View
-          pointerEvents="box-none"
-          style={[styles.fabs, { paddingHorizontal: t.layout.screenPadding }]}
-        >
+        <View pointerEvents="box-none" style={[styles.fabs, { paddingHorizontal: t.space[4] }]}>
           <MapLocateButton locating={map.locating} onPress={map.onLocate} />
         </View>
 
         {map.failed ? (
-          <View style={{ paddingHorizontal: t.layout.screenPadding }}>
-            <AppCard style={[styles.row, { gap: t.space[3] }]}>
-              <AppText variant="callout" style={styles.grow}>
+          <View style={{ paddingHorizontal: t.space[4] }}>
+            <AppGlass
+              radius={t.radius.card}
+              style={[
+                styles.row,
+                { gap: t.space[3], padding: t.space[3], paddingLeft: t.space[4] },
+              ]}
+            >
+              <AppText variant="subhead" style={styles.grow}>
                 {MAP_COPY.loadErrorShort}
               </AppText>
               <AppButton
@@ -89,7 +98,7 @@ const MapScreen = () => {
                 variant="secondary"
                 onPress={map.retry}
               />
-            </AppCard>
+            </AppGlass>
           </View>
         ) : null}
 
@@ -111,7 +120,7 @@ const MapScreen = () => {
             />
           </View>
           {map.peekPin ? (
-            <View style={[styles.peek, { paddingHorizontal: t.layout.screenPadding }]}>
+            <View style={[styles.peek, { paddingHorizontal: t.space[4] }]}>
               <StationPeekCard pin={map.peekPin} onPress={map.openStation} />
             </View>
           ) : null}
@@ -139,7 +148,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 0,
     right: 0,
-    bottom: 0,
   },
   fabs: {
     alignItems: 'flex-end',

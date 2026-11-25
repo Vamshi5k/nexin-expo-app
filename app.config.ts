@@ -155,7 +155,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     appEnv: APP_ENV,
     env,
     brand,
-    maps: { googleOnIos: Boolean(process.env.GOOGLE_MAPS_IOS_KEY) },
+    maps: {
+      googleOnIos: Boolean(process.env.GOOGLE_MAPS_IOS_KEY),
+      googleOnAndroid: Boolean(process.env.GOOGLE_MAPS_ANDROID_KEY),
+    },
     ...(brand.easProjectId ? { eas: { projectId: brand.easProjectId } } : {}),
   },
 });

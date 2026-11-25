@@ -13,6 +13,7 @@ export { default as AppContourBackground } from './AppContourBackground';
 export { default as AppDialog, type AppDialogProps } from './AppDialog';
 export { default as AppEmptyState, type AppEmptyStateProps } from './AppEmptyState';
 export { default as AppErrorState, type AppErrorStateProps } from './AppErrorState';
+export { default as AppGlass, type AppGlassProps } from './AppGlass';
 export { default as AppFormInput, type AppFormInputProps } from './AppFormInput';
 export { default as AppHeader, type AppHeaderProps } from './AppHeader';
 export { default as AppInput, type AppInputProps } from './AppInput';

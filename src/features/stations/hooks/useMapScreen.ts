@@ -52,6 +52,7 @@ export const useMapScreen = () => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [peekPin, setPeekPin] = useState<StationPin | null>(null);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [mapReady, setMapReady] = useState(false);
 
   const panTo = useCallback((point: Coordinates, delta?: number) => {
     const { latitudeDelta, longitudeDelta } = latestRegion.current;
@@ -61,11 +62,12 @@ export const useMapScreen = () => {
   }, []);
 
   // When location was already allowed, move to the user once without asking.
+  // Waits for the map: an animation sent before it is ready is dropped.
   useEffect(() => {
-    if (!location || centeredOnUser.current) return;
+    if (!mapReady || !location || centeredOnUser.current) return;
     centeredOnUser.current = true;
     panTo(location, MY_LOCATION_ZOOM_DELTA);
-  }, [location, panTo]);
+  }, [mapReady, location, panTo]);
 
   const onRegionChangeComplete = (region: MapRegion) => {
     latestRegion.current = region;
@@ -138,6 +140,7 @@ export const useMapScreen = () => {
     filters,
     filtersOpen,
     activeFilterCount: countActiveFilters(filters),
+    onMapReady: () => setMapReady(true),
     onRegionChangeComplete,
     onPinPress,
     onClusterPress,

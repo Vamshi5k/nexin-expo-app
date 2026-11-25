@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { Search, SlidersHorizontal } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { AppBadge, AppPressable, AppText } from '@/shared/components';
+import { AppBadge, AppGlass, AppPressable, AppText } from '@/shared/components';
 
 import { useTheme } from '@/shared/theme';
 
@@ -15,15 +15,11 @@ type MapTopBarProps = {
   onFilters: () => void;
 };
 
+export const MAP_TOP_BAR_HEIGHT = 56;
+
 const MapTopBar = ({ activeFilterCount, onSearch, onFilters }: MapTopBarProps) => {
   const t = useTheme();
   const insets = useSafeAreaInsets();
-
-  const floating = {
-    backgroundColor: t.colors.surface,
-    borderColor: t.colors.border,
-    shadowColor: t.colors.textPrimary,
-  };
 
   const filtersLabel = activeFilterCount
     ? `${MAP_COPY.filters}, ${activeFilterCount} active`
@@ -32,42 +28,49 @@ const MapTopBar = ({ activeFilterCount, onSearch, onFilters }: MapTopBarProps) =
   return (
     <View
       pointerEvents="box-none"
-      style={[
-        styles.bar,
-        {
-          top: insets.top + t.space[2],
-          paddingHorizontal: t.layout.screenPadding,
-          gap: t.space[2],
-        },
-      ]}
+      style={[styles.wrap, { top: insets.top + t.space[2], paddingHorizontal: t.space[4] }]}
     >
-      <AppPressable
-        onPress={onSearch}
-        accessibilityRole="search"
-        accessibilityLabel={MAP_COPY.searchPlaceholder}
-        style={[
-          styles.search,
-          floating,
-          { borderRadius: t.radius.control, gap: t.space[2], paddingHorizontal: t.space[4] },
-        ]}
-      >
-        <Search color={t.colors.accentText} size={20} />
-        <AppText tone="tertiary">{MAP_COPY.searchPlaceholder}</AppText>
-      </AppPressable>
+      <AppGlass radius={t.radius.pill} style={styles.capsule}>
+        <AppPressable
+          onPress={onSearch}
+          feedback="opacity"
+          accessibilityRole="search"
+          accessibilityLabel={MAP_COPY.searchPlaceholder}
+          style={[styles.search, { gap: t.space[3], paddingLeft: t.space[5] }]}
+        >
+          <Search color={t.colors.textSecondary} size={20} strokeWidth={1.75} />
+          <AppText variant="callout" tone="tertiary" numberOfLines={1}>
+            {MAP_COPY.searchPlaceholder}
+          </AppText>
+        </AppPressable>
 
-      <AppPressable
-        onPress={onFilters}
-        accessibilityRole="button"
-        accessibilityLabel={filtersLabel}
-        style={[styles.filter, floating, { borderRadius: t.radius.control }]}
-      >
-        <SlidersHorizontal color={t.colors.textPrimary} size={20} />
-        {activeFilterCount ? (
-          <View style={styles.badge}>
-            <AppBadge label={activeFilterCount} />
-          </View>
-        ) : null}
-      </AppPressable>
+        <View style={[styles.divider, { backgroundColor: t.colors.borderStrong }]} />
+
+        <AppPressable
+          onPress={onFilters}
+          haptic="light"
+          accessibilityRole="button"
+          accessibilityLabel={filtersLabel}
+          style={[
+            styles.filter,
+            {
+              borderRadius: t.radius.pill,
+              backgroundColor: activeFilterCount ? t.colors.accentSoft : 'transparent',
+            },
+          ]}
+        >
+          <SlidersHorizontal
+            color={activeFilterCount ? t.colors.accentText : t.colors.textPrimary}
+            size={20}
+            strokeWidth={1.75}
+          />
+          {activeFilterCount ? (
+            <View style={styles.badge}>
+              <AppBadge label={activeFilterCount} />
+            </View>
+          ) : null}
+        </AppPressable>
+      </AppGlass>
     </View>
   );
 };
@@ -75,37 +78,37 @@ const MapTopBar = ({ activeFilterCount, onSearch, onFilters }: MapTopBarProps) =
 export default MapTopBar;
 
 const styles = StyleSheet.create({
-  bar: {
+  wrap: {
     position: 'absolute',
     left: 0,
     right: 0,
+  },
+  capsule: {
+    height: MAP_TOP_BAR_HEIGHT,
     flexDirection: 'row',
+    alignItems: 'center',
+    paddingRight: 6,
   },
   search: {
     flex: 1,
-    height: 48,
+    height: '100%',
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: StyleSheet.hairlineWidth,
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 4,
+  },
+  divider: {
+    width: StyleSheet.hairlineWidth,
+    height: 24,
+    marginHorizontal: 6,
   },
   filter: {
-    width: 48,
-    height: 48,
+    width: 44,
+    height: 44,
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: StyleSheet.hairlineWidth,
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 4,
   },
   badge: {
     position: 'absolute',
-    top: -6,
-    right: -6,
+    top: -2,
+    right: -2,
   },
 });

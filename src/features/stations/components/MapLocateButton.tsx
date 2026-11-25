@@ -1,8 +1,8 @@
 import { ActivityIndicator, StyleSheet } from 'react-native';
 
-import { Navigation } from 'lucide-react-native';
+import { LocateFixed } from 'lucide-react-native';
 
-import { AppPressable } from '@/shared/components';
+import { AppGlass, AppPressable } from '@/shared/components';
 
 import { useTheme } from '@/shared/theme';
 
@@ -13,26 +13,28 @@ type MapLocateButtonProps = {
   onPress: () => void;
 };
 
+const SIZE = 52;
+
 const MapLocateButton = ({ locating, onPress }: MapLocateButtonProps) => {
   const t = useTheme();
 
   return (
-    <AppPressable
-      onPress={locating ? undefined : onPress}
-      accessibilityRole="button"
-      accessibilityLabel={MAP_COPY.myLocation}
-      accessibilityState={{ busy: locating }}
-      style={[
-        styles.button,
-        { backgroundColor: t.colors.accent, shadowColor: t.colors.textPrimary },
-      ]}
-    >
-      {locating ? (
-        <ActivityIndicator color={t.colors.onAccent} />
-      ) : (
-        <Navigation color={t.colors.onAccent} size={20} />
-      )}
-    </AppPressable>
+    <AppGlass radius={SIZE / 2}>
+      <AppPressable
+        onPress={locating ? undefined : onPress}
+        haptic="light"
+        accessibilityRole="button"
+        accessibilityLabel={MAP_COPY.myLocation}
+        accessibilityState={{ busy: locating }}
+        style={styles.button}
+      >
+        {locating ? (
+          <ActivityIndicator color={t.colors.accentText} />
+        ) : (
+          <LocateFixed color={t.colors.accentText} size={22} strokeWidth={1.75} />
+        )}
+      </AppPressable>
+    </AppGlass>
   );
 };
 
@@ -40,14 +42,9 @@ export default MapLocateButton;
 
 const styles = StyleSheet.create({
   button: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: SIZE,
+    height: SIZE,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 4,
   },
 });

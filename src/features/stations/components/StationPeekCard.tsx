@@ -1,6 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 
-import { ChevronRight } from 'lucide-react-native';
+import { ArrowUpRight } from 'lucide-react-native';
 
 import { AppCard, AppStatusChip, AppText } from '@/shared/components';
 
@@ -20,21 +20,32 @@ const StationPeekCard = ({ pin, onPress }: StationPeekCardProps) => {
 
   return (
     <AppCard
+      elevation="elevated"
       onPress={() => onPress(pin.id)}
       accessibilityLabel={`${pin.name}, ${STATUS_LABEL[pin.status]}. ${MAP_COPY.viewDetails}`}
-      style={{ gap: t.space[2], borderColor: t.colors.accent, borderWidth: 2 }}
+      style={{
+        gap: t.space[3],
+        padding: t.space[5],
+        borderRadius: t.radius.sheet,
+        borderColor: t.colors.accent,
+        borderWidth: 1.5,
+      }}
     >
-      <View style={[styles.row, { gap: t.space[2] }]}>
-        <AppText variant="headline" numberOfLines={1} style={styles.grow}>
-          {pin.name}
-        </AppText>
-        <ChevronRight color={t.colors.accentText} size={20} />
-      </View>
+      <AppStatusChip label={STATUS_LABEL[pin.status]} connector={pinColorKey(pin.status)} />
       <View style={[styles.row, { gap: t.space[3] }]}>
-        <AppStatusChip label={STATUS_LABEL[pin.status]} connector={pinColorKey(pin.status)} />
-        <AppText variant="subhead" tone="accent">
-          {MAP_COPY.viewDetails}
-        </AppText>
+        <View style={styles.grow}>
+          <AppText variant="title2" numberOfLines={1}>
+            {pin.name}
+          </AppText>
+          <AppText variant="subhead" tone="accent">
+            {MAP_COPY.viewDetails}
+          </AppText>
+        </View>
+        <View
+          style={[styles.go, { backgroundColor: t.colors.accentSoft, borderRadius: t.radius.pill }]}
+        >
+          <ArrowUpRight color={t.colors.accentText} size={22} strokeWidth={1.75} />
+        </View>
       </View>
     </AppCard>
   );
@@ -49,5 +60,12 @@ const styles = StyleSheet.create({
   },
   grow: {
     flex: 1,
+    gap: 2,
+  },
+  go: {
+    width: 44,
+    height: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

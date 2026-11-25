@@ -1,4 +1,4 @@
-import type { RefObject } from 'react';
+import { useRef, type RefObject } from 'react';
 import {
   FlatList,
   StyleSheet,
@@ -31,7 +31,8 @@ type NearbyCarouselProps = {
   onClearFilters: () => void;
 };
 
-const CARD_WIDTH_RATIO = 0.82;
+const CARD_WIDTH_RATIO = 0.84;
+const CARD_HEIGHT = 196;
 
 const NearbyCarousel = ({
   listRef,
@@ -50,13 +51,15 @@ const NearbyCarousel = ({
   const cardWidth = Math.round(screenWidth * CARD_WIDTH_RATIO);
   const gap = t.space[3];
   const step = cardWidth + gap;
-  const sidePadding = t.layout.screenPadding;
+  // Only a swipe by the user picks a station; scroll events on mount or from code don't.
+  const dragging = useRef(false);
+  const sidePadding = t.space[4];
 
   if (loading && !stations.length) {
     return (
       <View style={[styles.row, { paddingHorizontal: sidePadding, gap }]}>
-        <AppSkeleton width={cardWidth} height={150} radius={t.radius.card} />
-        <AppSkeleton width={cardWidth} height={150} radius={t.radius.card} />
+        <AppSkeleton width={cardWidth} height={CARD_HEIGHT} radius={t.radius.sheet} />
+        <AppSkeleton width={cardWidth} height={CARD_HEIGHT} radius={t.radius.sheet} />
       </View>
     );
   }
@@ -64,9 +67,19 @@ const NearbyCarousel = ({
   if (!stations.length) {
     return (
       <View style={{ paddingHorizontal: sidePadding }}>
-        <AppCard style={{ gap: t.space[3] }}>
+        <AppCard
+          elevation="elevated"
+          style={{ gap: t.space[4], padding: t.space[5], borderRadius: t.radius.sheet }}
+        >
           <View style={[styles.row, { gap: t.space[3] }]}>
-            <MapPinOff color={t.colors.textTertiary} size={22} />
+            <View
+              style={[
+                styles.arrow,
+                { backgroundColor: t.colors.accentSoft, borderRadius: t.radius.pill },
+              ]}
+            >
+              <MapPinOff color={t.colors.accentText} size={22} strokeWidth={1.75} />
+            </View>
             <View style={styles.grow}>
               <AppText variant="headline">{MAP_COPY.emptyTitle}</AppText>
               {hasFilters ? (
@@ -88,6 +101,9 @@ const NearbyCarousel = ({
   }
 
   const onScrollEnd = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    if (!dragging.current) return;
+    dragging.current = false;
+
     const index = Math.round(event.nativeEvent.contentOffset.x / step);
     onFocus(Math.min(Math.max(index, 0), stations.length - 1));
   };
@@ -103,6 +119,9 @@ const NearbyCarousel = ({
       decelerationRate="fast"
       contentContainerStyle={{ paddingHorizontal: sidePadding, gap }}
       getItemLayout={(_, index) => ({ length: step, offset: step * index, index })}
+      onScrollBeginDrag={() => {
+        dragging.current = true;
+      }}
       onMomentumScrollEnd={onScrollEnd}
       renderItem={({ item }) => (
         <StationCard
@@ -114,9 +133,10 @@ const NearbyCarousel = ({
       )}
       ListFooterComponent={
         <AppCard
+          elevation="elevated"
           onPress={onViewAll}
           accessibilityLabel={MAP_COPY.viewAll}
-          style={[styles.viewAll, { gap: t.space[3] }]}
+          style={[styles.viewAll, { gap: t.space[3], borderRadius: t.radius.sheet }]}
         >
           <View
             style={[
@@ -124,7 +144,7 @@ const NearbyCarousel = ({
               { backgroundColor: t.colors.accentSoft, borderRadius: t.radius.pill },
             ]}
           >
-            <ArrowRight color={t.colors.accentText} size={22} />
+            <ArrowRight color={t.colors.accentText} size={22} strokeWidth={1.75} />
           </View>
           <AppText variant="subhead" tone="accent">
             {MAP_COPY.viewAll}
@@ -146,7 +166,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   viewAll: {
-    width: 140,
+    width: 148,
+    alignSelf: 'stretch',
     alignItems: 'center',
     justifyContent: 'center',
   },
