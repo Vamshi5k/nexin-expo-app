@@ -3,13 +3,19 @@ import { ENDPOINTS } from '@/core/endpoints';
 import { rupeesToPaise } from '@/shared/utils/money';
 
 import type {
+  Charger,
+  Connector,
   Coordinates,
+  FavouriteDto,
   NearbyStation,
   NearbyStationDto,
+  StationDetails,
+  StationDetailsDto,
   StationFilters,
   StationPin,
   StationPinDto,
 } from '../types/stations.types';
+import { toConnectorState } from '../utils/connector';
 import { toFilterParams } from '../utils/filters';
 import { toStationStatus } from '../utils/status';
 
@@ -71,7 +77,60 @@ export const toNearbyStation = (dto: NearbyStationDto): NearbyStation | null => 
   };
 };
 
-const isPresent = <T>(value: T | null): value is T => value !== null;
+type ChargerDto = NonNullable<StationDetailsDto['chargers']>[number];
+type ConnectorDto = NonNullable<ChargerDto['connectors']>[number];
+
+const text = (value: string | null | undefined) => value?.trim() || null;
+
+const toConnector = (dto: ConnectorDto, index: number): Connector => ({
+  id: String(dto.id ?? index),
+  connectorId: String(dto.connectorId ?? index + 1),
+  portType: text(dto.portType),
+  state: toConnectorState(dto.status),
+  socPercent: toNumber(dto.currentSoc),
+  minutesToFull: toNumber(dto.estimatedFullChargeMinutes),
+});
+
+// A charger without a tariff used to crash the old mapper; it now just has no price.
+const toCharger = (dto: ChargerDto, index: number): Charger => {
+  const price = toNumber(dto.tariff?.[0]?.price);
+
+  return {
+    id: String(dto.id ?? index),
+    chargerId: text(dto.chargerId) ?? String(dto.id ?? index + 1),
+    capacityKw: toNumber(dto.capacity),
+    powerType: text(dto.powerType)?.toUpperCase() ?? null,
+    pricePerKwhPaise: price === null ? null : rupeesToPaise(price),
+    connectors: (dto.connectors ?? []).map(toConnector),
+  };
+};
+
+export const toStationDetails = (dto: StationDetailsDto): StationDetails => {
+  const location = dto.stationLocation;
+
+  return {
+    id: String(dto.id),
+    name: dto.name?.trim() || '—',
+    address: joinAddress(location?.address, location?.city),
+    latitude: toNumber(location?.latitude) ?? 0,
+    longitude: toNumber(location?.longitude) ?? 0,
+    status: toStationStatus(dto.status ?? dto.stationStatus),
+    phone: text(dto.helpNumber),
+    amenities: (dto.amenities ?? []).map(item => text(item.name)).filter(isPresent),
+    imageUrl: text(dto.stationMedia?.[0]?.url),
+    chargers: (dto.chargers ?? []).map(toCharger),
+  };
+};
+
+export const toFavouriteIds = (dtos: FavouriteDto[]): string[] =>
+  dtos.map(dto => (dto.stationId == null ? null : String(dto.stationId))).filter(isPresent);
+
+function isPresent<T>(value: T | null): value is T {
+  return value !== null;
+}
+
+// The old app loaded the first 100 favourites to mark hearts; keep the same window.
+const FAVOURITES_WINDOW = 100;
 
 export const stationsApi = {
   // TODO(backend): accept map bounds so we stop loading every station at once.
@@ -97,5 +156,22 @@ export const stationsApi = {
       },
     });
     return (unwrap(res) ?? []).map(toNearbyStation).filter(isPresent);
+  },
+
+  getDetails: async (stationId: string): Promise<StationDetails> => {
+    const res = await api.get<Envelope<StationDetailsDto>>(ENDPOINTS.STATIONS.DETAILS(stationId));
+    return toStationDetails(unwrap(res));
+  },
+
+  getFavouriteIds: async (): Promise<string[]> => {
+    const res = await api.get<Envelope<FavouriteDto[] | null>>(ENDPOINTS.STATIONS.FAVOURITES, {
+      params: { page: 1, limit: FAVOURITES_WINDOW },
+    });
+    return toFavouriteIds(unwrap(res) ?? []);
+  },
+
+  // `isFavourite` is the new state, not a toggle (the old app always sent false).
+  setFavourite: async (stationId: string, isFavourite: boolean): Promise<void> => {
+    await api.post(ENDPOINTS.STATIONS.FAVOURITE(stationId), { isFavourite });
   },
 };

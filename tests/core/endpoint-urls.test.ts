@@ -192,4 +192,28 @@ describe('stationsApi calls the same paths as the old app', () => {
       params: { latitude: 12.9, longitude: 77.6, limit: 5, page: 1 },
     });
   });
+
+  it('getDetails -> GET /station/:id', async () => {
+    respond({ data: { id: 9, stationLocation: { latitude: 1, longitude: 2 } } });
+    await stationsApi.getDetails('9');
+    expect(lastCall()).toMatchObject({ method: 'GET', url: '/station/9' });
+  });
+
+  it('getFavouriteIds -> GET /station/favourites/all?page=1&limit=100', async () => {
+    await stationsApi.getFavouriteIds();
+    expect(lastCall()).toMatchObject({
+      method: 'GET',
+      url: '/station/favourites/all',
+      params: { page: 1, limit: 100 },
+    });
+  });
+
+  it('setFavourite -> POST /station/favourites/:id with the new state', async () => {
+    await stationsApi.setFavourite('9', true);
+    expect(lastCall()).toMatchObject({
+      method: 'POST',
+      url: '/station/favourites/9',
+      data: { isFavourite: true },
+    });
+  });
 });

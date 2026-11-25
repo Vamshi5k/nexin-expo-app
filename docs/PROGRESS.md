@@ -9,6 +9,7 @@ Phase numbers follow the project prompts, not BLUEPRINT.md section 7:
 | 2     | Client config and consumer auth (A1-A4, A9)                                    | Phase 1                   | Merged to `main`; device check open |
 | fix   | Setup resume, fleet login (F1-F2), shared back button                          | Phase 1 + part of Phase 8 | Merged to `main` (PR #3)            |
 | 3a    | Tab bar and Map home (B0, B1)                                                  | Phase 3 (part)            | Branch `feat/tabs-map`              |
+| 3b    | Station Details (B3)                                                           | Phase 3 (part)            | Branch `feat/station-details`       |
 
 ## Phase 0: Template and brand layer (done, 2026-11-23)
 
@@ -437,3 +438,38 @@ The Android map itself still needs `GOOGLE_MAPS_ANDROID_KEY`.
 - Device check on Android and the iOS simulator: marker performance with many pins, carousel
   and pin sync, my-location allow/deny, filters.
 - Stations list (B2) and Station Details (B3).
+
+## Phase 3b: Station Details (branch `feat/station-details`, 2026-11-25)
+
+**Done**
+
+- `GET /station/:id`, `GET /station/favourites/all?page=1&limit=100` and
+  `POST /station/favourites/:id { isFavourite }` in `stationsApi`, mapped to models (paise,
+  plain connector states instead of raw OCPP codes, nulls for missing numbers).
+- Screen (`StationDetailsScreen`, route `station/[stationId]`): hero with glass back / share /
+  heart, status, name, address, stats (distance and drive only with location), amenities,
+  chargers with free ones first, connector rows, sticky Get Directions + Call.
+- Connector tap: Available or Preparing opens `/charging-summary` (placeholder until the
+  charging phase) with stationId, chargerId and connectorId; others toast
+  "Connector is currently {status}".
+- Directions: iOS asks Apple Maps or Google Maps, Android opens Google Maps, both fall back to
+  the web link.
+- States: skeleton, error with Retry, empty chargers, pull to refresh.
+- Tests: mappers, connector rules, share text, maps URLs, endpoint paths, a screen flow test.
+
+**Old-app bugs fixed**
+
+- The heart always sent `isFavourite: false`; it now sends the new state, flips at once and
+  rolls back with a toast if the server refuses.
+- Share text used another brand's links (`lekha://`, lekha.com); it now uses this build's
+  scheme (`expo-linking`) and `brand.deepLinkDomains[0]`.
+- Call is hidden without a phone number; a charger without a tariff no longer crashes the
+  mapper; the hard-coded rating, reviews, network and hours are gone.
+- Header buttons have screen-reader labels and 44 pt targets.
+
+**Verified**: tsc, expo lint, jest (51 suites, 354 tests); Android emulator with the real
+staging station (layout, amenities, busy-connector toast). Not checked on iOS yet.
+
+**Left**
+
+- Charging Summary (Phase 4) behind the connector tap; Stations list (B2) still a placeholder.

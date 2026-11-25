@@ -6,6 +6,7 @@ import { AppPressable, AppText } from '@/shared/components';
 
 import CardGradient from './CardGradient';
 import ChargerArt from './ChargerArt';
+import StatRow, { type Stat } from './StatRow';
 
 import { useTheme, withAlpha, type Theme } from '@/shared/theme';
 
@@ -33,46 +34,16 @@ const artSize = (t: Theme) => t.space[12] + t.space[6];
 export const stationCardHeight = (t: Theme) =>
   t.space[4] * 2 + pillHeight(t) + artSize(t) + t.layout.minTouch + t.space[3] * 2;
 
-type StatProps = { value: string; label: string };
-
-// Long values (e.g. "299 km", "₹125.75") or a large system text size shrink a little to fit
-// beside the Go button instead of being cut off.
-const MIN_STAT_SCALE = 0.85;
-
-// One footer figure: the value people compare, with a quiet label under it.
-const Stat = ({ value, label }: StatProps) => {
-  const t = useTheme();
-
-  return (
-    <View style={styles.stat}>
-      {/* Subhead size with the headline's semibold face: compact but still the figure to read. */}
-      <AppText
-        variant="subhead"
-        tabular
-        numberOfLines={1}
-        adjustsFontSizeToFit
-        minimumFontScale={MIN_STAT_SCALE}
-        style={{ fontFamily: t.type.headline.fontFamily }}
-      >
-        {value}
-      </AppText>
-      <AppText variant="caption" tone="tertiary" numberOfLines={1}>
-        {label}
-      </AppText>
-    </View>
-  );
-};
-
-const footerStats = (station: NearbyStation): StatProps[] => {
+const footerStats = (station: NearbyStation): Stat[] => {
   const km = station.distanceKm;
-  const stats: (StatProps | null)[] = [
+  const stats: (Stat | null)[] = [
     km !== null ? { value: formatDistance(km, brand.locale), label: CARD_COPY.distance } : null,
     km !== null && km <= MAX_ETA_KM ? { value: formatEta(km), label: CARD_COPY.drive } : null,
     station.pricePerKwhPaise !== null
       ? { value: formatRate(station.pricePerKwhPaise), label: CARD_COPY.perKwh }
       : null,
   ];
-  return stats.filter((stat): stat is StatProps => stat !== null);
+  return stats.filter((stat): stat is Stat => stat !== null);
 };
 
 // The carousel already scales the focused card up, so selection needs no border of its own.
@@ -158,24 +129,8 @@ const StationCard = ({ station, width, onPress, onDirections }: StationCardProps
       </View>
 
       <View style={[styles.row, { height: t.layout.minTouch, gap: t.space[3] }]}>
-        <View style={[styles.row, styles.grow]}>
-          {stats.map((stat, index) => (
-            <View key={stat.label} style={styles.row}>
-              {index > 0 ? (
-                <View
-                  style={[
-                    styles.divider,
-                    {
-                      height: t.space[6],
-                      marginHorizontal: t.space[3],
-                      backgroundColor: t.colors.borderStrong,
-                    },
-                  ]}
-                />
-              ) : null}
-              <Stat value={stat.value} label={stat.label} />
-            </View>
-          ))}
+        <View style={styles.grow}>
+          <StatRow stats={stats} />
         </View>
 
         <AppPressable
@@ -219,11 +174,5 @@ const styles = StyleSheet.create({
   },
   grow: {
     flex: 1,
-  },
-  stat: {
-    flexShrink: 1,
-  },
-  divider: {
-    width: StyleSheet.hairlineWidth,
   },
 });

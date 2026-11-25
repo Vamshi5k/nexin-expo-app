@@ -71,3 +71,41 @@ export const FILTERS_COPY = {
   clear: 'Clear',
   apply: 'Apply Filters',
 } as const;
+
+export const DETAILS_HREF = {
+  chargingSummary: '/(app)/charging-summary',
+  home: '/(app)/(tabs)/home',
+} as const;
+
+export const DETAILS_COPY = {
+  back: 'Back',
+  share: 'Share station',
+  addFavourite: 'Add to favourites',
+  removeFavourite: 'Remove from favourites',
+  added: 'Added to favourites',
+  removed: 'Removed from favourites',
+  directions: 'Get Directions',
+  call: 'Call station',
+  chargers: 'Chargers',
+  tip: 'Tap a connector to check live status and start a session.',
+  amenities: 'Amenities',
+  noChargers: 'No chargers listed yet',
+  noChargersBody: 'This station has no chargers to show right now.',
+  loadError: "Couldn't load this station",
+  retry: 'Retry',
+  mapsTitle: 'Open directions in',
+  appleMaps: 'Apple Maps',
+  googleMaps: 'Google Maps',
+  shareError: 'Unable to share station details',
+  callError: 'Calling is not supported on this device',
+  unknownType: 'Unknown type',
+  distance: 'Distance',
+  drive: 'Drive',
+  power: 'Max power',
+  perKwh: 'per kWh',
+} as const;
+
+export const chargerTitle = (index: number) => `Charger ${index + 1}`;
+export const connectorTitle = (connectorId: string) => `Connector ${connectorId}`;
+export const freeBadge = (free: number, total: number) => `${free}/${total} free`;
+export const connectorBusy = (status: string) => `Connector is currently ${status}`;

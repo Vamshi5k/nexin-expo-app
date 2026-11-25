@@ -14,3 +14,15 @@ export function directionsUrls(
     web: `https://www.google.com/maps/dir/?api=1&destination=${point}`,
   };
 }
+
+// Every maps app the details screen can hand off to; the web link works without any app.
+export function mapsAppUrls({ latitude, longitude }: Coordinates) {
+  const point = `${latitude},${longitude}`;
+
+  return {
+    apple: `maps://?daddr=${point}`,
+    googleIos: `comgooglemaps://?daddr=${point}&directionsmode=driving`,
+    googleAndroid: `google.navigation:q=${point}`,
+    web: `https://www.google.com/maps/dir/?api=1&destination=${point}`,
+  };
+}

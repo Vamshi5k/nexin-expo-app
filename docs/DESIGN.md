@@ -111,8 +111,13 @@ the driver find, start, watch or pay for a charge.
   inputs are large chips; the price breakdown is collapsed by default.
 - Wallet: the balance card is the hero (large tabular number); transactions are grouped
   by date.
-- Station details: hero image with a gradient fade at the bottom, and a sticky bottom bar
-  with Directions and the primary action.
+- Station details: a full-width hero (the station photo, or `ChargerArt` on the status
+  gradient when there is none) fading into the page, with floating glass back, share and heart
+  buttons. Then the status chip, title2 name, address and a `StatRow` (distance, drive, max
+  power, lowest rate), amenity chips, and one card per charger (free chargers first) with
+  connector rows: connector icon tile, "Connector n", type and rate, a status chip in the
+  connector colour and a chevron only when it can start. Directions (and Call, only with a
+  phone number) sit in a sticky bottom bar.
 
 ## Splash, onboarding, auth and first-run setup (flat)
 - Completely flat: no shadows, glows or blurs. Shape comes from flat fills (accent,

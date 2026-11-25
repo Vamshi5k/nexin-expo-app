@@ -1,7 +1,8 @@
-import { AppPlaceholderScreen } from '@/shared/components';
+import { useLocalSearchParams } from 'expo-router';
 
-import { PLACEHOLDER_COPY } from '@/features/home';
+import { StationDetailsScreen } from '@/features/stations';
 
 export default function StationDetailsRoute() {
-  return <AppPlaceholderScreen title="Station" description={PLACEHOLDER_COPY.station} back />;
+  const { stationId } = useLocalSearchParams<{ stationId: string }>();
+  return <StationDetailsScreen stationId={stationId} />;
 }

@@ -71,3 +71,75 @@ export type StationFilterParams = {
 };
 
 export type MapRegion = Coordinates & { latitudeDelta: number; longitudeDelta: number };
+
+type ConnectorDto = {
+  id?: number | string | null;
+  connectorId?: number | string | null;
+  portType?: string | null;
+  status?: string | null;
+  currentSoc?: NumberLike;
+  estimatedFullChargeMinutes?: NumberLike;
+};
+
+type ChargerDto = {
+  id?: number | string | null;
+  chargerId?: string | null;
+  capacity?: NumberLike;
+  powerType?: string | null;
+  status?: string | null;
+  tariff?: { price?: NumberLike }[] | null;
+  connectors?: ConnectorDto[] | null;
+};
+
+export type StationDetailsDto = {
+  id: number | string;
+  name?: string | null;
+  status?: string | null;
+  stationStatus?: string | null;
+  helpNumber?: string | null;
+  amenities?: { name?: string | null }[] | null;
+  stationMedia?: { url?: string | null }[] | null;
+  stationLocation?: StationLocationDto;
+  chargers?: ChargerDto[] | null;
+};
+
+export type FavouriteDto = { stationId?: number | string | null };
+
+export type ConnectorState =
+  | 'available'
+  | 'preparing'
+  | 'charging'
+  | 'finishing'
+  | 'reserved'
+  | 'unavailable'
+  | 'faulted'
+  | 'unknown';
+
+export type Connector = {
+  id: string;
+  connectorId: string;
+  portType: string | null;
+  state: ConnectorState;
+  socPercent: number | null;
+  minutesToFull: number | null;
+};
+
+export type Charger = {
+  id: string;
+  chargerId: string;
+  capacityKw: number | null;
+  powerType: string | null;
+  pricePerKwhPaise: number | null;
+  connectors: Connector[];
+};
+
+export type StationDetails = Coordinates & {
+  id: string;
+  name: string;
+  address: string;
+  status: StationStatus;
+  phone: string | null;
+  amenities: string[];
+  imageUrl: string | null;
+  chargers: Charger[];
+};
