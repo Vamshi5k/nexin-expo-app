@@ -81,7 +81,7 @@ describe('webUrl', () => {
   });
   it.each([null, undefined, '', '  ', 'example.com', 'javascript:alert(1)', 'ftp://x', 'https://'])(
     'rejects %p',
-    (v) => {
+    v => {
       expect(webUrl(v)).toBeNull();
     },
   );

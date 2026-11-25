@@ -72,7 +72,7 @@ it('a signed-in user logs out from home and lands on Login (no redirect loop)', 
   await fireEvent.press(screen.getByRole('button', { name: 'Yes, log out' }));
   await settle();
 
-  expect(errors.filter((e) => e.includes('Maximum update depth'))).toEqual([]);
+  expect(errors.filter(e => e.includes('Maximum update depth'))).toEqual([]);
   expect(sessionStore.getState().mode).toBe('none');
   expect(logout).toHaveBeenCalledWith('a');
   expect(screen).toHavePathname('/login');

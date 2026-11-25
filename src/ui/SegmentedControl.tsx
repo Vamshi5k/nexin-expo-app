@@ -33,7 +33,7 @@ export function SegmentedControl<T extends string>({
         gap: 3,
       }}
     >
-      {segments.map((s) => {
+      {segments.map(s => {
         const selected = s.value === value;
         return (
           <Pressable

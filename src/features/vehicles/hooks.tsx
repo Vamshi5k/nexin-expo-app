@@ -58,7 +58,7 @@ export function useVehicleWizard({ onAdded }: { onAdded: () => void }) {
 
   const add = useAction(addVehicle);
 
-  const submit = form.handleSubmit(async (values) => {
+  const submit = form.handleSubmit(async values => {
     if (!model || !capacity) return;
     Keyboard.dismiss();
     try {

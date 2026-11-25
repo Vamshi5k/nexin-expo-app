@@ -8,9 +8,9 @@ function fakeSecure(initial: Record<string, string> = {}) {
   const map = new Map(Object.entries(initial));
   let failRemoves = false;
   const storage: SecureStorage = {
-    get: async (k) => map.get(k) ?? null,
+    get: async k => map.get(k) ?? null,
     set: async (k, v) => void map.set(k, v),
-    remove: async (k) => {
+    remove: async k => {
       if (failRemoves) throw new Error('keychain error');
       map.delete(k);
     },

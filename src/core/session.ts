@@ -23,8 +23,8 @@ const KEYS: Record<Exclude<SessionMode, 'none'>, { access: SecureKey; refresh: S
 const ALL_KEYS = Object.values(SECURE_KEYS) as SecureKey[];
 
 async function removeAll(storage: SecureStorage, keys: SecureKey[]) {
-  const results = await Promise.allSettled(keys.map((k) => storage.remove(k)));
-  const failed = results.filter((r) => r.status === 'rejected').length;
+  const results = await Promise.allSettled(keys.map(k => storage.remove(k)));
+  const failed = results.filter(r => r.status === 'rejected').length;
   if (failed) log.warn('could not delete some stored tokens', { failed });
 }
 
@@ -38,7 +38,7 @@ export function createSessionStore(storage: SecureStorage = secure) {
       try {
         const [access, refresh, fleetAccess, fleetRefresh] = await Promise.all(
           [KEYS.consumer.access, KEYS.consumer.refresh, KEYS.fleet.access, KEYS.fleet.refresh].map(
-            (k) => storage.get(k),
+            k => storage.get(k),
           ),
         );
         if (access && refresh) {

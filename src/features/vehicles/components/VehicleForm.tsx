@@ -32,18 +32,18 @@ function StepBody({ wizard: w }: { wizard: VehicleWizard }) {
           request={w.brands}
           empty={EMPTY_COPY.brand}
           search={{ placeholder: 'Search brands', query: w.query, onChange: w.setQuery }}
-          toOptions={(items) =>
+          toOptions={items =>
             items
-              .filter((b) => matchesQuery(b.name, w.query))
-              .map((b) => ({
+              .filter(b => matchesQuery(b.name, w.query))
+              .map(b => ({
                 key: b.id,
                 label: b.name,
                 monogram: true,
                 selected: b.id === w.brand?.id,
               }))
           }
-          onSelect={(key) => {
-            const next = w.brands.data?.find((b) => b.id === key);
+          onSelect={key => {
+            const next = w.brands.data?.find(b => b.id === key);
             if (next) w.selectBrand(next);
           }}
         />
@@ -54,18 +54,18 @@ function StepBody({ wizard: w }: { wizard: VehicleWizard }) {
           request={w.models}
           empty={EMPTY_COPY.model}
           search={{ placeholder: 'Search models', query: w.query, onChange: w.setQuery }}
-          toOptions={(items) =>
+          toOptions={items =>
             items
-              .filter((m) => matchesQuery(m.name, w.query))
-              .map((m) => ({
+              .filter(m => matchesQuery(m.name, w.query))
+              .map(m => ({
                 key: m.id,
                 label: m.name,
                 monogram: true,
                 selected: m.id === w.model?.id,
               }))
           }
-          onSelect={(key) => {
-            const next = w.models.data?.find((m) => m.id === key);
+          onSelect={key => {
+            const next = w.models.data?.find(m => m.id === key);
             if (next) w.selectModel(next);
           }}
         />
@@ -77,8 +77,8 @@ function StepBody({ wizard: w }: { wizard: VehicleWizard }) {
             request={w.capacities}
             empty={EMPTY_COPY.capacity}
             allowEmpty
-            toOptions={(items) => [
-              ...items.map((c) => ({
+            toOptions={items => [
+              ...items.map(c => ({
                 key: c.id,
                 label: formatCapacity(c.kwh),
                 subtitle: c.rangeKm !== null ? `${c.rangeKm} km range` : undefined,
@@ -92,9 +92,9 @@ function StepBody({ wizard: w }: { wizard: VehicleWizard }) {
                 selected: w.customMode,
               },
             ]}
-            onSelect={(key) => {
+            onSelect={key => {
               if (key === CUSTOM_KEY) return w.chooseCustom();
-              const next = w.capacities.data?.find((c) => c.id === key);
+              const next = w.capacities.data?.find(c => c.id === key);
               if (next) w.selectCapacity({ kind: 'preset', capacity: next });
             }}
           />

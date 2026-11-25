@@ -60,7 +60,7 @@ const LIGHTNESS: Record<NeutralStep, number> = {
 export function neutralScale(primary: string): Record<NeutralStep, string> {
   const h = hue(primary);
   return Object.fromEntries(
-    NEUTRAL_STEPS.map((step) => [step, hslToHex(h, step >= 700 ? 0.14 : 0.1, LIGHTNESS[step])]),
+    NEUTRAL_STEPS.map(step => [step, hslToHex(h, step >= 700 ? 0.14 : 0.1, LIGHTNESS[step])]),
   ) as Record<NeutralStep, string>;
 }
 

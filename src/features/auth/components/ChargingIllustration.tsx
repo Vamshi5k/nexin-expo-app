@@ -158,7 +158,7 @@ function ChargingScene() {
         <Rect x={312} y={119} width={14} height={3} rx={1.5} fill={c.surface} opacity={0.35} />
         <Rect x={194} y={124} width={12} height={10} rx={2.5} fill={c.accent} />
         <Rect x={188} y={125} width={8} height={8} rx={2} fill={c.textPrimary} />
-        {WHEELS.map((cx) => (
+        {WHEELS.map(cx => (
           <Wheel key={cx} cx={cx} tire={c.textPrimary} rim={c.surface} hub={c.accent} />
         ))}
 
@@ -188,7 +188,7 @@ function Wheel({ cx, tire, rim, hub }: { cx: number; tire: string; rim: string; 
     <>
       <Circle cx={cx} cy={cy} r={22} fill={tire} />
       <Circle cx={cx} cy={cy} r={14} fill={rim} opacity={0.85} />
-      {SPOKES.map((deg) => {
+      {SPOKES.map(deg => {
         const a = (deg * Math.PI) / 180;
         return (
           <Path

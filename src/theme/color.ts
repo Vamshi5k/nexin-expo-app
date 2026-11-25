@@ -6,7 +6,7 @@ type Rgb = [number, number, number];
 
 export function hexToRgb(hex: string): Rgb {
   const h = hex.replace('#', '');
-  return [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16)) as Rgb;
+  return [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16)) as Rgb;
 }
 
 export function rgbToHex([r, g, b]: Rgb): string {
@@ -29,7 +29,7 @@ export function withAlpha(hex: string, alpha: number): string {
 }
 
 export function hue(hex: string): number {
-  const [r, g, b] = hexToRgb(hex).map((v) => v / 255);
+  const [r, g, b] = hexToRgb(hex).map(v => v / 255);
   const max = Math.max(r, g, b);
   const min = Math.min(r, g, b);
   const d = max - min;
@@ -72,7 +72,7 @@ export function ensureContrast(
   const target = direction === 'darken' ? BLACK : WHITE;
   for (let step = 0; step <= 50; step++) {
     const candidate = step === 0 ? color.toUpperCase() : mix(color, target, step / 50);
-    if (backgrounds.every((bg) => contrastRatio(candidate, bg) >= min)) return candidate;
+    if (backgrounds.every(bg => contrastRatio(candidate, bg) >= min)) return candidate;
   }
   return target;
 }

@@ -34,7 +34,7 @@ export function CookieCheckScreen({ autoRunLocal = false }: { autoRunLocal?: boo
   const [contact, setContact] = useState('');
   const [otp, setOtp] = useState('');
   const [appName, setAppName] = useState(brand.apiAppName);
-  const add = (l: Line) => setLines((prev) => [...prev, l]);
+  const add = (l: Line) => setLines(prev => [...prev, l]);
 
   useEffect(() => {
     if (autoRunLocal) void runLocal();

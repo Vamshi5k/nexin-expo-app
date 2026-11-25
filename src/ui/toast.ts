@@ -28,7 +28,7 @@ export const toast = {
   },
   promise<T>(promise: Promise<T>, messages: PromiseMessages<T>) {
     const tracked = promise.then(
-      (value) => {
+      value => {
         haptics.success();
         return value;
       },

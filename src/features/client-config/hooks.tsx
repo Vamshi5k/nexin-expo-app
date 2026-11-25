@@ -63,7 +63,7 @@ export function ClientConfigProvider({ children }: { children: ReactNode }) {
     let timer: ReturnType<typeof setTimeout> | undefined;
     await Promise.race([
       refresh(),
-      new Promise((resolve) => {
+      new Promise(resolve => {
         timer = setTimeout(resolve, CLIENT_CONFIG_BOOT_TIMEOUT_MS);
       }),
     ]);

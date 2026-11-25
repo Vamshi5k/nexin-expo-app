@@ -17,7 +17,7 @@ type FleetValue = {
 const FleetContext = createContext<FleetValue | null>(null);
 
 export function FleetProvider({ children }: { children: ReactNode }) {
-  const mode = useSession((s) => s.mode);
+  const mode = useSession(s => s.mode);
   const driver = useSessionData(getDriver);
 
   const value = useMemo(

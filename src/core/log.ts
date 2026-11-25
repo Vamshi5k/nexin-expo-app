@@ -6,7 +6,7 @@ const SECRET_KEYS = /token|authorization|password|otp|secret/i;
 
 export function redact(value: unknown, depth = 0): unknown {
   if (depth > 4 || value === null || typeof value !== 'object') return value;
-  if (Array.isArray(value)) return value.map((v) => redact(v, depth + 1));
+  if (Array.isArray(value)) return value.map(v => redact(v, depth + 1));
   return Object.fromEntries(
     Object.entries(value).map(([k, v]) => [
       k,

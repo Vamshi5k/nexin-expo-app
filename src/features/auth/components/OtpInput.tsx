@@ -86,7 +86,7 @@ export function OtpInput({
       <TextInput
         ref={setRefs}
         value={value}
-        onChangeText={(text) => {
+        onChangeText={text => {
           const next = sanitizeOtp(text, length);
           onChange(next);
           if (next.length === length && value.length !== length) onComplete?.(next);

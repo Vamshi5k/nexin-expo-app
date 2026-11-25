@@ -5,8 +5,8 @@ import { PERMISSION_COPY, usePermissionBlocked } from '@/core/permissions';
 import { Dialog } from './Dialog';
 
 export function PermissionDialog() {
-  const kind = usePermissionBlocked((s) => s.kind);
-  const close = usePermissionBlocked((s) => s.close);
+  const kind = usePermissionBlocked(s => s.kind);
+  const close = usePermissionBlocked(s => s.close);
   const copy = kind ? PERMISSION_COPY[kind] : null;
   return (
     <Dialog

@@ -43,7 +43,7 @@ export function OnboardingScreen() {
       <Animated.FlatList
         ref={list}
         data={onboarding.slides}
-        keyExtractor={(s) => s.key}
+        keyExtractor={s => s.key}
         horizontal
         pagingEnabled
         bounces={false}

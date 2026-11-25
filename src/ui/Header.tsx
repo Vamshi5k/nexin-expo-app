@@ -67,7 +67,7 @@ export function LargeTitleScroll({
   const t = useTheme();
   const insets = useSafeAreaInsets();
   const y = useSharedValue(0);
-  const onScroll = useAnimatedScrollHandler((e) => {
+  const onScroll = useAnimatedScrollHandler(e => {
     y.value = e.contentOffset.y;
   });
   const largeHeight = t.type.title1.lineHeight ?? 34;

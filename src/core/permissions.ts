@@ -51,12 +51,12 @@ type BlockedState = {
 export const usePermissionBlocked = create<BlockedState>((set, get) => ({
   kind: null,
   resolve: null,
-  show: (kind) =>
-    new Promise<boolean>((resolve) => {
+  show: kind =>
+    new Promise<boolean>(resolve => {
       get().resolve?.(false); // settle any previous caller
       set({ kind, resolve });
     }),
-  close: (openedSettings) => {
+  close: openedSettings => {
     get().resolve?.(openedSettings);
     set({ kind: null, resolve: null });
   },

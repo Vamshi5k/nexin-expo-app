@@ -12,7 +12,7 @@ jest.mock('react-native-mmkv', () => {
   throw new Error('MMKV must not load in Expo Go');
 });
 
-const flush = () => new Promise((r) => setImmediate(r));
+const flush = () => new Promise(r => setImmediate(r));
 
 describe('kv in Expo Go', () => {
   let AsyncStorage: typeof AsyncStorageType;

@@ -72,7 +72,7 @@ export function useOnboarding(list: RefObject<FlatList<OnboardingSlide> | null>)
     spin.set(withRepeat(withTiming(1, { duration: 14000, easing: Easing.linear }), -1, false));
   }, [spin, reduceMotion]);
 
-  const onScroll = useAnimatedScrollHandler((e) => {
+  const onScroll = useAnimatedScrollHandler(e => {
     x.value = e.contentOffset.x;
   });
 
@@ -116,7 +116,7 @@ type AuthValue = {
 const AuthContext = createContext<AuthValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const mode = useSession((s) => s.mode);
+  const mode = useSession(s => s.mode);
   // Cleared on sign-in, logout and refresh 4xx; a late response for the old session is dropped.
   const user = useSessionData(authApi.getUser);
 

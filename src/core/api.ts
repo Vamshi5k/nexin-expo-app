@@ -243,6 +243,6 @@ export const api = createApiClient({
   clientToken: env.CLIENT_TOKEN,
   getAccessToken: () => sessionStore.getState().tokens?.accessToken ?? null,
   getRefreshToken: () => sessionStore.getState().tokens?.refreshToken ?? null,
-  saveTokens: (tokens) => sessionStore.getState().updateTokens(tokens),
+  saveTokens: tokens => sessionStore.getState().updateTokens(tokens),
   onSessionExpired: () => sessionStore.getState().signOut(),
 });

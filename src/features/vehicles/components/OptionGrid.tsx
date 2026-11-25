@@ -24,7 +24,7 @@ export function OptionGrid({
   const c = t.colors;
   return (
     <View style={[styles.grid, { gap: t.space[3] }]} accessibilityRole="radiogroup">
-      {options.map((o) => (
+      {options.map(o => (
         <Pressable
           key={o.key}
           onPress={() => onSelect(o.key)}

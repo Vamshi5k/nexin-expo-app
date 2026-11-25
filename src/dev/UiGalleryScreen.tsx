@@ -90,7 +90,7 @@ export function UiGalleryScreen({ initialScheme, section }: UiGalleryScreenProps
   return (
     <LargeTitleScroll title="UI kit" subtitle={`${brand.appName} · ${t.scheme} mode`} back>
       <View style={{ gap: t.layout.sectionGapLarge }}>
-        {keys.map((k) => (
+        {keys.map(k => (
           <Fragment key={k}>{SECTIONS[k]()}</Fragment>
         ))}
       </View>
@@ -159,7 +159,7 @@ function SchemeSection() {
           { value: 'dark', label: 'Dark' },
         ]}
         value={schemeOverride ?? 'brand'}
-        onChange={(v) => setSchemeOverride(v === 'brand' ? null : v)}
+        onChange={v => setSchemeOverride(v === 'brand' ? null : v)}
       />
     </Section>
   );
@@ -253,7 +253,7 @@ function ColorsSection() {
       description="Neutrals by default. The brand fills only the primary action and selections."
     >
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[3] }}>
-        {SWATCHES.map((key) => (
+        {SWATCHES.map(key => (
           <View key={key} style={{ width: '30%', flexGrow: 1, gap: t.space[1] }}>
             <View
               style={{
@@ -298,7 +298,7 @@ function TypeSection() {
   const t = useTheme();
   return (
     <Section title="Typography">
-      {VARIANTS.map((v) => (
+      {VARIANTS.map(v => (
         <Text key={v} variant={v}>
           {v} · {t.type[v].fontSize}/{t.type[v].lineHeight}
         </Text>
@@ -403,7 +403,7 @@ function InputsSection() {
         <Button
           label="Validate form"
           variant="secondary"
-          onPress={handleSubmit((v) => toast.success(`Valid: ${v.phone}`))}
+          onPress={handleSubmit(v => toast.success(`Valid: ${v.phone}`))}
         />
       </View>
     </Section>
@@ -488,7 +488,7 @@ function ChipsSection() {
         <StatusChip label="Neutral" />
       </Row>
       <Row>
-        {CONNECTOR_STATUSES.map((s) => (
+        {CONNECTOR_STATUSES.map(s => (
           <StatusChip key={s} label={s} connector={s} />
         ))}
       </Row>
@@ -506,7 +506,7 @@ function ConnectorsSection() {
   return (
     <Section title="Connector icons">
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: t.space[4] }}>
-        {CONNECTOR_TYPES.map((type) => (
+        {CONNECTOR_TYPES.map(type => (
           <ConnectorIcon key={type} type={type} showLabel />
         ))}
       </View>

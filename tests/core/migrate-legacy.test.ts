@@ -16,30 +16,30 @@ function fakes(legacyData: Record<string, string>) {
 
   const deps: MigrationDeps = {
     legacy: {
-      multiGet: async (keys) => keys.map((k) => [k, legacy.get(k) ?? null] as const),
-      multiRemove: async (keys) => {
-        keys.forEach((k) => legacy.delete(k));
+      multiGet: async keys => keys.map(k => [k, legacy.get(k) ?? null] as const),
+      multiRemove: async keys => {
+        keys.forEach(k => legacy.delete(k));
       },
     },
     secure: {
-      get: async (k) => secureMap.get(k) ?? null,
+      get: async k => secureMap.get(k) ?? null,
       set: async (k, v) => {
         if (failSecureWrites) throw new Error('keychain locked');
         secureMap.set(k, v);
       },
-      remove: async (k) => {
+      remove: async k => {
         secureMap.delete(k);
       },
     } satisfies SecureStorage,
     kv: {
-      getString: (k) => kvMap.get(k) as string | undefined,
+      getString: k => kvMap.get(k) as string | undefined,
       setString: (k, v) => void kvMap.set(k, v),
-      getBoolean: (k) => kvMap.get(k) as boolean | undefined,
+      getBoolean: k => kvMap.get(k) as boolean | undefined,
       setBoolean: (k, v) => void kvMap.set(k, v),
       getJSON: () => undefined,
       setJSON: () => undefined,
-      remove: (k) => kvMap.delete(k),
-      contains: (k) => kvMap.has(k),
+      remove: k => kvMap.delete(k),
+      contains: k => kvMap.has(k),
     } satisfies KvStorage,
   };
   return { deps, legacy, secureMap, kvMap, setFailSecure: (v: boolean) => (failSecureWrites = v) };

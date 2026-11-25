@@ -39,7 +39,7 @@ export const FONT_WEIGHTS = ['Regular', 'Medium', 'SemiBold', 'Bold'] as const;
 export type FontWeightName = (typeof FONT_WEIGHTS)[number];
 
 export function fontFamilies(family: string): Record<FontWeightName, string> {
-  return Object.fromEntries(FONT_WEIGHTS.map((w) => [w, `${family}-${w}`])) as Record<
+  return Object.fromEntries(FONT_WEIGHTS.map(w => [w, `${family}-${w}`])) as Record<
     FontWeightName,
     string
   >;

@@ -19,25 +19,25 @@ export const detailsSchema = z.object({
   macId: z
     .string()
     .trim()
-    .refine((v) => v === '' || (v.length >= MAC_ID_MIN_LENGTH && v.length <= MAC_ID_MAX_LENGTH), {
+    .refine(v => v === '' || (v.length >= MAC_ID_MIN_LENGTH && v.length <= MAC_ID_MAX_LENGTH), {
       message: 'Invalid MAC ID',
     }),
   maxAmount: z
     .string()
     .trim()
-    .refine((v) => v === '' || /^\d+$/.test(v), { message: 'Must be a valid number' }),
+    .refine(v => v === '' || /^\d+$/.test(v), { message: 'Must be a valid number' }),
 });
 
 export const customCapacitySchema = z
   .string()
   .trim()
   .min(1, 'Capacity is required')
-  .refine((v) => /^\d+(\.\d+)?$/.test(v), { message: 'Must be a valid number' })
+  .refine(v => /^\d+(\.\d+)?$/.test(v), { message: 'Must be a valid number' })
   .transform(Number)
-  .refine((n) => n >= CUSTOM_CAPACITY_MIN_KWH, {
+  .refine(n => n >= CUSTOM_CAPACITY_MIN_KWH, {
     message: `Minimum ${CUSTOM_CAPACITY_MIN_KWH} kWh`,
   })
-  .refine((n) => n <= CUSTOM_CAPACITY_MAX_KWH, {
+  .refine(n => n <= CUSTOM_CAPACITY_MAX_KWH, {
     message: `Maximum ${CUSTOM_CAPACITY_MAX_KWH} kWh`,
   });
 

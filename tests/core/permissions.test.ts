@@ -62,7 +62,7 @@ describe('ensurePermission', () => {
   it('shows the blocked dialog and always settles', async () => {
     mockLocation.check.mockResolvedValue(perm(false, false));
     const pending = ensurePermission('location');
-    await new Promise((r) => setTimeout(r, 0));
+    await new Promise(r => setTimeout(r, 0));
     expect(usePermissionBlocked.getState().kind).toBe('location');
     usePermissionBlocked.getState().close(false);
     await expect(pending).resolves.toBe('blocked');

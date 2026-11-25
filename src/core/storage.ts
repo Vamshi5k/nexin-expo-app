@@ -49,11 +49,11 @@ function mmkvStore(): SyncStore {
   const { createMMKV } = require('react-native-mmkv') as typeof import('react-native-mmkv');
   const mmkv = createMMKV({ id: 'app' });
   return {
-    getString: (key) => mmkv.getString(key),
-    getBoolean: (key) => mmkv.getBoolean(key),
+    getString: key => mmkv.getString(key),
+    getBoolean: key => mmkv.getBoolean(key),
     set: (key, value) => mmkv.set(key, value),
-    remove: (key) => mmkv.remove(key),
-    contains: (key) => mmkv.contains(key),
+    remove: key => mmkv.remove(key),
+    contains: key => mmkv.contains(key),
     hydrate: async () => {},
   };
 }
@@ -69,8 +69,8 @@ function memoryStore(): SyncStore {
     run.catch((error: unknown) => log.warn('kv fallback write failed', { error: String(error) }));
 
   return {
-    getString: (key) => cache.get(key),
-    getBoolean: (key) => {
+    getString: key => cache.get(key),
+    getBoolean: key => {
       const raw = cache.get(key);
       return raw === 'true' ? true : raw === 'false' ? false : undefined;
     },
@@ -79,15 +79,15 @@ function memoryStore(): SyncStore {
       cache.set(key, raw);
       void persist(AsyncStorage.setItem(FALLBACK_PREFIX + key, raw));
     },
-    remove: (key) => {
+    remove: key => {
       const had = cache.delete(key);
       void persist(AsyncStorage.removeItem(FALLBACK_PREFIX + key));
       return had;
     },
-    contains: (key) => cache.has(key),
+    contains: key => cache.has(key),
     hydrate: () => {
       hydrating ??= (async () => {
-        const keys = (await AsyncStorage.getAllKeys()).filter((k) => k.startsWith(FALLBACK_PREFIX));
+        const keys = (await AsyncStorage.getAllKeys()).filter(k => k.startsWith(FALLBACK_PREFIX));
         for (const [k, v] of await AsyncStorage.multiGet(keys)) {
           if (v !== null) cache.set(k.slice(FALLBACK_PREFIX.length), v);
         }

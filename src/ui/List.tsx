@@ -20,7 +20,7 @@ const ICON_BOX = 32;
 export function ListGroup({ title, footer, children }: ListGroupProps) {
   const t = useTheme();
   const rows = Children.toArray(children).filter(isValidElement);
-  const hasIcons = rows.some((r) => (r.props as Partial<ListRowProps>).icon != null);
+  const hasIcons = rows.some(r => (r.props as Partial<ListRowProps>).icon != null);
   const inset = t.space[4] + (hasIcons ? ICON_BOX + t.space[3] : 0);
 
   return (

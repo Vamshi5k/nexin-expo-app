@@ -47,7 +47,7 @@ export function useBoot(): Boot {
 
   const retry = useCallback(() => {
     setRetrying(true);
-    setAttempt((n) => n + 1);
+    setAttempt(n => n + 1);
   }, []);
 
   const userLoadFailed =
@@ -91,7 +91,7 @@ export function useStartRoute(): Href | null {
 }
 
 export function useRouteGuard(group: RouteGroup): GuardDecision {
-  const mode = useSession((s) => s.mode);
+  const mode = useSession(s => s.mode);
   const fleetEnabled = useClientConfig().features.fleet;
   const decision = guardRoute(group, { mode, fleetEnabled });
 

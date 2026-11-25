@@ -28,7 +28,7 @@ export function useRequest<T>(
         if (alive() && id === latest.current) setSettled({ fn, data, error: null });
       } catch (error) {
         if (alive() && id === latest.current)
-          setSettled((prev) => ({ fn, data: prev?.fn === fn ? prev.data : undefined, error }));
+          setSettled(prev => ({ fn, data: prev?.fn === fn ? prev.data : undefined, error }));
       }
     },
     [fn],
@@ -114,13 +114,13 @@ export function useSessionData<T>(fetch: () => Promise<T>): SessionData<T> {
 
   const load = useCallback(async () => {
     const gen = generation.current;
-    setState((s) => ({ ...s, status: 'loading', error: null }));
+    setState(s => ({ ...s, status: 'loading', error: null }));
     try {
       const data = await fetch();
       if (gen === generation.current) setState({ data, status: 'ready', error: null });
       return data;
     } catch (error) {
-      if (gen === generation.current) setState((s) => ({ ...s, status: 'error', error }));
+      if (gen === generation.current) setState(s => ({ ...s, status: 'error', error }));
       throw error;
     }
   }, [fetch]);

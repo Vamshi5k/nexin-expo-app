@@ -42,7 +42,7 @@ export function useProfileSetup() {
   const name = useWatch({ control: form.control, name: 'name' });
   const valid = profileFormSchema.safeParse({ name }).success && accepted;
 
-  const submit = form.handleSubmit(async (values) => {
+  const submit = form.handleSubmit(async values => {
     if (!accepted) {
       toast.error('Please accept the Terms & Conditions and Privacy Policy to continue');
       return;
@@ -63,7 +63,7 @@ export function useProfileSetup() {
     control: form.control,
     initials: initialsOf(name ?? ''),
     accepted,
-    toggleAccepted: () => setAccepted((a) => !a),
+    toggleAccepted: () => setAccepted(a => !a),
     valid,
     saving: save.isPending,
     submit: () => void submit(),
@@ -104,7 +104,7 @@ export function usePermissionsSetup() {
       if (alive) setStatus({ location, notifications });
     };
     void check();
-    const sub = AppState.addEventListener('change', (s) => {
+    const sub = AppState.addEventListener('change', s => {
       if (s === 'active') void check();
     });
     return () => {
@@ -121,7 +121,7 @@ export function usePermissionsSetup() {
     setPending(kind);
     try {
       const result = await requestPermission(kind);
-      setStatus((s) => ({ ...s, [kind]: result }));
+      setStatus(s => ({ ...s, [kind]: result }));
       if (result !== 'granted') return;
       if (kind === 'notifications') void syncPushToken();
       // Android: offer to turn on GPS so the map has a fix straight away.

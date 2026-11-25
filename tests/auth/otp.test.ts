@@ -18,17 +18,12 @@ describe('sanitizeOtp', () => {
 
 describe('otpCells', () => {
   it('marks filled, active and empty boxes', () => {
-    expect(otpCells('12', 4).map((c) => c.state)).toEqual(['filled', 'filled', 'active', 'empty']);
-    expect(otpCells('12', 4).map((c) => c.digit)).toEqual(['1', '2', '', '']);
+    expect(otpCells('12', 4).map(c => c.state)).toEqual(['filled', 'filled', 'active', 'empty']);
+    expect(otpCells('12', 4).map(c => c.digit)).toEqual(['1', '2', '', '']);
   });
 
   it('has no active box when complete', () => {
-    expect(otpCells('1234', 4).map((c) => c.state)).toEqual([
-      'filled',
-      'filled',
-      'filled',
-      'filled',
-    ]);
+    expect(otpCells('1234', 4).map(c => c.state)).toEqual(['filled', 'filled', 'filled', 'filled']);
   });
 });
 

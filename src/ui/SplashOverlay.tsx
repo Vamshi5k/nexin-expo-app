@@ -67,7 +67,7 @@ export function SplashOverlay({ ready }: { ready: boolean }) {
     loader.set(withTiming(0, { duration: 150 }));
     if (reduceMotion) {
       logoOpacity.set(withTiming(0, { duration: 250 }));
-      backdrop.set(withTiming(0, { duration: 250 }, (ok) => ok && scheduleOnRN(finish)));
+      backdrop.set(withTiming(0, { duration: 250 }, ok => ok && scheduleOnRN(finish)));
       return;
     }
     dock.set(withTiming(1, { duration: 640, easing: ease }));
@@ -75,7 +75,7 @@ export function SplashOverlay({ ready }: { ready: boolean }) {
     logoOpacity.set(
       withDelay(
         640,
-        withTiming(0, { duration: 180 }, (ok) => ok && scheduleOnRN(finish)),
+        withTiming(0, { duration: 180 }, ok => ok && scheduleOnRN(finish)),
       ),
     );
   }, [ready, box.height, reduceMotion, loader, dock, backdrop, logoOpacity]);
@@ -99,7 +99,7 @@ export function SplashOverlay({ ready }: { ready: boolean }) {
   return (
     <Animated.View
       pointerEvents={ready ? 'none' : 'auto'}
-      onLayout={(e) => {
+      onLayout={e => {
         const { width, height } = e.nativeEvent.layout;
         setBox({ width, height });
         void SplashScreen.hideAsync();
