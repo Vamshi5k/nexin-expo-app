@@ -4,17 +4,18 @@ import { Bell, MapPin } from 'lucide-react-native';
 
 import { AppButton, AppText } from '@/shared/components';
 
-import { PermissionCard } from '../components/PermissionCard';
-import { SetupLayout } from '../components/SetupLayout';
+import PermissionCard from '../components/PermissionCard';
+import SetupLayout from '../components/SetupLayout';
 
 import { useTheme } from '@/shared/theme';
 
-import { PERMISSIONS_COPY } from '../constants';
-import { usePermissionsSetup } from '../hooks';
+import { PERMISSIONS_COPY } from '../constants/setup.constants';
+import { usePermissionsSetup } from '../hooks/usePermissionsSetup';
 
-export function PermissionsScreen() {
+const PermissionsScreen = () => {
   const t = useTheme();
   const perms = usePermissionsSetup();
+
   return (
     <SetupLayout
       step={3}
@@ -50,4 +51,6 @@ export function PermissionsScreen() {
       </View>
     </SetupLayout>
   );
-}
+};
+
+export default PermissionsScreen;

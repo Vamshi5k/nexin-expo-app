@@ -1,12 +1,13 @@
 import { AppButton } from '@/shared/components';
 
-import { SetupLayout } from '../components/SetupLayout';
+import SetupLayout from '../components/SetupLayout';
 import { VehicleFormBody, VehicleTrail } from '@/features/vehicles';
 
-import { useVehicleSetup } from '../hooks';
+import { useVehicleSetup } from '../hooks/useVehicleSetup';
 
-export function VehicleSetupScreen() {
+const VehicleSetupScreen = () => {
   const { wizard, skip } = useVehicleSetup();
+
   return (
     <SetupLayout
       step={2}
@@ -29,4 +30,6 @@ export function VehicleSetupScreen() {
       <VehicleFormBody wizard={wizard} />
     </SetupLayout>
   );
-}
+};
+
+export default VehicleSetupScreen;

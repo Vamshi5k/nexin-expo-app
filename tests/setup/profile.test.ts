@@ -1,4 +1,4 @@
-import { initialsOf, nameSchema } from '@/features/setup/profile';
+import { initialsOf, nameSchema } from '@/features/setup/utils/profile';
 
 describe('nameSchema (screen-audit 2.5)', () => {
   it.each([

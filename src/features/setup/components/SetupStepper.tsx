@@ -6,12 +6,15 @@ import { AppText } from '@/shared/components';
 
 import { useTheme } from '@/shared/theme';
 
-import { SETUP_STEPS } from '../constants';
+import { SETUP_STEPS } from '../constants/setup.constants';
 
 // Profile · Vehicle · Permissions: done steps show a check, the current one is accent.
-export function SetupStepper({ current }: { current: number }) {
+type SetupStepperProps = { current: number };
+
+const SetupStepper = ({ current }: SetupStepperProps) => {
   const t = useTheme();
   const c = t.colors;
+
   return (
     <View
       style={[styles.row, { gap: t.space[2] }]}
@@ -54,7 +57,9 @@ export function SetupStepper({ current }: { current: number }) {
       })}
     </View>
   );
-}
+};
+
+export default SetupStepper;
 
 const styles = StyleSheet.create({
   row: { flexDirection: 'row' },

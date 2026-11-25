@@ -4,17 +4,18 @@ import { UserRound } from 'lucide-react-native';
 
 import { AppButton, AppFormInput, AppText } from '@/shared/components';
 
-import { SetupLayout } from '../components/SetupLayout';
-import { TermsCheckbox } from '../components/TermsCheckbox';
+import SetupLayout from '../components/SetupLayout';
+import TermsCheckbox from '../components/TermsCheckbox';
 
 import { useTheme } from '@/shared/theme';
 
-import { PROFILE_COPY } from '../constants';
-import { useProfileSetup } from '../hooks';
+import { PROFILE_COPY } from '../constants/setup.constants';
+import { useProfileSetup } from '../hooks/useProfileSetup';
 
-export function ProfileSetupScreen() {
+const ProfileSetupScreen = () => {
   const t = useTheme();
   const profile = useProfileSetup();
+
   return (
     <SetupLayout
       step={1}
@@ -65,7 +66,9 @@ export function ProfileSetupScreen() {
       </View>
     </SetupLayout>
   );
-}
+};
+
+export default ProfileSetupScreen;
 
 const styles = StyleSheet.create({
   avatar: {

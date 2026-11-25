@@ -1,6 +1,6 @@
 export { AuthProvider, openLegal, useAuth, useLogoutConfirm } from './hooks';
 export { useBoot } from './routing';
-export { registerPushToken } from './api';
+export * as authApi from './api';
 export { formatContact, markSetupDone } from './session';
 export { START_HREF } from './constants';
 export type { ContactType, RouteGroup } from './types';

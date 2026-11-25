@@ -7,19 +7,17 @@ import { AppPressable, AppText } from '@/shared/components';
 import { useTheme } from '@/shared/theme';
 
 // The whole row toggles (the old app's 18 pt box alone was too small to hit).
-export function TermsCheckbox({
-  checked,
-  onToggle,
-  onOpenTerms,
-  onOpenPrivacy,
-}: {
+type TermsCheckboxProps = {
   checked: boolean;
   onToggle: () => void;
   onOpenTerms: () => void;
   onOpenPrivacy: () => void;
-}) {
+};
+
+const TermsCheckbox = ({ checked, onToggle, onOpenTerms, onOpenPrivacy }: TermsCheckboxProps) => {
   const t = useTheme();
   const c = t.colors;
+
   return (
     <AppPressable
       onPress={onToggle}
@@ -48,9 +46,11 @@ export function TermsCheckbox({
       </AppText>
     </AppPressable>
   );
-}
+};
 
-function Link({ label, onPress }: { label: string; onPress: () => void }) {
+type LinkProps = { label: string; onPress: () => void };
+
+const Link = ({ label, onPress }: LinkProps) => {
   return (
     <AppText
       variant="callout"
@@ -62,7 +62,9 @@ function Link({ label, onPress }: { label: string; onPress: () => void }) {
       {label}
     </AppText>
   );
-}
+};
+
+export default TermsCheckbox;
 
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center' },

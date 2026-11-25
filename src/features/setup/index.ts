@@ -1,3 +1,3 @@
-export { PermissionsScreen } from './screens/PermissionsScreen';
-export { ProfileSetupScreen } from './screens/ProfileSetupScreen';
-export { VehicleSetupScreen } from './screens/VehicleSetupScreen';
+export { default as PermissionsScreen } from './screens/PermissionsScreen';
+export { default as ProfileSetupScreen } from './screens/ProfileSetupScreen';
+export { default as VehicleSetupScreen } from './screens/VehicleSetupScreen';

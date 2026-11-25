@@ -10,24 +10,27 @@ import { useTheme } from '@/shared/theme';
 import type { PermissionResult } from '@/core/permissions';
 
 // Flat card: sunken at rest, tinted with a check once allowed. No shadow.
-export function PermissionCard({
-  icon: Icon,
-  title,
-  description,
-  status,
-  pending,
-  onAllow,
-}: {
+type PermissionCardProps = {
   icon: LucideIcon;
   title: string;
   description: string;
   status: PermissionResult | null;
   pending: boolean;
   onAllow: () => void;
-}) {
+};
+
+const PermissionCard = ({
+  icon: Icon,
+  title,
+  description,
+  status,
+  pending,
+  onAllow,
+}: PermissionCardProps) => {
   const t = useTheme();
   const c = t.colors;
   const granted = status === 'granted';
+
   return (
     <View
       style={[
@@ -78,7 +81,9 @@ export function PermissionCard({
       )}
     </View>
   );
-}
+};
+
+export default PermissionCard;
 
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center' },

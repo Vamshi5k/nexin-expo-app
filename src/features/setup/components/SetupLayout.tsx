@@ -7,21 +7,12 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppPressable, AppReveal, AppText } from '@/shared/components';
 
-import { SetupStepper } from './SetupStepper';
+import SetupStepper from './SetupStepper';
 
 import { useTheme } from '@/shared/theme';
 
 // Content-first frame for the setup steps: top bar, named stepper, title, body, pinned footer.
-export function SetupLayout({
-  step,
-  title,
-  subtitle,
-  onBack,
-  right,
-  aboveTitle,
-  children,
-  footer,
-}: {
+type SetupLayoutProps = {
   step: number;
   title: string;
   subtitle?: string;
@@ -30,7 +21,18 @@ export function SetupLayout({
   aboveTitle?: ReactNode;
   children: ReactNode;
   footer: ReactNode;
-}) {
+};
+
+const SetupLayout = ({
+  step,
+  title,
+  subtitle,
+  onBack,
+  right,
+  aboveTitle,
+  children,
+  footer,
+}: SetupLayoutProps) => {
   const t = useTheme();
   const insets = useSafeAreaInsets();
   // Edge-to-edge Android never resizes the window, so lift the footer by the keyboard ourselves.
@@ -107,7 +109,9 @@ export function SetupLayout({
       </View>
     </Animated.View>
   );
-}
+};
+
+export default SetupLayout;
 
 const styles = StyleSheet.create({
   flex: { flex: 1 },
