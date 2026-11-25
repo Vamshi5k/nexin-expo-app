@@ -9,15 +9,13 @@ import Animated, {
 
 import { useTheme } from '@/shared/theme';
 
-export function OnboardingProgress({
-  count,
-  width,
-  x,
-}: {
+type OnboardingProgressProps = {
   count: number;
   width: number;
   x: SharedValue<number>;
-}) {
+};
+
+const OnboardingProgress = ({ count, width, x }: OnboardingProgressProps) => {
   const t = useTheme();
 
   return (
@@ -27,9 +25,11 @@ export function OnboardingProgress({
       ))}
     </View>
   );
-}
+};
 
-function Segment({ index, width, x }: { index: number; width: number; x: SharedValue<number> }) {
+type SegmentProps = { index: number; width: number; x: SharedValue<number> };
+
+const Segment = ({ index, width, x }: SegmentProps) => {
   const t = useTheme();
   const fill = useAnimatedStyle(() => ({
     transform: [
@@ -50,7 +50,9 @@ function Segment({ index, width, x }: { index: number; width: number; x: SharedV
       />
     </View>
   );
-}
+};
+
+export default OnboardingProgress;
 
 const styles = StyleSheet.create({
   row: { flexDirection: 'row' },

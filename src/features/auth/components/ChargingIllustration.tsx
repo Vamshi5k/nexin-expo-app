@@ -43,7 +43,7 @@ const BOLT_SCREEN = 'M66.5 85 L61.5 92 H65.5 L64.5 97 L69.5 90 H65.5 Z';
 const BOLT_CHIP = 'M227.5 54 L221 63 H226 L224.5 68 L231 59 H226 Z';
 
 // Hidden while the keyboard is up, so the form gets the space.
-export function ChargingIllustration() {
+const ChargingIllustration = () => {
   const t = useTheme();
   const keyboardOpen = useKeyboardOpen();
   if (keyboardOpen) return null;
@@ -53,9 +53,9 @@ export function ChargingIllustration() {
       <ChargingScene />
     </Animated.View>
   );
-}
+};
 
-function ChargingScene() {
+const ChargingScene = () => {
   const t = useTheme();
   const c = t.colors;
   const reduceMotion = useReducedMotion();
@@ -183,9 +183,11 @@ function ChargingScene() {
       </Svg>
     </View>
   );
-}
+};
 
-function Wheel({ cx, tire, rim, hub }: { cx: number; tire: string; rim: string; hub: string }) {
+type WheelProps = { cx: number; tire: string; rim: string; hub: string };
+
+const Wheel = ({ cx, tire, rim, hub }: WheelProps) => {
   const cy = 150;
 
   return (
@@ -208,7 +210,9 @@ function Wheel({ cx, tire, rim, hub }: { cx: number; tire: string; rim: string; 
       <Circle cx={cx} cy={cy} r={1.8} fill={hub} />
     </>
   );
-}
+};
+
+export default ChargingIllustration;
 
 const styles = StyleSheet.create({
   wrap: { flex: 1, width: '100%', minHeight: 0, alignSelf: 'center' },

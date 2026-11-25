@@ -5,17 +5,17 @@ import Animated, { Easing, FadeIn } from 'react-native-reanimated';
 
 import { AppButton, AppFormInput, AppReveal, AppText } from '@/shared/components';
 
-import { AuthScaffold } from '../components/AuthScaffold';
-import { ChargingIllustration } from '../components/ChargingIllustration';
-import { LegalLink } from '../components/LegalLink';
+import AuthScaffold from '../components/AuthScaffold';
+import ChargingIllustration from '../components/ChargingIllustration';
+import LegalLink from '../components/LegalLink';
 
 import { useTheme } from '@/shared/theme';
 
 import { brand } from '@/core/config';
 
-import { useLoginForm } from '../hooks';
+import { useLoginForm } from '../hooks/useLoginForm';
 
-export function LoginScreen() {
+const LoginScreen = () => {
   const t = useTheme();
   const login = useLoginForm();
   const fadeIn = FadeIn.duration(t.motion.duration).easing(Easing.out(Easing.quad));
@@ -118,7 +118,9 @@ export function LoginScreen() {
       </AppReveal>
     </AuthScaffold>
   );
-}
+};
+
+export default LoginScreen;
 
 const styles = StyleSheet.create({
   art: { flex: 1, minHeight: 0 },

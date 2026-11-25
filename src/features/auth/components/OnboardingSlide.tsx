@@ -10,7 +10,7 @@ import Animated, {
 
 import { AppReveal, AppText } from '@/shared/components';
 
-import { OnboardingArt } from './OnboardingArt';
+import OnboardingArt from './OnboardingArt';
 
 import { useTheme } from '@/shared/theme';
 
@@ -22,21 +22,16 @@ const SLIDE_ICONS: Record<Slide['key'], LucideIcon> = {
   pay: CreditCard,
 };
 
-export function OnboardingSlide({
-  slide,
-  index,
-  count,
-  width,
-  x,
-  spin,
-}: {
+type OnboardingSlideProps = {
   slide: Slide;
   index: number;
   count: number;
   width: number;
   x: SharedValue<number>;
   spin: SharedValue<number>;
-}) {
+};
+
+const OnboardingSlide = ({ slide, index, count, width, x, spin }: OnboardingSlideProps) => {
   const t = useTheme();
   const range = [(index - 1) * width, index * width, (index + 1) * width];
 
@@ -109,7 +104,9 @@ export function OnboardingSlide({
       </View>
     </View>
   );
-}
+};
+
+export default OnboardingSlide;
 
 const styles = StyleSheet.create({
   slide: { flex: 1, justifyContent: 'flex-end' },

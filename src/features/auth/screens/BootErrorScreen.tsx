@@ -4,13 +4,13 @@ import { WifiOff } from 'lucide-react-native';
 
 import { AppButton, AppReveal, AppText } from '@/shared/components';
 
-import { AuthScaffold } from '../components/AuthScaffold';
+import AuthScaffold from '../components/AuthScaffold';
 
 import { useTheme } from '@/shared/theme';
 
 export type BootErrorScreenProps = { onRetry: () => void; retrying?: boolean };
 
-export function BootErrorScreen({ onRetry, retrying }: BootErrorScreenProps) {
+const BootErrorScreen = ({ onRetry, retrying }: BootErrorScreenProps) => {
   const t = useTheme();
 
   return (
@@ -40,7 +40,9 @@ export function BootErrorScreen({ onRetry, retrying }: BootErrorScreenProps) {
       footer={<AppButton label="Try Again" onPress={onRetry} loading={retrying} />}
     />
   );
-}
+};
+
+export default BootErrorScreen;
 
 const styles = StyleSheet.create({
   badge: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center' },

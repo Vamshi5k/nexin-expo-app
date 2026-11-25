@@ -5,18 +5,18 @@ import { router } from 'expo-router';
 
 import { AppButton, AppReveal, AppText } from '@/shared/components';
 
-import { AuthScaffold } from '../components/AuthScaffold';
-import { ChargingIllustration } from '../components/ChargingIllustration';
-import { OtpInput } from '../components/OtpInput';
+import AuthScaffold from '../components/AuthScaffold';
+import ChargingIllustration from '../components/ChargingIllustration';
+import OtpInput from '../components/OtpInput';
 
 import { useTheme } from '@/shared/theme';
 
-import { useOtpForm } from '../hooks';
+import { useOtpForm } from '../hooks/useOtpForm';
 import type { ContactType } from '../types/auth.types';
 
 export type OtpScreenProps = { type: ContactType; value: string };
 
-export function OtpScreen({ type, value }: OtpScreenProps) {
+const OtpScreen = ({ type, value }: OtpScreenProps) => {
   const t = useTheme();
   const inputRef = useRef<TextInputInstance>(null);
   const otp = useOtpForm(type, value, { onWrongCode: () => inputRef.current?.focus() });
@@ -112,7 +112,9 @@ export function OtpScreen({ type, value }: OtpScreenProps) {
       </AppReveal>
     </AuthScaffold>
   );
-}
+};
+
+export default OtpScreen;
 
 const styles = StyleSheet.create({
   help: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap' },

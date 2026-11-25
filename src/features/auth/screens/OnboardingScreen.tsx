@@ -6,15 +6,15 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppAmbientBackground, AppButton, AppReveal, AppText } from '@/shared/components';
 
-import { OnboardingProgress } from '../components/OnboardingProgress';
-import { OnboardingSlide } from '../components/OnboardingSlide';
+import OnboardingProgress from '../components/OnboardingProgress';
+import OnboardingSlide from '../components/OnboardingSlide';
 
 import { useTheme } from '@/shared/theme';
 
-import { useOnboarding } from '../hooks';
+import { useOnboarding } from '../hooks/useOnboarding';
 import type { OnboardingSlide as Slide } from '../types/auth.types';
 
-export function OnboardingScreen() {
+const OnboardingScreen = () => {
   const t = useTheme();
   const insets = useSafeAreaInsets();
   const list = useRef<FlatList<Slide>>(null);
@@ -81,7 +81,9 @@ export function OnboardingScreen() {
       </AppReveal>
     </View>
   );
-}
+};
+
+export default OnboardingScreen;
 
 const styles = StyleSheet.create({
   flex: { flex: 1 },

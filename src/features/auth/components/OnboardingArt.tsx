@@ -8,13 +8,12 @@ import { useTheme } from '@/shared/theme';
 const OUTER = 216;
 const INNER = 152;
 
-export function OnboardingArt({
-  icon: Icon,
-  spin,
-}: {
+type OnboardingArtProps = {
   icon: LucideIcon;
   spin: SharedValue<number>;
-}) {
+};
+
+const OnboardingArt = ({ icon: Icon, spin }: OnboardingArtProps) => {
   const t = useTheme();
   const c = t.colors;
 
@@ -50,21 +49,17 @@ export function OnboardingArt({
       </View>
     </View>
   );
-}
+};
 
-function Orbit({
-  size,
-  dot,
-  color,
-  spin,
-  turns,
-}: {
+type OrbitProps = {
   size: number;
   dot: number;
   color: string;
   spin: SharedValue<number>;
   turns: number;
-}) {
+};
+
+const Orbit = ({ size, dot, color, spin, turns }: OrbitProps) => {
   const style = useAnimatedStyle(() => ({
     transform: [{ rotate: `${spin.value * 360 * turns}deg` }],
   }));
@@ -84,7 +79,9 @@ function Orbit({
       />
     </Animated.View>
   );
-}
+};
+
+export default OnboardingArt;
 
 const styles = StyleSheet.create({
   center: { alignItems: 'center', justifyContent: 'center' },

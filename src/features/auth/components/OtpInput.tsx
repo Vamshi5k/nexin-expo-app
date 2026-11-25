@@ -36,7 +36,7 @@ export type OtpInputProps = {
   ref?: Ref<TextInputInstance>;
 };
 
-export function OtpInput({
+const OtpInput = ({
   value,
   onChange,
   onComplete,
@@ -45,7 +45,7 @@ export function OtpInput({
   disabled,
   autoFocus = true,
   ref,
-}: OtpInputProps) {
+}: OtpInputProps) => {
   const t = useTheme();
   const reduceMotion = useReducedMotion();
   const inner = useRef<TextInputInstance>(null);
@@ -106,9 +106,11 @@ export function OtpInput({
       />
     </RNPressable>
   );
-}
+};
 
-function Cell({ digit, active, error }: { digit?: string; active: boolean; error: boolean }) {
+type CellProps = { digit?: string; active: boolean; error: boolean };
+
+const Cell = ({ digit, active, error }: CellProps) => {
   const t = useTheme();
   const c = t.colors;
   const reduceMotion = useReducedMotion();
@@ -164,7 +166,9 @@ function Cell({ digit, active, error }: { digit?: string; active: boolean; error
       ) : null}
     </Animated.View>
   );
-}
+};
+
+export default OtpInput;
 
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', justifyContent: 'center' },

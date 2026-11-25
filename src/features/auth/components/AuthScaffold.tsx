@@ -25,7 +25,7 @@ export type AuthScaffoldProps = {
 };
 
 // Top bar (logo or back), a brand area over the contour lines, and a flat panel anchored to the bottom.
-export function AuthScaffold({ hero, children, footer, back }: AuthScaffoldProps) {
+const AuthScaffold = ({ hero, children, footer, back }: AuthScaffoldProps) => {
   const t = useTheme();
   const insets = useSafeAreaInsets();
   // Edge-to-edge Android never resizes the window, so lift the content by the keyboard ourselves.
@@ -92,9 +92,9 @@ export function AuthScaffold({ hero, children, footer, back }: AuthScaffoldProps
       </Animated.View>
     </View>
   );
-}
+};
 
-function BackButton() {
+const BackButton = () => {
   const t = useTheme();
 
   return (
@@ -110,7 +110,9 @@ function BackButton() {
       <ChevronLeft color={t.colors.textPrimary} size={20} strokeWidth={1.75} />
     </AppPressable>
   );
-}
+};
+
+export default AuthScaffold;
 
 const styles = StyleSheet.create({
   flex: { flex: 1 },

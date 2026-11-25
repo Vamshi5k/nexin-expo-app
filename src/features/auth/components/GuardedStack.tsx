@@ -4,10 +4,12 @@ import { Redirect, Stack } from 'expo-router';
 
 import { useTheme } from '@/shared/theme';
 
-import { useRouteGuard } from '../routing';
+import { useRouteGuard } from '../hooks/useRouteGuard';
 import type { RouteGroup } from '../types/auth.types';
 
-export function GuardedStack({ group }: { group: RouteGroup }) {
+type GuardedStackProps = { group: RouteGroup };
+
+const GuardedStack = ({ group }: GuardedStackProps) => {
   const t = useTheme();
   const decision = useRouteGuard(group);
 
@@ -23,4 +25,6 @@ export function GuardedStack({ group }: { group: RouteGroup }) {
       }}
     />
   );
-}
+};
+
+export default GuardedStack;
