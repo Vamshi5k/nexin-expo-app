@@ -1,6 +1,6 @@
 import type { Href } from 'expo-router';
 
-import type { OnboardingSlide, StartRoute } from '../types/auth.types';
+import type { OnboardingSlide, SetupStep, StartRoute } from '../types/auth.types';
 
 export const CONSUMER_OTP_LENGTH = 4;
 export const FLEET_OTP_LENGTH = 4;
@@ -23,10 +23,19 @@ export const LOGOUT_COPY = {
 // Same key and value the old app wrote, so existing installs skip onboarding.
 export const ONBOARDING_DONE_VALUE = 'completed';
 
+export const SETUP_STEPS = [
+  'profile',
+  'vehicle',
+  'permissions',
+  'done',
+] as const satisfies readonly SetupStep[];
+
 export const START_HREF = {
   onboarding: '/(auth)/onboarding',
   login: '/(auth)/login',
-  setup: '/(setup)/profile',
+  profile: '/(setup)/profile',
+  vehicle: '/(setup)/vehicle',
+  permissions: '/(setup)/permissions',
   // Not (tabs)/index: groups add nothing to the URL, so that would also be "/" and clash with
   // the root StartRedirect; a guard redirect to "/" from inside (app) then looped forever.
   home: '/(app)/(tabs)/home',

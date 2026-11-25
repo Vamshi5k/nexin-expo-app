@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
 import { useForm, useWatch } from 'react-hook-form';
 
-import { openLegal, useAuth } from '@/features/auth';
+import { openLegal, saveSetupStep, useAuth } from '@/features/auth';
 import { useClientConfig } from '@/features/client-config';
 
 import { getErrorMessage } from '@/core/api';
@@ -41,9 +41,10 @@ export const useProfileSetup = () => {
     try {
       await save.run(values.name.trim());
       toast.success('Profile updated successfully');
-      // Picks up the saved name and, if the server cleared it, isFirstLogin.
-      void loadUser().catch(() => undefined);
+      if (user) saveSetupStep(user.id, 'vehicle');
       router.replace(SETUP_HREF.vehicle);
+      // Picks up the saved name.
+      void loadUser().catch(() => undefined);
     } catch (error) {
       toast.error(getErrorMessage(error));
     }

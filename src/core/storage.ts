@@ -19,6 +19,7 @@ export const KV_KEYS = {
   fcmToken: 'FCM_TOKEN',
   legacyMigrated: 'legacy_migrated_v1',
   setupDoneFor: 'setup_done_for',
+  setupProgress: 'setup_progress',
 } as const;
 export type KvKey = (typeof KV_KEYS)[keyof typeof KV_KEYS];
 

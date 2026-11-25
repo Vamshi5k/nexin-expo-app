@@ -5,7 +5,7 @@ import * as Location from 'expo-location';
 import * as Notifications from 'expo-notifications';
 import { router } from 'expo-router';
 
-import { authApi, markSetupDone, useAuth } from '@/features/auth';
+import { authApi, saveSetupStep, useAuth } from '@/features/auth';
 
 import { log } from '@/core/log';
 import { checkPermission, requestPermission, type PermissionResult } from '@/core/permissions';
@@ -17,7 +17,7 @@ const useFinishSetup = () => {
   const { user } = useAuth();
 
   return useCallback(() => {
-    if (user) markSetupDone(user.id);
+    if (user) saveSetupStep(user.id, 'done');
     router.replace(SETUP_HREF.home);
   }, [user]);
 };

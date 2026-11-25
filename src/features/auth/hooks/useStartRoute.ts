@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 import { type Href } from 'expo-router';
 
@@ -11,14 +11,19 @@ import { START_HREF } from '../constants/auth.constants';
 import {
   classifySessionError,
   isOnboardingDone,
-  isSetupDone,
   resolveStartRoute,
+  saveSetupStep,
+  setupPermissionsGranted,
+  setupStepFor,
 } from '../utils/authFlow';
 
-// Where "/" sends the user, or null while the user is still loading.
+type PermissionCheck = { userId: string; granted: boolean };
+
+// Where "/" sends the user, or null while the user (or a permissions check) is still loading.
 export const useStartRoute = (): Href | null => {
   const { mode, user, userStatus, userError, loadUser } = useAuth();
   const { driverStatus, driverError, loadDriver } = useFleet();
+  const [check, setCheck] = useState<PermissionCheck | null>(null);
   const expired =
     (mode === 'consumer' &&
       userStatus === 'error' &&
@@ -41,11 +46,28 @@ export const useStartRoute = (): Href | null => {
     if (expired) void sessionStore.getState().signOut();
   }, [expired]);
 
+  const setupStep = mode === 'consumer' && user ? setupStepFor(user) : null;
+  const userId = user?.id;
+
+  useEffect(() => {
+    if (setupStep !== 'permissions' || !userId) return;
+    let alive = true;
+    void setupPermissionsGranted().then(granted => {
+      if (!alive) return;
+      if (granted) saveSetupStep(userId, 'done');
+      setCheck({ userId, granted });
+    });
+    return () => {
+      alive = false;
+    };
+  }, [setupStep, userId]);
+
   const route = resolveStartRoute({
     mode,
     user,
     onboardingDone: isOnboardingDone(),
-    setupDone: user ? isSetupDone(user.id) : false,
+    setupStep,
+    permissionsGranted: check && check.userId === userId ? check.granted : null,
   });
 
   return route ? START_HREF[route] : null;
