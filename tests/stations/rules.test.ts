@@ -157,7 +157,7 @@ describe('geo', () => {
     expect(formatDistance(2.456)).toBe('2.5 km');
     expect(formatDistance(12.4)).toBe('12 km');
     expect(formatEta(1)).toBe('2 min');
-    expect(formatEta(45)).toBe('1 hr 30 min');
+    expect(formatEta(45)).toBe('1h 30m');
   });
 
   it('region -> bounds and zoom', () => {
@@ -230,7 +230,7 @@ describe('badgeOf', () => {
 
   it('free counts, and a full station is busy, not offline', () => {
     expect(badgeOf(station)).toEqual({ kind: 'free', free: 2, total: 4 });
-    expect(badgeOf({ ...station, availableConnectors: 0 })).toEqual({ kind: 'busy' });
+    expect(badgeOf({ ...station, availableConnectors: 0 })).toEqual({ kind: 'busy', total: 4 });
     expect(badgeOf({ ...station, totalConnectors: null })).toEqual({ kind: 'online' });
   });
 

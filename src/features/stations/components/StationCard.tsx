@@ -1,10 +1,10 @@
 import { StyleSheet, View } from 'react-native';
 
-import { Navigation } from 'lucide-react-native';
+import { Navigation, Zap } from 'lucide-react-native';
 
-import { AppConnectorIcon, AppPressable, AppText } from '@/shared/components';
+import { AppPressable, AppText } from '@/shared/components';
 
-import StationBadge from './StationBadge';
+import StationStatusStrip from './StationStatusStrip';
 
 import { useTheme, type Theme } from '@/shared/theme';
 
@@ -24,11 +24,17 @@ type StationCardProps = {
   onDirections: (station: NearbyStation) => void;
 };
 
-// Padding, badge, gap and the footer's touch target: the skeleton and the view-all tile match it.
+// Header row, status strip and meta row with the gaps between them: the skeleton and the
+// view-all tile use the same height.
 export const stationCardHeight = (t: Theme) =>
-  t.space[4] * 2 + t.space[12] + t.space[2] + t.space[4] + t.layout.minTouch;
+  t.space[4] * 2 +
+  t.layout.minTouch +
+  t.space[3] * 2 +
+  t.space[2] * 2 +
+  Number(t.type.subhead.lineHeight) +
+  Number(t.type.title2.lineHeight);
 
-const distanceLabel = (km: number | null) => {
+const tripLabel = (km: number | null) => {
   if (km === null) return null;
 
   const distance = formatDistance(km, brand.locale);
@@ -41,14 +47,14 @@ const connectorLabel = (station: NearbyStation) => {
     first ? (rest.length ? `${first} +${rest.length}` : first) : null,
     station.maxPowerKw !== null ? `${station.maxPowerKw} kW` : null,
   ];
-  return parts.filter(Boolean).join(' · ');
+  return parts.filter(Boolean).join(' ');
 };
 
 const StationCard = ({ station, selected, width, onPress, onDirections }: StationCardProps) => {
   const t = useTheme();
   const availability = availabilityOf(station);
-  const distance = distanceLabel(station.distanceKm);
-  const connector = station.connectorTypes[0];
+  const trip = tripLabel(station.distanceKm);
+  const connector = connectorLabel(station);
 
   return (
     <AppPressable
@@ -56,12 +62,11 @@ const StationCard = ({ station, selected, width, onPress, onDirections }: Statio
       accessibilityRole="button"
       accessibilityLabel={`${station.name}, ${availability.label}`}
       style={[
-        styles.card,
         {
           width,
-          gap: t.space[4],
+          gap: t.space[3],
           padding: t.space[4],
-          borderRadius: t.radius.card,
+          borderRadius: t.radius.sheet,
           borderWidth: t.layout.selectedBorder,
           backgroundColor: t.colors.surfaceRaised,
           borderColor: selected ? t.colors.accent : t.colors.border,
@@ -69,41 +74,30 @@ const StationCard = ({ station, selected, width, onPress, onDirections }: Statio
       ]}
     >
       <View style={[styles.row, { gap: t.space[3] }]}>
-        <StationBadge badge={badgeOf(station)} />
+        <View
+          style={[
+            styles.center,
+            {
+              width: t.layout.minTouch,
+              height: t.layout.minTouch,
+              borderRadius: t.radius.control,
+              backgroundColor: t.colors.accentSoft,
+            },
+          ]}
+        >
+          <Zap color={t.colors.accentText} size={t.icon.control} strokeWidth={t.icon.stroke} />
+        </View>
+
         <View style={styles.grow}>
           <AppText variant="headline" numberOfLines={1}>
             {station.name}
           </AppText>
-          {distance ? (
-            <AppText variant="caption" tone="secondary" tabular numberOfLines={1}>
-              {distance}
-            </AppText>
-          ) : null}
           {station.address ? (
-            <AppText variant="caption" tone="tertiary" numberOfLines={1}>
+            <AppText variant="subhead" tone="secondary" numberOfLines={1}>
               {station.address}
             </AppText>
           ) : null}
         </View>
-      </View>
-
-      <View style={[styles.row, { gap: t.space[3] }]}>
-        <View style={[styles.row, styles.grow, { gap: t.space[2] }]}>
-          {connector ? <AppConnectorIcon type={connector} size={t.icon.meta} /> : null}
-          <AppText variant="caption" tone="secondary" numberOfLines={1} tabular>
-            {connectorLabel(station)}
-          </AppText>
-        </View>
-
-        {station.pricePerKwhPaise !== null ? (
-          <AppText variant="subhead" tabular>
-            {formatRate(station.pricePerKwhPaise)}
-            <AppText variant="caption" tone="tertiary">
-              {' '}
-              {CARD_COPY.price}
-            </AppText>
-          </AppText>
-        ) : null}
 
         <AppPressable
           onPress={() => onDirections(station)}
@@ -111,21 +105,45 @@ const StationCard = ({ station, selected, width, onPress, onDirections }: Statio
           accessibilityRole="button"
           accessibilityLabel={`${CARD_COPY.directions} ${station.name}`}
           style={[
-            styles.go,
+            styles.center,
             {
               width: t.layout.minTouch,
               height: t.layout.minTouch,
-              borderRadius: t.radius.pill,
-              backgroundColor: selected ? t.colors.accent : t.colors.surfaceSunken,
+              borderRadius: t.radius.control,
+              backgroundColor: t.colors.accent,
             },
           ]}
         >
-          <Navigation
-            color={selected ? t.colors.onAccent : t.colors.accentText}
-            size={t.icon.meta}
-            strokeWidth={t.icon.stroke}
-          />
+          <Navigation color={t.colors.onAccent} size={t.icon.control} strokeWidth={t.icon.stroke} />
         </AppPressable>
+      </View>
+
+      <StationStatusStrip badge={badgeOf(station)} />
+
+      <View style={[styles.row, { gap: t.space[3] }]}>
+        <AppText
+          variant="subhead"
+          tone="secondary"
+          numberOfLines={1}
+          adjustsFontSizeToFit
+          minimumFontScale={0.85}
+          tabular
+          style={styles.grow}
+        >
+          {trip}
+          {trip && connector ? ' · ' : ''}
+          {connector ? <AppText variant="subhead">{connector}</AppText> : null}
+        </AppText>
+
+        {station.pricePerKwhPaise !== null ? (
+          <AppText variant="title2" tabular>
+            {formatRate(station.pricePerKwhPaise)}
+            <AppText variant="caption" tone="tertiary">
+              {' '}
+              {CARD_COPY.price}
+            </AppText>
+          </AppText>
+        ) : null}
       </View>
     </AppPressable>
   );
@@ -134,18 +152,15 @@ const StationCard = ({ station, selected, width, onPress, onDirections }: Statio
 export default StationCard;
 
 const styles = StyleSheet.create({
-  card: {
-    justifyContent: 'space-between',
-  },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  grow: {
-    flex: 1,
-  },
-  go: {
+  center: {
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  grow: {
+    flex: 1,
   },
 });

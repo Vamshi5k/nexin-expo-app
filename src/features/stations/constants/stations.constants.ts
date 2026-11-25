@@ -58,15 +58,18 @@ export const CARD_COPY = {
   directions: 'Directions to',
 } as const;
 
-export const BADGE_COPY = {
-  free: 'free',
+export const STATUS_COPY = {
+  free: 'Available',
   busy: 'Busy',
   online: 'Online',
-  soon: 'Soon',
-  service: 'Service',
+  soon: 'Coming soon',
+  service: 'Under maintenance',
   offline: 'Offline',
-  unknown: 'No data',
+  unknown: 'No live status',
 } as const;
+
+export const freeOfTotal = (free: number, total: number) => `${free} of ${total} free`;
+export const allInUse = (total: number) => `All ${total} in use`;
 
 export const FILTERS_COPY = {
   title: 'Filters',

@@ -73,16 +73,20 @@ export function availabilityOf(
 export type BadgeKind = 'free' | 'busy' | 'online' | 'soon' | 'service' | 'offline' | 'unknown';
 
 export type Badge =
-  { kind: 'free'; free: number; total: number } | { kind: Exclude<BadgeKind, 'free'> };
+  | { kind: 'free'; free: number; total: number }
+  | { kind: 'busy'; total: number }
+  | { kind: Exclude<BadgeKind, 'free' | 'busy'> };
 
-const BADGE_BY_STATUS: Record<Exclude<StationStatus, 'available'>, Exclude<BadgeKind, 'free'>> = {
+type StatusBadge = Exclude<BadgeKind, 'free' | 'busy' | 'online'>;
+
+const BADGE_BY_STATUS: Record<Exclude<StationStatus, 'available'>, StatusBadge> = {
   upcoming: 'soon',
   maintenance: 'service',
   unavailable: 'offline',
   unknown: 'unknown',
 };
 
-// What the bay-sign badge on a card shows. A full station is busy, not offline.
+// What the status strip on a card shows. A full station is busy, not offline.
 export function badgeOf(
   station: Pick<NearbyStation, 'status' | 'availableConnectors' | 'totalConnectors'>,
 ): Badge {
@@ -90,6 +94,6 @@ export function badgeOf(
 
   const { availableConnectors: free, totalConnectors: total } = station;
   if (free === null || total === null || total <= 0) return { kind: 'online' };
-  if (free <= 0) return { kind: 'busy' };
+  if (free <= 0) return { kind: 'busy', total };
   return { kind: 'free', free: Math.min(free, total), total };
 }

@@ -141,8 +141,8 @@ const NearbyCarousel = ({
           entering={FadeIn}
           style={[styles.row, { paddingHorizontal: sidePadding, gap }]}
         >
-          <AppSkeleton width={cardWidth} height={cardHeight} radius={t.radius.card} />
-          <AppSkeleton width={cardWidth} height={cardHeight} radius={t.radius.card} />
+          <AppSkeleton width={cardWidth} height={cardHeight} radius={t.radius.sheet} />
+          <AppSkeleton width={cardWidth} height={cardHeight} radius={t.radius.sheet} />
         </Animated.View>
       );
     }
@@ -229,7 +229,7 @@ const NearbyCarousel = ({
                     gap: t.space[2],
                     width: t.space[12] * 2 + t.space[6],
                     height: cardHeight,
-                    borderRadius: t.radius.card,
+                    borderRadius: t.radius.sheet,
                     borderWidth: t.layout.selectedBorder,
                     backgroundColor: t.colors.surfaceRaised,
                     borderColor: t.colors.border,
