@@ -34,6 +34,8 @@ export type Palette = {
   dangerText: string;
   onDanger: string;
   connector: Record<ConnectorStatus, string>;
+  // Text or icon colour on a connector-coloured fill (map pins), picked by contrast.
+  onConnector: Record<ConnectorStatus, string>;
   neutral: Record<NeutralStep, string>;
   overlay: string;
   skeleton: string;
@@ -144,6 +146,9 @@ export function buildPalette(brand: BrandConfig, scheme: ColorScheme): Palette {
     dangerText: danger.text,
     onDanger: onFill(danger.base, darkText),
     connector: brand.connectorColors,
+    onConnector: Object.fromEntries(
+      Object.entries(brand.connectorColors).map(([key, fill]) => [key, onFill(fill, darkText)]),
+    ) as Record<ConnectorStatus, string>,
     neutral,
     overlay: withAlpha(neutral[950], light ? 0.45 : 0.6),
     skeleton: light ? mix(surface, neutral[300], 0.45) : neutral[800],

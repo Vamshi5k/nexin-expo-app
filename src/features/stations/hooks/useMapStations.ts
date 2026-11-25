@@ -6,6 +6,7 @@ import { toast } from '@/shared/utils/toast';
 import { stationsApi } from '../api/stations.api';
 import { ERROR_TOAST_COOLDOWN_MS, MAP_COPY, NEARBY_LIMIT } from '../constants/stations.constants';
 import type { Coordinates, StationFilters } from '../types/stations.types';
+import { withNearbyStatus } from '../utils/status';
 
 export const useMapStations = (center: Coordinates, filters: StationFilters) => {
   const { latitude, longitude } = center;
@@ -39,8 +40,11 @@ export const useMapStations = (center: Coordinates, filters: StationFilters) => 
     await Promise.all([refetchPins(), refetchNearby()]);
   }, [refetchPins, refetchNearby]);
 
-  const pinList = useMemo(() => pins.data ?? [], [pins.data]);
   const nearbyList = useMemo(() => nearby.data ?? [], [nearby.data]);
+  const pinList = useMemo(
+    () => withNearbyStatus(pins.data ?? [], nearbyList),
+    [pins.data, nearbyList],
+  );
 
   return {
     pins: pinList,

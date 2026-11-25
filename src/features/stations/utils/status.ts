@@ -1,6 +1,6 @@
 import type { ConnectorStatus } from '@brand/schema';
 
-import type { NearbyStation, StationStatus } from '../types/stations.types';
+import type { NearbyStation, StationPin, StationStatus } from '../types/stations.types';
 
 const STATUS_BY_KEY: Record<string, StationStatus> = {
   available: 'available',
@@ -96,4 +96,16 @@ export function badgeOf(
   if (free === null || total === null || total <= 0) return { kind: 'online' };
   if (free <= 0) return { kind: 'busy', total };
   return { kind: 'free', free: Math.min(free, total), total };
+}
+
+// /station/locations and /station can disagree on a station's status. The nearby list is the
+// fresher of the two, so its status wins for pins it covers and a pin always matches its card.
+export function withNearbyStatus(pins: StationPin[], nearby: NearbyStation[]): StationPin[] {
+  if (!nearby.length) return pins;
+
+  const statusById = new Map(nearby.map(station => [station.id, station.status]));
+  return pins.map(pin => {
+    const status = statusById.get(pin.id);
+    return status && status !== pin.status ? { ...pin, status } : pin;
+  });
 }

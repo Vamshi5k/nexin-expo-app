@@ -18,6 +18,7 @@ import {
   badgeOf,
   pinColorKey,
   toStationStatus,
+  withNearbyStatus,
 } from '@/features/stations/utils/status';
 
 describe('toStationStatus', () => {
@@ -239,5 +240,19 @@ describe('badgeOf', () => {
     expect(badgeOf({ ...station, status: 'maintenance' })).toEqual({ kind: 'service' });
     expect(badgeOf({ ...station, status: 'upcoming' })).toEqual({ kind: 'soon' });
     expect(badgeOf({ ...station, status: 'unknown' })).toEqual({ kind: 'unknown' });
+  });
+});
+
+describe('withNearbyStatus', () => {
+  const pin = { id: '7', name: 'Hub', latitude: 1, longitude: 2, status: 'unavailable' as const };
+
+  it('a pin takes the status of its nearby card, so both show the same colour', () => {
+    const near = { ...toNearbyStation({ id: 7, stationLocation: { latitude: 1, longitude: 2 } })! };
+    const [merged] = withNearbyStatus([pin], [{ ...near, status: 'available' }]);
+    expect(merged.status).toBe('available');
+  });
+
+  it('pins outside the nearby list keep their own status', () => {
+    expect(withNearbyStatus([pin], [])).toEqual([pin]);
   });
 });

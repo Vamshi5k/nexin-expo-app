@@ -2,20 +2,19 @@ import { StyleSheet, View } from 'react-native';
 
 import { Navigation } from 'lucide-react-native';
 
-import { AppPressable, AppText } from '@/shared/components';
+import { AppPressable, AppStatusChip, AppText } from '@/shared/components';
 
 import ChargeCells from './ChargeCells';
-import StationStatusLine from './StationStatusLine';
 
 import { useTheme, type Theme } from '@/shared/theme';
 
 import { brand } from '@/core/config';
 import { formatRate } from '@/shared/utils/money';
 
-import { CARD_COPY, MAX_ETA_KM } from '../constants/stations.constants';
+import { allInUse, CARD_COPY, freeOfTotal, MAX_ETA_KM } from '../constants/stations.constants';
 import type { NearbyStation } from '../types/stations.types';
 import { formatDistance, formatEta } from '../utils/geo';
-import { availabilityOf, badgeOf } from '../utils/status';
+import { availabilityOf, badgeOf, pinColorKey, STATUS_LABEL } from '../utils/status';
 
 type StationCardProps = {
   station: NearbyStation;
@@ -25,12 +24,14 @@ type StationCardProps = {
   onDirections: (station: NearbyStation) => void;
 };
 
-// Status and price row, name, context line, the gap and the action row: the skeleton and the
+// Status chip and price row, name, context line, the gap and the action row: the skeleton and the
 // view-all tile use the same height.
 export const stationCardHeight = (t: Theme) =>
   t.space[5] * 2 +
-  Number(t.type.title2.lineHeight) * 2 +
-  Number(t.type.subhead.lineHeight) +
+  t.space[6] +
+  t.space[1] +
+  Number(t.type.headline.lineHeight) +
+  Number(t.type.caption.lineHeight) +
   t.space[1] * 2 +
   t.space[4] +
   t.layout.minTouch;
@@ -61,6 +62,13 @@ const StationCard = ({ station, selected, width, onPress, onDirections }: Statio
   const connector = connectorLine(station);
   const eta = goLabel(station.distanceKm);
 
+  const usage =
+    badge.kind === 'free'
+      ? { text: freeOfTotal(badge.free, badge.total), color: t.colors.successText }
+      : badge.kind === 'busy'
+        ? { text: allInUse(badge.total), color: t.colors.warningText }
+        : null;
+
   return (
     <AppPressable
       onPress={() => onPress(station.id)}
@@ -79,10 +87,13 @@ const StationCard = ({ station, selected, width, onPress, onDirections }: Statio
       <View style={{ gap: t.space[1] }}>
         <View style={[styles.row, { gap: t.space[3] }]}>
           <View style={styles.grow}>
-            <StationStatusLine badge={badge} />
+            <AppStatusChip
+              label={STATUS_LABEL[station.status]}
+              connector={pinColorKey(station.status)}
+            />
           </View>
           {station.pricePerKwhPaise !== null ? (
-            <AppText variant="title2" tabular>
+            <AppText variant="headline" tabular>
               {formatRate(station.pricePerKwhPaise)}
               <AppText variant="caption" tone="tertiary">
                 {' '}
@@ -91,11 +102,11 @@ const StationCard = ({ station, selected, width, onPress, onDirections }: Statio
             </AppText>
           ) : null}
         </View>
-        <AppText variant="title2" numberOfLines={1}>
+        <AppText variant="headline" numberOfLines={1}>
           {station.name}
         </AppText>
         {context ? (
-          <AppText variant="subhead" tone="secondary" numberOfLines={1} tabular>
+          <AppText variant="caption" tone="secondary" numberOfLines={1} tabular>
             {context}
           </AppText>
         ) : null}
@@ -104,9 +115,18 @@ const StationCard = ({ station, selected, width, onPress, onDirections }: Statio
       <View style={[styles.row, { gap: t.space[3] }]}>
         <View style={[styles.row, styles.grow, { gap: t.space[3] }]}>
           <ChargeCells badge={badge} />
-          <AppText variant="subhead" numberOfLines={1} tabular style={styles.shrink}>
-            {connector}
-          </AppText>
+          <View style={styles.shrink}>
+            {usage ? (
+              <AppText variant="caption" numberOfLines={1} tabular style={{ color: usage.color }}>
+                {usage.text}
+              </AppText>
+            ) : null}
+            {connector ? (
+              <AppText variant="caption" tone="secondary" numberOfLines={1} tabular>
+                {connector}
+              </AppText>
+            ) : null}
+          </View>
         </View>
 
         <AppPressable

@@ -3,15 +3,13 @@ import { StyleSheet, View } from 'react-native';
 import { ChevronRight } from 'lucide-react-native';
 import Animated, { Easing, FadeInDown, FadeOutDown } from 'react-native-reanimated';
 
-import { AppPressable, AppText } from '@/shared/components';
-
-import StationStatusLine from './StationStatusLine';
+import { AppPressable, AppStatusChip, AppText } from '@/shared/components';
 
 import { useTheme } from '@/shared/theme';
 
 import { MAP_COPY } from '../constants/stations.constants';
 import type { StationPin } from '../types/stations.types';
-import { badgeOf, STATUS_LABEL } from '../utils/status';
+import { pinColorKey, STATUS_LABEL } from '../utils/status';
 
 type StationPeekCardProps = {
   pin: StationPin;
@@ -20,7 +18,6 @@ type StationPeekCardProps = {
 
 const StationPeekCard = ({ pin, onPress }: StationPeekCardProps) => {
   const t = useTheme();
-  const badge = badgeOf({ status: pin.status, availableConnectors: null, totalConnectors: null });
 
   return (
     <Animated.View
@@ -44,11 +41,11 @@ const StationPeekCard = ({ pin, onPress }: StationPeekCardProps) => {
         ]}
       >
         <View style={[styles.grow, { gap: t.space[1] }]}>
-          <StationStatusLine badge={badge} />
-          <AppText variant="title2" numberOfLines={1}>
+          <AppStatusChip label={STATUS_LABEL[pin.status]} connector={pinColorKey(pin.status)} />
+          <AppText variant="headline" numberOfLines={1}>
             {pin.name}
           </AppText>
-          <AppText variant="subhead" tone="secondary">
+          <AppText variant="caption" tone="secondary">
             {MAP_COPY.viewDetails}
           </AppText>
         </View>

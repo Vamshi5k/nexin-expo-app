@@ -79,12 +79,18 @@ the driver find, start, watch or pay for a charge.
   solid surfaceRaised with a hairline borderStrong edge on Android. Still no shadows.
 - Map: full bleed under the status bar and the tab bar. One glass capsule at the top holds
   search and a filter button (accentSoft + count badge when filters are on). A glass
-  my-location circle sits above the cards. Nearby station cards answer, in reading order:
-  can I charge now (status dot + "Busy · All 2 in use"), what it costs (rate per kWh as the
-  one large figure, top right), where (title2 name, then "59 km · address"), how fast (charge
-  cells, one per connector, then "CCS2 · 60 kW") and take me there (accent pill with the
-  drive time inside). Charge cells are the signature detail; colour appears only where it
-  means a state.
+  my-location circle sits above the cards.
+- Station status colours come from `brand.connectorColors` (per client): Available green,
+  Unavailable red, Under maintenance yellow, Upcoming amber, unknown grey. The same colour is
+  used by the status badge on the card (`AppStatusChip` with `connector`) and by the map pin,
+  and a pin in the nearby list takes the card's status so the two always match.
+- Map pins: resting, a status-coloured dot with a surface ring inside a soft halo of the same
+  colour; selected, it opens into a status-coloured pill with the station name and a pointer.
+  Icon and text on the fill use `onConnector`, picked by contrast.
+- Nearby station cards, in reading order: status badge with the rate per kWh on the right,
+  headline name, "59 km · address" caption, then charge cells (one per connector, filled when
+  free, amber when all busy) with "2 of 4 free" / "CCS2 · 60 kW" and an accent Navigate pill
+  carrying the drive time.
 - Tab bar: a floating glass capsule inset 16 from the screen edges, above the home indicator.
   Labels always visible; the active tab sits in an accentSoft pill with accentText icon and
   label. Scan is an accent circle with an onAccent icon in the middle of the capsule. Tab
