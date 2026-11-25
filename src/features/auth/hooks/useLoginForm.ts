@@ -60,7 +60,7 @@ export const useLoginForm = () => {
     switchType,
     showFleetLogin: config.features.fleet,
     openFleetLogin: () => router.push(FLEET_HREF.login),
-    openTerms: () => void openLegal(config.termsUrl),
-    openPrivacy: () => void openLegal(config.privacyUrl),
+    openTerms: () => void openLegal(config.links.terms),
+    openPrivacy: () => void openLegal(config.links.privacy),
   };
 };

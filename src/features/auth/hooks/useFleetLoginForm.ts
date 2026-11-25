@@ -46,7 +46,7 @@ export const useFleetLoginForm = () => {
     valid,
     submitting: login.isPending,
     submit: () => void submit(),
-    openTerms: () => void openLegal(config.termsUrl),
-    openPrivacy: () => void openLegal(config.privacyUrl),
+    openTerms: () => void openLegal(config.links.terms),
+    openPrivacy: () => void openLegal(config.links.privacy),
   };
 };

@@ -2,4 +2,4 @@
 export const CLIENT_CONFIG_BOOT_TIMEOUT_MS = 8_000;
 
 // Bump when ClientConfig changes shape so old cached copies are ignored.
-export const CLIENT_CONFIG_CACHE_VERSION = 1;
+export const CLIENT_CONFIG_CACHE_VERSION = 2;

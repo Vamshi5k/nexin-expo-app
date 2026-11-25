@@ -58,7 +58,7 @@ export const useProfileSetup = () => {
     valid,
     saving: save.isPending,
     submit: () => void submit(),
-    openTerms: () => void openLegal(config.termsUrl),
-    openPrivacy: () => void openLegal(config.privacyUrl),
+    openTerms: () => void openLegal(config.links.terms),
+    openPrivacy: () => void openLegal(config.links.privacy),
   };
 };
