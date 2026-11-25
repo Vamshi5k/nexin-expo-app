@@ -1,6 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 
-import { Zap } from 'lucide-react-native';
+import { Navigation, ZapOff } from 'lucide-react-native';
 
 import { AppConnectorIcon, AppPressable, AppText } from '@/shared/components';
 
@@ -18,29 +18,12 @@ type StationCardProps = {
   selected: boolean;
   width: number;
   onPress: (stationId: string) => void;
+  onDirections: (station: NearbyStation) => void;
 };
 
-type MeterProps = { free: number; total: number; freeColor: string; busyColor: string };
-
-export const STATION_CARD_HEIGHT = 120;
-const MAX_METER_BARS = 6;
-
-// One bar per connector, free ones filled: availability at a glance.
-const Meter = ({ free, total, freeColor, busyColor }: MeterProps) => {
-  const bars = Math.min(total, MAX_METER_BARS);
-  const filled = Math.round((Math.min(free, total) / total) * bars);
-
-  return (
-    <View style={styles.meter}>
-      {Array.from({ length: bars }, (_, index) => (
-        <View
-          key={index}
-          style={[styles.bar, { backgroundColor: index < filled ? freeColor : busyColor }]}
-        />
-      ))}
-    </View>
-  );
-};
+export const STATION_CARD_HEIGHT = 136;
+const BADGE_SIZE = 56;
+const GO_SIZE = 36;
 
 const distanceLabel = (km: number | null) => {
   if (km === null) return null;
@@ -48,25 +31,31 @@ const distanceLabel = (km: number | null) => {
   return `${formatDistance(km)} · ${formatEta(km)}`;
 };
 
-const StationCard = ({ station, selected, width, onPress }: StationCardProps) => {
+const connectorLabel = (station: NearbyStation) => {
+  const [first, ...rest] = station.connectorTypes;
+  const parts = [
+    first ? (rest.length ? `${first} +${rest.length}` : first) : null,
+    station.maxPowerKw !== null ? `${station.maxPowerKw} kW` : null,
+  ];
+  return parts.filter(Boolean).join(' · ');
+};
+
+const StationCard = ({ station, selected, width, onPress, onDirections }: StationCardProps) => {
   const t = useTheme();
   const availability = availabilityOf(station);
   const { availableConnectors: free, totalConnectors: total } = station;
 
-  const toneColor: Record<Availability['tone'], string> = {
-    success: t.colors.successText,
-    warning: t.colors.warningText,
-    danger: t.colors.dangerText,
-    neutral: t.colors.textSecondary,
+  const tones: Record<Availability['tone'], { bg: string; fg: string }> = {
+    success: { bg: t.colors.successSoft, fg: t.colors.successText },
+    warning: { bg: t.colors.warningSoft, fg: t.colors.warningText },
+    danger: { bg: t.colors.dangerSoft, fg: t.colors.dangerText },
+    neutral: { bg: t.colors.surfaceSunken, fg: t.colors.textSecondary },
   };
+  const tone = tones[availability.tone];
+  const hasCounts = availability.tone === 'success' && free !== null && total !== null;
 
-  const showMeter = availability.tone === 'success' && free !== null && total !== null && total > 0;
-  const statusLabel = showMeter
-    ? `${Math.min(free, total)} of ${total} ${CARD_COPY.free}`
-    : availability.label;
-
-  const where = [distanceLabel(station.distanceKm), station.address].filter(Boolean).join(' · ');
-  const [firstConnector, ...otherConnectors] = station.connectorTypes;
+  const connectors = connectorLabel(station);
+  const distance = distanceLabel(station.distanceKm);
 
   return (
     <AppPressable
@@ -77,6 +66,7 @@ const StationCard = ({ station, selected, width, onPress }: StationCardProps) =>
         styles.card,
         {
           width,
+          gap: t.space[3],
           borderRadius: t.radius.card,
           backgroundColor: t.colors.surfaceRaised,
           borderColor: selected ? t.colors.accent : t.colors.border,
@@ -84,70 +74,78 @@ const StationCard = ({ station, selected, width, onPress }: StationCardProps) =>
         },
       ]}
     >
-      <View style={[styles.row, styles.top, { gap: t.space[3] }]}>
+      <View style={[styles.row, { gap: t.space[3] }]}>
+        <View style={[styles.badge, { backgroundColor: tone.bg, borderRadius: t.radius.control }]}>
+          {hasCounts ? (
+            <>
+              <AppText variant="headline" tabular style={{ color: tone.fg }}>
+                {Math.min(free, total)}/{total}
+              </AppText>
+              <AppText variant="caption" style={[styles.badgeLabel, { color: tone.fg }]}>
+                {CARD_COPY.free}
+              </AppText>
+            </>
+          ) : (
+            <>
+              <ZapOff color={tone.fg} size={18} strokeWidth={1.75} />
+              <AppText
+                variant="caption"
+                numberOfLines={1}
+                style={[styles.badgeLabel, { color: tone.fg }]}
+              >
+                {availability.tone === 'neutral' ? CARD_COPY.unknown : CARD_COPY.off}
+              </AppText>
+            </>
+          )}
+        </View>
+
         <View style={styles.grow}>
           <AppText variant="headline" numberOfLines={1}>
             {station.name}
           </AppText>
-          {where ? (
-            <AppText variant="caption" tone="tertiary" numberOfLines={1} tabular>
-              {where}
+          {distance ? (
+            <AppText variant="caption" tone="secondary" tabular numberOfLines={1}>
+              {distance}
+            </AppText>
+          ) : null}
+          {station.address ? (
+            <AppText variant="caption" tone="tertiary" numberOfLines={1}>
+              {station.address}
             </AppText>
           ) : null}
         </View>
-
-        {station.pricePerKwhPaise !== null ? (
-          <View style={styles.price}>
-            <AppText variant="title2" tabular>
-              {formatPaise(station.pricePerKwhPaise)}
-            </AppText>
-            <AppText variant="caption" tone="tertiary">
-              {CARD_COPY.price}
-            </AppText>
-          </View>
-        ) : null}
       </View>
 
-      <View style={[styles.row, { gap: t.space[4] }]}>
-        <View style={[styles.row, styles.grow, { gap: t.space[2] }]}>
-          {showMeter ? (
-            <Meter
-              free={free}
-              total={total}
-              freeColor={t.colors.success}
-              busyColor={t.colors.surfaceSunken}
-            />
-          ) : (
-            <View style={[styles.dot, { backgroundColor: toneColor[availability.tone] }]} />
-          )}
-          <AppText
-            variant="caption"
-            numberOfLines={1}
-            style={{ color: toneColor[availability.tone] }}
-          >
-            {statusLabel}
+      <View style={[styles.footer, { gap: t.space[3], borderTopColor: t.colors.border }]}>
+        <View style={[styles.row, styles.grow, { gap: 6 }]}>
+          {station.connectorTypes[0] ? (
+            <AppConnectorIcon type={station.connectorTypes[0]} size={16} />
+          ) : null}
+          <AppText variant="caption" tone="secondary" numberOfLines={1} tabular>
+            {connectors}
           </AppText>
         </View>
 
-        {station.maxPowerKw !== null ? (
-          <View style={[styles.row, { gap: 3 }]}>
-            <Zap color={t.colors.accentText} size={13} strokeWidth={2} />
-            <AppText variant="caption" tone="secondary" tabular>
-              {station.maxPowerKw} kW
+        {station.pricePerKwhPaise !== null ? (
+          <AppText variant="subhead" tabular>
+            {formatPaise(station.pricePerKwhPaise)}
+            <AppText variant="caption" tone="tertiary">
+              {' '}
+              {CARD_COPY.price}
             </AppText>
-          </View>
+          </AppText>
         ) : null}
 
-        {firstConnector ? (
-          <View style={[styles.row, { gap: 4 }]}>
-            <AppConnectorIcon type={firstConnector} size={15} />
-            <AppText variant="caption" tone="secondary" numberOfLines={1}>
-              {otherConnectors.length
-                ? `${firstConnector} +${otherConnectors.length}`
-                : firstConnector}
-            </AppText>
-          </View>
-        ) : null}
+        <AppPressable
+          onPress={() => onDirections(station)}
+          haptic="light"
+          hitSlop={8}
+          accessibilityRole="button"
+          accessibilityLabel={`${CARD_COPY.directions} ${station.name}`}
+          style={[styles.go, { backgroundColor: t.colors.accent }]}
+        >
+          <Navigation color={t.colors.onAccent} size={16} strokeWidth={2} />
+        </AppPressable>
       </View>
     </AppPressable>
   );
@@ -157,37 +155,38 @@ export default StationCard;
 
 const styles = StyleSheet.create({
   card: {
-    height: STATION_CARD_HEIGHT,
-    justifyContent: 'space-between',
-    paddingHorizontal: 18,
-    paddingVertical: 16,
+    minHeight: STATION_CARD_HEIGHT,
+    padding: 14,
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  top: {
-    alignItems: 'flex-start',
-  },
   grow: {
     flex: 1,
-    gap: 3,
+    gap: 1,
   },
-  price: {
-    alignItems: 'flex-end',
+  badge: {
+    width: BADGE_SIZE,
+    height: BADGE_SIZE,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  meter: {
+  badgeLabel: {
+    fontSize: 11,
+    lineHeight: 13,
+  },
+  footer: {
     flexDirection: 'row',
-    gap: 3,
+    alignItems: 'center',
+    paddingTop: 10,
+    borderTopWidth: StyleSheet.hairlineWidth,
   },
-  bar: {
-    width: 12,
-    height: 6,
-    borderRadius: 3,
-  },
-  dot: {
-    width: 7,
-    height: 7,
-    borderRadius: 4,
+  go: {
+    width: GO_SIZE,
+    height: GO_SIZE,
+    borderRadius: GO_SIZE / 2,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

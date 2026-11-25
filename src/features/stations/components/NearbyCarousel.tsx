@@ -33,6 +33,7 @@ type NearbyCarouselProps = {
   hasFilters: boolean;
   onFocus: (index: number) => void;
   onPressStation: (stationId: string) => void;
+  onDirections: (station: NearbyStation) => void;
   onViewAll: () => void;
   onClearFilters: () => void;
 };
@@ -74,6 +75,7 @@ const NearbyCarousel = ({
   hasFilters,
   onFocus,
   onPressStation,
+  onDirections,
   onViewAll,
   onClearFilters,
 }: NearbyCarouselProps) => {
@@ -185,6 +187,7 @@ const NearbyCarousel = ({
                 width={cardWidth}
                 selected={item.id === selectedId}
                 onPress={onPressStation}
+                onDirections={onDirections}
               />
             </CarouselItem>
           )}
@@ -248,7 +251,8 @@ const styles = StyleSheet.create({
   },
   viewAll: {
     width: VIEW_ALL_WIDTH,
-    height: STATION_CARD_HEIGHT,
+    minHeight: STATION_CARD_HEIGHT,
+    alignSelf: 'stretch',
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,

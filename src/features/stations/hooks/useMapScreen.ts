@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { FlatList } from 'react-native';
+import { Linking, Platform, type FlatList } from 'react-native';
 
 import { router } from 'expo-router';
 import type MapView from 'react-native-maps';
 import type { MapPressEvent } from 'react-native-maps';
 
 import { brand } from '@/core/config';
+import { log } from '@/core/log';
 import { haptics } from '@/shared/utils/haptics';
 
 import { useMapClusters } from './useMapClusters';
@@ -20,6 +21,7 @@ import type {
   StationFilters,
   StationPin,
 } from '../types/stations.types';
+import { directionsUrls } from '../utils/directions';
 import { countActiveFilters } from '../utils/filters';
 import { regionAround } from '../utils/geo';
 
@@ -117,6 +119,15 @@ export const useMapScreen = () => {
     if (position) panTo(position, MY_LOCATION_ZOOM_DELTA);
   };
 
+  const openDirections = (station: NearbyStation) => {
+    const { app, web } = directionsUrls(station, Platform.OS === 'ios' ? 'ios' : 'android');
+    Linking.openURL(app).catch(() =>
+      Linking.openURL(web).catch((error: unknown) =>
+        log.warn('could not open directions', { error: String(error) }),
+      ),
+    );
+  };
+
   const onApplyFilters = (next: StationFilters) => {
     applyFilters(next);
     setFiltersOpen(false);
@@ -157,5 +168,6 @@ export const useMapScreen = () => {
     openStation: (stationId: string) =>
       router.push({ pathname: '/(app)/station/[stationId]', params: { stationId } }),
     openStationList: () => router.navigate(STATIONS_HREF.list),
+    openDirections,
   };
 };

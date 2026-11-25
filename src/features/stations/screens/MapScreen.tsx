@@ -112,6 +112,7 @@ const MapScreen = () => {
             hasFilters={map.activeFilterCount > 0}
             onFocus={map.onCardFocus}
             onPressStation={map.openStation}
+            onDirections={map.openDirections}
             onViewAll={map.openStationList}
             onClearFilters={map.onClearFilters}
           />

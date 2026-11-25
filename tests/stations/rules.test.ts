@@ -4,6 +4,7 @@ import {
   createClusterIndex,
   mapItemsInRegion,
 } from '@/features/stations/utils/clusters';
+import { directionsUrls } from '@/features/stations/utils/directions';
 import { countActiveFilters, toFilterParams } from '@/features/stations/utils/filters';
 import {
   distanceKm,
@@ -204,5 +205,17 @@ describe('clusters', () => {
 
     const region = clusterExpansionRegion(index, cluster.clusterId, cluster.coordinate);
     expect(region.longitudeDelta).toBeLessThan(1);
+  });
+});
+
+describe('directions', () => {
+  const point = { latitude: 17.42, longitude: 78.37 };
+
+  it('opens the native maps app, with a Google Maps web fallback', () => {
+    expect(directionsUrls(point, 'ios')).toEqual({
+      app: 'maps://?daddr=17.42,78.37',
+      web: 'https://www.google.com/maps/dir/?api=1&destination=17.42,78.37',
+    });
+    expect(directionsUrls(point, 'android').app).toBe('google.navigation:q=17.42,78.37');
   });
 });

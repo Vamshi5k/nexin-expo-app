@@ -71,7 +71,7 @@ export default StationPeekCard;
 
 const styles = StyleSheet.create({
   card: {
-    height: STATION_CARD_HEIGHT,
+    minHeight: STATION_CARD_HEIGHT,
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 14,
