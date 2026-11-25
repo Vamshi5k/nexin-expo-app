@@ -1,4 +1,5 @@
-export { AuthProvider, openLegal, useAuth, useBoot, useLogoutConfirm } from './hooks';
+export { AuthProvider, openLegal, useAuth, useLogoutConfirm } from './hooks';
+export { useBoot } from './routing';
 export { registerPushToken } from './api';
 export { formatContact, markSetupDone } from './session';
 export { START_HREF } from './constants';

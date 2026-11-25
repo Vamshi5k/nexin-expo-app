@@ -3,7 +3,7 @@ import { View } from 'react-native';
 
 import { useTheme } from '@/theme';
 
-import { useRouteGuard } from '../hooks';
+import { useRouteGuard } from '../routing';
 import type { RouteGroup } from '../types';
 
 export function GuardedStack({ group }: { group: RouteGroup }) {

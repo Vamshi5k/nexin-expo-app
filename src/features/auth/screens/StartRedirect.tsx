@@ -3,7 +3,7 @@ import { View } from 'react-native';
 
 import { useTheme } from '@/theme';
 
-import { useStartRoute } from '../hooks';
+import { useStartRoute } from '../routing';
 
 import { BootErrorScreen } from './BootErrorScreen';
 
