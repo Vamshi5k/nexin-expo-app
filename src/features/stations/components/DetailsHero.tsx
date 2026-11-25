@@ -1,22 +1,24 @@
+import type { ComponentType } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import { Image } from 'expo-image';
 import { ArrowLeft, Heart, Share2, type LucideIcon } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
 
 import { AppGlass, AppPressable } from '@/shared/components';
 
 import CardGradient from './CardGradient';
 import ChargerArt from './ChargerArt';
+import type { DetailsMapProps } from './DetailsMap';
 
 import { useTheme, type Theme } from '@/shared/theme';
 
+import { mapsSupport } from '@/core/maps';
+
 import { DETAILS_COPY } from '../constants/stations.constants';
+import type { StationDetails } from '../types/stations.types';
 
 type DetailsHeroProps = {
-  stationId: string;
-  imageUrl: string | null;
+  station: StationDetails;
   statusColor: string;
   isFavourite: boolean;
   onBack: () => void;
@@ -31,7 +33,16 @@ type GlassButtonProps = {
   active?: boolean;
 };
 
-export const heroHeight = (t: Theme) => t.space[12] * 4 + t.space[10];
+// Loaded only when the native maps module exists, like the map screen.
+const DetailsMap: ComponentType<DetailsMapProps> | null =
+  mapsSupport === 'ready'
+    ? // eslint-disable-next-line @typescript-eslint/no-require-imports
+      (require('./DetailsMap') as typeof import('./DetailsMap')).default
+    : null;
+
+export const heroHeight = (t: Theme) => t.space[12] * 6;
+// The sheet slides up over the hero by this much.
+export const sheetOverlap = (t: Theme) => t.space[8];
 
 const GlassButton = ({ icon: Icon, label, onPress, active }: GlassButtonProps) => {
   const t = useTheme();
@@ -58,10 +69,9 @@ const GlassButton = ({ icon: Icon, label, onPress, active }: GlassButtonProps) =
   );
 };
 
-// The station photo, or the brand charger drawing on the status colour when there is none.
+// Uber-style top: a still map of the station, or the brand charger art when maps are missing.
 const DetailsHero = ({
-  stationId,
-  imageUrl,
+  station,
   statusColor,
   isFavourite,
   onBack,
@@ -70,36 +80,17 @@ const DetailsHero = ({
 }: DetailsHeroProps) => {
   const t = useTheme();
   const insets = useSafeAreaInsets();
-  const height = heroHeight(t);
-  const fadeId = `hero-fade-${stationId}`;
 
   return (
-    <View style={{ height, backgroundColor: t.colors.surfaceRaised }}>
-      {imageUrl ? (
-        <Image
-          source={{ uri: imageUrl }}
-          style={StyleSheet.absoluteFill}
-          contentFit="cover"
-          transition={t.motion.duration}
-          accessibilityIgnoresInvertColors
-        />
+    <View style={{ height: heroHeight(t), backgroundColor: t.colors.surfaceSunken }}>
+      {DetailsMap ? (
+        <DetailsMap station={station} />
       ) : (
         <View style={[StyleSheet.absoluteFill, styles.center]}>
-          <CardGradient color={statusColor} id={`hero-${stationId}`} />
+          <CardGradient color={statusColor} id={`hero-${station.id}`} />
           <ChargerArt size={t.space[12] * 2 + t.space[10]} glow={statusColor} />
         </View>
       )}
-
-      {/* Fade into the page so the info below reads as part of the same surface. */}
-      <Svg style={[styles.fade, { height: t.space[12] }]} pointerEvents="none">
-        <Defs>
-          <LinearGradient id={fadeId} x1="0" y1="0" x2="0" y2="1">
-            <Stop offset="0" stopColor={t.colors.bg} stopOpacity={0} />
-            <Stop offset="1" stopColor={t.colors.bg} stopOpacity={1} />
-          </LinearGradient>
-        </Defs>
-        <Rect x="0" y="0" width="100%" height="100%" fill={`url(#${fadeId})`} />
-      </Svg>
 
       <View
         style={[
@@ -127,12 +118,6 @@ const styles = StyleSheet.create({
   center: {
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  fade: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
   },
   bar: {
     position: 'absolute',

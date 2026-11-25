@@ -111,13 +111,14 @@ the driver find, start, watch or pay for a charge.
   inputs are large chips; the price breakdown is collapsed by default.
 - Wallet: the balance card is the hero (large tabular number); transactions are grouped
   by date.
-- Station details: a full-width hero (the station photo, or `ChargerArt` on the status
-  gradient when there is none) fading into the page, with floating glass back, share and heart
-  buttons. Then the status chip, title2 name, address and a `StatRow` (distance, drive, max
-  power, lowest rate), amenity chips, and one card per charger (free chargers first) with
-  connector rows: connector icon tile, "Connector n", type and rate, a status chip in the
-  connector colour and a chevron only when it can start. Directions (and Call, only with a
-  phone number) sit in a sticky bottom bar.
+- Station details (Uber-style, brand palette): a still map of the station with its pin (brand
+  charger art on the status gradient when maps are missing) and floating glass back, share and
+  heart buttons. A white sheet with a grabber overlaps the map: title1 name, a status dot with
+  status and address, 2x2 sunken info tiles (distance, drive, max power, lowest rate), then
+  "Chargers" as plain list rows (connector icon in a grey circle, bold "CCS2 · 60 kW DC",
+  "Connector n" or charging progress, rate and a status dot on the right, chevron only when it
+  can start) and amenity chips. A sticky accent "Get Directions · 1h 58m" button, with Call
+  only when there is a phone number.
 
 ## Splash, onboarding, auth and first-run setup (flat)
 - Completely flat: no shadows, glows or blurs. Shape comes from flat fills (accent,

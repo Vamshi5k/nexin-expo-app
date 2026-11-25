@@ -13,7 +13,7 @@ import {
 
 import ChargerSection from '../components/ChargerSection';
 import DetailsActionBar, { actionBarHeight } from '../components/DetailsActionBar';
-import DetailsHero, { heroHeight } from '../components/DetailsHero';
+import DetailsHero, { heroHeight, sheetOverlap } from '../components/DetailsHero';
 import MapsChooserSheet from '../components/MapsChooserSheet';
 import StationInfo from '../components/StationInfo';
 
@@ -93,10 +93,9 @@ const StationDetailsScreen = ({ stationId }: StationDetailsScreenProps) => {
   const statusColor = t.colors.connector[pinColorKey(station.status)];
 
   return (
-    <View style={[styles.screen, { backgroundColor: t.colors.bg }]}>
+    <View style={[styles.screen, { backgroundColor: t.colors.surface }]}>
       <ScrollView
         contentContainerStyle={{
-          gap: t.layout.sectionGap,
           paddingBottom: actionBarHeight(t, insets.bottom) + t.layout.sectionGap,
         }}
         refreshControl={
@@ -109,8 +108,7 @@ const StationDetailsScreen = ({ stationId }: StationDetailsScreenProps) => {
         }
       >
         <DetailsHero
-          stationId={station.id}
-          imageUrl={station.imageUrl}
+          station={station}
           statusColor={statusColor}
           isFavourite={details.isFavourite}
           onBack={details.goBack}
@@ -118,40 +116,37 @@ const StationDetailsScreen = ({ stationId }: StationDetailsScreenProps) => {
           onToggleFavourite={details.toggleFavourite}
         />
 
-        <StationInfo station={station} distance={details.distance} />
+        <View
+          style={{
+            marginTop: -sheetOverlap(t),
+            gap: t.space[6],
+            paddingHorizontal: t.layout.screenPadding,
+            paddingTop: t.space[3],
+            borderTopLeftRadius: t.radius.sheet,
+            borderTopRightRadius: t.radius.sheet,
+            backgroundColor: t.colors.surface,
+          }}
+        >
+          <View
+            style={[
+              styles.grabber,
+              {
+                width: t.space[10],
+                height: t.space[1],
+                borderRadius: t.radius.pill,
+                backgroundColor: t.colors.borderStrong,
+              },
+            ]}
+          />
 
-        {station.amenities.length ? (
-          <View style={{ gap: t.space[2], paddingHorizontal: t.layout.screenPadding }}>
-            <AppText variant="headline" accessibilityRole="header">
-              {DETAILS_COPY.amenities}
-            </AppText>
-            <View style={[styles.wrap, { gap: t.space[2] }]}>
-              {station.amenities.map(amenity => (
-                <View
-                  key={amenity}
-                  style={{
-                    paddingHorizontal: t.space[3],
-                    paddingVertical: t.space[1],
-                    borderRadius: t.radius.pill,
-                    backgroundColor: t.colors.surfaceSunken,
-                  }}
-                >
-                  <AppText variant="caption" tone="secondary">
-                    {amenity}
-                  </AppText>
-                </View>
-              ))}
-            </View>
-          </View>
-        ) : null}
+          <StationInfo station={station} distance={details.distance} />
 
-        <View style={{ gap: t.space[3], paddingHorizontal: t.layout.screenPadding }}>
-          <View style={{ gap: t.space[1] }}>
-            <AppText variant="headline" accessibilityRole="header">
+          <View style={{ gap: t.space[2] }}>
+            <AppText variant="title2" accessibilityRole="header">
               {DETAILS_COPY.chargers}
             </AppText>
             {details.chargers.length ? (
-              <AppText variant="caption" tone="secondary">
+              <AppText variant="subhead" tone="secondary">
                 {DETAILS_COPY.tip}
               </AppText>
             ) : null}
@@ -173,10 +168,34 @@ const StationDetailsScreen = ({ stationId }: StationDetailsScreenProps) => {
               description={DETAILS_COPY.noChargersBody}
             />
           )}
+
+          {station.amenities.length ? (
+            <View style={{ gap: t.space[3] }}>
+              <AppText variant="title2" accessibilityRole="header">
+                {DETAILS_COPY.amenities}
+              </AppText>
+              <View style={[styles.wrap, { gap: t.space[2] }]}>
+                {station.amenities.map(amenity => (
+                  <View
+                    key={amenity}
+                    style={{
+                      paddingHorizontal: t.space[4],
+                      paddingVertical: t.space[2],
+                      borderRadius: t.radius.pill,
+                      backgroundColor: t.colors.surfaceSunken,
+                    }}
+                  >
+                    <AppText variant="subhead">{amenity}</AppText>
+                  </View>
+                ))}
+              </View>
+            </View>
+          ) : null}
         </View>
       </ScrollView>
 
       <DetailsActionBar
+        eta={details.eta}
         onDirections={details.openDirections}
         onCall={station.phone ? details.call : null}
       />
@@ -200,6 +219,9 @@ const styles = StyleSheet.create({
   center: {
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  grabber: {
+    alignSelf: 'center',
   },
   wrap: {
     flexDirection: 'row',

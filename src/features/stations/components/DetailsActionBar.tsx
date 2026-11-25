@@ -10,6 +10,7 @@ import { useTheme, type Theme } from '@/shared/theme';
 import { DETAILS_COPY } from '../constants/stations.constants';
 
 type DetailsActionBarProps = {
+  eta: string | null;
   onDirections: () => void;
   onCall: (() => void) | null;
 };
@@ -18,7 +19,7 @@ export const actionBarHeight = (t: Theme, bottomInset: number) =>
   t.layout.buttonHeight + t.space[3] * 2 + Math.max(bottomInset, t.space[3]);
 
 // Pinned to the bottom so directions are always one tap away (DESIGN.md: station details).
-const DetailsActionBar = ({ onDirections, onCall }: DetailsActionBarProps) => {
+const DetailsActionBar = ({ eta, onDirections, onCall }: DetailsActionBarProps) => {
   const t = useTheme();
   const insets = useSafeAreaInsets();
 
@@ -38,7 +39,7 @@ const DetailsActionBar = ({ onDirections, onCall }: DetailsActionBarProps) => {
       ]}
     >
       <AppButton
-        label={DETAILS_COPY.directions}
+        label={eta ? `${DETAILS_COPY.directions} · ${eta}` : DETAILS_COPY.directions}
         icon={Navigation}
         onPress={onDirections}
         style={styles.grow}

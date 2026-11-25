@@ -12,10 +12,15 @@ import { toast } from '@/shared/utils/toast';
 import { useDirections } from './useDirections';
 import { useUserLocation } from './useUserLocation';
 import { stationsApi } from '../api/stations.api';
-import { connectorBusy, DETAILS_COPY, DETAILS_HREF } from '../constants/stations.constants';
+import {
+  connectorBusy,
+  DETAILS_COPY,
+  DETAILS_HREF,
+  MAX_ETA_KM,
+} from '../constants/stations.constants';
 import type { Charger, Connector } from '../types/stations.types';
 import { canStartCharging, CONNECTOR_LABEL, sortChargers } from '../utils/connector';
-import { distanceKm } from '../utils/geo';
+import { distanceKm, formatEta } from '../utils/geo';
 import { shareMessage } from '../utils/share';
 
 export const useStationDetails = (stationId: string) => {
@@ -99,6 +104,7 @@ export const useStationDetails = (stationId: string) => {
     error: station ? null : details.error,
     refreshing,
     distance,
+    eta: distance !== null && distance <= MAX_ETA_KM ? formatEta(distance) : null,
     isFavourite,
     retry: details.refetch,
     refresh,
