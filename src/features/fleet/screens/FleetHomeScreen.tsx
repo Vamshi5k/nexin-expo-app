@@ -1,18 +1,17 @@
 import { View } from 'react-native';
 
+import { LogoutDialog, useLogoutConfirm } from '@/features/auth';
 import { useTheme } from '@/theme';
 import { Button, PlaceholderScreen } from '@/ui';
 
-import { LogoutDialog } from '../components/LogoutDialog';
-import { useLogoutConfirm } from '../hooks';
-
-export type SignedInPlaceholderScreenProps = { title: string; description: string };
-
-export function SignedInPlaceholderScreen({ title, description }: SignedInPlaceholderScreenProps) {
+export function FleetHomeScreen() {
   const t = useTheme();
   const logout = useLogoutConfirm();
   return (
-    <PlaceholderScreen title={title} description={description}>
+    <PlaceholderScreen
+      title="Fleet"
+      description="Your assigned vehicle and running session will show here."
+    >
       <View style={{ marginTop: t.space[6] }}>
         <Button label="Log out" variant="secondary" loading={logout.leaving} onPress={logout.ask} />
       </View>

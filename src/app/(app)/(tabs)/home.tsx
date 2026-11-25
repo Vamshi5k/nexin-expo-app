@@ -1,3 +1,3 @@
-import { TempHomeScreen } from '@/features/auth';
+import { HomeScreen } from '@/features/home';
 
-export default TempHomeScreen;
+export default HomeScreen;

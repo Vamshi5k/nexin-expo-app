@@ -3,7 +3,8 @@ import { fireEvent, renderRouter, screen, waitFor } from 'expo-router/testing-li
 import { Text } from 'react-native';
 
 import { sessionStore } from '@/core/session';
-import { GuardedStack, StartRedirect, TempHomeScreen } from '@/features/auth';
+import { GuardedStack, StartRedirect } from '@/features/auth';
+import { HomeScreen } from '@/features/home';
 import { logout } from '@/features/auth/api';
 import { markOnboardingDone } from '@/features/auth/session';
 
@@ -30,7 +31,7 @@ async function renderSignedInHome() {
       '(auth)/_layout': () => <GuardedStack group="auth" />,
       '(auth)/login': () => <Text>Login</Text>,
       '(app)/_layout': () => <GuardedStack group="app" />,
-      '(app)/home': TempHomeScreen,
+      '(app)/home': HomeScreen,
     },
     { initialUrl: '/home' },
   );
