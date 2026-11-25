@@ -2,8 +2,7 @@ import { useEffect, useState } from 'react';
 import { Image } from 'react-native';
 
 import { brand } from '@/core/config';
-
-const LOGO = require('../../../brand/assets/logo.png');
+import { images } from '@/shared/assets/images';
 
 export type AppBrandLogoProps = {
   height?: number;
@@ -12,7 +11,7 @@ export type AppBrandLogoProps = {
 };
 
 function assetRatio(): number {
-  const s = Image.resolveAssetSource(LOGO);
+  const s = Image.resolveAssetSource(images.logo);
   return s?.width && s.height ? s.width / s.height : 1;
 }
 
@@ -37,7 +36,7 @@ const AppBrandLogo = ({ height = 40, uri, label }: AppBrandLogoProps) => {
 
   return (
     <Image
-      source={remote ? { uri: remote } : LOGO}
+      source={remote ? { uri: remote } : images.logo}
       onError={() => remote && setFailedUri(remote)}
       accessibilityRole="image"
       accessibilityLabel={label ?? brand.appName}

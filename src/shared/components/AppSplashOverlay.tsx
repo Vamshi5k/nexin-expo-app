@@ -17,12 +17,12 @@ import { scheduleOnRN } from 'react-native-worklets';
 import { useTheme, withAlpha } from '@/shared/theme';
 
 import { brand } from '@/core/config';
+import { images } from '@/shared/assets/images';
 
-const SPLASH = require('../../../brand/assets/splash.png');
 const TRACK = 120;
 
 function splashSize() {
-  const s = Image.resolveAssetSource(SPLASH);
+  const s = Image.resolveAssetSource(images.splash);
   const width = brand.splash.imageWidth;
   return { width, height: s?.width && s.height ? (width * s.height) / s.width : width };
 }
@@ -115,7 +115,7 @@ const AppSplashOverlay = ({ ready }: AppSplashOverlayProps) => {
       <Animated.View
         style={[StyleSheet.absoluteFill, { backgroundColor: background }, backdropStyle]}
       />
-      <Animated.Image source={SPLASH} resizeMode="contain" style={[size, logo]} />
+      <Animated.Image source={images.splash} resizeMode="contain" style={[size, logo]} />
       <Animated.View
         style={[
           styles.track,
