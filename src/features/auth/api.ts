@@ -21,12 +21,10 @@ export async function getUser(): Promise<User> {
   return toUser(unwrap(res).user);
 }
 
-// The token type the backend expects is unconfirmed (OPEN_QUESTIONS #13).
 export async function registerPushToken(fcmToken: string): Promise<void> {
   await api.put('/auth/fcm', { fcmToken });
 }
 
-// Runs after the session is cleared, so it sends the captured token and never refreshes.
 export async function logout(accessToken: string | null): Promise<void> {
   await api.post('/auth/logout', undefined, {
     authToken: accessToken,

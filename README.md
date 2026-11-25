@@ -10,18 +10,19 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    npm install
    ```
 
-2. Start the app
+2. Start the app in Expo Go
 
    ```bash
-   npx expo start
+   npm start
    ```
 
-In the output, you'll find options to open the app in a
+   Install [Expo Go](https://expo.dev/go) (SDK 58) on your phone, then scan the QR code:
+   Android with the Expo Go app, iPhone with the Camera app. The phone and the Mac must be
+   on the same Wi-Fi. If they aren't, or the QR times out, use `npm run start:tunnel`.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+   Expo Go can't load native-only modules (MMKV falls back to AsyncStorage there).
+   For the full app, install a development build (`eas build --profile development`)
+   and run `npm run start:dev`.
 
 You can start developing by editing the files inside the **src/app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
 
