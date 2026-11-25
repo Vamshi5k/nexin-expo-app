@@ -1,4 +1,4 @@
-import type { WizardStep } from './types';
+import type { WizardStep } from '../types/vehicles.types';
 
 export const WIZARD_STEPS: WizardStep[] = ['brand', 'model', 'capacity', 'details'];
 

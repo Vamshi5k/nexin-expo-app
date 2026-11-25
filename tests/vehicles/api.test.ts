@@ -1,4 +1,4 @@
-import { toAddVehicleBody, toCapacity, toNamed } from '@/features/vehicles/api';
+import { toAddVehicleBody, toCapacity, toNamed } from '@/features/vehicles/api/vehicles.api';
 
 const model = { id: '12', name: 'Nexon EV' };
 const details = { regNo: ' ka01ab1234 ', macId: '', maxAmount: '' };

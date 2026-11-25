@@ -8,15 +8,25 @@ import { getErrorMessage } from '@/core/api';
 import { useAction, useRequest } from '@/core/request';
 import { toast } from '@/shared/utils/toast';
 
-import { addVehicle, getBrands, getCapacities, getModels } from './api';
-import { STEP_COPY, WIZARD_STEPS } from './constants';
-import { customCapacitySchema, detailsSchema, formatCapacity } from './form';
-import type { Brand, CapacityChoice, Model, VehicleDetails, WizardStep } from './types';
+import { vehiclesApi } from '../api/vehicles.api';
+import { STEP_COPY, WIZARD_STEPS } from '../constants/vehicles.constants';
+import type {
+  Brand,
+  CapacityChoice,
+  Model,
+  VehicleDetails,
+  WizardStep,
+} from '../types/vehicles.types';
+import { customCapacitySchema, detailsSchema, formatCapacity } from '../utils/form';
 
 const NO_ITEMS = () => Promise.resolve([]);
 
 // Brand -> model -> capacity -> details. Shared by Vehicle Setup and, later, Add / Edit Vehicle.
-export function useVehicleWizard({ onAdded }: { onAdded: () => void }) {
+type UseVehicleWizardOptions = {
+  onAdded: () => void;
+};
+
+export const useVehicleWizard = ({ onAdded }: UseVehicleWizardOptions) => {
   const [stepIndex, setStepIndex] = useState(0);
   const [brand, setBrand] = useState<Brand | null>(null);
   const [model, setModel] = useState<Model | null>(null);
@@ -29,11 +39,14 @@ export function useVehicleWizard({ onAdded }: { onAdded: () => void }) {
 
   const brandId = brand?.id;
   const modelId = model?.id;
-  const brands = useRequest(getBrands);
-  const loadModels = useCallback(() => (brandId ? getModels(brandId) : NO_ITEMS()), [brandId]);
+  const brands = useRequest(vehiclesApi.getBrands);
+  const loadModels = useCallback(
+    () => (brandId ? vehiclesApi.getModels(brandId) : NO_ITEMS()),
+    [brandId],
+  );
   const models = useRequest(loadModels, { enabled: !!brandId });
   const loadCapacities = useCallback(
-    () => (modelId ? getCapacities(modelId) : NO_ITEMS()),
+    () => (modelId ? vehiclesApi.getCapacities(modelId) : NO_ITEMS()),
     [modelId],
   );
   const capacities = useRequest(loadCapacities, { enabled: !!modelId });
@@ -57,10 +70,11 @@ export function useVehicleWizard({ onAdded }: { onAdded: () => void }) {
       ? (customParsed.error.issues[0]?.message ?? 'Invalid capacity')
       : undefined;
 
-  const add = useAction(addVehicle);
+  const add = useAction(vehiclesApi.addVehicle);
 
   const submit = form.handleSubmit(async values => {
-    if (!model || !capacity) return;
+    if (!model || !capacity || add.isPending) return;
+
     Keyboard.dismiss();
     try {
       await add.run({ model, capacity, details: values });
@@ -154,6 +168,6 @@ export function useVehicleWizard({ onAdded }: { onAdded: () => void }) {
       return true;
     },
   };
-}
+};
 
 export type VehicleWizard = ReturnType<typeof useVehicleWizard>;

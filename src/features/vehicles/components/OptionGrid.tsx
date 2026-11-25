@@ -2,7 +2,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { Check } from 'lucide-react-native';
 
-import { AppPressable, AppSkeleton, AppText } from '@/shared/components';
+import { AppPressable, AppText } from '@/shared/components';
 
 import { useTheme } from '@/shared/theme';
 
@@ -14,14 +14,13 @@ export type Option = {
   selected: boolean;
 };
 
-// Flat cards: sunken at rest; tinted with an accent border and check when selected.
-export function OptionGrid({
-  options,
-  onSelect,
-}: {
+type OptionGridProps = {
   options: Option[];
   onSelect: (key: string) => void;
-}) {
+};
+
+// Flat cards: sunken at rest; tinted with an accent border and check when selected.
+const OptionGrid = ({ options, onSelect }: OptionGridProps) => {
   const t = useTheme();
   const c = t.colors;
   return (
@@ -91,20 +90,9 @@ export function OptionGrid({
       ))}
     </View>
   );
-}
+};
 
-export function OptionGridSkeleton() {
-  const t = useTheme();
-  return (
-    <View style={[styles.grid, { gap: t.space[3] }]} accessibilityLabel="Loading">
-      {Array.from({ length: 6 }, (_, i) => (
-        <View key={i} style={styles.cell}>
-          <AppSkeleton height={104} radius={t.radius.card} />
-        </View>
-      ))}
-    </View>
-  );
-}
+export default OptionGrid;
 
 const styles = StyleSheet.create({
   grid: { flexDirection: 'row', flexWrap: 'wrap' },

@@ -1,17 +1,11 @@
 import { View } from 'react-native';
 
-import { Car, ChevronRight, Cpu, Hash, Search } from 'lucide-react-native';
+import { Car, Cpu, Hash, Search } from 'lucide-react-native';
 
-import {
-  AppEmptyState,
-  AppErrorState,
-  AppFormInput,
-  AppInput,
-  AppPressable,
-  AppText,
-} from '@/shared/components';
+import { AppEmptyState, AppErrorState, AppFormInput, AppInput, AppText } from '@/shared/components';
 
-import { OptionGrid, OptionGridSkeleton, type Option } from './OptionGrid';
+import OptionGrid, { type Option } from './OptionGrid';
+import OptionGridSkeleton from './OptionGridSkeleton';
 
 import { useTheme } from '@/shared/theme';
 
@@ -25,15 +19,15 @@ import {
   EMPTY_COPY,
   MAC_ID_MAX_LENGTH,
   REG_NO_MAX_LENGTH,
-} from '../constants';
-import { formatCapacity, matchesQuery } from '../form';
-import type { VehicleWizard } from '../hooks';
+} from '../constants/vehicles.constants';
+import type { VehicleWizard } from '../hooks/useVehicleWizard';
+import { formatCapacity, matchesQuery } from '../utils/form';
 
-export function VehicleFormBody({ wizard }: { wizard: VehicleWizard }) {
-  return <StepBody wizard={wizard} />;
-}
+type VehicleFormBodyProps = {
+  wizard: VehicleWizard;
+};
 
-function StepBody({ wizard: w }: { wizard: VehicleWizard }) {
+const VehicleFormBody = ({ wizard: w }: VehicleFormBodyProps) => {
   const t = useTheme();
   switch (w.step) {
     case 'brand':
@@ -158,28 +152,30 @@ function StepBody({ wizard: w }: { wizard: VehicleWizard }) {
         </View>
       );
   }
-}
+};
 
 const CUSTOM_KEY = '__custom__';
 
 // Lists longer than this get a search field.
 const SEARCH_AFTER = 6;
 
-function Choices<T>({
-  request,
-  empty,
-  allowEmpty,
-  search,
-  toOptions,
-  onSelect,
-}: {
+type ChoicesProps<T> = {
   request: RequestState<T[]>;
   empty: string;
   allowEmpty?: boolean;
   search?: { placeholder: string; query: string; onChange: (q: string) => void };
   toOptions: (items: T[]) => Option[];
   onSelect: (key: string) => void;
-}) {
+};
+
+const Choices = <T,>({
+  request,
+  empty,
+  allowEmpty,
+  search,
+  toOptions,
+  onSelect,
+}: ChoicesProps<T>) => {
   const t = useTheme();
   if (request.loading) return <OptionGridSkeleton />;
   if (request.error) {
@@ -225,40 +221,6 @@ function Choices<T>({
       )}
     </View>
   );
-}
+};
 
-// Picks from earlier steps; tapping one goes back to that step.
-export function VehicleTrail({ wizard }: { wizard: VehicleWizard }) {
-  const t = useTheme();
-  if (wizard.trail.length === 0) return null;
-  return (
-    <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: t.space[1] }}>
-      {wizard.trail.map((item, i) => (
-        <View
-          key={item.index}
-          style={{ flexDirection: 'row', alignItems: 'center', gap: t.space[1] }}
-        >
-          {i > 0 ? <ChevronRight color={t.colors.textTertiary} size={14} strokeWidth={2} /> : null}
-          <AppPressable
-            onPress={() => wizard.goTo(item.index)}
-            haptic="selection"
-            feedback="opacity"
-            accessibilityRole="button"
-            accessibilityLabel={`Change ${item.label}`}
-            style={{
-              paddingHorizontal: t.space[3],
-              height: 32,
-              justifyContent: 'center',
-              borderRadius: t.radius.pill,
-              backgroundColor: t.colors.accentSoft,
-            }}
-          >
-            <AppText variant="subhead" tone="accent" numberOfLines={1}>
-              {item.label}
-            </AppText>
-          </AppPressable>
-        </View>
-      ))}
-    </View>
-  );
-}
+export default VehicleFormBody;

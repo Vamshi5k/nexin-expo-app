@@ -3,7 +3,7 @@ import {
   detailsSchema,
   formatCapacity,
   matchesQuery,
-} from '@/features/vehicles/form';
+} from '@/features/vehicles/utils/form';
 
 const firstError = (r: { success: boolean; error?: { issues: { message: string }[] } }) =>
   r.error?.issues[0]?.message;
