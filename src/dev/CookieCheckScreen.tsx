@@ -7,6 +7,7 @@ import { useTheme } from '@/shared/theme';
 
 import { api, createApiClient, getErrorMessage, statusOf } from '@/core/api';
 import { brand, CLIENT_TOKEN } from '@/core/config';
+import { ENDPOINTS } from '@/core/endpoints';
 
 const LOCAL_BASE_URL = 'http://localhost:8787';
 
@@ -73,7 +74,7 @@ export function CookieCheckScreen({ autoRunLocal = false }: { autoRunLocal?: boo
   async function runLogin() {
     setBusy(true);
     try {
-      const res = await api.post('/auth/app/login', { contact: contact.trim() });
+      const res = await api.post(ENDPOINTS.AUTH.LOGIN, { contact: contact.trim() });
       add({
         label: 'B1 staging /auth/app/login',
         ok: true,
@@ -93,7 +94,7 @@ export function CookieCheckScreen({ autoRunLocal = false }: { autoRunLocal?: boo
   async function runVerify() {
     setBusy(true);
     try {
-      const res = await api.post<Record<string, unknown>>('/auth/app/verify', {
+      const res = await api.post<Record<string, unknown>>(ENDPOINTS.AUTH.VERIFY, {
         otp: otp.trim(),
         appName: appName.trim(),
       });

@@ -1,4 +1,5 @@
 import { api, unwrap, type Envelope } from '@/core/api';
+import { ENDPOINTS } from '@/core/endpoints';
 
 import type {
   AddVehicleBody,
@@ -11,22 +12,22 @@ import type {
 } from './types';
 
 export async function getBrands(): Promise<Brand[]> {
-  const res = await api.get<Envelope<NamedDto[]>>('/vehicle/brand');
+  const res = await api.get<Envelope<NamedDto[]>>(ENDPOINTS.VEHICLES.BRANDS);
   return (unwrap(res) ?? []).map(toNamed);
 }
 
 export async function getModels(brandId: string): Promise<Model[]> {
-  const res = await api.get<Envelope<NamedDto[]>>(`/vehicle/model/${brandId}`);
+  const res = await api.get<Envelope<NamedDto[]>>(ENDPOINTS.VEHICLES.MODELS(brandId));
   return (unwrap(res) ?? []).map(toNamed);
 }
 
 export async function getCapacities(modelId: string): Promise<Capacity[]> {
-  const res = await api.get<Envelope<CapacityDto[]>>(`/vehicle/capacity/${modelId}`);
+  const res = await api.get<Envelope<CapacityDto[]>>(ENDPOINTS.VEHICLES.CAPACITIES(modelId));
   return (unwrap(res) ?? []).map(toCapacity).filter((c): c is Capacity => c !== null);
 }
 
 export async function addVehicle(vehicle: NewVehicle): Promise<void> {
-  await api.post('/vehicle', toAddVehicleBody(vehicle));
+  await api.post(ENDPOINTS.VEHICLES.ADD, toAddVehicleBody(vehicle));
 }
 
 const num = (v: number | string | null | undefined): number | null => {

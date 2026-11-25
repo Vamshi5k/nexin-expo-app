@@ -1,15 +1,16 @@
 import { api, unwrap, type Envelope, type Tokens } from '@/core/api';
 import { brand } from '@/core/config';
+import { ENDPOINTS } from '@/core/endpoints';
 
 import { LOGOUT_TIMEOUT_MS } from './constants';
 import type { User, UserDto, VerifyResponseDto } from './types';
 
 export async function requestOtp(contact: string): Promise<void> {
-  await api.post('/auth/app/login', { contact });
+  await api.post(ENDPOINTS.AUTH.LOGIN, { contact });
 }
 
 export async function verifyOtp(otp: string): Promise<Tokens> {
-  const res = await api.post<VerifyResponseDto>('/auth/app/verify', {
+  const res = await api.post<VerifyResponseDto>(ENDPOINTS.AUTH.VERIFY, {
     otp,
     appName: brand.apiAppName,
   });
@@ -17,16 +18,16 @@ export async function verifyOtp(otp: string): Promise<Tokens> {
 }
 
 export async function getUser(): Promise<User> {
-  const res = await api.get<Envelope<{ user: UserDto }>>('/auth/user-by-token');
+  const res = await api.get<Envelope<{ user: UserDto }>>(ENDPOINTS.AUTH.USER);
   return toUser(unwrap(res).user);
 }
 
 export async function registerPushToken(fcmToken: string): Promise<void> {
-  await api.put('/auth/fcm', { fcmToken });
+  await api.put(ENDPOINTS.AUTH.FCM, { fcmToken });
 }
 
 export async function logout(accessToken: string | null): Promise<void> {
-  await api.post('/auth/logout', undefined, {
+  await api.post(ENDPOINTS.AUTH.LOGOUT, undefined, {
     authToken: accessToken,
     timeout: LOGOUT_TIMEOUT_MS,
   });

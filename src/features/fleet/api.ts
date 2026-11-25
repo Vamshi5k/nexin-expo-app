@@ -1,10 +1,11 @@
 import { api, unwrap, type Envelope } from '@/core/api';
+import { ENDPOINTS } from '@/core/endpoints';
 
 import { FLEET_LOGOUT_TIMEOUT_MS } from './constants';
 import type { FleetUser, FleetUserDto } from './types';
 
 export async function getDriver(): Promise<FleetUser> {
-  const res = await api.get<Envelope<FleetUserDto | null>>('/fleet/get-by-token');
+  const res = await api.get<Envelope<FleetUserDto | null>>(ENDPOINTS.FLEET.DRIVER);
   const data = unwrap(res);
   if (!data) throw new Error('Fleet user not found');
   return toFleetUser(data);
@@ -12,7 +13,10 @@ export async function getDriver(): Promise<FleetUser> {
 
 // Runs after the session is cleared, so it sends the captured token and never refreshes.
 export async function fleetLogout(accessToken: string | null): Promise<void> {
-  await api.get('/fleet/logout', { authToken: accessToken, timeout: FLEET_LOGOUT_TIMEOUT_MS });
+  await api.get(ENDPOINTS.FLEET.LOGOUT, {
+    authToken: accessToken,
+    timeout: FLEET_LOGOUT_TIMEOUT_MS,
+  });
 }
 
 const str = (v: string | null | undefined): string | null => (v && v.trim() ? v.trim() : null);

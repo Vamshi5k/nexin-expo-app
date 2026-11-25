@@ -1,10 +1,11 @@
 import { api, unwrap, type Envelope } from '@/core/api';
 import { brand, type BrandConfig } from '@/core/config';
+import { ENDPOINTS } from '@/core/endpoints';
 
 import type { ClientInfoDto, ClientConfig } from './types';
 
 export async function getClientConfig(): Promise<ClientConfig> {
-  const res = await api.get<Envelope<ClientInfoDto>>('/client/info', {
+  const res = await api.get<Envelope<ClientInfoDto>>(ENDPOINTS.CLIENT.INFO, {
     params: { details: true, login: true, logo: true, clientDetails: true },
   });
   return toClientConfig(unwrap(res), brand);

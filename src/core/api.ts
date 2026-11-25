@@ -9,6 +9,7 @@ import {
 } from 'axios';
 
 import { env } from '@/core/config';
+import { ENDPOINTS } from '@/core/endpoints';
 import { log } from '@/core/log';
 import { sessionStore } from '@/core/session';
 
@@ -219,9 +220,6 @@ export function installAuth(client: AxiosInstance, deps: AuthDeps): void {
 }
 
 export const API_TIMEOUT_MS = 20_000;
-export const REFRESH_PATH = '/auth/refresh';
-
-export const FLEET_REFRESH_PATH = REFRESH_PATH;
 
 export type ApiClientOptions = Omit<AuthDeps, 'refreshUrl'> & {
   baseURL: string;
@@ -230,7 +228,7 @@ export type ApiClientOptions = Omit<AuthDeps, 'refreshUrl'> & {
 
 export function createApiClient({
   baseURL,
-  refreshPath = REFRESH_PATH,
+  refreshPath = ENDPOINTS.AUTH.REFRESH,
   ...auth
 }: ApiClientOptions): AxiosInstance {
   const client = createAxios({ baseURL, timeout: API_TIMEOUT_MS, withCredentials: true });
