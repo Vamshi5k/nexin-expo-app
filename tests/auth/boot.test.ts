@@ -2,7 +2,11 @@ import { AxiosError, AxiosHeaders } from 'axios';
 
 import { createSessionStore } from '@/core/session';
 import type { SecureStorage } from '@/core/storage';
-import { bootTimeoutError, checkSession, classifySessionError } from '@/features/auth/session';
+import {
+  bootTimeoutError,
+  checkSession,
+  classifySessionError,
+} from '@/features/auth/utils/authFlow';
 
 jest.mock('@/core/log');
 jest.mock('@/features/client-config', () => ({ usePrimeClientConfig: jest.fn() }));

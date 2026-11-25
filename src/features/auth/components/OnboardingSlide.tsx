@@ -14,7 +14,7 @@ import { OnboardingArt } from './OnboardingArt';
 
 import { useTheme } from '@/shared/theme';
 
-import type { OnboardingSlide as Slide } from '../types';
+import type { OnboardingSlide as Slide } from '../types/auth.types';
 
 const SLIDE_ICONS: Record<Slide['key'], LucideIcon> = {
   find: MapPin,

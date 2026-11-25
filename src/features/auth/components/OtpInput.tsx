@@ -23,7 +23,7 @@ import { AppText } from '@/shared/components';
 
 import { useTheme, withAlpha } from '@/shared/theme';
 
-import { otpCells, sanitizeOtp } from '../session';
+import { otpCells, sanitizeOtp } from '../utils/contact';
 
 export type OtpInputProps = {
   value: string;

@@ -1,19 +1,27 @@
 import { createSessionStore, signOutThen } from '@/core/session';
 import type { SecureStorage } from '@/core/storage';
-import { serverLogout } from '@/features/auth/session';
+import { serverLogout } from '@/features/auth/utils/authFlow';
 
 jest.mock('@/core/log');
 jest.mock('@/features/fleet', () => ({
   fleetApi: { logout: jest.fn(async () => undefined) },
 }));
-jest.mock('@/features/auth/api', () => ({
-  ...jest.requireActual('@/features/auth/api'),
-  logout: jest.fn(async () => undefined),
-}));
+jest.mock('@/features/auth/api/auth.api', () => {
+  const actual = jest.requireActual('@/features/auth/api/auth.api');
+  return {
+    ...actual,
+    authApi: {
+      ...actual.authApi,
+      logout: jest.fn(async () => undefined),
+    },
+  };
+});
 
 const fleetLogout = (jest.requireMock('@/features/fleet') as { fleetApi: { logout: jest.Mock } })
   .fleetApi.logout;
-const { logout } = jest.requireMock('@/features/auth/api') as { logout: jest.Mock };
+const { logout } = (
+  jest.requireMock('@/features/auth/api/auth.api') as { authApi: { logout: jest.Mock } }
+).authApi;
 const { log } = jest.requireMock('@/core/log') as { log: { warn: jest.Mock } };
 
 function memoryStorage(): SecureStorage & { data: Map<string, string> } {

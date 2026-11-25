@@ -1,4 +1,4 @@
-import { formatContact, otpCells, sanitizeOtp } from '@/features/auth/session';
+import { formatContact, otpCells, sanitizeOtp } from '@/features/auth/utils/contact';
 
 describe('sanitizeOtp', () => {
   it('keeps digits only, up to length', () => {

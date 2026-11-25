@@ -12,7 +12,7 @@ import { OtpInput } from '../components/OtpInput';
 import { useTheme } from '@/shared/theme';
 
 import { useOtpForm } from '../hooks';
-import type { ContactType } from '../types';
+import type { ContactType } from '../types/auth.types';
 
 export type OtpScreenProps = { type: ContactType; value: string };
 

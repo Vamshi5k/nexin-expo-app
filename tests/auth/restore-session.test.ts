@@ -1,4 +1,4 @@
-import { restoreSession } from '@/features/auth/session';
+import { restoreSession } from '@/features/auth/utils/authFlow';
 
 const calls: string[] = [];
 

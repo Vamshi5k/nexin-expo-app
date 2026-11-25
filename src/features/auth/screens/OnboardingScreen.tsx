@@ -12,7 +12,7 @@ import { OnboardingSlide } from '../components/OnboardingSlide';
 import { useTheme } from '@/shared/theme';
 
 import { useOnboarding } from '../hooks';
-import type { OnboardingSlide as Slide } from '../types';
+import type { OnboardingSlide as Slide } from '../types/auth.types';
 
 export function OnboardingScreen() {
   const t = useTheme();

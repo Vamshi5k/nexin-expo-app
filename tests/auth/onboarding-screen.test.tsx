@@ -2,8 +2,8 @@ import { fireEvent, screen } from '@testing-library/react-native';
 import { router } from 'expo-router';
 
 import { OnboardingScreen } from '@/features/auth';
-import { START_HREF } from '@/features/auth/constants';
-import { isOnboardingDone } from '@/features/auth/session';
+import { START_HREF } from '@/features/auth/constants/auth.constants';
+import { isOnboardingDone } from '@/features/auth/utils/authFlow';
 
 import { renderWithApp } from '../helpers/render';
 

@@ -1,9 +1,10 @@
 export { AuthProvider, openLegal, useAuth, useLogoutConfirm } from './hooks';
 export { useBoot } from './routing';
-export * as authApi from './api';
-export { formatContact, markSetupDone } from './session';
-export { START_HREF } from './constants';
-export type { ContactType, RouteGroup } from './types';
+export { authApi } from './api/auth.api';
+export { markSetupDone } from './utils/authFlow';
+export { formatContact } from './utils/contact';
+export { START_HREF } from './constants/auth.constants';
+export type { ContactType, RouteGroup } from './types/auth.types';
 export { GuardedStack } from './components/GuardedStack';
 export { LogoutDialog } from './components/LogoutDialog';
 export { BootErrorScreen } from './screens/BootErrorScreen';

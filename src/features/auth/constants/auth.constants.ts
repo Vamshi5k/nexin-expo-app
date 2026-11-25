@@ -1,6 +1,6 @@
 import type { Href } from 'expo-router';
 
-import type { OnboardingSlide, StartRoute } from './types';
+import type { OnboardingSlide, StartRoute } from '../types/auth.types';
 
 export const CONSUMER_OTP_LENGTH = 4;
 export const OTP_RESEND_SECONDS = 30;

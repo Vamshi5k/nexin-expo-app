@@ -2,7 +2,7 @@ import { LogOut } from 'lucide-react-native';
 
 import { AppDialog } from '@/shared/components';
 
-import { LOGOUT_COPY } from '../constants';
+import { LOGOUT_COPY } from '../constants/auth.constants';
 import type { useLogoutConfirm } from '../hooks';
 
 export function LogoutDialog({ state }: { state: ReturnType<typeof useLogoutConfirm> }) {

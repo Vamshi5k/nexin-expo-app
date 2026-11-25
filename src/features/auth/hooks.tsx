@@ -42,7 +42,7 @@ import { sessionStore, signOutThen, useSession, type SessionMode } from '@/core/
 import { haptics } from '@/shared/utils/haptics';
 import { toast } from '@/shared/utils/toast';
 
-import * as authApi from './api';
+import { authApi } from './api/auth.api';
 import {
   CONSUMER_OTP_LENGTH,
   LOGIN_COPY,
@@ -50,9 +50,10 @@ import {
   ONBOARDING_SLIDES,
   OTP_RESEND_SECONDS,
   START_HREF,
-} from './constants';
-import { contactFormSchema, formatContact, markOnboardingDone, serverLogout } from './session';
-import type { ContactForm, ContactType, OnboardingSlide, User } from './types';
+} from './constants/auth.constants';
+import type { ContactForm, ContactType, OnboardingSlide, User } from './types/auth.types';
+import { markOnboardingDone, serverLogout } from './utils/authFlow';
+import { contactFormSchema, formatContact } from './utils/contact';
 
 function finishOnboarding(): void {
   markOnboardingDone();

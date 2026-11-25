@@ -8,8 +8,9 @@ import { useFleet } from '@/features/fleet';
 import { log } from '@/core/log';
 import { sessionStore, useSession } from '@/core/session';
 
-import { START_HREF } from './constants';
+import { START_HREF } from './constants/auth.constants';
 import { useAuth } from './hooks';
+import type { BootStatus, GuardDecision, RouteGroup } from './types/auth.types';
 import {
   checkSession,
   classifySessionError,
@@ -18,8 +19,7 @@ import {
   isSetupDone,
   resolveStartRoute,
   restoreSession,
-} from './session';
-import type { BootStatus, GuardDecision, RouteGroup } from './types';
+} from './utils/authFlow';
 
 type Boot = { status: BootStatus; retrying: boolean; retry: () => void };
 

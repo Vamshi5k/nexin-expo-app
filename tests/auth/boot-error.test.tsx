@@ -1,9 +1,9 @@
 import { act, fireEvent, renderRouter, screen } from 'expo-router/testing-library';
 
 import { sessionStore } from '@/core/session';
-import { getUser } from '@/features/auth/api';
-import { markOnboardingDone } from '@/features/auth/session';
-import type { User } from '@/features/auth/types';
+import { authApi } from '@/features/auth/api/auth.api';
+import { markOnboardingDone } from '@/features/auth/utils/authFlow';
+import type { User } from '@/features/auth/types/auth.types';
 
 const mockSecureMap = new Map<string, string>();
 jest.mock('expo-secure-store', () => ({
@@ -34,11 +34,19 @@ jest.mock('@/features/client-config/api/clientConfig.api', () => {
     },
   };
 });
-jest.mock('@/features/auth/api', () => ({
-  ...jest.requireActual('@/features/auth/api'),
-  getUser: jest.fn(),
-  logout: jest.fn(async () => undefined),
-}));
+jest.mock('@/features/auth/api/auth.api', () => {
+  const actual = jest.requireActual('@/features/auth/api/auth.api');
+  return {
+    ...actual,
+    authApi: {
+      ...actual.authApi,
+      getUser: jest.fn(),
+      logout: jest.fn(async () => undefined),
+    },
+  };
+});
+
+const { getUser } = authApi;
 
 const USER: User = {
   id: '7',

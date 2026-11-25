@@ -1,59 +1,18 @@
-import { z } from 'zod';
 import type { StoreApi } from 'zustand';
 
 import { fleetApi } from '@/features/fleet';
 
 import { statusOf } from '@/core/api';
-import { brand, phonePattern } from '@/core/config';
 import { log } from '@/core/log';
 import { sessionStore, type SessionMode, type SessionState } from '@/core/session';
 import { hydrateStorage, KV_KEYS, kv, migrateLegacyStorage } from '@/core/storage';
 
-import { logout } from './api';
-import { ONBOARDING_DONE_VALUE, SESSION_CHECK_TIMEOUT_MS } from './constants';
-import type { ContactType, GuardDecision, RouteGroup, StartRoute, User } from './types';
+import { authApi } from '../api/auth.api';
+import { ONBOARDING_DONE_VALUE, SESSION_CHECK_TIMEOUT_MS } from '../constants/auth.constants';
+import type { GuardDecision, RouteGroup, StartRoute, User } from '../types/auth.types';
 
-// Pure auth rules and the boot/session steps. No React or UI imports, so tests load it directly.
-
-export const phoneSchema = z
-  .string()
-  .trim()
-  .min(1, 'Mobile number is required')
-  .regex(/^\d+$/, 'Enter a valid mobile number')
-  .length(brand.phoneLength, `Enter a ${brand.phoneLength}-digit mobile number`)
-  .regex(phonePattern, 'Enter a valid mobile number');
-
-export const emailSchema = z
-  .string()
-  .trim()
-  .min(1, 'Email is required')
-  .pipe(z.email('Enter a valid email address'));
-
-export const contactFormSchema = {
-  phone: z.object({ contact: phoneSchema }),
-  email: z.object({ contact: emailSchema }),
-};
-
-export function sanitizeOtp(input: string, length: number): string {
-  return input.replace(/\D/g, '').slice(0, length);
-}
-
-export function otpCells(
-  value: string,
-  length: number,
-): { digit: string; state: 'filled' | 'active' | 'empty' }[] {
-  return Array.from({ length }, (_, i) => ({
-    digit: value[i] ?? '',
-    state: i < value.length ? 'filled' : i === value.length ? 'active' : 'empty',
-  }));
-}
-
-export function formatContact(type: ContactType, value: string, countryCode: string): string {
-  if (type === 'email') return value;
-  const half = Math.ceil(value.length / 2);
-
-  return `${countryCode} ${value.slice(0, half)} ${value.slice(half)}`.trim();
-}
+// Routing rules plus the boot and logout steps. No React or UI, but it reads storage and calls
+// the API, so tests mock @/core/storage or the api file as needed.
 
 export function resolveStartRoute(input: {
   mode: SessionMode;
@@ -165,5 +124,5 @@ export async function checkSession(
 
 export async function serverLogout(mode: SessionMode, accessToken: string | null): Promise<void> {
   if (mode === 'fleet') await fleetApi.logout(accessToken);
-  else if (mode === 'consumer') await logout(accessToken);
+  else if (mode === 'consumer') await authApi.logout(accessToken);
 }

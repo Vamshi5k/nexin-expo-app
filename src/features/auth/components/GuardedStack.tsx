@@ -5,7 +5,7 @@ import { Redirect, Stack } from 'expo-router';
 import { useTheme } from '@/shared/theme';
 
 import { useRouteGuard } from '../routing';
-import type { RouteGroup } from '../types';
+import type { RouteGroup } from '../types/auth.types';
 
 export function GuardedStack({ group }: { group: RouteGroup }) {
   const t = useTheme();

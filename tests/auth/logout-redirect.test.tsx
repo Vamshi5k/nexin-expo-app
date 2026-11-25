@@ -5,17 +5,25 @@ import { Text } from 'react-native';
 import { sessionStore } from '@/core/session';
 import { GuardedStack, StartRedirect } from '@/features/auth';
 import { HomeScreen } from '@/features/home';
-import { logout } from '@/features/auth/api';
-import { markOnboardingDone } from '@/features/auth/session';
+import { authApi } from '@/features/auth/api/auth.api';
+import { markOnboardingDone } from '@/features/auth/utils/authFlow';
 
 import { AppProviders } from '../helpers/render';
 
 jest.mock('@/core/log');
-jest.mock('@/features/auth/api', () => ({
-  ...jest.requireActual('@/features/auth/api'),
-  getUser: jest.fn(async () => ({ id: '1', firstName: 'Asha', isFirstLogin: false })),
-  logout: jest.fn(async () => undefined),
-}));
+jest.mock('@/features/auth/api/auth.api', () => {
+  const actual = jest.requireActual('@/features/auth/api/auth.api');
+  return {
+    ...actual,
+    authApi: {
+      ...actual.authApi,
+      getUser: jest.fn(async () => ({ id: '1', firstName: 'Asha', isFirstLogin: false })),
+      logout: jest.fn(async () => undefined),
+    },
+  };
+});
+
+const { logout } = authApi;
 
 async function renderSignedInHome() {
   markOnboardingDone();
