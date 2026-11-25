@@ -40,7 +40,8 @@ const tripLabel = (km: number | null) => {
   return km > MAX_ETA_KM ? distance : `${distance} · ${formatEta(km)}`;
 };
 
-const StationCard = ({ station, selected, width, onPress, onDirections }: StationCardProps) => {
+// The carousel already scales the focused card up, so selection needs no border of its own.
+const StationCard = ({ station, width, onPress, onDirections }: StationCardProps) => {
   const t = useTheme();
   const availability = availabilityOf(station);
   const trip = tripLabel(station.distanceKm);
@@ -56,9 +57,9 @@ const StationCard = ({ station, selected, width, onPress, onDirections }: Statio
         {
           width,
           borderRadius: t.radius.sheet,
-          borderWidth: t.layout.selectedBorder,
+          borderWidth: t.layout.hairline,
           backgroundColor: t.colors.surfaceRaised,
-          borderColor: selected ? t.colors.accent : t.colors.border,
+          borderColor: t.colors.border,
         },
       ]}
     >
