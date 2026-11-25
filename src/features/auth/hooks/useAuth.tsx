@@ -26,29 +26,26 @@ type AuthProviderProps = {
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const mode = useSession(s => s.mode);
-  // Cleared on sign-in, logout and refresh 4xx; a late response for the old session is dropped.
-  const user = useSessionData(authApi.getUser);
 
-  // Only stores the tokens: the guard sends the user to "/", which loads the user and routes.
+  const {
+    data: user,
+    status: userStatus,
+    error: userError,
+    load: loadUser,
+  } = useSessionData(authApi.getUser);
+
+  const requestOtp = useCallback((contact: string) => authApi.requestOtp(contact), []);
+
   const verifyOtp = useCallback(async (otp: string) => {
-    await sessionStore.getState().signIn('consumer', await authApi.verifyOtp(otp));
+    const tokens = await authApi.verifyOtp(otp);
+    await sessionStore.getState().signIn('consumer', tokens);
   }, []);
 
-  // TODO(phase-charging): disconnect the socket on logout (BLUEPRINT Profile logout).
   const logout = useCallback(() => signOutThen(serverLogout), []);
 
   const value = useMemo<AuthContextType>(
-    () => ({
-      mode,
-      user: user.data,
-      userStatus: user.status,
-      userError: user.error,
-      loadUser: user.load,
-      requestOtp: authApi.requestOtp,
-      verifyOtp,
-      logout,
-    }),
-    [mode, user.data, user.status, user.error, user.load, verifyOtp, logout],
+    () => ({ mode, user, userStatus, userError, loadUser, requestOtp, verifyOtp, logout }),
+    [mode, user, userStatus, userError, loadUser, requestOtp, verifyOtp, logout],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

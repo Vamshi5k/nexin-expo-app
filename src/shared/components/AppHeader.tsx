@@ -1,10 +1,7 @@
 import type { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 
-import { router } from 'expo-router';
-import { ChevronLeft } from 'lucide-react-native';
-
-import AppPressable from './AppPressable';
+import AppBackButton from './AppBackButton';
 import AppText from './AppText';
 
 import { useTheme } from '@/shared/theme';
@@ -19,20 +16,12 @@ export type AppHeaderProps = {
 
 const AppHeader = ({ title, back, right }: AppHeaderProps) => {
   const t = useTheme();
-  const onBack = typeof back === 'function' ? back : () => router.back();
 
   return (
     <View style={[styles.bar, { height: HEADER_BAR_HEIGHT, paddingHorizontal: t.space[2] }]}>
       <View style={styles.side}>
         {back ? (
-          <AppPressable
-            onPress={onBack}
-            accessibilityLabel="Back"
-            style={styles.icon}
-            feedback="opacity"
-          >
-            <ChevronLeft color={t.colors.textPrimary} size={24} strokeWidth={1.75} />
-          </AppPressable>
+          <AppBackButton variant="plain" onPress={typeof back === 'function' ? back : undefined} />
         ) : null}
       </View>
       <AppText variant="headline" numberOfLines={1} style={styles.title} accessibilityRole="header">
@@ -50,5 +39,4 @@ const styles = StyleSheet.create({
   side: { width: 88, flexDirection: 'row', alignItems: 'center' },
   right: { justifyContent: 'flex-end' },
   title: { flex: 1, textAlign: 'center' },
-  icon: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
 });

@@ -20,12 +20,12 @@ src/
     request.ts            useRequest (load data) and useAction (send data)
     log.ts  network.ts  permissions.ts
   shared/                 code that any feature can use
-    components/           the App* kit: AppText, AppButton, AppInput, AppCard, AppDialog...
+    components/           the App* kit: AppText, AppButton, AppInput, AppBackButton, AppDialog...
     theme/                colours, spacing, fonts as tokens. Read them with useTheme()
     utils/                toast, haptics, keyboard, money
     assets/images.ts      every image the app uses (logo, splash)
   features/
-    auth/                 onboarding, login, OTP, logout, startup and route guards
+    auth/                 onboarding, login, OTP (consumer and fleet), logout, startup, route guards
     home/                 the screen you land on after sign-in (consumer and fleet)
     setup/                first-run setup: name, vehicle, permissions
     vehicles/             the add-vehicle wizard, shared by setup and (later) My Vehicles
@@ -131,10 +131,54 @@ const styles = StyleSheet.create({
 6. **OTP hook.** `useOtpForm` calls `verifyOtp`, and `AuthProvider` (`hooks/useAuth.tsx`) saves
    the tokens with `sessionStore.signIn` (`src/core/session.ts`).
 7. **Where next.** The session changed, so the route guard (`hooks/useRouteGuard.ts`) sends the
-   user to `/`. `useStartRoute` loads the user and picks setup or home with `resolveStartRoute`
-   (`utils/authFlow.ts`).
+   user to `/`. `useStartRoute` loads the user and picks the setup step or home with
+   `resolveStartRoute` (`utils/authFlow.ts`). See "Startup and first-run setup" below.
 
 Every feature works this way: **route → screen → hook → api**.
+
+## Startup and first-run setup
+
+Every sign-in, sign-out and restart goes through `/` (`StartRedirect`). It never decides
+alone: the session mode and the saved setup step decide.
+
+| Situation                                     | `/` opens                   |
+| --------------------------------------------- | --------------------------- |
+| Signed out, onboarding not seen               | Onboarding                  |
+| Signed out                                    | Login                       |
+| Fleet session                                 | Fleet home                  |
+| Consumer, setup step `profile`                | Profile                     |
+| Consumer, setup step `vehicle`                | Vehicle                     |
+| Consumer, step `permissions`, both allowed    | Home (setup is marked done) |
+| Consumer, step `permissions`, any not allowed | Permissions                 |
+| Consumer, setup done                          | Home                        |
+
+- The step is saved per user id in MMKV (`setup_progress`) by the setup hooks: Profile saved
+  -> `vehicle`; vehicle added or skipped -> `permissions`; Continue on Permissions -> `done`.
+  With no saved step, `isFirstLogin` decides (`profile` or `done`).
+- The guards back this up: `(app)` only opens when setup is done, `(setup)` only opens the
+  current step, so a finished step (like Vehicle) can't be opened again.
+- Rules: `setupStepFor`, `saveSetupStep`, `resolveStartRoute` and `guardRoute` in
+  `features/auth/utils/authFlow.ts`. Tests: `tests/auth/routes.test.ts` and
+  `tests/setup/setup-resume.test.tsx`.
+
+## Fleet login
+
+Shown only when `/client/info` says `features.fleetFeature` is true.
+
+1. Login shows a "Fleet Login" link (right side, next to "Use email instead").
+2. `(auth)/(fleet-auth)/fleet-login`: Fleet ID + mobile -> `fleetApi.login` -> driver id.
+3. `(auth)/(fleet-auth)/fleet-otp`: `fleetApi.verifyOtp` saves a fleet session; resend uses
+   the driver id. The `(fleet-auth)` guard keeps both routes closed when the flag is off.
+4. The session changed, so `/` opens fleet home and loads the driver.
+
+Both OTP screens share `hooks/useOtpCode.ts` (code, verify, resend timer) and
+`components/OtpView.tsx` (layout).
+
+## Back buttons
+
+Use `AppBackButton` from the kit. By default it calls `router.back()`. Pass `onPress` for a
+custom action, and `hardwareBack` when Android's back button should do the same thing (for
+example, steps inside one screen, like the vehicle wizard).
 
 ## Adding a new feature
 

@@ -2,8 +2,6 @@ import type { ReactNode } from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
 
 import { BlurView } from 'expo-blur';
-import { router } from 'expo-router';
-import { ChevronLeft } from 'lucide-react-native';
 import Animated, {
   interpolate,
   useAnimatedScrollHandler,
@@ -13,8 +11,8 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import AppBackButton from './AppBackButton';
 import { HEADER_BAR_HEIGHT, type AppHeaderProps } from './AppHeader';
-import AppPressable from './AppPressable';
 import AppText from './AppText';
 
 import { useTheme, withAlpha } from '@/shared/theme';
@@ -63,7 +61,6 @@ const AppLargeTitleScroll = ({
     transform: [{ scale: interpolate(y.value, [-120, 0], [1.08, 1], Extrapolation.CLAMP) }],
   }));
 
-  const onBack = typeof back === 'function' ? back : () => router.back();
   const dark = t.scheme === 'dark';
 
   return (
@@ -126,14 +123,10 @@ const AppLargeTitleScroll = ({
         >
           <View style={styles.side}>
             {back ? (
-              <AppPressable
-                onPress={onBack}
-                accessibilityLabel="Back"
-                style={styles.icon}
-                feedback="opacity"
-              >
-                <ChevronLeft color={t.colors.textPrimary} size={24} strokeWidth={1.75} />
-              </AppPressable>
+              <AppBackButton
+                variant="plain"
+                onPress={typeof back === 'function' ? back : undefined}
+              />
             ) : null}
           </View>
           <Animated.View style={[styles.title, compactTitle]}>
@@ -156,7 +149,6 @@ const styles = StyleSheet.create({
   side: { width: 88, flexDirection: 'row', alignItems: 'center' },
   right: { justifyContent: 'flex-end' },
   title: { flex: 1, textAlign: 'center' },
-  icon: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
   floatingBar: { position: 'absolute', top: 0, left: 0, right: 0 },
   largeTitle: { transformOrigin: 'left' },
 });

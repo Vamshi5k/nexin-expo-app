@@ -7,7 +7,7 @@ import { AppButton, AppFormInput, AppReveal, AppText } from '@/shared/components
 
 import AuthScaffold from '../components/AuthScaffold';
 import ChargingIllustration from '../components/ChargingIllustration';
-import LegalLink from '../components/LegalLink';
+import TermsLine from '../components/TermsLine';
 
 import { useTheme } from '@/shared/theme';
 
@@ -50,17 +50,7 @@ const LoginScreen = () => {
             disabled={!login.valid}
             loading={login.submitting}
           />
-          <View style={styles.terms}>
-            <AppText variant="caption" tone="secondary">
-              By continuing, you agree to our{' '}
-            </AppText>
-            <LegalLink label="Terms" onPress={login.openTerms} />
-            <AppText variant="caption" tone="secondary">
-              {' '}
-              and{' '}
-            </AppText>
-            <LegalLink label="Privacy" onPress={login.openPrivacy} />
-          </View>
+          <TermsLine onTerms={login.openTerms} onPrivacy={login.openPrivacy} />
         </>
       }
     >
@@ -101,20 +91,32 @@ const LoginScreen = () => {
             />
           )}
         </Animated.View>
-        {login.canSwitchType ? (
+        {login.canSwitchType || login.showFleetLogin ? (
           <View style={styles.links}>
-            <AppButton
-              label={login.type === 'phone' ? 'Use email instead' : 'Use phone instead'}
-              variant="ghost"
-              size="medium"
-              haptic="selection"
-              onPress={login.switchType}
-              style={styles.linkLeft}
-            />
+            {login.canSwitchType ? (
+              <AppButton
+                label={login.type === 'phone' ? 'Use email instead' : 'Use phone instead'}
+                variant="ghost"
+                size="medium"
+                haptic="selection"
+                onPress={login.switchType}
+                style={styles.linkLeft}
+              />
+            ) : (
+              <View />
+            )}
+            {login.showFleetLogin ? (
+              <AppButton
+                label="Fleet Login"
+                variant="ghost"
+                size="medium"
+                haptic="selection"
+                onPress={login.openFleetLogin}
+                style={styles.linkRight}
+              />
+            ) : null}
           </View>
         ) : null}
-        {/* TODO(phase-fleet): "Fleet Login" link to /(auth)/fleet-login when
-            config.features.fleet is on (BLUEPRINT A3). Hidden until that route exists. */}
       </AppReveal>
     </AuthScaffold>
   );
@@ -124,7 +126,7 @@ export default LoginScreen;
 
 const styles = StyleSheet.create({
   art: { flex: 1, minHeight: 0 },
-  terms: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center' },
   links: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   linkLeft: { marginLeft: -16 },
+  linkRight: { marginRight: -16 },
 });

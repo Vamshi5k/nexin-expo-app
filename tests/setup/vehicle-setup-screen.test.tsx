@@ -1,5 +1,6 @@
-import { fireEvent, screen } from '@testing-library/react-native';
+import { act, fireEvent, screen } from '@testing-library/react-native';
 import { router } from 'expo-router';
+import { BackHandler } from 'react-native';
 
 import { VehicleSetupScreen } from '@/features/setup';
 import { vehiclesApi } from '@/features/vehicles/api/vehicles.api';
@@ -9,6 +10,8 @@ import { renderWithApp } from '../helpers/render';
 jest.mock('@/core/log');
 jest.mock('expo-router', () => ({
   router: { push: jest.fn(), back: jest.fn(), replace: jest.fn() },
+  useFocusEffect: (effect: () => void | (() => void)) =>
+    jest.requireActual('react').useEffect(effect, [effect]),
 }));
 jest.mock('@/features/vehicles/api/vehicles.api', () => ({
   ...jest.requireActual('@/features/vehicles/api/vehicles.api'),
@@ -98,5 +101,31 @@ describe('VehicleSetupScreen', () => {
     await renderWithApp(<VehicleSetupScreen />);
     await fireEvent.press(screen.getByRole('button', { name: 'Skip' }));
     expect(router.replace).toHaveBeenCalledWith('/(setup)/permissions');
+  });
+
+  it('Android back goes to the previous wizard step, and is left to the system on the first', async () => {
+    type Listener = Parameters<typeof BackHandler.addEventListener>[1];
+    const event = {} as Parameters<Listener>[0];
+    const handlers: Listener[] = [];
+    const spy = jest.spyOn(BackHandler, 'addEventListener').mockImplementation((_, handler) => {
+      handlers.push(handler);
+      return { remove: () => handlers.splice(handlers.indexOf(handler), 1) };
+    });
+    const pressBack = () => [...handlers].reverse().some(h => h(event));
+
+    await renderWithApp(<VehicleSetupScreen />);
+    expect(await screen.findByText('Select your brand')).toBeTruthy();
+    expect(pressBack()).toBe(false);
+
+    await fireEvent.press(await screen.findByRole('radio', { name: 'MG' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Continue' }));
+    expect(await screen.findByText('Pick your MG model')).toBeTruthy();
+
+    await act(async () => {
+      expect(pressBack()).toBe(true);
+    });
+    expect(await screen.findByText('Select your brand')).toBeTruthy();
+    expect(pressBack()).toBe(false);
+    spy.mockRestore();
   });
 });

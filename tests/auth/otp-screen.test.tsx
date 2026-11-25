@@ -11,6 +11,8 @@ import { renderWithApp } from '../helpers/render';
 jest.mock('@/core/log');
 jest.mock('expo-router', () => ({
   router: { push: jest.fn(), back: jest.fn(), replace: jest.fn() },
+  useFocusEffect: (effect: () => void | (() => void)) =>
+    jest.requireActual('react').useEffect(effect, [effect]),
 }));
 jest.mock('@/features/auth/api/auth.api', () => {
   const actual = jest.requireActual('@/features/auth/api/auth.api');

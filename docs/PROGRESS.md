@@ -2,11 +2,12 @@
 
 Phase numbers follow the project prompts, not BLUEPRINT.md section 7:
 
-| Phase | Scope                                                                          | Blueprint section 7 | Status                          |
-| ----- | ------------------------------------------------------------------------------ | ------------------- | ------------------------------- |
-| 0     | Template and white-label brand layer                                           | part of Phase 0     | Done                            |
-| 1     | Foundation (theme, UI kit, core api/session/storage, root layout) + UI refresh | Phase 0             | Done, tag `phase-1-done`        |
-| 2     | Client config and consumer auth (A1-A4, A9)                                    | Phase 1             | In progress, branch `feat/auth` |
+| Phase | Scope                                                                          | Blueprint section 7       | Status                              |
+| ----- | ------------------------------------------------------------------------------ | ------------------------- | ----------------------------------- |
+| 0     | Template and white-label brand layer                                           | part of Phase 0           | Done                                |
+| 1     | Foundation (theme, UI kit, core api/session/storage, root layout) + UI refresh | Phase 0                   | Done, tag `phase-1-done`            |
+| 2     | Client config and consumer auth (A1-A4, A9)                                    | Phase 1                   | Merged to `main`; device check open |
+| fix   | Setup resume, fleet login (F1-F2), shared back button                          | Phase 1 + part of Phase 8 | Branch `fix/setup-flow`, not pushed |
 
 ## Phase 0: Template and brand layer (done, 2026-11-23)
 
@@ -177,7 +178,7 @@ setup is behind login, which needs a staging test number (OPEN_QUESTIONS #10).
 
 **Open questions**: #13 (push token type), #14 (does `PUT /profile` clear `isFirstLogin`).
 
-## Phase 2: Client config and consumer auth (in progress, branch `feat/auth`)
+## Phase 2: Client config and consumer auth (merged to `main` 2026-11-25; device check open)
 
 Scope: `/client/info` with cache, route groups and guards, boot/splash (A1), onboarding (A2),
 login (A3), OTP (A4), boot error screen (A9 style), logout.
@@ -262,7 +263,8 @@ Not yet verified on a device against staging (needs a test number, see open ques
 
 - Root layout now uses `useBoot` (was `bootstrap()` only) so the A1 session check and boot
   error screen run.
-- The "Fleet Login" link on Login is hidden until `(auth)/fleet-login` exists (fleet phase).
+- The "Fleet Login" link on Login was hidden until `(auth)/fleet-login` existed. Superseded:
+  built on `fix/setup-flow` (see below).
 - `(app)/(tabs)` has only Home and Wallet for now; Home is a temporary signed-in screen.
 - A stored fleet session with `features.fleet` off is signed out (it has no valid screens).
 - OTP screen drops the logo in favour of a round back button; onboarding text is left-aligned
@@ -310,3 +312,64 @@ MMKV, sonner-native, apiError/useAction/useRequest, log.ts and the domain mapper
 
 **Verified**: tsc, expo lint, jest (39 suites, 228 tests) after every commit; Android and iOS
 bundles build in Expo Go mode; Login renders on the iOS simulator.
+
+## Fix: setup resume, fleet login, back button (2026-11-25, branch `fix/setup-flow`)
+
+Requested after a review of every flow. One commit per part; not pushed.
+
+**Done**
+
+- `AppBackButton` (shared kit): one back button for AuthScaffold, SetupLayout, AppHeader and
+  AppLargeTitleScroll. `hardwareBack` makes Android's back button run the same handler while
+  the screen is focused; SetupLayout turns it on, so back in the vehicle wizard goes to the
+  previous step instead of leaving the app.
+- Checked against the old app (tests added): `API_URL` is `${apiHost}/v1` for every APP_ENV
+  (development and staging `https://testapi.evechos.com/v1`, production
+  `https://api.nexinev.com/v1`); fleet logout is `GET /fleet/logout`; `/client/info` sends
+  `details`, `login`, `logo` and `clientDetails` (the old app added `clientDetails` as a param
+  on top of the three in its endpoint string). No app code changed.
+- Login driven by `/client/info`: `userLoginType` is lowercased ('Email' and 'email' both
+  work). Email: email field only, no switch link. Phone: "Use email instead". "Fleet Login"
+  shows on the right of the same row only when `features.fleet` is on.
+- Fleet login (BLUEPRINT F1, F2), pulled forward from Phase 8:
+  - Fleet Login: Fleet ID + mobile -> `POST /fleet/login { fleetId, contact }` ->
+    `data.driverId`, toast, Fleet OTP.
+  - Fleet OTP: 4 digits -> `POST /fleet/verify-otp { otp }`, tokens saved as a fleet session,
+    the guard opens fleet home and `/` loads the driver. Resend:
+    `POST /fleet/resend-otp { driverId }`, 30 s cooldown.
+  - Routes in `(auth)/(fleet-auth)`, guarded: they open only when signed out and the fleet
+    flag is on; otherwise they redirect to `/`.
+  - The consumer and fleet OTP screens share `useOtpCode` (code entry, verify, resend) and
+    `OtpView` (layout). `TermsLine` is shared by both login screens.
+- Setup resume: `setup_progress` (KV) maps user id -> `profile | vehicle | permissions | done`.
+  - Profile saved -> `vehicle`. Vehicle added or skipped -> `permissions`, so the vehicle step
+    never shows again and no second vehicle can be added. Continue on Permissions -> `done`.
+  - `/` resumes at the saved step. Reopened on Permissions: location and notifications both on
+    -> `done`, Home; either off -> Permissions again.
+  - A saved step wins over the server's `isFirstLogin` (OPEN_QUESTIONS #14). The old
+    `setup_done_for` key is still read, so existing installs don't redo setup.
+  - Guards: `(app)` opens only when setup is done; `(setup)` opens only the current step.
+
+**Deviations**
+
+- Fleet phone validation reuses the brand phone rules and messages ("Enter a valid mobile
+  number"), not the old fleet copy "Enter a valid 10-digit mobile number" (the length is a
+  brand value).
+- Fleet OTP timer says "Resend in {n}s" like the consumer OTP (screen-audit 7.2: the old
+  "Code expires in" was the resend cooldown). The Fleet ID chip is hidden when the param is
+  missing instead of showing a fake "FLT-001".
+- The fleet badge says "Fleet Operator" as in the old app, although the profile calls the
+  user a driver (screen-audit 7.1).
+- Every back button now reads "Back" to screen readers (the OTP one said "Go back").
+- Tests that open `(app)` directly now wait for `/`: the guard needs the user, which boot
+  loads before the stack renders in the app.
+
+**Verified**: tsc, expo lint, jest after every commit (46 suites, 297 tests). Not run on a
+device or simulator.
+
+**Left**
+
+- Device check on the iOS simulator and an Android emulator: onboarding -> login -> OTP ->
+  setup (including a restart on each step and Android back in the wizard) -> home -> logout,
+  and the fleet login flow with the flag on (needs a fleet test account).
+- Fleet home is still a placeholder (rest of Phase 8).

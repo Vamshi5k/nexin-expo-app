@@ -6,13 +6,26 @@ import {
   webUrl,
 } from '@/features/client-config/api/clientConfig.api';
 
+// The staging response (2026-11-25), with the logo shortened.
 const FULL = {
   clientDetails: {
+    id: 7,
+    companyName: 'JCD ELECTRIC PRIVATE LIMITED',
     brandName: 'CRUZE ev',
-    termsAndConditionsUrl: 'https://example.com/terms',
-    privacyPolicyUrl: 'https://example.com/privacy',
-    supportUrl: 'https://example.com/#contact',
+    contactEmail: 'support@cruzeev.in',
+    contactPhone: '7989048025',
+    gst: '36AAHCJ6405E1ZQ',
+    address: ' 1-10/ACS/D/2007, Nallagandla, Lingampalli ',
+    businessUrl: 'https://www.cruzeev.in',
     logoUrl: 'https://example.com/logo.png',
+    termsAndConditionsUrl: 'https://www.cruzeev.in/terms-and-conditions',
+    privacyPolicyUrl: 'https://www.cruzeev.in/privacy-policy',
+    refundPolicyUrl: 'https://www.cruzeev.in/refund-cancellation-policy',
+    supportUrl: 'https://www.cruzeev.in/#contact',
+    shippingPolicyUrl: 'https://www.cruzeev.in/shipping-delivery-policy',
+    userPortalUrl: 'https://web.cruzeev.in',
+    state: 'Telangana',
+    clientId: 9,
   },
   media: {
     url: 'https://cdn.example.com/signed.png?X-Amz=1',
@@ -23,17 +36,37 @@ const FULL = {
 };
 
 describe('toClientConfig', () => {
-  it('maps the staging response', () => {
+  it('maps every field of the staging response', () => {
     expect(toClientConfig(FULL, brand)).toEqual({
+      clientId: '9',
       brandName: 'CRUZE ev',
       logoUri: 'data:image/png;base64,AAAA',
-      termsUrl: 'https://example.com/terms',
-      privacyUrl: 'https://example.com/privacy',
-      supportUrl: 'https://example.com/#contact',
+      company: { name: 'JCD ELECTRIC PRIVATE LIMITED', gst: '36AAHCJ6405E1ZQ' },
+      contact: {
+        email: 'support@cruzeev.in',
+        phone: '7989048025',
+        address: '1-10/ACS/D/2007, Nallagandla, Lingampalli',
+        state: 'Telangana',
+      },
+      links: {
+        terms: 'https://www.cruzeev.in/terms-and-conditions',
+        privacy: 'https://www.cruzeev.in/privacy-policy',
+        refund: 'https://www.cruzeev.in/refund-cancellation-policy',
+        shipping: 'https://www.cruzeev.in/shipping-delivery-policy',
+        support: 'https://www.cruzeev.in/#contact',
+        website: 'https://www.cruzeev.in',
+        userPortal: 'https://web.cruzeev.in',
+      },
       loginType: 'phone',
       features: { fleet: false, coupons: true },
       minAppVersion: null,
     });
+  });
+
+  it('drops a contact email that is not an address', () => {
+    expect(
+      toClientConfig({ clientDetails: { contactEmail: 'support' } }, brand).contact.email,
+    ).toBeNull();
   });
 
   it('reads Email login type case-insensitively', () => {
@@ -70,7 +103,7 @@ describe('toClientConfig', () => {
       brand,
     );
     expect(c.brandName).toBe(brand.appName);
-    expect(c.termsUrl).toBeNull();
+    expect(c.links.terms).toBeNull();
   });
 
   it('honours fleetFeature true', () => {
@@ -103,7 +136,7 @@ describe('legal and support links', () => {
 
   it('fall back to brand.links when /client/info omits them', () => {
     const c = toClientConfig({}, withLinks);
-    expect([c.termsUrl, c.privacyUrl, c.supportUrl]).toEqual([
+    expect([c.links.terms, c.links.privacy, c.links.support]).toEqual([
       'https://brand.example/terms',
       'https://brand.example/privacy',
       'https://brand.example/support',
@@ -120,11 +153,11 @@ describe('legal and support links', () => {
       },
       withLinks,
     );
-    expect(c.termsUrl).toBe('https://runtime/terms');
-    expect(c.privacyUrl).toBe('https://brand.example/privacy');
+    expect(c.links.terms).toBe('https://runtime/terms');
+    expect(c.links.privacy).toBe('https://brand.example/privacy');
   });
 
   it('are null when neither side has them', () => {
-    expect(toClientConfig({}, { ...brand, links: {} }).termsUrl).toBeNull();
+    expect(toClientConfig({}, { ...brand, links: {} }).links.terms).toBeNull();
   });
 });

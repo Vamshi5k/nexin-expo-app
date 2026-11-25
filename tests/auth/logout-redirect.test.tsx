@@ -39,11 +39,12 @@ async function renderSignedInHome() {
       '(auth)/_layout': () => <GuardedStack group="auth" />,
       '(auth)/login': () => <Text>Login</Text>,
       '(app)/_layout': () => <GuardedStack group="app" />,
-      '(app)/home': HomeScreen,
+      '(app)/(tabs)/home': HomeScreen,
     },
     { initialUrl: '/home' },
   );
-  expect(screen).toHavePathname('/home');
+  // (app) waits for the user via "/" (boot loads it first in the app), then opens home.
+  await waitFor(() => expect(screen).toHavePathname('/home'));
 }
 
 describe('logout', () => {

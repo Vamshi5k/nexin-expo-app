@@ -1,11 +1,10 @@
 import type { ReactNode } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 
-import { ChevronLeft } from 'lucide-react-native';
 import Animated, { useAnimatedKeyboard, useAnimatedStyle } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { AppPressable, AppReveal, AppText } from '@/shared/components';
+import { AppBackButton, AppReveal, AppText } from '@/shared/components';
 
 import SetupStepper from './SetupStepper';
 
@@ -51,21 +50,7 @@ const SetupLayout = ({
           { height: t.layout.topBarHeight, paddingHorizontal: t.layout.screenPadding },
         ]}
       >
-        {onBack ? (
-          <AppPressable
-            onPress={onBack}
-            haptic="selection"
-            accessibilityLabel="Back"
-            style={[
-              styles.back,
-              { backgroundColor: t.colors.surfaceSunken, borderRadius: t.radius.pill },
-            ]}
-          >
-            <ChevronLeft color={t.colors.textPrimary} size={20} strokeWidth={1.75} />
-          </AppPressable>
-        ) : (
-          <View style={styles.back} />
-        )}
+        {onBack ? <AppBackButton onPress={onBack} hardwareBack /> : <View style={styles.back} />}
         {right}
       </View>
       <View style={{ paddingHorizontal: t.layout.screenPadding }}>

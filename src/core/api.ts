@@ -126,7 +126,8 @@ type RetryConfig = InternalAxiosRequestConfig & {
   _sentToken?: string | null;
 };
 
-function readTokens(body: unknown): Tokens | null {
+// Tokens at the top level or under `data`, as either accessToken or userAccessToken.
+export function readTokens(body: unknown): Tokens | null {
   const pick = (o: unknown): Tokens | null => {
     if (!o || typeof o !== 'object') return null;
     const r = o as Record<string, unknown>;
