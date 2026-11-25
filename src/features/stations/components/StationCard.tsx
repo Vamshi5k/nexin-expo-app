@@ -35,6 +35,10 @@ export const stationCardHeight = (t: Theme) =>
 
 type StatProps = { value: string; label: string };
 
+// Long values (e.g. "299 km", "₹125.75") or a large system text size shrink a little to fit
+// beside the Go button instead of being cut off.
+const MIN_STAT_SCALE = 0.85;
+
 // One footer figure: the value people compare, with a quiet label under it.
 const Stat = ({ value, label }: StatProps) => {
   const t = useTheme();
@@ -46,6 +50,8 @@ const Stat = ({ value, label }: StatProps) => {
         variant="subhead"
         tabular
         numberOfLines={1}
+        adjustsFontSizeToFit
+        minimumFontScale={MIN_STAT_SCALE}
         style={{ fontFamily: t.type.headline.fontFamily }}
       >
         {value}
