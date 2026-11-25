@@ -83,6 +83,38 @@ describe('api functions call the same paths as the old app', () => {
     expect(lastCall()).toMatchObject({ method: 'GET', url: '/fleet/get-by-token' });
   });
 
+  it('fleetApi.login -> POST /fleet/login { fleetId, contact }, returns data.driverId', async () => {
+    respond({ data: { driverId: 'DR-9' } });
+    await expect(fleetApi.login('FLT-1', '9876543210')).resolves.toBe('DR-9');
+    expect(lastCall()).toMatchObject({
+      method: 'POST',
+      url: '/fleet/login',
+      data: { fleetId: 'FLT-1', contact: '9876543210' },
+    });
+  });
+
+  it('fleetApi.verifyOtp -> POST /fleet/verify-otp { otp }, reads user tokens', async () => {
+    respond({ userAccessToken: 'fa', userRefreshToken: 'fr' });
+    await expect(fleetApi.verifyOtp('1234')).resolves.toEqual({
+      accessToken: 'fa',
+      refreshToken: 'fr',
+    });
+    expect(lastCall()).toMatchObject({
+      method: 'POST',
+      url: '/fleet/verify-otp',
+      data: { otp: '1234' },
+    });
+  });
+
+  it('fleetApi.resendOtp -> POST /fleet/resend-otp { driverId }', async () => {
+    await fleetApi.resendOtp('DR-9');
+    expect(lastCall()).toMatchObject({
+      method: 'POST',
+      url: '/fleet/resend-otp',
+      data: { driverId: 'DR-9' },
+    });
+  });
+
   it('fleetApi.logout -> GET /fleet/logout', async () => {
     await fleetApi.logout('tok');
     expect(lastCall()).toMatchObject({ method: 'GET', url: '/fleet/logout' });

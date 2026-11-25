@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 import { brand, phonePattern } from '@/core/config';
 
+import { FLEET_ID_MIN_LENGTH, FLEET_ID_PATTERN } from '../constants/auth.constants';
 import type { ContactType } from '../types/auth.types';
 
 export const phoneSchema = z
@@ -22,6 +23,15 @@ export const contactFormSchema = {
   phone: z.object({ contact: phoneSchema }),
   email: z.object({ contact: emailSchema }),
 };
+
+export const fleetIdSchema = z
+  .string()
+  .trim()
+  .min(1, 'Fleet ID is required')
+  .min(FLEET_ID_MIN_LENGTH, `Fleet ID must be at least ${FLEET_ID_MIN_LENGTH} characters`)
+  .regex(FLEET_ID_PATTERN, 'Fleet ID can only contain letters, numbers, and hyphens');
+
+export const fleetLoginFormSchema = z.object({ fleetId: fleetIdSchema, contact: phoneSchema });
 
 export function sanitizeOtp(input: string, length: number): string {
   return input.replace(/\D/g, '').slice(0, length);

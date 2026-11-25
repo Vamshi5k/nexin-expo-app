@@ -60,6 +60,11 @@ describe('guardRoute', () => {
     ['auth', 'none', false, 'allow'],
     ['auth', 'consumer', false, 'redirect'],
     ['auth', 'fleet', true, 'redirect'],
+    // Fleet login/OTP: signed out and the fleet flag on, else the routes never open.
+    ['fleet-auth', 'none', true, 'allow'],
+    ['fleet-auth', 'none', false, 'redirect'],
+    ['fleet-auth', 'consumer', true, 'redirect'],
+    ['fleet-auth', 'fleet', true, 'redirect'],
     ['setup', 'consumer', false, 'allow'],
     ['setup', 'none', false, 'redirect'],
     ['setup', 'fleet', true, 'redirect'],

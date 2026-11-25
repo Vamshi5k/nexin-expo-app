@@ -35,6 +35,8 @@ export function guardRoute(
   switch (group) {
     case 'auth':
       return input.mode === 'none' ? 'allow' : 'redirect';
+    case 'fleet-auth':
+      return input.mode === 'none' && input.fleetEnabled ? 'allow' : 'redirect';
     case 'setup':
     case 'app':
       return input.mode === 'consumer' ? 'allow' : 'redirect';

@@ -16,3 +16,5 @@ export type FleetUser = {
   email: string | null;
   driverId: string | null;
 };
+
+export type FleetLoginDto = { driverId?: number | string | null };

@@ -12,7 +12,7 @@ import { useAction } from '@/core/request';
 import { toast } from '@/shared/utils/toast';
 
 import { useAuth } from './useAuth';
-import { LOGIN_COPY } from '../constants/auth.constants';
+import { FLEET_HREF, LOGIN_COPY } from '../constants/auth.constants';
 import type { ContactForm, ContactType } from '../types/auth.types';
 import { contactFormSchema } from '../utils/contact';
 import { openLegal } from '../utils/legal';
@@ -58,6 +58,8 @@ export const useLoginForm = () => {
     submit: () => void submit(),
     canSwitchType: config.loginType === 'phone',
     switchType,
+    showFleetLogin: config.features.fleet,
+    openFleetLogin: () => router.push(FLEET_HREF.login),
     openTerms: () => void openLegal(config.termsUrl),
     openPrivacy: () => void openLegal(config.privacyUrl),
   };

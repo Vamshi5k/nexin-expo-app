@@ -8,6 +8,9 @@ export const ENDPOINTS = {
     LOGOUT: '/auth/logout',
   },
   FLEET: {
+    LOGIN: '/fleet/login',
+    VERIFY_OTP: '/fleet/verify-otp',
+    RESEND_OTP: '/fleet/resend-otp',
     DRIVER: '/fleet/get-by-token',
     LOGOUT: '/fleet/logout',
   },

@@ -2,6 +2,8 @@ import { useEffect } from 'react';
 
 import { type Href } from 'expo-router';
 
+import { useFleet } from '@/features/fleet';
+
 import { sessionStore } from '@/core/session';
 
 import { useAuth } from './useAuth';
@@ -16,12 +18,24 @@ import {
 // Where "/" sends the user, or null while the user is still loading.
 export const useStartRoute = (): Href | null => {
   const { mode, user, userStatus, userError, loadUser } = useAuth();
-  const expired = userStatus === 'error' && classifySessionError(userError) === 'expired';
+  const { driverStatus, driverError, loadDriver } = useFleet();
+  const expired =
+    (mode === 'consumer' &&
+      userStatus === 'error' &&
+      classifySessionError(userError) === 'expired') ||
+    (mode === 'fleet' &&
+      driverStatus === 'error' &&
+      classifySessionError(driverError) === 'expired');
 
   // After OTP sign-in the user isn't loaded yet; boot already loaded it for a restored session.
   useEffect(() => {
     if (mode === 'consumer' && userStatus === 'idle') void loadUser().catch(() => undefined);
   }, [mode, userStatus, loadUser]);
+
+  // Same for the driver after fleet OTP sign-in.
+  useEffect(() => {
+    if (mode === 'fleet' && driverStatus === 'idle') void loadDriver().catch(() => undefined);
+  }, [mode, driverStatus, loadDriver]);
 
   useEffect(() => {
     if (expired) void sessionStore.getState().signOut();

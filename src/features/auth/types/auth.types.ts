@@ -36,9 +36,10 @@ export type User = {
 
 export type ContactType = 'phone' | 'email';
 export type ContactForm = { contact: string };
+export type FleetLoginForm = { fleetId: string; contact: string };
 
 export type StartRoute = 'onboarding' | 'login' | 'setup' | 'home' | 'fleet';
-export type RouteGroup = 'auth' | 'setup' | 'app' | 'fleet';
+export type RouteGroup = 'auth' | 'fleet-auth' | 'setup' | 'app' | 'fleet';
 export type GuardDecision = 'allow' | 'redirect' | 'end-session';
 export type BootStatus = 'loading' | 'ready' | 'error';
 
