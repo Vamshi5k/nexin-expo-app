@@ -72,6 +72,7 @@ export const TYPE_SCALE: Record<TypeVariant, TypeSpec> = {
 
 export function typography(family: string): Record<TypeVariant, TextStyle> {
   const fonts = fontFamilies(family);
+
   return Object.fromEntries(
     Object.entries(TYPE_SCALE).map(([variant, t]) => [
       variant,

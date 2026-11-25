@@ -14,6 +14,7 @@ import { OFFLINE_COPY, recheckOnline, useOnline } from '@/core/network';
 
 const AppOfflineBanner = () => {
   const online = useOnline();
+
   return online === false ? <OfflineCard /> : null;
 };
 

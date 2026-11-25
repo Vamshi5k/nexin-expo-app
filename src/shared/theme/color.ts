@@ -6,6 +6,7 @@ type Rgb = [number, number, number];
 
 export function hexToRgb(hex: string): Rgb {
   const h = hex.replace('#', '');
+
   return [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16)) as Rgb;
 }
 
@@ -20,11 +21,13 @@ export function rgbToHex([r, g, b]: Rgb): string {
 export function mix(a: string, b: string, t: number): string {
   const [ra, ga, ba] = hexToRgb(a);
   const [rb, gb, bb] = hexToRgb(b);
+
   return rgbToHex([ra + (rb - ra) * t, ga + (gb - ga) * t, ba + (bb - ba) * t]);
 }
 
 export function withAlpha(hex: string, alpha: number): string {
   const [r, g, b] = hexToRgb(hex);
+
   return `rgba(${r},${g},${b},${alpha})`;
 }
 
@@ -38,6 +41,7 @@ export function hue(hex: string): number {
   if (max === r) h = ((g - b) / d) % 6;
   else if (max === g) h = (b - r) / d + 2;
   else h = (r - g) / d + 4;
+
   return (h * 60 + 360) % 360;
 }
 

@@ -96,6 +96,7 @@ export function AuthScaffold({ hero, children, footer, back }: AuthScaffoldProps
 
 function BackButton() {
   const t = useTheme();
+
   return (
     <AppPressable
       onPress={() => router.back()}

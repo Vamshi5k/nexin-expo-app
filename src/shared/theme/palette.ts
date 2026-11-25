@@ -59,6 +59,7 @@ const LIGHTNESS: Record<NeutralStep, number> = {
 
 export function neutralScale(primary: string): Record<NeutralStep, string> {
   const h = hue(primary);
+
   return Object.fromEntries(
     NEUTRAL_STEPS.map(step => [step, hslToHex(h, step >= 700 ? 0.14 : 0.1, LIGHTNESS[step])]),
   ) as Record<NeutralStep, string>;
@@ -66,6 +67,7 @@ export function neutralScale(primary: string): Record<NeutralStep, string> {
 
 function onFill(fill: string, darkText: string): string {
   const pick = readableOn(fill, darkText);
+
   return pick === '#FFFFFF' ? pick : ensureContrast(pick, [fill], AA_TEXT, 'darken');
 }
 
@@ -81,6 +83,7 @@ function status(
   const base = ensureContrast(color, surfaces, AA_UI, dir);
   const soft = mix(surface, base, scheme === 'light' ? 0.12 : 0.2);
   const text = ensureContrast(base, [...surfaces, soft], AA_TEXT, dir);
+
   return { base, soft, text };
 }
 

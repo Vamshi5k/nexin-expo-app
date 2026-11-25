@@ -6,6 +6,7 @@ import { useTheme } from '@/shared/theme';
 
 const OptionGridSkeleton = () => {
   const t = useTheme();
+
   return (
     <View style={[styles.grid, { gap: t.space[3] }]} accessibilityLabel="Loading">
       {Array.from({ length: 6 }, (_, i) => (

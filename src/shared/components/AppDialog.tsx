@@ -35,6 +35,7 @@ const AppDialog = ({
   icon: Icon,
 }: AppDialogProps) => {
   const t = useTheme();
+
   return (
     <Modal
       visible={open}

@@ -20,6 +20,7 @@ export type AppHeaderProps = {
 const AppHeader = ({ title, back, right }: AppHeaderProps) => {
   const t = useTheme();
   const onBack = typeof back === 'function' ? back : () => router.back();
+
   return (
     <View style={[styles.bar, { height: HEADER_BAR_HEIGHT, paddingHorizontal: t.space[2] }]}>
       <View style={styles.side}>

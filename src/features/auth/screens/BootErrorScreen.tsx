@@ -12,6 +12,7 @@ export type BootErrorScreenProps = { onRetry: () => void; retrying?: boolean };
 
 export function BootErrorScreen({ onRetry, retrying }: BootErrorScreenProps) {
   const t = useTheme();
+
   return (
     <AuthScaffold
       hero={

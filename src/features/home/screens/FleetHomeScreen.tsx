@@ -9,6 +9,7 @@ import { useTheme } from '@/shared/theme';
 export function FleetHomeScreen() {
   const t = useTheme();
   const logout = useLogoutConfirm();
+
   return (
     <AppPlaceholderScreen
       title="Fleet"

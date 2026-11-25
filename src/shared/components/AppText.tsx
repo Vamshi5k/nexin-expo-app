@@ -42,6 +42,7 @@ const AppText = ({
   ...rest
 }: AppTextProps) => {
   const t = useTheme();
+
   return (
     <RNText
       maxFontSizeMultiplier={maxFontSizeMultiplier ?? t.layout.maxFontScale}

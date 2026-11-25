@@ -21,6 +21,7 @@ const AppSegmentedControl = <T extends string>({
   accessibilityLabel,
 }: AppSegmentedControlProps<T>) => {
   const t = useTheme();
+
   return (
     <View
       accessibilityRole="tablist"

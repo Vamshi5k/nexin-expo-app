@@ -8,6 +8,7 @@ const AppPermissionDialog = () => {
   const kind = usePermissionBlocked(s => s.kind);
   const close = usePermissionBlocked(s => s.close);
   const copy = kind ? PERMISSION_COPY[kind] : null;
+
   return (
     <AppDialog
       open={!!copy}

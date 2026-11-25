@@ -15,5 +15,6 @@ export const fontSources = {
 
 export const useBrandFonts = (): { loaded: boolean; error: Error | null } => {
   const [loaded, error] = useFonts(fontSources);
+
   return { loaded, error };
 };

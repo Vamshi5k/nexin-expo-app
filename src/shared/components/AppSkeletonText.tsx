@@ -11,6 +11,7 @@ type AppSkeletonTextProps = {
 
 const AppSkeletonText = ({ lines = 3, lineHeight = 14 }: AppSkeletonTextProps) => {
   const t = useTheme();
+
   return (
     <View style={{ gap: t.space[2] }} accessibilityLabel="Loading" accessibilityRole="progressbar">
       {Array.from({ length: lines }, (_, i) => (

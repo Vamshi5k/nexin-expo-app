@@ -89,6 +89,7 @@ export function useStartRoute(): Href | null {
     onboardingDone: isOnboardingDone(),
     setupDone: user ? isSetupDone(user.id) : false,
   });
+
   return route ? START_HREF[route] : null;
 }
 

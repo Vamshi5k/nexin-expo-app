@@ -23,6 +23,7 @@ type OptionGridProps = {
 const OptionGrid = ({ options, onSelect }: OptionGridProps) => {
   const t = useTheme();
   const c = t.colors;
+
   return (
     <View style={[styles.grid, { gap: t.space[3] }]} accessibilityRole="radiogroup">
       {options.map(o => (

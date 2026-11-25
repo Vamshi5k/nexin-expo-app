@@ -14,11 +14,13 @@ export async function verifyOtp(otp: string): Promise<Tokens> {
     otp,
     appName: brand.apiAppName,
   });
+
   return toTokens(res.data);
 }
 
 export async function getUser(): Promise<User> {
   const res = await api.get<Envelope<{ user: UserDto }>>(ENDPOINTS.AUTH.USER);
+
   return toUser(unwrap(res).user);
 }
 
@@ -46,6 +48,7 @@ export function toTokens(dto: VerifyResponseDto): Tokens {
 
 export function rupeesToPaise(value: number | string | null | undefined): number {
   const n = typeof value === 'string' ? Number(value) : (value ?? 0);
+
   return Number.isFinite(n) ? Math.round(n * 100) : 0;
 }
 

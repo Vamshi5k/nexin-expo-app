@@ -16,6 +16,7 @@ type VehicleTrailProps = {
 const VehicleTrail = ({ wizard }: VehicleTrailProps) => {
   const t = useTheme();
   if (wizard.trail.length === 0) return null;
+
   return (
     <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: t.space[1] }}>
       {wizard.trail.map((item, i) => (

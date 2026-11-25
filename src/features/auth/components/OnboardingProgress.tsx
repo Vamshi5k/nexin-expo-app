@@ -19,6 +19,7 @@ export function OnboardingProgress({
   x: SharedValue<number>;
 }) {
   const t = useTheme();
+
   return (
     <View style={[styles.row, { gap: t.space[2] }]} accessibilityElementsHidden>
       {Array.from({ length: count }, (_, i) => (
@@ -35,6 +36,7 @@ function Segment({ index, width, x }: { index: number; width: number; x: SharedV
       { scaleX: interpolate(x.value / width, [index - 1, index], [0, 1], Extrapolation.CLAMP) },
     ],
   }));
+
   return (
     <View
       style={[styles.segment, { backgroundColor: t.colors.border, borderRadius: t.radius.pill }]}

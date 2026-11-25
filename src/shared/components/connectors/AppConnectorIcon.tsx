@@ -43,6 +43,7 @@ const AppConnectorIcon = ({
   const known = toConnectorType(type);
   const Glyph = known ? GLYPHS[known] : Type2Glyph;
   const color = available ? t.colors.textSecondary : t.colors.textTertiary;
+
   return (
     <View
       accessibilityLabel={`${known ?? type} connector${available ? '' : ', unavailable'}`}

@@ -17,6 +17,7 @@ export function OnboardingArt({
 }) {
   const t = useTheme();
   const c = t.colors;
+
   return (
     <View style={[styles.center, { width: OUTER, height: OUTER }]}>
       <View
@@ -67,6 +68,7 @@ function Orbit({
   const style = useAnimatedStyle(() => ({
     transform: [{ rotate: `${spin.value * 360 * turns}deg` }],
   }));
+
   return (
     <Animated.View style={[styles.abs, { width: size, height: size }, style]}>
       <View

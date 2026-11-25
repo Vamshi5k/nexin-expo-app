@@ -13,6 +13,7 @@ export function GuardedStack({ group }: { group: RouteGroup }) {
 
   if (decision === 'redirect') return <Redirect href="/" />;
   if (decision === 'end-session') return <View style={{ flex: 1, backgroundColor: t.colors.bg }} />;
+
   return (
     <Stack
       screenOptions={{

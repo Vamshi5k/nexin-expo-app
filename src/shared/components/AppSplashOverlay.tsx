@@ -24,6 +24,7 @@ const TRACK = 120;
 function splashSize() {
   const s = Image.resolveAssetSource(images.splash);
   const width = brand.splash.imageWidth;
+
   return { width, height: s?.width && s.height ? (width * s.height) / s.width : width };
 }
 

@@ -47,6 +47,7 @@ export function ChargingIllustration() {
   const t = useTheme();
   const keyboardOpen = useKeyboardOpen();
   if (keyboardOpen) return null;
+
   return (
     <Animated.View entering={FadeIn.duration(t.motion.durationSlow)} style={styles.wrap}>
       <ChargingScene />
@@ -186,6 +187,7 @@ function ChargingScene() {
 
 function Wheel({ cx, tire, rim, hub }: { cx: number; tire: string; rim: string; hub: string }) {
   const cy = 150;
+
   return (
     <>
       <Circle cx={cx} cy={cy} r={22} fill={tire} />

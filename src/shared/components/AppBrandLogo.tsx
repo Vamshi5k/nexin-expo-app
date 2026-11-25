@@ -12,6 +12,7 @@ export type AppBrandLogoProps = {
 
 function assetRatio(): number {
   const s = Image.resolveAssetSource(images.logo);
+
   return s?.width && s.height ? s.width / s.height : 1;
 }
 

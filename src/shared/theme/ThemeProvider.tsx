@@ -28,6 +28,7 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function buildTheme(scheme: ColorScheme, b = brand): Theme {
   const colors = buildPalette(b, scheme);
+
   return {
     scheme,
     colors,
@@ -47,6 +48,7 @@ export function resolveScheme(
 ): ColorScheme {
   if (override) return override;
   if (appearance !== 'system') return appearance;
+
   return device === 'dark' ? 'dark' : 'light';
 }
 

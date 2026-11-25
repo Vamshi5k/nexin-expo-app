@@ -144,6 +144,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }),
     [mode, user.data, user.status, user.error, user.load, verifyOtp, logout],
   );
+
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
@@ -177,6 +178,7 @@ export function useLogoutConfirm() {
 export function useAuth(): AuthValue {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error('useAuth must be used inside AuthProvider');
+
   return ctx;
 }
 
@@ -246,6 +248,7 @@ function useCountdown(seconds: number) {
     const id = setInterval(() => setNow(Date.now()), 250);
     return () => clearInterval(id);
   }, [remaining]);
+
   return {
     remaining,
     restart: () => {

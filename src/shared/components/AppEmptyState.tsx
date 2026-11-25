@@ -23,6 +23,7 @@ const AppEmptyState = ({
   onAction,
 }: AppEmptyStateProps) => {
   const t = useTheme();
+
   return (
     <View
       style={{

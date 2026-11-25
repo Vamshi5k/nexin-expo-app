@@ -199,6 +199,7 @@ const Choices = <T,>({
     );
   }
   const options = toOptions(items);
+
   return (
     <View style={{ gap: t.space[4] }}>
       {search && items.length > SEARCH_AFTER ? (

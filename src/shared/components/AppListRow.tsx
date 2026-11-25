@@ -96,6 +96,7 @@ const AppListRow = ({
   );
 
   if (!onPress) return content;
+
   return (
     <AppPressable
       onPress={onPress}

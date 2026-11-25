@@ -17,6 +17,7 @@ const AppBadge = ({ label, tone = 'accent' }: AppBadgeProps) => {
     neutral: { bg: c.surfaceSunken, fg: c.textSecondary },
     danger: { bg: c.danger, fg: c.onDanger },
   }[tone];
+
   return (
     <View
       style={{

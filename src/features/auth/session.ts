@@ -51,6 +51,7 @@ export function otpCells(
 export function formatContact(type: ContactType, value: string, countryCode: string): string {
   if (type === 'email') return value;
   const half = Math.ceil(value.length / 2);
+
   return `${countryCode} ${value.slice(0, half)} ${value.slice(half)}`.trim();
 }
 
@@ -125,6 +126,7 @@ export const bootTimeoutError = (): Error =>
 
 function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
   let timer: ReturnType<typeof setTimeout> | undefined;
+
   return Promise.race([
     promise,
     new Promise<never>((_, reject) => {
