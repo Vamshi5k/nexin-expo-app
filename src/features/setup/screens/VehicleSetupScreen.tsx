@@ -1,5 +1,5 @@
 import { VehicleFormBody, VehicleTrail } from '@/features/vehicles';
-import { Button } from '@/ui';
+import { Button } from '@/shared/components';
 
 import { SetupLayout } from '../components/SetupLayout';
 import { useVehicleSetup } from '../hooks';

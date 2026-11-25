@@ -1,4 +1,4 @@
-import { CONNECTOR_TYPES, toConnectorType } from '@/ui/connectors/types';
+import { CONNECTOR_TYPES, toConnectorType } from '@/shared/components/connectors/types';
 
 describe('toConnectorType', () => {
   it('maps every known type to itself', () => {

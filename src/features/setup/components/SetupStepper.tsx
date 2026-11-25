@@ -1,8 +1,8 @@
 import { Check } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
 
-import { useTheme } from '@/theme';
-import { Text } from '@/ui';
+import { useTheme } from '@/shared/theme';
+import { Text } from '@/shared/components';
 
 import { SETUP_STEPS } from '../constants';
 

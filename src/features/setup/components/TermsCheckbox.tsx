@@ -1,8 +1,8 @@
 import { Check } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
 
-import { useTheme } from '@/theme';
-import { Pressable, Text } from '@/ui';
+import { useTheme } from '@/shared/theme';
+import { Pressable, Text } from '@/shared/components';
 
 // The whole row toggles (the old app's 18 pt box alone was too small to hit).
 export function TermsCheckbox({

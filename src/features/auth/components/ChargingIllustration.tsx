@@ -12,8 +12,8 @@ import Animated, {
 } from 'react-native-reanimated';
 import Svg, { Circle, Path, Rect } from 'react-native-svg';
 
-import { useTheme } from '@/theme';
-import { useKeyboardOpen } from '@/ui';
+import { useTheme } from '@/shared/theme';
+import { useKeyboardOpen } from '@/shared/utils/keyboard';
 
 const AnimatedPath = Animated.createAnimatedComponent(Path);
 const AnimatedRect = Animated.createAnimatedComponent(Rect);

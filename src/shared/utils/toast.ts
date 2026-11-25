@@ -2,7 +2,7 @@ import { CircleAlert, CircleCheck, Info } from 'lucide-react-native';
 import { createElement } from 'react';
 import { Toaster, toast as sonner } from 'sonner-native';
 
-import { useTheme } from '@/theme';
+import { useTheme } from '@/shared/theme';
 
 import { haptics } from './haptics';
 

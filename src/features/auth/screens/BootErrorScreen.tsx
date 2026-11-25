@@ -1,8 +1,8 @@
 import { WifiOff } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
 
-import { useTheme } from '@/theme';
-import { Button, Reveal, Text } from '@/ui';
+import { useTheme } from '@/shared/theme';
+import { Button, Reveal, Text } from '@/shared/components';
 
 import { AuthScaffold } from '../components/AuthScaffold';
 

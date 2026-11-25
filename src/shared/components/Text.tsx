@@ -1,6 +1,6 @@
 import { Text as RNText, type TextProps as RNTextProps, type TextStyle } from 'react-native';
 
-import { useTheme, type Palette, type TypeVariant } from '@/theme';
+import { useTheme, type Palette, type TypeVariant } from '@/shared/theme';
 
 export type TextTone =
   | 'primary'

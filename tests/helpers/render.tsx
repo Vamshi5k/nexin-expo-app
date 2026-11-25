@@ -6,7 +6,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AuthProvider } from '@/features/auth';
 import { ClientConfigProvider } from '@/features/client-config';
 import { FleetProvider } from '@/features/fleet';
-import { ThemeProvider } from '@/theme';
+import { ThemeProvider } from '@/shared/theme';
 
 const METRICS = {
   frame: { x: 0, y: 0, width: 390, height: 844 },

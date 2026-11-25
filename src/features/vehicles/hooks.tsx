@@ -5,7 +5,7 @@ import { Keyboard } from 'react-native';
 
 import { getErrorMessage } from '@/core/api';
 import { useAction, useRequest } from '@/core/request';
-import { toast } from '@/ui';
+import { toast } from '@/shared/utils/toast';
 
 import { addVehicle, getBrands, getCapacities, getModels } from './api';
 import { STEP_COPY, WIZARD_STEPS } from './constants';

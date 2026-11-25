@@ -5,8 +5,8 @@ import { View } from 'react-native';
 import { APP_ENV, brand } from '@/core/config';
 import { formatContact, LogoutDialog, useAuth, useLogoutConfirm } from '@/features/auth';
 import { useClientConfig } from '@/features/client-config';
-import { useTheme } from '@/theme';
-import { Card, LargeTitleScroll, ListGroup, ListRow, Text } from '@/ui';
+import { useTheme } from '@/shared/theme';
+import { Card, LargeTitleScroll, ListGroup, ListRow, Text } from '@/shared/components';
 
 export function HomeScreen() {
   const t = useTheme();

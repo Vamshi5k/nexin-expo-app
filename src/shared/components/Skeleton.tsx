@@ -10,7 +10,7 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 
-import { useTheme } from '@/theme';
+import { useTheme } from '@/shared/theme';
 
 export type SkeletonProps = {
   width?: DimensionValue;

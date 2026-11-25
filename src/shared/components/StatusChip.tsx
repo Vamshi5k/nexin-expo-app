@@ -1,7 +1,7 @@
 import type { ConnectorStatus } from '@brand/schema';
 import { View } from 'react-native';
 
-import { useTheme, withAlpha } from '@/theme';
+import { useTheme, withAlpha } from '@/shared/theme';
 
 import { Text } from './Text';
 

@@ -1,4 +1,4 @@
-import { BrandLogo, type BrandLogoProps } from '@/ui';
+import { BrandLogo, type BrandLogoProps } from '@/shared/components';
 
 import { useClientConfig } from '../hooks';
 

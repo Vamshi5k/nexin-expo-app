@@ -4,8 +4,8 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import Animated, { useAnimatedKeyboard, useAnimatedStyle } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { useTheme } from '@/theme';
-import { Pressable, Reveal, Text } from '@/ui';
+import { useTheme } from '@/shared/theme';
+import { Pressable, Reveal, Text } from '@/shared/components';
 
 import { SetupStepper } from './SetupStepper';
 

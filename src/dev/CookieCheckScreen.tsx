@@ -3,8 +3,8 @@ import { View } from 'react-native';
 
 import { api, createApiClient, getErrorMessage, statusOf } from '@/core/api';
 import { brand, CLIENT_TOKEN } from '@/core/config';
-import { useTheme } from '@/theme';
-import { Button, Card, Input, LargeTitleScroll, Text } from '@/ui';
+import { useTheme } from '@/shared/theme';
+import { Button, Card, Input, LargeTitleScroll, Text } from '@/shared/components';
 
 const LOCAL_BASE_URL = 'http://localhost:8787';
 

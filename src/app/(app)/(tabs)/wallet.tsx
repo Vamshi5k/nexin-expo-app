@@ -1,4 +1,4 @@
-import { PlaceholderScreen } from '@/ui';
+import { PlaceholderScreen } from '@/shared/components';
 
 export default function WalletRoute() {
   return (

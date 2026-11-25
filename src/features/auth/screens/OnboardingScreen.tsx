@@ -3,8 +3,8 @@ import { StyleSheet, View, type FlatList } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { useTheme } from '@/theme';
-import { AmbientBackground, Button, Reveal, Text } from '@/ui';
+import { useTheme } from '@/shared/theme';
+import { AmbientBackground, Button, Reveal, Text } from '@/shared/components';
 
 import { OnboardingProgress } from '../components/OnboardingProgress';
 import { OnboardingSlide } from '../components/OnboardingSlide';

@@ -1,6 +1,6 @@
 import { View } from 'react-native';
 
-import { useTheme } from '@/theme';
+import { useTheme } from '@/shared/theme';
 
 import { Text } from './Text';
 

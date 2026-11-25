@@ -1,10 +1,10 @@
 import type { LucideIcon } from 'lucide-react-native';
 import { Modal, StyleSheet, View } from 'react-native';
 
-import { useTheme } from '@/theme';
+import { useTheme } from '@/shared/theme';
 
 import { Button } from './Button';
-import { haptics } from './haptics';
+import { haptics } from '@/shared/utils/haptics';
 import { Text } from './Text';
 
 export type DialogProps = {

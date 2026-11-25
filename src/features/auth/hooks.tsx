@@ -37,7 +37,8 @@ import { log } from '@/core/log';
 import { useAction, useSessionData, type LoadStatus } from '@/core/request';
 import { sessionStore, signOutThen, useSession, type SessionMode } from '@/core/session';
 import { useClientConfig } from '@/features/client-config';
-import { haptics, toast } from '@/ui';
+import { haptics } from '@/shared/utils/haptics';
+import { toast } from '@/shared/utils/toast';
 
 import * as authApi from './api';
 import {

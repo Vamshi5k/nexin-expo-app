@@ -1,7 +1,7 @@
 import { Redirect, Stack } from 'expo-router';
 import { View } from 'react-native';
 
-import { useTheme } from '@/theme';
+import { useTheme } from '@/shared/theme';
 
 import { useRouteGuard } from '../routing';
 import type { RouteGroup } from '../types';

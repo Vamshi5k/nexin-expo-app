@@ -16,12 +16,12 @@ module.exports = defineConfig([
     rules: {
       'no-console': 'error',
       '@typescript-eslint/no-explicit-any': 'error',
-      // Toasts go through src/ui/toast.ts only.
+      // Toasts go through src/shared/utils/toast.ts only.
       'no-restricted-imports': [
         'error',
-        { paths: [{ name: 'sonner-native', message: "Import { toast } from '@/ui' instead." }] },
+        { paths: [{ name: 'sonner-native', message: "Import { toast } from '@/shared/utils/toast' instead." }] },
       ],
-      // DESIGN.md: no raw hex outside src/theme and brand/.
+      // DESIGN.md: no raw hex outside src/shared/theme and brand/.
       'no-restricted-syntax': [
         'error',
         {
@@ -36,11 +36,11 @@ module.exports = defineConfig([
     },
   },
   {
-    files: ['src/ui/toast.ts'],
+    files: ['src/shared/utils/toast.ts'],
     rules: { 'no-restricted-imports': 'off' },
   },
   {
-    files: ['src/theme/**/*.{ts,tsx}', 'src/**/__tests__/**'],
+    files: ['src/shared/theme/**/*.{ts,tsx}', 'src/**/__tests__/**'],
     rules: { 'no-restricted-syntax': 'off' },
   },
 ]);

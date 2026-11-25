@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets, type Edge } from 'react-native-safe-area-context';
 
-import { useTheme } from '@/theme';
+import { useTheme } from '@/shared/theme';
 
 export type ScreenProps = {
   children: ReactNode;

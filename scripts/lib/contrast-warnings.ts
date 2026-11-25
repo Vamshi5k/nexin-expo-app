@@ -1,7 +1,7 @@
 /** Contrast warnings for brand:check, computed on the palettes the app actually renders. */
 import { AA_NORMAL_TEXT, contrastRatio } from '../../brand/lib/contrast';
 import type { BrandConfig } from '../../brand/schema';
-import { buildPalette } from '../../src/theme/palette';
+import { buildPalette } from '../../src/shared/theme/palette';
 
 export function contrastWarnings(brand: BrandConfig): string[] {
   const warnings: string[] = [];

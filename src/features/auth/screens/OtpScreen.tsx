@@ -2,8 +2,8 @@ import { router } from 'expo-router';
 import { useRef } from 'react';
 import { StyleSheet, View, type TextInputInstance } from 'react-native';
 
-import { useTheme } from '@/theme';
-import { Button, Reveal, Text } from '@/ui';
+import { useTheme } from '@/shared/theme';
+import { Button, Reveal, Text } from '@/shared/components';
 
 import { AuthScaffold } from '../components/AuthScaffold';
 import { ChargingIllustration } from '../components/ChargingIllustration';

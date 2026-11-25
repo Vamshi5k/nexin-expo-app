@@ -10,7 +10,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import Svg, { Defs, LinearGradient, Path, Rect, Stop } from 'react-native-svg';
 
-import { useTheme } from '@/theme';
+import { useTheme } from '@/shared/theme';
 
 const RINGS = 11;
 const POINTS = 48;

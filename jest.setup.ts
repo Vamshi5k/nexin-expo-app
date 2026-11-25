@@ -59,7 +59,7 @@ jest.mock('react-native-reanimated/src/initializers', () => ({
 jest.mock('react-native-reanimated', () => jest.requireActual('react-native-reanimated/mock'));
 
 // sonner-native ships ESM only. Tests assert on these spies instead of rendering toasts.
-jest.mock('@/ui/toast', () => ({
+jest.mock('@/shared/utils/toast', () => ({
   toast: { success: jest.fn(), error: jest.fn(), info: jest.fn(), promise: jest.fn() },
   AppToaster: () => null,
 }));

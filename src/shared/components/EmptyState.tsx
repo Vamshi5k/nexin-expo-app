@@ -1,7 +1,7 @@
 import type { LucideIcon } from 'lucide-react-native';
 import { View } from 'react-native';
 
-import { useTheme } from '@/theme';
+import { useTheme } from '@/shared/theme';
 
 import { Button } from './Button';
 import { Text } from './Text';

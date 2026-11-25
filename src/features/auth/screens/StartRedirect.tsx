@@ -1,7 +1,7 @@
 import { Redirect } from 'expo-router';
 import { View } from 'react-native';
 
-import { useTheme } from '@/theme';
+import { useTheme } from '@/shared/theme';
 
 import { useStartRoute } from '../routing';
 

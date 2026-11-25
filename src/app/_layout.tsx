@@ -11,9 +11,10 @@ import { log } from '@/core/log';
 import { AuthProvider, BootErrorScreen, useBoot } from '@/features/auth';
 import { ClientConfigProvider } from '@/features/client-config';
 import { FleetProvider } from '@/features/fleet';
-import { ThemeProvider, useTheme } from '@/theme';
-import { useBrandFonts } from '@/theme/fonts';
-import { AppToaster, OfflineBanner, PermissionDialog, SplashOverlay } from '@/ui';
+import { ThemeProvider, useTheme } from '@/shared/theme';
+import { useBrandFonts } from '@/shared/theme/fonts';
+import { OfflineBanner, PermissionDialog, SplashOverlay } from '@/shared/components';
+import { AppToaster } from '@/shared/utils/toast';
 
 void SplashScreen.preventAutoHideAsync();
 

@@ -21,7 +21,7 @@ jest.mock('@react-native-community/netinfo', () => ({
   useNetInfo: () => ({ isConnected: true }),
 }));
 jest.mock('@/core/log');
-jest.mock('@/theme/fonts', () => ({ useBrandFonts: () => ({ loaded: true, error: null }) }));
+jest.mock('@/shared/theme/fonts', () => ({ useBrandFonts: () => ({ loaded: true, error: null }) }));
 jest.mock('@/features/client-config/api', () => ({
   ...jest.requireActual('@/features/client-config/api'),
   getClientConfig: jest.fn(async () => {

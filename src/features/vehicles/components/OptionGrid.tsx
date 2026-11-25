@@ -1,8 +1,8 @@
 import { Check } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
 
-import { useTheme } from '@/theme';
-import { Pressable, Skeleton, Text } from '@/ui';
+import { useTheme } from '@/shared/theme';
+import { Pressable, Skeleton, Text } from '@/shared/components';
 
 export type Option = {
   key: string;

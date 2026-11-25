@@ -11,7 +11,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
-import { useTheme, withAlpha } from '@/theme';
+import { useTheme, withAlpha } from '@/shared/theme';
 
 import { Text } from './Text';
 

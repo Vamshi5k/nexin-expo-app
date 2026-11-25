@@ -30,7 +30,7 @@ import {
   type ColorScheme,
   type Palette,
   type TypeVariant,
-} from '@/theme';
+} from '@/shared/theme';
 import {
   Badge,
   BrandLogo,
@@ -53,8 +53,8 @@ import {
   SkeletonText,
   StatusChip,
   Text,
-  toast,
-} from '@/ui';
+} from '@/shared/components';
+import { toast } from '@/shared/utils/toast';
 
 const SECTIONS: Record<string, () => ReactNode> = {
   appearance: () => <SchemeSection />,

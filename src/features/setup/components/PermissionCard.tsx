@@ -3,8 +3,8 @@ import { Check } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
 
 import type { PermissionResult } from '@/core/permissions';
-import { useTheme } from '@/theme';
-import { Button, Text } from '@/ui';
+import { useTheme } from '@/shared/theme';
+import { Button, Text } from '@/shared/components';
 
 // Flat card: sunken at rest, tinted with a check once allowed. No shadow.
 export function PermissionCard({

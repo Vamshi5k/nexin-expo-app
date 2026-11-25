@@ -12,7 +12,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { useTheme, withAlpha } from '@/theme';
+import { useTheme, withAlpha } from '@/shared/theme';
 
 import { Pressable } from './Pressable';
 import { Text } from './Text';

@@ -2,7 +2,7 @@ import type { LucideIcon } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
 import Animated, { useAnimatedStyle, type SharedValue } from 'react-native-reanimated';
 
-import { useTheme } from '@/theme';
+import { useTheme } from '@/shared/theme';
 
 const OUTER = 216;
 const INNER = 152;

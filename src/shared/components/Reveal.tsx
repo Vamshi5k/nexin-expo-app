@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import type { StyleProp, ViewStyle } from 'react-native';
 import Animated, { Easing, FadeInDown } from 'react-native-reanimated';
 
-import { motion } from '@/theme';
+import { motion } from '@/shared/theme';
 
 export type RevealProps = {
   children: ReactNode;

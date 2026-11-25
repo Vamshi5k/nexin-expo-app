@@ -10,9 +10,9 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
-import { useTheme, type Palette } from '@/theme';
+import { useTheme, type Palette } from '@/shared/theme';
 
-import type { HapticKind } from './haptics';
+import type { HapticKind } from '@/shared/utils/haptics';
 import { Pressable } from './Pressable';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'dangerOutline';

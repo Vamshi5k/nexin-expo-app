@@ -10,7 +10,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import Svg, { Circle, Defs, LinearGradient, Pattern, Rect, Stop } from 'react-native-svg';
 
-import { useTheme } from '@/theme';
+import { useTheme } from '@/shared/theme';
 
 const CELL = 24;
 

@@ -14,9 +14,9 @@ import Animated, {
   type AnimatedStyle,
 } from 'react-native-reanimated';
 
-import { useTheme } from '@/theme';
+import { useTheme } from '@/shared/theme';
 
-import { haptics, type HapticKind } from './haptics';
+import { haptics, type HapticKind } from '@/shared/utils/haptics';
 
 const AnimatedPressable = Animated.createAnimatedComponent(RNPressable);
 

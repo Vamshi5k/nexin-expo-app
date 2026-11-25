@@ -11,8 +11,8 @@ import Animated, {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppLogo } from '@/features/client-config';
-import { useTheme } from '@/theme';
-import { ContourBackground, Pressable } from '@/ui';
+import { useTheme } from '@/shared/theme';
+import { ContourBackground, Pressable } from '@/shared/components';
 
 export type AuthScaffoldProps = {
   hero: ReactNode;

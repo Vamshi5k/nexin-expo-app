@@ -1,8 +1,8 @@
 import { UserRound } from 'lucide-react-native';
 import { StyleSheet, View } from 'react-native';
 
-import { useTheme } from '@/theme';
-import { Button, FormInput, Text } from '@/ui';
+import { useTheme } from '@/shared/theme';
+import { Button, FormInput, Text } from '@/shared/components';
 
 import { SetupLayout } from '../components/SetupLayout';
 import { TermsCheckbox } from '../components/TermsCheckbox';

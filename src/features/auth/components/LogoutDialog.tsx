@@ -1,6 +1,6 @@
 import { LogOut } from 'lucide-react-native';
 
-import { Dialog } from '@/ui';
+import { Dialog } from '@/shared/components';
 
 import { LOGOUT_COPY } from '../constants';
 import type { useLogoutConfirm } from '../hooks';

@@ -8,7 +8,7 @@ import { useCallback, useEffect, useRef, type ReactNode } from 'react';
 import { View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { useTheme } from '@/theme';
+import { useTheme } from '@/shared/theme';
 
 import { Text } from './Text';
 

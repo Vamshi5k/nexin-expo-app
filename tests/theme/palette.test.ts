@@ -1,7 +1,7 @@
 import brandConfig from '@brand/brand.config';
 import { parseBrand } from '@brand/schema';
 
-import { contrastRatio, ensureContrast } from '@/theme/color';
+import { contrastRatio, ensureContrast } from '@/shared/theme/color';
 import {
   AA_TEXT,
   AA_UI,
@@ -9,8 +9,8 @@ import {
   neutralScale,
   type ColorScheme,
   type Palette,
-} from '@/theme/palette';
-import { resolveScheme } from '@/theme/ThemeProvider';
+} from '@/shared/theme/palette';
+import { resolveScheme } from '@/shared/theme/ThemeProvider';
 
 const base = parseBrand(brandConfig);
 

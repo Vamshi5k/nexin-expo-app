@@ -3,9 +3,9 @@ import { ChevronRight } from 'lucide-react-native';
 import { Children, Fragment, isValidElement, type ReactNode } from 'react';
 import { View } from 'react-native';
 
-import { useTheme } from '@/theme';
+import { useTheme } from '@/shared/theme';
 
-import type { HapticKind } from './haptics';
+import type { HapticKind } from '@/shared/utils/haptics';
 import { Pressable } from './Pressable';
 import { Text } from './Text';
 

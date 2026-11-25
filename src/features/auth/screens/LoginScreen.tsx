@@ -3,8 +3,8 @@ import { StyleSheet, View } from 'react-native';
 import Animated, { Easing, FadeIn } from 'react-native-reanimated';
 
 import { brand } from '@/core/config';
-import { useTheme } from '@/theme';
-import { Button, FormInput, Reveal, Text } from '@/ui';
+import { useTheme } from '@/shared/theme';
+import { Button, FormInput, Reveal, Text } from '@/shared/components';
 
 import { AuthScaffold } from '../components/AuthScaffold';
 import { ChargingIllustration } from '../components/ChargingIllustration';

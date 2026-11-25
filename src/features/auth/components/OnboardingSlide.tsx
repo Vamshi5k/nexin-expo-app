@@ -7,8 +7,8 @@ import Animated, {
   type SharedValue,
 } from 'react-native-reanimated';
 
-import { useTheme } from '@/theme';
-import { Reveal, Text } from '@/ui';
+import { useTheme } from '@/shared/theme';
+import { Reveal, Text } from '@/shared/components';
 
 import type { OnboardingSlide as Slide } from '../types';
 import { OnboardingArt } from './OnboardingArt';

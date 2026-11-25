@@ -1,6 +1,6 @@
 import { act, renderHook } from '@testing-library/react-native';
 
-import { KEYBOARD_CLOSE_DELAY_MS, useHeldOpen } from '@/ui/keyboard';
+import { KEYBOARD_CLOSE_DELAY_MS, useHeldOpen } from '@/shared/utils/keyboard';
 
 beforeEach(() => jest.useFakeTimers());
 afterEach(() => jest.useRealTimers());

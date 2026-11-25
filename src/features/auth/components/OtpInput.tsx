@@ -18,8 +18,8 @@ import Animated, {
   ZoomIn,
 } from 'react-native-reanimated';
 
-import { useTheme, withAlpha } from '@/theme';
-import { Text } from '@/ui';
+import { useTheme, withAlpha } from '@/shared/theme';
+import { Text } from '@/shared/components';
 
 import { otpCells, sanitizeOtp } from '../session';
 

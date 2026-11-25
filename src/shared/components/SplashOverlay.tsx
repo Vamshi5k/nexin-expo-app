@@ -14,9 +14,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { scheduleOnRN } from 'react-native-worklets';
 
 import { brand } from '@/core/config';
-import { useTheme, withAlpha } from '@/theme';
+import { useTheme, withAlpha } from '@/shared/theme';
 
-const SPLASH = require('../../brand/assets/splash.png');
+const SPLASH = require('../../../brand/assets/splash.png');
 const TRACK = 120;
 
 function splashSize() {

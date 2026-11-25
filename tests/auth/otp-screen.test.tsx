@@ -4,7 +4,7 @@ import { AxiosError, AxiosHeaders } from 'axios';
 import { sessionStore } from '@/core/session';
 import { OtpScreen } from '@/features/auth';
 import { verifyOtp } from '@/features/auth/api';
-import { toast } from '@/ui/toast';
+import { toast } from '@/shared/utils/toast';
 
 import { renderWithApp } from '../helpers/render';
 

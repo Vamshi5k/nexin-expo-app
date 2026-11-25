@@ -4,8 +4,8 @@ import { View } from 'react-native';
 import { getErrorMessage } from '@/core/api';
 import { brand as appBrand } from '@/core/config';
 import type { RequestState } from '@/core/request';
-import { useTheme } from '@/theme';
-import { EmptyState, ErrorState, FormInput, Input, Pressable, Text } from '@/ui';
+import { useTheme } from '@/shared/theme';
+import { EmptyState, ErrorState, FormInput, Input, Pressable, Text } from '@/shared/components';
 
 import {
   CUSTOM_CAPACITY_MAX_KWH,

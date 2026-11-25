@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet } from 'react-native';
 
-import { Text } from '@/ui';
+import { Text } from '@/shared/components';
 
 export function LegalLink({ label, onPress }: { label: string; onPress: () => void }) {
   return (

@@ -3,7 +3,7 @@ import { router } from 'expo-router';
 
 import { ProfileSetupScreen } from '@/features/setup';
 import { updateProfile } from '@/features/setup/api';
-import { toast } from '@/ui/toast';
+import { toast } from '@/shared/utils/toast';
 
 import { renderWithApp } from '../helpers/render';
 

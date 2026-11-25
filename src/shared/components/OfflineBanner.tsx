@@ -5,7 +5,7 @@ import Animated, { FadeInUp, FadeOutUp } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { OFFLINE_COPY, recheckOnline, useOnline } from '@/core/network';
-import { useTheme } from '@/theme';
+import { useTheme } from '@/shared/theme';
 
 import { Button } from './Button';
 import { Text } from './Text';

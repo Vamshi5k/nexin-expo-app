@@ -3,7 +3,7 @@ import { Image } from 'react-native';
 
 import { brand } from '@/core/config';
 
-const LOGO = require('../../brand/assets/logo.png');
+const LOGO = require('../../../brand/assets/logo.png');
 
 export type BrandLogoProps = {
   height?: number;

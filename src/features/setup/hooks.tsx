@@ -13,7 +13,7 @@ import { useAction } from '@/core/request';
 import { markSetupDone, openLegal, registerPushToken, useAuth } from '@/features/auth';
 import { useClientConfig } from '@/features/client-config';
 import { useVehicleWizard } from '@/features/vehicles';
-import { toast } from '@/ui';
+import { toast } from '@/shared/utils/toast';
 
 import { updateProfile } from './api';
 import { SETUP_HREF } from './constants';

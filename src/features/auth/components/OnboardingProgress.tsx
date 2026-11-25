@@ -6,7 +6,7 @@ import Animated, {
   type SharedValue,
 } from 'react-native-reanimated';
 
-import { useTheme } from '@/theme';
+import { useTheme } from '@/shared/theme';
 
 export function OnboardingProgress({
   count,
