@@ -1,8 +1,10 @@
 import { StyleSheet, View } from 'react-native';
 
-import { MapPin, Navigation, Zap, type LucideIcon } from 'lucide-react-native';
+import { MapPin, Navigation, Zap } from 'lucide-react-native';
 
-import { AppPressable, AppStatusChip, AppText } from '@/shared/components';
+import { AppPressable, AppText } from '@/shared/components';
+
+import ChargerArt from './ChargerArt';
 
 import { useTheme, withAlpha, type Theme } from '@/shared/theme';
 
@@ -22,59 +24,24 @@ type StationCardProps = {
   onDirections: (station: NearbyStation) => void;
 };
 
-// Tinted header (status chip and price, name, context line) and the action row: the skeleton and the
-// view-all tile use the same height.
-export const stationCardHeight = (t: Theme) =>
-  t.space[5] +
-  t.space[6] +
-  t.space[1] +
-  Number(t.type.headline.lineHeight) +
-  Number(t.type.caption.lineHeight) +
-  t.space[1] * 2 +
-  t.space[4] * 3 +
-  t.layout.minTouch;
+const headerHeight = (t: Theme) => t.space[12] * 2 + t.space[6];
+const artSize = (t: Theme) => t.space[12] * 2;
 
-type FigureProps = { icon: LucideIcon; value: string };
+// Illustrated header plus the footer row: the skeleton and the view-all tile use the same height.
+export const stationCardHeight = (t: Theme) => headerHeight(t) + t.space[3] * 2 + t.layout.minTouch;
 
-// A highlighted figure: power and distance are what a driver compares between stations.
-const Figure = ({ icon: Icon, value }: FigureProps) => {
-  const t = useTheme();
+const tripLabel = (km: number | null) => {
+  if (km === null) return null;
 
-  return (
-    <View style={[styles.row, { gap: t.space[1] }]}>
-      <Icon color={t.colors.accentText} size={t.icon.meta} strokeWidth={t.icon.stroke} />
-      <AppText variant="headline" tabular numberOfLines={1}>
-        {value}
-      </AppText>
-    </View>
-  );
+  const distance = formatDistance(km, brand.locale);
+  return km > MAX_ETA_KM ? distance : `${distance} · ${formatEta(km)}`;
 };
-
-const contextLine = (station: NearbyStation) => {
-  const [first, ...rest] = station.connectorTypes;
-  const connector = first ? (rest.length ? `${first} +${rest.length}` : first) : null;
-  return [connector, station.address].filter(Boolean).join(' · ');
-};
-
-// The action carries the drive time, so "how far" and "take me there" are one tap.
-const HEADER_TINT_LIGHT = 0.1;
-const HEADER_TINT_DARK = 0.18;
-
-const goLabel = (km: number | null) => (km !== null && km <= MAX_ETA_KM ? formatEta(km) : null);
 
 const StationCard = ({ station, selected, width, onPress, onDirections }: StationCardProps) => {
   const t = useTheme();
   const availability = availabilityOf(station);
-  const context = contextLine(station);
-  const eta = goLabel(station.distanceKm);
-  const power = station.maxPowerKw !== null ? `${station.maxPowerKw} kW` : null;
-  const distance =
-    station.distanceKm !== null ? formatDistance(station.distanceKm, brand.locale) : null;
-  // The header carries a light wash of the station's status colour, so the card reads at a glance.
-  const tint = withAlpha(
-    t.colors.connector[pinColorKey(station.status)],
-    t.scheme === 'light' ? HEADER_TINT_LIGHT : HEADER_TINT_DARK,
-  );
+  const trip = tripLabel(station.distanceKm);
+  const onHeader = t.colors.onAccent;
 
   return (
     <AppPressable
@@ -93,49 +60,97 @@ const StationCard = ({ station, selected, width, onPress, onDirections }: Statio
       ]}
     >
       <View
-        style={{
-          gap: t.space[1],
-          padding: t.space[5],
-          paddingBottom: t.space[4],
-          backgroundColor: tint,
-        }}
+        style={[
+          styles.header,
+          { height: headerHeight(t), padding: t.space[4], backgroundColor: t.colors.accent },
+        ]}
       >
-        <View style={[styles.row, { gap: t.space[3] }]}>
-          <View style={styles.grow}>
-            <AppStatusChip
-              label={STATUS_LABEL[station.status]}
-              connector={pinColorKey(station.status)}
+        <View style={[styles.art, { right: -t.space[1], bottom: -t.space[6] }]}>
+          <ChargerArt size={artSize(t)} />
+        </View>
+
+        <View style={[styles.row, styles.between]}>
+          <View
+            style={[
+              styles.row,
+              {
+                gap: t.space[2],
+                paddingHorizontal: t.space[3],
+                paddingVertical: t.space[1],
+                borderRadius: t.radius.pill,
+                backgroundColor: t.colors.surface,
+              },
+            ]}
+          >
+            <View
+              style={{
+                width: t.space[2],
+                height: t.space[2],
+                borderRadius: t.radius.pill,
+                backgroundColor: t.colors.connector[pinColorKey(station.status)],
+              }}
             />
+            <AppText variant="caption">{STATUS_LABEL[station.status]}</AppText>
           </View>
-          {station.pricePerKwhPaise !== null ? (
-            <AppText variant="headline" tabular>
-              {formatRate(station.pricePerKwhPaise)}
-              <AppText variant="caption" tone="tertiary">
-                {' '}
-                {CARD_COPY.price}
+
+          {station.maxPowerKw !== null ? (
+            <View
+              style={[
+                styles.row,
+                {
+                  gap: t.space[1],
+                  paddingHorizontal: t.space[3],
+                  paddingVertical: t.space[1],
+                  borderRadius: t.radius.pill,
+                  backgroundColor: withAlpha(t.colors.surface, 0.2),
+                },
+              ]}
+            >
+              <Zap
+                color={onHeader}
+                fill={onHeader}
+                size={t.icon.meta}
+                strokeWidth={t.icon.stroke}
+              />
+              <AppText variant="subhead" tabular style={{ color: onHeader }}>
+                {station.maxPowerKw} kW
               </AppText>
+            </View>
+          ) : null}
+        </View>
+
+        <View style={styles.title}>
+          <AppText variant="headline" numberOfLines={2} style={{ color: onHeader }}>
+            {station.name}
+          </AppText>
+          {station.address ? (
+            <AppText variant="caption" numberOfLines={1} style={{ color: onHeader }}>
+              {station.address}
             </AppText>
           ) : null}
         </View>
-        <AppText variant="headline" numberOfLines={1}>
-          {station.name}
-        </AppText>
-        {context ? (
-          <AppText variant="caption" tone="secondary" numberOfLines={1} tabular>
-            {context}
-          </AppText>
-        ) : null}
       </View>
 
       <View
         style={[
           styles.row,
-          { gap: t.space[3], paddingHorizontal: t.space[5], paddingVertical: t.space[4] },
+          { gap: t.space[3], paddingHorizontal: t.space[4], paddingVertical: t.space[3] },
         ]}
       >
-        <View style={[styles.row, styles.grow, { gap: t.space[4] }]}>
-          {power ? <Figure icon={Zap} value={power} /> : null}
-          {distance ? <Figure icon={MapPin} value={distance} /> : null}
+        <View style={styles.grow}>
+          {trip ? (
+            <View style={[styles.row, { gap: t.space[1] }]}>
+              <MapPin color={t.colors.accentText} size={t.icon.meta} strokeWidth={t.icon.stroke} />
+              <AppText variant="subhead" tabular numberOfLines={1}>
+                {trip}
+              </AppText>
+            </View>
+          ) : null}
+          {station.pricePerKwhPaise !== null ? (
+            <AppText variant="caption" tone="secondary" tabular>
+              {formatRate(station.pricePerKwhPaise)} {CARD_COPY.price}
+            </AppText>
+          ) : null}
         </View>
 
         <AppPressable
@@ -145,23 +160,19 @@ const StationCard = ({ station, selected, width, onPress, onDirections }: Statio
           accessibilityLabel={`${CARD_COPY.directions} ${station.name}`}
           style={[
             styles.row,
-            styles.go,
             {
               gap: t.space[2],
               height: t.layout.minTouch,
-              minWidth: t.layout.minTouch,
-              paddingHorizontal: eta ? t.space[4] : t.space[3],
+              paddingHorizontal: t.space[5],
               borderRadius: t.radius.pill,
-              backgroundColor: t.colors.accent,
+              backgroundColor: t.colors.textPrimary,
             },
           ]}
         >
-          <Navigation color={t.colors.onAccent} size={t.icon.meta} strokeWidth={t.icon.stroke} />
-          {eta ? (
-            <AppText variant="subhead" tone="onAccent" tabular>
-              {eta}
-            </AppText>
-          ) : null}
+          <Navigation color={t.colors.surface} size={t.icon.meta} strokeWidth={t.icon.stroke} />
+          <AppText variant="subhead" style={{ color: t.colors.surface }}>
+            {CARD_COPY.go}
+          </AppText>
         </AppPressable>
       </View>
     </AppPressable>
@@ -174,14 +185,24 @@ const styles = StyleSheet.create({
   card: {
     overflow: 'hidden',
   },
+  header: {
+    justifyContent: 'space-between',
+    overflow: 'hidden',
+  },
+  art: {
+    position: 'absolute',
+  },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
   },
+  between: {
+    justifyContent: 'space-between',
+  },
+  title: {
+    maxWidth: '70%',
+  },
   grow: {
     flex: 1,
-  },
-  go: {
-    justifyContent: 'center',
   },
 });

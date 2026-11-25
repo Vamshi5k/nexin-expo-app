@@ -87,10 +87,10 @@ the driver find, start, watch or pay for a charge.
 - Map pins: resting, a status-coloured dot with a surface ring inside a soft halo of the same
   colour; selected, it opens into a status-coloured pill with the station name and a pointer.
   Icon and text on the fill use `onConnector`, picked by contrast.
-- Nearby station cards, in reading order: status badge with the rate per kWh on the right,
-  headline name, "CCS2 · address" caption, then power and distance as highlighted figures
-  (accent icon + headline, "60 kW", "59 km") and an accent Navigate pill carrying the drive
-  time.
+- Nearby station cards on the map: an illustrated header on the accent fill (status pill on
+  surface, "⚡ 60 kW" pill, headline name and address in onAccent, and `ChargerArt`, a flat
+  charger drawn from theme colours, in the corner), then a white footer with "59 km · 1h 58m",
+  the rate per kWh and a dark "Go" pill for directions.
 - Tab bar: a floating glass capsule inset 16 from the screen edges, above the home indicator.
   Labels always visible; the active tab sits in an accentSoft pill with accentText icon and
   label. Scan is an accent circle with an onAccent icon in the middle of the capsule. Tab

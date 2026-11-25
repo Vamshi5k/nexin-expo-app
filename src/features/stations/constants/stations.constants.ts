@@ -56,6 +56,7 @@ export const MAP_COPY = {
 export const CARD_COPY = {
   price: '/kWh',
   directions: 'Directions to',
+  go: 'Go',
 } as const;
 
 export const FILTERS_COPY = {
