@@ -1,4 +1,4 @@
-import { toFleetUser } from '@/features/fleet/api';
+import { toFleetUser } from '@/features/fleet/api/fleet.api';
 
 describe('toFleetUser', () => {
   it('maps ids to strings and drId to driverId', () => {

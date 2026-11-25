@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import type { StoreApi } from 'zustand';
 
-import { fleetLogout } from '@/features/fleet';
+import { fleetApi } from '@/features/fleet';
 
 import { statusOf } from '@/core/api';
 import { brand, phonePattern } from '@/core/config';
@@ -162,6 +162,6 @@ export async function checkSession(
 }
 
 export async function serverLogout(mode: SessionMode, accessToken: string | null): Promise<void> {
-  if (mode === 'fleet') await fleetLogout(accessToken);
+  if (mode === 'fleet') await fleetApi.logout(accessToken);
   else if (mode === 'consumer') await logout(accessToken);
 }

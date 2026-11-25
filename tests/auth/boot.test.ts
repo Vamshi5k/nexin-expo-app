@@ -6,7 +6,7 @@ import { bootTimeoutError, checkSession, classifySessionError } from '@/features
 
 jest.mock('@/core/log');
 jest.mock('@/features/client-config', () => ({ usePrimeClientConfig: jest.fn() }));
-jest.mock('@/features/fleet', () => ({ useFleet: jest.fn(), fleetLogout: jest.fn() }));
+jest.mock('@/features/fleet', () => ({ useFleet: jest.fn(), fleetApi: { logout: jest.fn() } }));
 
 function httpError(status: number) {
   const headers = new AxiosHeaders();

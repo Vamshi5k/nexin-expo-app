@@ -4,7 +4,7 @@ const calls: string[] = [];
 
 jest.mock('@/core/log');
 jest.mock('@/features/client-config', () => ({ usePrimeClientConfig: jest.fn() }));
-jest.mock('@/features/fleet', () => ({ useFleet: jest.fn(), fleetLogout: jest.fn() }));
+jest.mock('@/features/fleet', () => ({ useFleet: jest.fn(), fleetApi: { logout: jest.fn() } }));
 jest.mock('@/core/storage', () => ({
   hydrateStorage: jest.fn(async () => {
     calls.push('storage');

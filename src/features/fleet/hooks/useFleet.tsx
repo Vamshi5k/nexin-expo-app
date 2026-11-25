@@ -3,10 +3,10 @@ import { createContext, useContext, useMemo, type ReactNode } from 'react';
 import { useSessionData, type LoadStatus } from '@/core/request';
 import { useSession, type SessionMode } from '@/core/session';
 
-import { getDriver } from './api';
-import type { FleetUser } from './types';
+import { fleetApi } from '../api/fleet.api';
+import type { FleetUser } from '../types/fleet.types';
 
-type FleetValue = {
+type FleetContextType = {
   mode: SessionMode;
   driver: FleetUser | null;
   driverStatus: LoadStatus;
@@ -14,13 +14,17 @@ type FleetValue = {
   loadDriver: () => Promise<FleetUser>;
 };
 
-const FleetContext = createContext<FleetValue | null>(null);
+const FleetContext = createContext<FleetContextType | undefined>(undefined);
 
-export function FleetProvider({ children }: { children: ReactNode }) {
+type FleetProviderProps = {
+  children: ReactNode;
+};
+
+export const FleetProvider = ({ children }: FleetProviderProps) => {
   const mode = useSession(s => s.mode);
-  const driver = useSessionData(getDriver);
+  const driver = useSessionData(fleetApi.getDriver);
 
-  const value = useMemo(
+  const value = useMemo<FleetContextType>(
     () => ({
       mode,
       driver: driver.data,
@@ -30,11 +34,14 @@ export function FleetProvider({ children }: { children: ReactNode }) {
     }),
     [mode, driver.data, driver.status, driver.error, driver.load],
   );
-  return <FleetContext.Provider value={value}>{children}</FleetContext.Provider>;
-}
 
-export function useFleet(): FleetValue {
-  const ctx = useContext(FleetContext);
-  if (!ctx) throw new Error('useFleet must be used inside FleetProvider');
-  return ctx;
-}
+  return <FleetContext.Provider value={value}>{children}</FleetContext.Provider>;
+};
+
+export const useFleet = (): FleetContextType => {
+  const context = useContext(FleetContext);
+  if (!context) {
+    throw new Error('useFleet must be used inside FleetProvider');
+  }
+  return context;
+};
