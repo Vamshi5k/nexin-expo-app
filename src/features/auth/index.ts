@@ -1,13 +1,13 @@
-export { AuthProvider, openLegal, useAuth, useBoot } from './hooks';
+export { AuthProvider, openLegal, useAuth, useLogoutConfirm } from './hooks';
+export { useBoot } from './routing';
 export { registerPushToken } from './api';
-export { markSetupDone } from './session';
+export { formatContact, markSetupDone } from './session';
 export { START_HREF } from './constants';
 export type { ContactType, RouteGroup } from './types';
 export { GuardedStack } from './components/GuardedStack';
+export { LogoutDialog } from './components/LogoutDialog';
 export { BootErrorScreen } from './screens/BootErrorScreen';
 export { LoginScreen } from './screens/LoginScreen';
 export { OnboardingScreen } from './screens/OnboardingScreen';
 export { OtpScreen } from './screens/OtpScreen';
-export { SignedInPlaceholderScreen } from './screens/SignedInPlaceholderScreen';
 export { StartRedirect } from './screens/StartRedirect';
-export { TempHomeScreen } from './screens/TempHomeScreen';

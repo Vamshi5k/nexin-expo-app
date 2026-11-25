@@ -24,3 +24,6 @@ export { AmbientBackground } from './AmbientBackground';
 export { Reveal, type RevealProps } from './Reveal';
 export { SplashOverlay } from './SplashOverlay';
 export { ContourBackground } from './ContourBackground';
+export { OfflineBanner } from './OfflineBanner';
+export { PermissionDialog } from './PermissionDialog';
+export { useKeyboardOpen, KEYBOARD_CLOSE_DELAY_MS } from './keyboard';

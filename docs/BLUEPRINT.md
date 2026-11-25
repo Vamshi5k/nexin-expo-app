@@ -639,7 +639,7 @@ src/
   core/          flat files, one per concern:
     api.ts          axios client, 401 refresh queue, envelope and error helpers
     config.ts       env (from expo-constants extra) and brand
-    log.ts  network.tsx (useOnline, OfflineBanner)  permissions.tsx
+    log.ts  network.ts (useOnline)  permissions.ts (ensurePermission)
     request.ts      useRequest, useAction, useSessionData
     session.ts      zustand token store (mode, tokens), signOutThen
     storage.ts      SecureStore, MMKV kv (AsyncStorage fallback in Expo Go), legacy migration

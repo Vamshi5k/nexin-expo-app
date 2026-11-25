@@ -113,7 +113,8 @@ the driver find, start, watch or pay for a charge.
   viewBox crops it and the screens let the art bleed into the right page margin. A floating
   battery chip sits above the car. Pulses run down the cable while the ring, LED strip and
   chip fill together; static under Reduce Motion. It
-  takes the free space and shrinks away when the keyboard is up. OTP shows the contact in a
+  takes the free space and is hidden while the keyboard is up (switching phone/email never
+  flashes it); it fades back in 300 ms after the keyboard closes. OTP shows the contact in a
   hairline pill under the heading.
 - Onboarding backdrop is `AmbientBackground`: a faint dot grid (borderStrong) that fades out
   by mid screen and drifts down one cell at a time.

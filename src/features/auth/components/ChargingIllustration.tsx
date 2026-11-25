@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, {
   Easing,
+  FadeIn,
   useAnimatedProps,
   useReducedMotion,
   useSharedValue,
@@ -12,6 +13,7 @@ import Animated, {
 import Svg, { Circle, Path, Rect } from 'react-native-svg';
 
 import { useTheme } from '@/theme';
+import { useKeyboardOpen } from '@/ui';
 
 const AnimatedPath = Animated.createAnimatedComponent(Path);
 const AnimatedRect = Animated.createAnimatedComponent(Rect);
@@ -38,7 +40,19 @@ const SPOKES = [0, 72, 144, 216, 288];
 const BOLT_SCREEN = 'M66.5 85 L61.5 92 H65.5 L64.5 97 L69.5 90 H65.5 Z';
 const BOLT_CHIP = 'M227.5 54 L221 63 H226 L224.5 68 L231 59 H226 Z';
 
+// Hidden while the keyboard is up, so the form gets the space.
 export function ChargingIllustration() {
+  const t = useTheme();
+  const keyboardOpen = useKeyboardOpen();
+  if (keyboardOpen) return null;
+  return (
+    <Animated.View entering={FadeIn.duration(t.motion.durationSlow)} style={styles.wrap}>
+      <ChargingScene />
+    </Animated.View>
+  );
+}
+
+function ChargingScene() {
   const t = useTheme();
   const c = t.colors;
   const reduceMotion = useReducedMotion();

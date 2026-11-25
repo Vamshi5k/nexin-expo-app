@@ -3,14 +3,11 @@ import { View } from 'react-native';
 
 import { useTheme } from '@/theme';
 
-import { useStartRoute } from '../hooks';
-
-import { BootErrorScreen } from './BootErrorScreen';
+import { useStartRoute } from '../routing';
 
 export function StartRedirect() {
   const t = useTheme();
-  const start = useStartRoute();
-  if (start.href) return <Redirect href={start.href} />;
-  if (start.failed) return <BootErrorScreen onRetry={start.retry} />;
+  const href = useStartRoute();
+  if (href) return <Redirect href={href} />;
   return <View style={{ flex: 1, backgroundColor: t.colors.bg }} />;
 }

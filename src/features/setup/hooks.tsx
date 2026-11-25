@@ -17,7 +17,8 @@ import { toast } from '@/ui';
 
 import { updateProfile } from './api';
 import { SETUP_HREF } from './constants';
-import { initialsOf, profileFormSchema, type ProfileForm, type SetupPermission } from './profile';
+import { initialsOf, profileFormSchema, type ProfileForm } from './profile';
+import type { SetupPermission } from './types';
 
 function useFinishSetup() {
   const { user } = useAuth();

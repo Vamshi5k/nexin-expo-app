@@ -3,15 +3,12 @@ import { LayoutGrid, LogOut, ShieldCheck } from 'lucide-react-native';
 import { View } from 'react-native';
 
 import { APP_ENV, brand } from '@/core/config';
+import { formatContact, LogoutDialog, useAuth, useLogoutConfirm } from '@/features/auth';
 import { useClientConfig } from '@/features/client-config';
 import { useTheme } from '@/theme';
 import { Card, LargeTitleScroll, ListGroup, ListRow, Text } from '@/ui';
 
-import { LogoutDialog } from '../components/LogoutDialog';
-import { useAuth, useLogoutConfirm } from '../hooks';
-import { formatContact } from '../session';
-
-export function TempHomeScreen() {
+export function HomeScreen() {
   const t = useTheme();
   const config = useClientConfig();
   const auth = useAuth();

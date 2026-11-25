@@ -1,29 +1,14 @@
-import NetInfo, { useNetInfo } from '@react-native-community/netinfo';
 import { RefreshCw, WifiOff } from 'lucide-react-native';
 import { useState } from 'react';
 import { View } from 'react-native';
 import Animated, { FadeInUp, FadeOutUp } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { OFFLINE_COPY, recheckOnline, useOnline } from '@/core/network';
 import { useTheme } from '@/theme';
-import { Button, Text } from '@/ui';
 
-export function useOnline(): boolean | null {
-  const { isConnected } = useNetInfo();
-  return isConnected;
-}
-
-export async function recheckOnline(): Promise<boolean> {
-  const state = await NetInfo.refresh();
-  return state.isConnected !== false;
-}
-
-export const OFFLINE_COPY = {
-  title: 'No Connection',
-  body: "You're offline. Check your Wi-Fi or mobile data and try again.",
-  stillOffline: 'Still offline — check your settings',
-  retry: 'Try Again',
-} as const;
+import { Button } from './Button';
+import { Text } from './Text';
 
 export function OfflineBanner() {
   const online = useOnline();

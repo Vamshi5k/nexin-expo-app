@@ -76,22 +76,23 @@ Not re-verified on a device since the refactor (step 7).
 ## App flow and owning files
 
 1. **Boot**: `src/app/_layout.tsx` mounts `ClientConfigProvider` > `FleetProvider` >
-   `AuthProvider` > theme, then `AppShell` runs `useBoot` (`auth/hooks.tsx`):
+   `AuthProvider` > theme, then `AppShell` runs `useBoot` (`auth/routing.tsx`):
    `restoreSession` (`auth/session.ts`: storage hydrate, legacy migration, token hydrate via
    `src/core/storage.ts` and `src/core/session.ts`), `primeClientConfig`, then `checkSession`
-   (`auth/session.ts`). `src/ui/SplashOverlay.tsx` covers boot; failure shows
-   `auth/screens/BootErrorScreen.tsx`.
+   (`auth/session.ts`). `src/ui/SplashOverlay.tsx` covers boot. `AppShell` is the only place
+   that shows `auth/screens/BootErrorScreen.tsx`: for a failed startup check, and for a first
+   user load that fails after sign-in.
 2. **Client config**: `client-config/hooks.tsx` `prime()`: cached config at once plus a
    background refresh, else wait up to 8 s for `getClientConfig()` (`client-config/api.ts`),
    else brand fallbacks.
 3. **Start route**: `src/app/index.tsx` -> `auth/screens/StartRedirect.tsx` ->
-   `useStartRoute` (`auth/hooks.tsx`) -> `resolveStartRoute` (`auth/session.ts`).
-4. **Auth**: `src/app/(auth)/*` -> `OnboardingScreen` (`finishOnboarding`), `LoginScreen`
+   `useStartRoute` (`auth/routing.tsx`) -> `resolveStartRoute` (`auth/session.ts`).
+4. **Auth**: `src/app/(auth)/*` -> `OnboardingScreen` (`useOnboarding`), `LoginScreen`
    (`useLoginForm` -> `requestOtp`), `OtpScreen` (`useOtpForm` -> `verifyOtp`, then
    `sessionStore.signIn`). Shared frame: `auth/components/AuthScaffold.tsx`.
 5. **Route guard**: each group layout renders `auth/components/GuardedStack.tsx` ->
-   `useRouteGuard` (`auth/hooks.tsx`) -> `guardRoute` (`auth/session.ts`). A session mode
+   `useRouteGuard` (`auth/routing.tsx`) -> `guardRoute` (`auth/session.ts`). A session mode
    change redirects to `/` and step 3 picks the next screen.
-6. **Home**: `src/app/(app)/(tabs)/index.tsx` -> `auth/screens/TempHomeScreen.tsx`
-   (placeholder). Logout: `useAuth().logout` -> `signOutThen(serverLogout)`
+6. **Home**: `src/app/(app)/(tabs)/home.tsx` -> `home/screens/HomeScreen.tsx`; fleet:
+   `src/app/(fleet)/fleet/index.tsx` -> `home/screens/FleetHomeScreen.tsx` (placeholders). Logout: `useAuth().logout` -> `signOutThen(serverLogout)`
    (`src/core/session.ts`, `auth/session.ts`). API auth and 401 refresh: `src/core/api.ts`.

@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { router, type Href } from 'expo-router';
+import { router } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import {
   createContext,
@@ -9,17 +9,34 @@ import {
   useMemo,
   useState,
   type ReactNode,
+  type RefObject,
 } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
-import { Keyboard } from 'react-native';
+import {
+  Keyboard,
+  useWindowDimensions,
+  type FlatList,
+  type NativeScrollEvent,
+  type NativeSyntheticEvent,
+} from 'react-native';
+import {
+  Easing,
+  Extrapolation,
+  interpolate,
+  useAnimatedScrollHandler,
+  useAnimatedStyle,
+  useReducedMotion,
+  useSharedValue,
+  withRepeat,
+  withTiming,
+} from 'react-native-reanimated';
 
 import { getErrorMessage, statusOf } from '@/core/api';
 import { brand } from '@/core/config';
 import { log } from '@/core/log';
 import { useAction, useSessionData, type LoadStatus } from '@/core/request';
 import { sessionStore, signOutThen, useSession, type SessionMode } from '@/core/session';
-import { useClientConfig, usePrimeClientConfig } from '@/features/client-config';
-import { useFleet } from '@/features/fleet';
+import { useClientConfig } from '@/features/client-config';
 import { haptics, toast } from '@/ui';
 
 import * as authApi from './api';
@@ -27,65 +44,62 @@ import {
   CONSUMER_OTP_LENGTH,
   LOGIN_COPY,
   LOGOUT_DIALOG_EXIT_MS,
+  ONBOARDING_SLIDES,
   OTP_RESEND_SECONDS,
   START_HREF,
 } from './constants';
-import {
-  checkSession,
-  classifySessionError,
-  contactFormSchema,
-  formatContact,
-  guardRoute,
-  isOnboardingDone,
-  isSetupDone,
-  markOnboardingDone,
-  resolveStartRoute,
-  restoreSession,
-  serverLogout,
-} from './session';
-import type {
-  BootStatus,
-  ContactForm,
-  ContactType,
-  GuardDecision,
-  RouteGroup,
-  User,
-} from './types';
+import { contactFormSchema, formatContact, markOnboardingDone, serverLogout } from './session';
+import type { ContactForm, ContactType, OnboardingSlide, User } from './types';
 
-export function finishOnboarding(): void {
+function finishOnboarding(): void {
   markOnboardingDone();
   router.replace(START_HREF.login);
 }
 
-export function useBoot(): { status: BootStatus; retrying: boolean; retry: () => void } {
-  const primeConfig = usePrimeClientConfig();
-  const { loadUser } = useAuth();
-  const { loadDriver } = useFleet();
-  const [status, setStatus] = useState<BootStatus>('loading');
-  const [retrying, setRetrying] = useState(false);
-  const [attempt, setAttempt] = useState(0);
+// The screen owns the list ref for the same React Compiler reason as useOtpForm.
+export function useOnboarding(list: RefObject<FlatList<OnboardingSlide> | null>) {
+  const { width } = useWindowDimensions();
+  const reduceMotion = useReducedMotion();
+  const x = useSharedValue(0);
+  const spin = useSharedValue(0);
+  const [index, setIndex] = useState(0);
+  const count = ONBOARDING_SLIDES.length;
+  const last = index === count - 1;
+  const lastOffset = (count - 1) * width;
 
   useEffect(() => {
-    let alive = true;
-    void (async () => {
-      await restoreSession();
-      await primeConfig();
-      const outcome = await checkSession({ loadUser, loadDriver });
-      if (!alive) return;
-      setStatus(outcome);
-      setRetrying(false);
-    })();
-    return () => {
-      alive = false;
-    };
-  }, [primeConfig, loadUser, loadDriver, attempt]);
+    if (reduceMotion) return;
+    spin.set(withRepeat(withTiming(1, { duration: 14000, easing: Easing.linear }), -1, false));
+  }, [spin, reduceMotion]);
 
-  const retry = useCallback(() => {
-    setRetrying(true);
-    setAttempt((n) => n + 1);
-  }, []);
+  const onScroll = useAnimatedScrollHandler((e) => {
+    x.value = e.contentOffset.x;
+  });
 
-  return { status, retrying, retry };
+  const skipStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(x.value, [lastOffset - width, lastOffset], [1, 0], Extrapolation.CLAMP),
+  }));
+
+  const next = () => {
+    if (last) return finishOnboarding();
+    list.current?.scrollToIndex({ index: index + 1, animated: true });
+  };
+
+  return {
+    slides: ONBOARDING_SLIDES,
+    count,
+    index,
+    last,
+    width,
+    x,
+    spin,
+    onScroll,
+    onScrollEnd: (e: NativeSyntheticEvent<NativeScrollEvent>) =>
+      setIndex(Math.round(e.nativeEvent.contentOffset.x / width)),
+    skipStyle,
+    next,
+    skip: finishOnboarding,
+  };
 }
 
 type AuthValue = {
@@ -303,46 +317,4 @@ export function useOtpForm(
         ? 'your number'
         : 'your email',
   };
-}
-
-// What "/" shows: a redirect, the retry screen, or nothing while the user loads.
-export function useStartRoute(): { href: Href | null; failed: boolean; retry: () => void } {
-  const { mode, user, userStatus, userError, loadUser } = useAuth();
-  const failed = userStatus === 'error';
-  const expired = failed && classifySessionError(userError) === 'expired';
-
-  // After OTP sign-in the user isn't loaded yet; boot already loaded it for a restored session.
-  useEffect(() => {
-    if (mode === 'consumer' && userStatus === 'idle') void loadUser().catch(() => undefined);
-  }, [mode, userStatus, loadUser]);
-
-  useEffect(() => {
-    if (expired) void sessionStore.getState().signOut();
-  }, [expired]);
-
-  const route = resolveStartRoute({
-    mode,
-    user,
-    onboardingDone: isOnboardingDone(),
-    setupDone: user ? isSetupDone(user.id) : false,
-  });
-  return {
-    href: route ? START_HREF[route] : null,
-    failed: failed && !expired,
-    retry: () => void loadUser().catch(() => undefined),
-  };
-}
-
-export function useRouteGuard(group: RouteGroup): GuardDecision {
-  const mode = useSession((s) => s.mode);
-  const fleetEnabled = useClientConfig().features.fleet;
-  const decision = guardRoute(group, { mode, fleetEnabled });
-
-  useEffect(() => {
-    if (decision !== 'end-session') return;
-    log.info('fleet feature is off; ending the fleet session');
-    void sessionStore.getState().signOut();
-  }, [decision]);
-
-  return decision;
 }

@@ -1,10 +1,3 @@
-import { SignedInPlaceholderScreen } from '@/features/auth';
+import { FleetHomeScreen } from '@/features/home';
 
-export default function FleetHomeRoute() {
-  return (
-    <SignedInPlaceholderScreen
-      title="Fleet"
-      description="Your assigned vehicle and running session will show here."
-    />
-  );
-}
+export default FleetHomeScreen;

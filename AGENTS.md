@@ -88,6 +88,9 @@ Only add a file to a feature when it does not fit one of the above.
 - Write code that reads as hand-written. No JSDoc on every function, constant or prop.
 - Comment only a non-obvious "why", in one short line. TODO(backend|phase-x) markers stay.
 - Prefer fewer, larger feature-local files over many tiny layer files.
+- No classes, not even for errors. Use functions, hooks and plain objects. A custom error is
+  `Object.assign(new Error(msg), { name, ...fields })` plus an `isX` guard (see `apiError` in
+  src/core/api.ts).
 
 ## Working style
 
