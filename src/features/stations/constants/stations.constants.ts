@@ -57,6 +57,9 @@ export const CARD_COPY = {
   price: '/kWh',
   directions: 'Directions to',
   go: 'Go',
+  distance: 'Distance',
+  drive: 'Drive',
+  perKwh: 'per kWh',
 } as const;
 
 export const FILTERS_COPY = {

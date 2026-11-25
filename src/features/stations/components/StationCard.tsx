@@ -1,6 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 
-import { MapPin, Navigation, Zap } from 'lucide-react-native';
+import { Navigation, Zap } from 'lucide-react-native';
 
 import { AppPressable, AppText } from '@/shared/components';
 
@@ -33,18 +33,37 @@ const artSize = (t: Theme) => t.space[12] + t.space[6];
 export const stationCardHeight = (t: Theme) =>
   t.space[4] * 2 + pillHeight(t) + artSize(t) + t.layout.minTouch + t.space[3] * 2;
 
-const tripLabel = (km: number | null) => {
-  if (km === null) return null;
+type StatProps = { value: string; label: string };
 
-  const distance = formatDistance(km, brand.locale);
-  return km > MAX_ETA_KM ? distance : `${distance} · ${formatEta(km)}`;
+// One footer figure: the value people compare, with a quiet label under it.
+const Stat = ({ value, label }: StatProps) => (
+  <View style={styles.stat}>
+    <AppText variant="headline" tabular numberOfLines={1}>
+      {value}
+    </AppText>
+    <AppText variant="caption" tone="tertiary" numberOfLines={1}>
+      {label}
+    </AppText>
+  </View>
+);
+
+const footerStats = (station: NearbyStation): StatProps[] => {
+  const km = station.distanceKm;
+  const stats: (StatProps | null)[] = [
+    km !== null ? { value: formatDistance(km, brand.locale), label: CARD_COPY.distance } : null,
+    km !== null && km <= MAX_ETA_KM ? { value: formatEta(km), label: CARD_COPY.drive } : null,
+    station.pricePerKwhPaise !== null
+      ? { value: formatRate(station.pricePerKwhPaise), label: CARD_COPY.perKwh }
+      : null,
+  ];
+  return stats.filter((stat): stat is StatProps => stat !== null);
 };
 
 // The carousel already scales the focused card up, so selection needs no border of its own.
 const StationCard = ({ station, width, onPress, onDirections }: StationCardProps) => {
   const t = useTheme();
   const availability = availabilityOf(station);
-  const trip = tripLabel(station.distanceKm);
+  const stats = footerStats(station);
   const statusColor = t.colors.connector[pinColorKey(station.status)];
 
   const pill = {
@@ -123,20 +142,24 @@ const StationCard = ({ station, width, onPress, onDirections }: StationCardProps
       </View>
 
       <View style={[styles.row, { height: t.layout.minTouch, gap: t.space[3] }]}>
-        <View style={styles.grow}>
-          {trip ? (
-            <View style={[styles.row, { gap: t.space[1] }]}>
-              <MapPin color={t.colors.accentText} size={t.icon.meta} strokeWidth={t.icon.stroke} />
-              <AppText variant="subhead" tabular numberOfLines={1}>
-                {trip}
-              </AppText>
+        <View style={[styles.row, styles.grow]}>
+          {stats.map((stat, index) => (
+            <View key={stat.label} style={styles.row}>
+              {index > 0 ? (
+                <View
+                  style={[
+                    styles.divider,
+                    {
+                      height: t.space[8],
+                      marginHorizontal: t.space[3],
+                      backgroundColor: t.colors.borderStrong,
+                    },
+                  ]}
+                />
+              ) : null}
+              <Stat value={stat.value} label={stat.label} />
             </View>
-          ) : null}
-          {station.pricePerKwhPaise !== null ? (
-            <AppText variant="caption" tone="secondary" tabular>
-              {formatRate(station.pricePerKwhPaise)} {CARD_COPY.price}
-            </AppText>
-          ) : null}
+          ))}
         </View>
 
         <AppPressable
@@ -149,7 +172,7 @@ const StationCard = ({ station, width, onPress, onDirections }: StationCardProps
             {
               gap: t.space[2],
               height: t.layout.minTouch,
-              paddingHorizontal: t.space[5],
+              paddingHorizontal: t.space[4],
               borderRadius: t.radius.pill,
               backgroundColor: t.colors.textPrimary,
             },
@@ -180,5 +203,11 @@ const styles = StyleSheet.create({
   },
   grow: {
     flex: 1,
+  },
+  stat: {
+    flexShrink: 1,
+  },
+  divider: {
+    width: StyleSheet.hairlineWidth,
   },
 });
