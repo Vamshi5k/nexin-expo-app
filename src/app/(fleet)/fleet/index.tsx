@@ -1,3 +1,3 @@
-import { FleetHomeScreen } from '@/features/fleet';
+import { FleetHomeScreen } from '@/features/home';
 
 export default FleetHomeScreen;
