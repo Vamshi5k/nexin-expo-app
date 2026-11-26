@@ -1,12 +1,10 @@
 import { StyleSheet, View } from 'react-native';
 
-import { ChevronRight } from 'lucide-react-native';
 import Animated from 'react-native-reanimated';
-import Svg, { Circle } from 'react-native-svg';
 
 import { AppConnectorIcon, AppPressable, AppText } from '@/shared/components';
 
-import StatusBadge from './StatusBadge';
+import StatusLabel from './StatusLabel';
 
 import { useTheme, withAlpha } from '@/shared/theme';
 
@@ -17,10 +15,14 @@ import {
   connectorTitle,
   DETAILS_COPY,
   freeBadge,
-  shortConnector,
 } from '../constants/stations.constants';
 import type { Charger, Connector } from '../types/stations.types';
-import { canStartCharging, chargerSpecs, freeConnectors, timeToFull } from '../utils/connector';
+import {
+  canStartCharging,
+  chargerSpecs,
+  chargingProgress,
+  freeConnectors,
+} from '../utils/connector';
 
 type ChargerGroupProps = {
   charger: Charger;
@@ -34,60 +36,17 @@ type ConnectorRowProps = {
   onPress: (charger: Charger, connector: Connector) => void;
 };
 
-type ChargeRingProps = {
-  percent: number;
-};
-
-const RING_STROKE = 3;
 const SOFT = 0.12;
 
-const ChargeRing = ({ percent }: ChargeRingProps) => {
-  const t = useTheme();
-  const size = t.space[8] + t.space[1];
-  const radius = (size - RING_STROKE) / 2;
-  const length = 2 * Math.PI * radius;
-  const clamped = Math.min(100, Math.max(0, percent));
-
-  return (
-    <View style={[styles.center, { width: size, height: size }]}>
-      <Svg width={size} height={size} style={StyleSheet.absoluteFill}>
-        <Circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          stroke={t.colors.surfaceSunken}
-          strokeWidth={RING_STROKE}
-          fill="none"
-        />
-        <Circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          stroke={t.colors.accentText}
-          strokeWidth={RING_STROKE}
-          strokeLinecap="round"
-          strokeDasharray={`${(length * clamped) / 100} ${length}`}
-          rotation={-90}
-          origin={`${size / 2}, ${size / 2}`}
-          fill="none"
-        />
-      </Svg>
-      <AppText variant="caption" tabular style={{ fontFamily: t.type.headline.fontFamily }}>
-        {`${clamped}%`}
-      </AppText>
-    </View>
-  );
-};
-
-// One list row per connector: the plug on a soft status circle, type and number, a status badge,
-// then Start when it is free or the charge ring while charging. Busy rows end there.
+// One list row per connector: the plug on a soft status circle, the type over a light line
+// ("Connector 1", or the battery % while charging), and the glowing status on the right.
 const ConnectorRow = ({ charger, connector, onPress }: ConnectorRowProps) => {
   const t = useTheme();
   const startable = canStartCharging(connector.state);
   const charging = connector.state === 'charging';
   const type = connector.portType ?? DETAILS_COPY.unknownType;
   const main = t.colors.status.connector[connector.state].main;
-  const eta = charging ? timeToFull(connector.minutesToFull) : null;
+  const progress = chargingProgress(connector);
   const plug = t.space[10];
 
   return (
@@ -113,65 +72,25 @@ const ConnectorRow = ({ charger, connector, onPress }: ConnectorRowProps) => {
         <AppConnectorIcon type={type} size={t.space[6]} available={startable || charging} />
       </View>
 
-      <View style={[styles.grow, { gap: t.space[1] }]}>
-        <View style={[styles.row, { gap: t.space[1] + t.space[1] / 2 }]}>
-          <AppText
-            variant="subhead"
-            numberOfLines={1}
-            style={[
-              styles.shrink,
-              { fontFamily: t.type.headline.fontFamily },
-              startable || charging ? undefined : { color: t.colors.textSecondary },
-            ]}
-          >
-            {type}
-          </AppText>
-          <AppText variant="caption" tone="tertiary" tabular>
-            {shortConnector(connector.connectorId)}
-          </AppText>
-        </View>
-        <View style={[styles.row, { gap: t.space[2] }]}>
-          <StatusBadge label={connector.label} state={connector.state} />
-          {eta ? (
-            <AppText
-              variant="caption"
-              tone="secondary"
-              tabular
-              numberOfLines={1}
-              style={styles.shrink}
-            >
-              {eta}
-            </AppText>
-          ) : null}
-        </View>
-      </View>
-
-      {charging && connector.socPercent !== null ? (
-        <ChargeRing percent={connector.socPercent} />
-      ) : null}
-      {startable ? (
-        <View
+      <View style={[styles.grow, { gap: t.space[1] / 2 }]}>
+        <AppText
+          variant="subhead"
+          numberOfLines={1}
           style={[
-            styles.row,
-            {
-              gap: t.space[1] / 2,
-              height: t.space[8],
-              paddingLeft: t.space[3],
-              paddingRight: t.space[2],
-              borderRadius: t.radius.pill,
-              backgroundColor: t.colors.textPrimary,
-            },
+            { fontFamily: t.type.headline.fontFamily },
+            startable || charging ? undefined : { color: t.colors.textSecondary },
           ]}
         >
-          <AppText
-            variant="caption"
-            style={{ fontFamily: t.type.headline.fontFamily, color: t.colors.surface }}
-          >
-            {DETAILS_COPY.start}
-          </AppText>
-          <ChevronRight color={t.colors.surface} size={t.icon.meta} strokeWidth={t.icon.stroke} />
-        </View>
-      ) : null}
+          {type}
+        </AppText>
+        <AppText variant="caption" tone="tertiary" tabular numberOfLines={1}>
+          {charging
+            ? (progress ?? connectorTitle(connector.connectorId))
+            : connectorTitle(connector.connectorId)}
+        </AppText>
+      </View>
+
+      <StatusLabel label={connector.label} state={connector.state} />
     </AppPressable>
   );
 };

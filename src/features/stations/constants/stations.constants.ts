@@ -136,7 +136,6 @@ export const DETAILS_COPY = {
   helpLine: 'Help line',
   connectorTypes: 'Connector types',
   directionsShort: 'Directions',
-  start: 'Start',
   chargerCount: 'Chargers',
   connectorCount: 'Connectors',
   connectorType: 'Connector type',
@@ -168,6 +167,5 @@ export const connectorBusy = (status: string) => `Connector is currently ${statu
 
 export const pageLabel = (page: number, total: number) => `${pad2(page)} / ${pad2(total)}`;
 export const pad2 = (value: number) => String(value).padStart(2, '0');
-export const shortConnector = (connectorId: string) => `C${connectorId}`;
 export const routeLabel = (distance: string, eta: string | null) =>
   eta ? `${distance} · ${eta} drive` : distance;

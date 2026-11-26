@@ -133,10 +133,11 @@ the driver find, start, watch or pay for a charge.
   - Chargers tab: one flat card per charger, no boxes inside it. Header: "Charger 01" and
     "DC · 60 kW · ₹18.99/kWh", with "1/2 free" as plain text (success when something is free,
     tertiary when not), then a hairline. Each connector is a list row with dividers inset
-    past the icon: the plug on a soft status-tinted circle, the type with "C1" beside it, a
-    tinted status badge (plus time to full while charging; estimates past a day are hidden),
-    then a dark "Start ›" pill when free or a % ring while charging. Busy rows end at the
-    badge. Tapping a free row opens charging. No slide-to-charge bar.
+    past the icon: the plug on a soft status-tinted circle, the type over a light line
+    ("Connector 1", or "20% · time to full" while charging; estimates past a day are
+    hidden), and on the right the status as a glowing dot plus coloured text, no pill (the
+    dot pulses while charging). Tapping a free row opens charging. No Start pill, no ring,
+    no slide-to-charge bar.
   - Info tab: a card with a drawn map hint (roads, route, accent pin, distance chip), the
     ADDRESS overline, address, and Copy (outlined) + Directions (accent) pills; big-number
     tiles two per row (chargers, connectors, connector type, access); the help line with a

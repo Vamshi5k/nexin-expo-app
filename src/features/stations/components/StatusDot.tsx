@@ -16,13 +16,16 @@ import { useTheme } from '@/shared/theme';
 type StatusDotProps = {
   color: string;
   live?: boolean;
+  // A soft halo around the dot, so it reads as lit.
+  glow?: boolean;
 };
 
 const PULSE_MS = 1600;
 const PULSE_SCALE = 2.6;
+const GLOW_SCALE = 2.2;
 
-// A small status dot. When live (a connector charging) a soft ring keeps radiating from it.
-const StatusDot = ({ color, live }: StatusDotProps) => {
+// A small status dot, optionally with a soft glow. When live a ring keeps radiating from it.
+const StatusDot = ({ color, live, glow }: StatusDotProps) => {
   const t = useTheme();
   const reduceMotion = useReducedMotion();
   const pulse = useSharedValue(0);
@@ -44,8 +47,18 @@ const StatusDot = ({ color, live }: StatusDotProps) => {
   const size = t.space[2];
   const dot = { width: size, height: size, borderRadius: t.radius.pill, backgroundColor: color };
 
+  const halo = size * GLOW_SCALE;
+
   return (
-    <View style={{ width: size, height: size }}>
+    <View style={[styles.center, { width: size, height: size }]}>
+      {glow ? (
+        <View
+          style={[
+            styles.halo,
+            { width: halo, height: halo, borderRadius: t.radius.pill, backgroundColor: color },
+          ]}
+        />
+      ) : null}
       {animate ? <Animated.View style={[StyleSheet.absoluteFill, dot, ring]} /> : null}
       <View style={dot} />
     </View>
@@ -53,3 +66,14 @@ const StatusDot = ({ color, live }: StatusDotProps) => {
 };
 
 export default StatusDot;
+
+const styles = StyleSheet.create({
+  center: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  halo: {
+    position: 'absolute',
+    opacity: 0.22,
+  },
+});

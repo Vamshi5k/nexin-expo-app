@@ -4,16 +4,14 @@ import { AppText } from '@/shared/components';
 
 import StatusDot from './StatusDot';
 
-import { useTheme, withAlpha, type Theme } from '@/shared/theme';
+import { useTheme, type Theme } from '@/shared/theme';
 
 import type { ConnectorState } from '@brand/schema';
 
-type StatusBadgeProps = {
+type StatusLabelProps = {
   label: string;
   state: ConnectorState;
 };
-
-const SOFT = 0.14;
 
 // Text colour per state: a readable shade of the badge's own colour family.
 const inkFor = (t: Theme, state: ConnectorState) => {
@@ -38,25 +36,15 @@ const inkFor = (t: Theme, state: ConnectorState) => {
   }
 };
 
-// A soft pill in the state's colour with a dot (pulsing while charging) and the label.
-const StatusBadge = ({ label, state }: StatusBadgeProps) => {
+// A glowing dot in the state's colour and the label in a readable shade of it, with no pill
+// behind. The dot pulses while charging.
+const StatusLabel = ({ label, state }: StatusLabelProps) => {
   const t = useTheme();
   const main = t.colors.status.connector[state].main;
 
   return (
-    <View
-      style={[
-        styles.badge,
-        {
-          gap: t.space[1],
-          height: t.space[5],
-          paddingHorizontal: t.space[2],
-          borderRadius: t.radius.pill,
-          backgroundColor: withAlpha(main, SOFT),
-        },
-      ]}
-    >
-      <StatusDot color={main} live={state === 'charging'} />
+    <View style={[styles.row, { gap: t.space[2] }]}>
+      <StatusDot color={main} glow live={state === 'charging'} />
       <AppText
         variant="caption"
         numberOfLines={1}
@@ -68,13 +56,12 @@ const StatusBadge = ({ label, state }: StatusBadgeProps) => {
   );
 };
 
-export default StatusBadge;
+export default StatusLabel;
 
 const styles = StyleSheet.create({
-  badge: {
+  row: {
     flexDirection: 'row',
     alignItems: 'center',
-    alignSelf: 'flex-start',
     flexShrink: 1,
   },
   shrink: {
