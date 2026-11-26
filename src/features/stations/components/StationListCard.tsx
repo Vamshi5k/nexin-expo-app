@@ -1,18 +1,16 @@
 import { StyleSheet, View } from 'react-native';
 
 import { ArrowUpRight, Heart, Zap } from 'lucide-react-native';
-import Svg, { Circle } from 'react-native-svg';
+import Svg, { Defs, RadialGradient, Rect, Stop } from 'react-native-svg';
 
 import { AppPressable, AppText } from '@/shared/components';
-
-import StatusDot from './StatusDot';
 
 import { useTheme, withAlpha, type Theme } from '@/shared/theme';
 
 import { brand } from '@/core/config';
 import { formatRate } from '@/shared/utils/money';
 
-import { CARD_COPY, LIST_COPY } from '../constants/stations.constants';
+import { CARD_COPY, LIST_COPY, moreCells } from '../constants/stations.constants';
 import type { NearbyStation } from '../types/stations.types';
 import { formatDistance } from '../utils/geo';
 import { listAvailability } from '../utils/list';
@@ -26,9 +24,16 @@ type StationListCardProps = {
   onDirections: (station: NearbyStation) => void;
 };
 
+type SpecTokenProps = {
+  label: string;
+  bolt?: boolean;
+};
+
 const SOFT = 0.12;
-const TRACK = 0.18;
-const RING = 2.5;
+const GLOW = 0.1;
+// More connectors than this collapse into a "+N" after the cells.
+const MAX_CELLS = 8;
+const CELL = 10;
 
 const toneColors = (t: Theme, tone: Availability['tone']) => {
   switch (tone) {
@@ -43,9 +48,40 @@ const toneColors = (t: Theme, tone: Availability['tone']) => {
   }
 };
 
-// A clean white card: a bolt in a ring that fills with the share of free connectors, the name
-// and address with the heart, then a one-line footer: the glowing availability, power and
-// price, and a dark distance pill that opens directions.
+const SpecToken = ({ label, bolt }: SpecTokenProps) => {
+  const t = useTheme();
+
+  return (
+    <View
+      style={[
+        styles.row,
+        {
+          gap: t.space[1] / 2,
+          height: t.space[5],
+          paddingHorizontal: t.space[2],
+          borderRadius: t.radius.pill,
+          backgroundColor: t.colors.surfaceSunken,
+        },
+      ]}
+    >
+      {bolt ? (
+        <Zap
+          color={t.colors.accentText}
+          fill={t.colors.accentText}
+          size={t.icon.meta - 4}
+          strokeWidth={t.icon.stroke}
+        />
+      ) : null}
+      <AppText variant="caption" tabular>
+        {label}
+      </AppText>
+    </View>
+  );
+};
+
+// Name, address and spec tokens with the heart; then a meter with one cell per connector (free
+// ones lit), the free count, and a dark distance pill that opens directions. A faint glow in
+// the availability colour sits in the corner.
 const StationListCard = ({
   station,
   favourite,
@@ -58,87 +94,60 @@ const StationListCard = ({
   const tone = toneColors(t, availability.tone);
   const heartColor = favourite ? t.colors.danger : t.colors.textTertiary;
   const km = station.distanceKm;
-  const tile = t.space[10] + t.space[1];
-  const ringRadius = (tile - RING) / 2;
-  const ringLength = 2 * Math.PI * ringRadius;
   const { availableConnectors: free, totalConnectors: total } = station;
-  // The ring fills with the share of connectors free; unknown counts leave just the track.
-  const share =
-    free !== null && total !== null && total > 0 ? Math.min(1, Math.max(0, free / total)) : 0;
-  const specs = [
-    station.maxPowerKw !== null ? `${station.maxPowerKw} kW` : null,
-    station.pricePerKwhPaise !== null
-      ? `${formatRate(station.pricePerKwhPaise)}${CARD_COPY.price}`
-      : null,
-  ].filter(Boolean);
+  const cells = total !== null && total > 0 ? Math.min(total, MAX_CELLS) : 0;
+  const lit = free !== null ? Math.min(free, cells) : 0;
+  const extra = total !== null && total > MAX_CELLS ? total - MAX_CELLS : 0;
+  const glowId = `station-glow-${station.id}`;
 
   return (
     <AppPressable
       onPress={() => onPress(station.id)}
       accessibilityRole="button"
       accessibilityLabel={`${station.name}, ${availability.label}`}
-      style={{
-        gap: t.space[3],
-        padding: t.space[3],
-        borderRadius: t.radius.card,
-        borderWidth: t.layout.hairline,
-        borderColor: t.colors.border,
-        backgroundColor: t.colors.surfaceRaised,
-      }}
+      style={[
+        styles.clip,
+        {
+          gap: t.space[3],
+          padding: t.space[4],
+          borderRadius: t.radius.card,
+          borderWidth: t.layout.hairline,
+          borderColor: t.colors.border,
+          backgroundColor: t.colors.surfaceRaised,
+        },
+      ]}
     >
-      <View style={[styles.row, { gap: t.space[3] }]}>
-        <View style={[styles.center, { width: tile, height: tile }]}>
-          <Svg width={tile} height={tile} style={StyleSheet.absoluteFill}>
-            <Circle
-              cx={tile / 2}
-              cy={tile / 2}
-              r={ringRadius}
-              stroke={withAlpha(tone.dot, TRACK)}
-              strokeWidth={RING}
-              fill="none"
-            />
-            {share > 0 ? (
-              <Circle
-                cx={tile / 2}
-                cy={tile / 2}
-                r={ringRadius}
-                stroke={tone.dot}
-                strokeWidth={RING}
-                strokeLinecap="round"
-                strokeDasharray={`${ringLength * share} ${ringLength}`}
-                rotation={-90}
-                origin={`${tile / 2}, ${tile / 2}`}
-                fill="none"
-              />
-            ) : null}
-          </Svg>
-          <View
-            style={[
-              styles.center,
-              {
-                width: tile - RING * 2 - t.space[1] * 2,
-                height: tile - RING * 2 - t.space[1] * 2,
-                borderRadius: t.radius.pill,
-                backgroundColor: withAlpha(tone.dot, SOFT),
-              },
-            ]}
-          >
-            <Zap color={tone.ink} fill={tone.ink} size={t.icon.meta} strokeWidth={t.icon.stroke} />
-          </View>
-        </View>
+      <Svg style={StyleSheet.absoluteFill} pointerEvents="none">
+        <Defs>
+          <RadialGradient id={glowId} cx="100%" cy="0%" rx="55%" ry="75%">
+            <Stop offset="0" stopColor={tone.dot} stopOpacity={GLOW} />
+            <Stop offset="1" stopColor={tone.dot} stopOpacity={0} />
+          </RadialGradient>
+        </Defs>
+        <Rect x="0" y="0" width="100%" height="100%" fill={`url(#${glowId})`} />
+      </Svg>
 
-        <View style={[styles.grow, { gap: t.space[1] / 2 }]}>
-          <AppText
-            variant="subhead"
-            numberOfLines={1}
-            style={{ fontFamily: t.type.headline.fontFamily }}
-          >
-            {station.name}
-          </AppText>
-          {station.address ? (
-            <AppText variant="caption" tone="secondary" numberOfLines={1}>
-              {station.address}
+      <View style={[styles.top, { gap: t.space[3] }]}>
+        <View style={[styles.grow, { gap: t.space[2] }]}>
+          <View>
+            <AppText variant="headline" numberOfLines={1}>
+              {station.name}
             </AppText>
+            {station.address ? (
+              <AppText variant="caption" tone="secondary" numberOfLines={1}>
+                {station.address}
+              </AppText>
+            ) : null}
+          </View>
+          {station.maxPowerKw !== null || station.pricePerKwhPaise !== null ? (
+            <View style={[styles.row, { gap: t.space[1] + t.space[1] / 2 }]}>
+              {station.maxPowerKw !== null ? (
+                <SpecToken label={`${station.maxPowerKw} kW`} bolt />
+              ) : null}
+              {station.pricePerKwhPaise !== null ? (
+                <SpecToken label={`${formatRate(station.pricePerKwhPaise)}${CARD_COPY.price}`} />
+              ) : null}
+            </View>
           ) : null}
         </View>
 
@@ -155,9 +164,9 @@ const StationListCard = ({
               width: t.space[8],
               height: t.space[8],
               borderRadius: t.radius.pill,
-              backgroundColor: favourite
-                ? withAlpha(t.colors.danger, SOFT)
-                : t.colors.surfaceSunken,
+              borderWidth: t.layout.hairline,
+              borderColor: t.colors.border,
+              backgroundColor: favourite ? withAlpha(t.colors.danger, SOFT) : t.colors.surface,
             },
           ]}
         >
@@ -170,38 +179,42 @@ const StationListCard = ({
         </AppPressable>
       </View>
 
-      <View
-        style={[
-          styles.row,
-          {
-            gap: t.space[2],
-            paddingTop: t.space[2] + t.space[1] / 2,
-            borderTopWidth: t.layout.hairline,
-            borderTopColor: t.colors.border,
-          },
-        ]}
-      >
-        <StatusDot color={tone.dot} glow />
-        <AppText
-          variant="caption"
-          numberOfLines={1}
-          style={{ fontFamily: t.type.headline.fontFamily, color: tone.ink }}
-        >
-          {availability.label}
-        </AppText>
-        {specs.length ? (
+      <View style={[styles.row, { gap: t.space[3] }]}>
+        <View style={[styles.grow, { gap: t.space[1] + t.space[1] / 2 }]}>
+          {cells ? (
+            <View style={[styles.row, { gap: t.space[1] - 1 }]}>
+              {Array.from({ length: cells }, (_, index) => {
+                const on = index < lit;
+                return (
+                  <View
+                    key={index}
+                    style={[
+                      {
+                        width: CELL,
+                        height: CELL,
+                        borderRadius: 3,
+                        backgroundColor: on ? tone.dot : withAlpha(t.colors.textPrimary, 0.08),
+                      },
+                      on ? { boxShadow: `0 0 6px ${withAlpha(tone.dot, 0.6)}` } : null,
+                    ]}
+                  />
+                );
+              })}
+              {extra ? (
+                <AppText variant="caption" tone="tertiary" tabular>
+                  {moreCells(extra)}
+                </AppText>
+              ) : null}
+            </View>
+          ) : null}
           <AppText
             variant="caption"
-            tone="secondary"
-            tabular
             numberOfLines={1}
-            style={styles.shrink}
+            style={{ fontFamily: t.type.headline.fontFamily, color: tone.ink }}
           >
-            {`· ${specs.join(' · ')}`}
+            {availability.label}
           </AppText>
-        ) : null}
-
-        <View style={styles.grow} />
+        </View>
 
         <AppPressable
           onPress={() => onDirections(station)}
@@ -213,9 +226,9 @@ const StationListCard = ({
             styles.row,
             {
               gap: t.space[1],
-              height: t.space[8],
-              paddingLeft: km !== null ? t.space[3] : t.space[2],
-              paddingRight: t.space[2],
+              height: t.space[8] + t.space[1],
+              paddingLeft: km !== null ? t.space[3] + t.space[1] : t.space[2],
+              paddingRight: t.space[2] + t.space[1] / 2,
               borderRadius: t.radius.pill,
               backgroundColor: t.colors.textPrimary,
             },
@@ -223,7 +236,7 @@ const StationListCard = ({
         >
           {km !== null ? (
             <AppText
-              variant="caption"
+              variant="subhead"
               tabular
               style={{ fontFamily: t.type.headline.fontFamily, color: t.colors.surface }}
             >
@@ -240,16 +253,20 @@ const StationListCard = ({
 export default StationListCard;
 
 const styles = StyleSheet.create({
+  clip: {
+    overflow: 'hidden',
+  },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
   },
+  top: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+  },
   center: {
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  shrink: {
-    flexShrink: 1,
   },
   grow: {
     flex: 1,
