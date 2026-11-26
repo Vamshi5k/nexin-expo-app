@@ -22,6 +22,7 @@ import { DETAILS_COPY } from '../constants/stations.constants';
 
 type DetailsTopBarProps = {
   title: string | null;
+  subtitle?: string | null;
   isFavourite: boolean;
   barStyle?: StyleProp<AnimatedStyle<ViewStyle>>;
   titleStyle?: StyleProp<AnimatedStyle<ViewStyle>>;
@@ -87,9 +88,10 @@ const GlassButton = ({ icon: Icon, label, onPress, active }: GlassButtonProps) =
 };
 
 // Floats over the hero; once scrolled past it a solid bar (status bar included) fades in with
-// the station name, so nothing scrolls visibly behind the buttons.
+// the station name and address, so nothing scrolls visibly behind the buttons.
 const DetailsTopBar = ({
   title,
+  subtitle,
   isFavourite,
   barStyle,
   titleStyle,
@@ -131,6 +133,11 @@ const DetailsTopBar = ({
           <AppText variant="headline" numberOfLines={1}>
             {title ?? ''}
           </AppText>
+          {subtitle ? (
+            <AppText variant="caption" tone="secondary" numberOfLines={1}>
+              {subtitle}
+            </AppText>
+          ) : null}
         </Animated.View>
         {onShare ? (
           <GlassButton icon={Share2} label={DETAILS_COPY.share} onPress={onShare} />

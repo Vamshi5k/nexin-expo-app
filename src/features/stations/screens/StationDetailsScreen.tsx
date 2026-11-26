@@ -5,26 +5,31 @@ import { PlugZap } from 'lucide-react-native';
 import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { AppEmptyState, AppErrorState, AppSkeleton, AppText } from '@/shared/components';
+import {
+  AppEmptyState,
+  AppErrorState,
+  AppSegmentedControl,
+  AppSkeleton,
+  AppText,
+} from '@/shared/components';
 
-import AboutSection from '../components/AboutSection';
 import ChargerGroup from '../components/ChargerGroup';
-import DetailsActionBar, { actionBarHeight } from '../components/DetailsActionBar';
 import DetailsTopBar, { topBarSpace } from '../components/DetailsTopBar';
 import MapsChooserSheet from '../components/MapsChooserSheet';
 import StationHero from '../components/StationHero';
-import StationInfoSheet from '../components/StationInfoSheet';
+import StationInfo from '../components/StationInfo';
 
 import { useTheme } from '@/shared/theme';
 
 import { getErrorMessage } from '@/core/api';
 import { riseIn } from '@/shared/utils/motion';
 
-import { DETAILS_COPY } from '../constants/stations.constants';
+import { DETAILS_COPY, type DetailsTab } from '../constants/stations.constants';
 import { useHeaderReveal } from '../hooks/useHeaderReveal';
 import { useHeroImages } from '../hooks/useHeroImages';
 import { useHeroParallax } from '../hooks/useHeroParallax';
 import { useStationDetails } from '../hooks/useStationDetails';
+import { useStickyTabs } from '../hooks/useStickyTabs';
 
 type StationDetailsScreenProps = {
   stationId: string;
@@ -33,8 +38,14 @@ type StationDetailsScreenProps = {
 // The hero takes about 40% of the screen at a fixed size, so images never push the page around.
 const HERO_RATIO = 0.4;
 
-// Hero first (photos or the brand illustration, status, name, stats), then chargers grouped
-// with their connectors, a short About card with a full details sheet, and the Go bar.
+const TABS: { value: DetailsTab; label: string }[] = [
+  { value: 'chargers', label: DETAILS_COPY.chargers },
+  { value: 'info', label: DETAILS_COPY.info },
+];
+
+// Hero first (photos or the brand illustration, status, name, directions, stats), then
+// Chargers / Info tabs. Scrolling fades the hero away and pins the tabs under a header that
+// shows the station name and address.
 const StationDetailsScreen = ({ stationId }: StationDetailsScreenProps) => {
   const t = useTheme();
   const insets = useSafeAreaInsets();
@@ -43,14 +54,21 @@ const StationDetailsScreen = ({ stationId }: StationDetailsScreenProps) => {
   const { station } = details;
   const heroHeight = Math.round(screenHeight * HERO_RATIO);
   const top = topBarSpace(t, insets.top);
-  const header = useHeaderReveal(heroHeight - top, t.space[12]);
+  const stickAt = heroHeight - top;
+  const header = useHeaderReveal(stickAt, t.space[12]);
   const heroStyle = useHeroParallax(header.scrollY, heroHeight);
+  const { tab, selectTab, scrollRef, tabsStyle } = useStickyTabs<DetailsTab>(
+    'chargers',
+    header.scrollY,
+    stickAt,
+  );
   const hero = useHeroImages(station?.imageUrls ?? []);
   const overPhoto = hero.images.length > 0 && !header.revealed;
 
   const topBar = (
     <DetailsTopBar
       title={station?.name ?? null}
+      subtitle={station?.address ?? null}
       isFavourite={details.isFavourite}
       barStyle={station ? header.barStyle : undefined}
       titleStyle={header.titleStyle}
@@ -95,9 +113,10 @@ const StationDetailsScreen = ({ stationId }: StationDetailsScreenProps) => {
       <StatusBar style={overPhoto ? 'light' : 'dark'} />
 
       <Animated.ScrollView
+        ref={scrollRef}
         onScroll={header.onScroll}
         scrollEventThrottle={16}
-        contentContainerStyle={{ paddingBottom: actionBarHeight(t, insets.bottom) }}
+        contentContainerStyle={{ paddingBottom: Math.max(insets.bottom, t.space[4]) }}
         showsVerticalScrollIndicator={false}
         bounces={true}
         refreshControl={
@@ -119,68 +138,74 @@ const StationDetailsScreen = ({ stationId }: StationDetailsScreenProps) => {
             height={heroHeight}
             onPageChange={hero.setPage}
             onImageError={hero.onError}
+            onDirections={details.openDirections}
           />
         </Animated.View>
 
-        {/* Opaque so the hero slides behind it while it drifts (parallax). */}
+        {/* Above the content so it covers it once pinned under the header. */}
+        <Animated.View
+          style={[
+            styles.tabs,
+            {
+              paddingHorizontal: t.layout.screenPadding,
+              paddingVertical: t.space[3],
+              backgroundColor: t.colors.bg,
+            },
+            tabsStyle,
+          ]}
+        >
+          <AppSegmentedControl
+            segments={TABS}
+            value={tab}
+            onChange={selectTab}
+            accessibilityLabel={DETAILS_COPY.sections}
+          />
+        </Animated.View>
+
+        {/* At least a screen tall, so switching to a short tab never unpins the tabs. */}
         <View
           style={{
-            gap: t.layout.sectionGap,
-            paddingVertical: t.layout.sectionGap,
+            minHeight: screenHeight - top,
+            paddingHorizontal: t.layout.screenPadding,
+            paddingTop: t.space[2],
             backgroundColor: t.colors.bg,
           }}
         >
-          <Animated.View entering={riseIn(3)} style={{ gap: t.space[6] }}>
-            <View style={{ gap: t.space[1], paddingHorizontal: t.layout.screenPadding }}>
-              <AppText variant="headline" accessibilityRole="header">
-                {DETAILS_COPY.chargers}
-              </AppText>
-              {details.chargers.length ? (
-                <AppText variant="caption" tone="secondary">
-                  {DETAILS_COPY.tip}
-                </AppText>
-              ) : null}
-            </View>
-
-            {details.chargers.length ? (
-              details.chargers.map((charger, index) => (
-                <ChargerGroup
-                  key={charger.id}
-                  charger={charger}
-                  index={index}
-                  onConnectorPress={details.openConnector}
+          <Animated.View key={tab} entering={riseIn(0)} style={{ gap: t.space[4] }}>
+            {tab === 'chargers' ? (
+              details.chargers.length ? (
+                <>
+                  <AppText variant="caption" tone="secondary">
+                    {DETAILS_COPY.tip}
+                  </AppText>
+                  {details.chargers.map((charger, index) => (
+                    <ChargerGroup
+                      key={charger.id}
+                      charger={charger}
+                      index={index}
+                      onConnectorPress={details.openConnector}
+                    />
+                  ))}
+                </>
+              ) : (
+                <AppEmptyState
+                  icon={PlugZap}
+                  title={DETAILS_COPY.noChargers}
+                  description={DETAILS_COPY.noChargersBody}
                 />
-              ))
+              )
             ) : (
-              <AppEmptyState
-                icon={PlugZap}
-                title={DETAILS_COPY.noChargers}
-                description={DETAILS_COPY.noChargersBody}
+              <StationInfo
+                station={station}
+                onCopyAddress={details.copyAddress}
+                onCall={details.call}
               />
             )}
-          </Animated.View>
-
-          <Animated.View entering={riseIn(4)} style={{ paddingHorizontal: t.layout.screenPadding }}>
-            <AboutSection station={station} onViewAll={details.openInfo} />
           </Animated.View>
         </View>
       </Animated.ScrollView>
 
       {topBar}
-
-      <DetailsActionBar
-        eta={details.eta}
-        onDirections={details.openDirections}
-        onCall={station.phone ? details.call : null}
-      />
-
-      <StationInfoSheet
-        open={details.infoOpen}
-        station={station}
-        onClose={details.closeInfo}
-        onCopyAddress={details.copyAddress}
-        onCall={details.call}
-      />
 
       <MapsChooserSheet
         open={details.directions.chooserOpen}
@@ -201,5 +226,8 @@ const styles = StyleSheet.create({
   center: {
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  tabs: {
+    zIndex: 1,
   },
 });

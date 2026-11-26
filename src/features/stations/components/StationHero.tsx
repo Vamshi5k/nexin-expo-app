@@ -7,10 +7,11 @@ import {
 } from 'react-native';
 
 import { Image } from 'expo-image';
+import { Navigation } from 'lucide-react-native';
 import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { AppText, AppFade } from '@/shared/components';
+import { AppFade, AppPressable, AppText } from '@/shared/components';
 
 import StationScene from './StationScene';
 import StatRow, { type Stat } from './StatRow';
@@ -38,6 +39,7 @@ type StationHeroProps = {
   height: number;
   onPageChange: (page: number) => void;
   onImageError: (url: string) => void;
+  onDirections: () => void;
 };
 
 const SCRIM_OPACITY = 0.78;
@@ -76,6 +78,7 @@ const StationHero = ({
   height,
   onPageChange,
   onImageError,
+  onDirections,
 }: StationHeroProps) => {
   const t = useTheme();
   const insets = useSafeAreaInsets();
@@ -209,20 +212,45 @@ const StationHero = ({
           ) : null}
         </Animated.View>
 
-        <Animated.View entering={riseIn(1)} style={{ gap: t.space[2] }}>
-          <AppText
-            variant="title2"
-            numberOfLines={2}
-            accessibilityRole="header"
-            style={{ color: ink }}
-          >
-            {station.name}
-          </AppText>
-          {station.address ? (
-            <AppText variant="subhead" numberOfLines={1} style={{ color: subInk }}>
-              {station.address}
+        <Animated.View entering={riseIn(1)} style={[styles.row, { gap: t.space[3] }]}>
+          <View style={[styles.grow, { gap: t.space[1] }]}>
+            <AppText
+              variant="title2"
+              numberOfLines={2}
+              accessibilityRole="header"
+              style={{ color: ink }}
+            >
+              {station.name}
             </AppText>
-          ) : null}
+            {station.address ? (
+              <AppText variant="subhead" numberOfLines={1} style={{ color: subInk }}>
+                {station.address}
+              </AppText>
+            ) : null}
+          </View>
+          <AppPressable
+            onPress={onDirections}
+            haptic="light"
+            hitSlop={t.space[1]}
+            accessibilityRole="button"
+            accessibilityLabel={DETAILS_COPY.directions}
+            style={[
+              styles.center,
+              {
+                width: t.space[10],
+                height: t.space[10],
+                borderRadius: t.radius.pill,
+                backgroundColor: t.colors.accent,
+              },
+            ]}
+          >
+            <Navigation
+              color={t.colors.onAccent}
+              fill={t.colors.onAccent}
+              size={t.icon.meta}
+              strokeWidth={t.icon.stroke}
+            />
+          </AppPressable>
         </Animated.View>
         {stats.length ? (
           <Animated.View entering={riseIn(2)} style={{ marginTop: t.space[2] }}>
@@ -266,5 +294,12 @@ const styles = StyleSheet.create({
   },
   between: {
     justifyContent: 'space-between',
+  },
+  center: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  grow: {
+    flex: 1,
   },
 });

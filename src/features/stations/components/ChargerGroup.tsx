@@ -1,16 +1,16 @@
-import { ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
+import { ChevronRight, Zap } from 'lucide-react-native';
 import Animated from 'react-native-reanimated';
 
 import { AppConnectorIcon, AppPressable, AppText } from '@/shared/components';
 
-import CardGradient from './CardGradient';
 import StatusDot from './StatusDot';
 
 import { useTheme } from '@/shared/theme';
 
 import { formatRate } from '@/shared/utils/money';
-import { slideIn } from '@/shared/utils/motion';
+import { riseIn } from '@/shared/utils/motion';
 
 import {
   CARD_COPY,
@@ -30,83 +30,61 @@ type ChargerGroupProps = {
 
 type ConnectorCardProps = {
   charger: Charger;
-  chargerIndex: number;
   connector: Connector;
-  width: number;
   onPress: (charger: Charger, connector: Connector) => void;
 };
 
-// Connectors always sit in a sideways row; the next card peeks so the swipe is obvious.
-const SWIPE_CARD_RATIO = 0.72;
-
-const chargerMeta = (charger: Charger, index: number) =>
+const chargerMeta = (charger: Charger) =>
   [
-    chargerTitle(index),
     charger.powerType,
     charger.capacityKw !== null ? `${charger.capacityKw} kW` : null,
+    charger.pricePerKwhPaise !== null
+      ? `${formatRate(charger.pricePerKwhPaise)}${CARD_COPY.price}`
+      : null,
   ]
     .filter(Boolean)
     .join(' · ');
 
-// A connector in the map card's language: its own status gradient, white pills, one clear tap.
-const ConnectorCard = ({
-  charger,
-  chargerIndex,
-  connector,
-  width,
-  onPress,
-}: ConnectorCardProps) => {
+// One connector per row: a status-tinted plug tile, its type and number, the live status, and a
+// chevron only when it can start a session. Charging shows the battery filling.
+const ConnectorCard = ({ charger, connector, onPress }: ConnectorCardProps) => {
   const t = useTheme();
   const startable = canStartCharging(connector.state);
-  const { label } = connector;
   const type = connector.portType ?? DETAILS_COPY.unknownType;
   const progress = chargingProgress(connector);
   const status = t.colors.status.connector[connector.state];
-
-  const pill = {
-    gap: t.space[2],
-    paddingHorizontal: t.space[3],
-    paddingVertical: t.space[1],
-    borderRadius: t.radius.pill,
-    backgroundColor: t.colors.surface,
-  };
 
   return (
     <AppPressable
       onPress={() => onPress(charger, connector)}
       accessibilityRole="button"
-      accessibilityLabel={`${connectorTitle(connector.connectorId)}, ${type}, ${label}`}
+      accessibilityLabel={`${connectorTitle(connector.connectorId)}, ${type}, ${connector.label}`}
       accessibilityState={{ disabled: !startable }}
-      style={[
-        styles.card,
-        {
-          width,
-          gap: t.space[3],
-          padding: t.space[3],
-          borderRadius: t.radius.card,
-          borderWidth: t.layout.hairline,
-          borderColor: t.colors.border,
-          backgroundColor: t.colors.surfaceRaised,
-        },
-      ]}
+      style={{
+        gap: t.space[3],
+        padding: t.space[3],
+        borderRadius: t.radius.control,
+        borderWidth: t.layout.hairline,
+        borderColor: startable ? status.main : t.colors.border,
+        backgroundColor: t.colors.surface,
+      }}
     >
-      <CardGradient color={status.tint} id={`connector-${charger.id}-${connector.id}`} />
-
       <View style={[styles.row, { gap: t.space[3] }]}>
         <View
           style={[
             styles.center,
             {
-              width: t.space[10],
-              height: t.space[10],
+              width: t.space[12],
+              height: t.space[12],
               borderRadius: t.radius.control,
-              backgroundColor: t.colors.surface,
+              backgroundColor: status.tint,
             },
           ]}
         >
-          <AppConnectorIcon type={type} size={t.space[6]} available={startable} />
+          <AppConnectorIcon type={type} size={t.space[6] + t.space[1]} available={startable} />
         </View>
-        <View style={styles.grow}>
+
+        <View style={[styles.grow, { gap: t.space[1] / 2 }]}>
           <AppText
             variant="subhead"
             numberOfLines={1}
@@ -115,110 +93,160 @@ const ConnectorCard = ({
             {type}
           </AppText>
           <AppText variant="caption" tone="secondary" numberOfLines={1}>
-            {chargerMeta(charger, chargerIndex)}
+            {connectorTitle(connector.connectorId)}
           </AppText>
         </View>
-        <View style={[styles.row, pill]}>
-          <AppText variant="caption" tabular>
-            {`C${connector.connectorId}`}
+
+        <View
+          style={[
+            styles.row,
+            styles.shrink,
+            {
+              gap: t.space[2],
+              paddingHorizontal: t.space[2] + t.space[1] / 2,
+              paddingVertical: t.space[1],
+              borderRadius: t.radius.pill,
+              backgroundColor: status.tint,
+            },
+          ]}
+        >
+          <StatusDot color={status.main} live={connector.state === 'charging'} />
+          <AppText variant="caption" numberOfLines={1} style={styles.shrink}>
+            {connector.label}
           </AppText>
         </View>
+
+        {startable ? (
+          <ChevronRight
+            color={t.colors.textTertiary}
+            size={t.icon.meta}
+            strokeWidth={t.icon.stroke}
+          />
+        ) : null}
       </View>
 
       {progress ? (
-        <AppText variant="subhead" tabular style={{ fontFamily: t.type.headline.fontFamily }}>
-          {progress}
-        </AppText>
-      ) : null}
-
-      <View style={[styles.row, styles.between, { gap: t.space[2] }]}>
-        {charger.pricePerKwhPaise !== null ? (
-          <AppText variant="subhead" tabular style={{ fontFamily: t.type.headline.fontFamily }}>
-            {`${formatRate(charger.pricePerKwhPaise)} ${CARD_COPY.price}`}
-          </AppText>
-        ) : (
-          <View />
-        )}
-        <View style={[styles.row, pill, styles.shrink]}>
-          <StatusDot color={status.main} live={connector.state === 'charging'} />
-          <AppText variant="caption" numberOfLines={1} style={styles.shrink}>
-            {label}
+        <View style={{ gap: t.space[1] }}>
+          {connector.socPercent !== null ? (
+            <View
+              style={[
+                styles.track,
+                {
+                  height: t.space[1],
+                  borderRadius: t.radius.pill,
+                  backgroundColor: t.colors.surfaceSunken,
+                },
+              ]}
+            >
+              <View
+                style={{
+                  width: `${Math.min(100, Math.max(0, connector.socPercent))}%`,
+                  height: '100%',
+                  borderRadius: t.radius.pill,
+                  backgroundColor: status.main,
+                }}
+              />
+            </View>
+          ) : null}
+          <AppText variant="caption" tone="secondary" tabular>
+            {progress}
           </AppText>
         </View>
-      </View>
+      ) : null}
     </AppPressable>
   );
 };
 
-// One charger: its header, then its connectors in a sideways row (one connector fills the width).
+// One charger as its own card: name, power and price, free count, then every connector under it.
 const ChargerGroup = ({ charger, index, onConnectorPress }: ChargerGroupProps) => {
   const t = useTheme();
-  const { width: screenWidth } = useWindowDimensions();
   const free = freeConnectors(charger);
   const total = charger.connectors.length;
-  const swipe = total > 1;
-  const fullWidth = screenWidth - t.layout.screenPadding * 2;
-  const cardWidth = swipe ? Math.round(screenWidth * SWIPE_CARD_RATIO) : fullWidth;
-
-  const cards = charger.connectors.map((connector, position) => (
-    <Animated.View key={connector.id} entering={slideIn(position + 4)}>
-      <ConnectorCard
-        charger={charger}
-        chargerIndex={index}
-        connector={connector}
-        width={cardWidth}
-        onPress={onConnectorPress}
-      />
-    </Animated.View>
-  ));
+  const meta = chargerMeta(charger);
 
   return (
-    <View style={{ gap: t.space[3] }}>
-      <View style={[styles.row, styles.between, { paddingHorizontal: t.layout.screenPadding }]}>
-        <AppText
-          variant="subhead"
-          numberOfLines={1}
-          style={[styles.shrink, { fontFamily: t.type.headline.fontFamily }]}
+    <Animated.View
+      entering={riseIn(index + 1)}
+      style={{
+        gap: t.space[3],
+        padding: t.space[3],
+        borderRadius: t.radius.card,
+        borderWidth: t.layout.hairline,
+        borderColor: t.colors.border,
+        backgroundColor: t.colors.surfaceRaised,
+      }}
+    >
+      <View style={[styles.row, { gap: t.space[3] }]}>
+        <View
+          style={[
+            styles.center,
+            {
+              width: t.space[8] + t.space[1],
+              height: t.space[8] + t.space[1],
+              borderRadius: t.radius.pill,
+              backgroundColor: t.colors.accentSoft,
+            },
+          ]}
         >
-          {chargerMeta(charger, index)}
-        </AppText>
-        {total ? (
-          <AppText
-            variant="subhead"
-            tabular
-            style={{ color: free ? t.colors.successText : t.colors.textTertiary }}
-          >
-            {freeBadge(free, total)}
+          <Zap
+            color={t.colors.accentText}
+            fill={t.colors.accentText}
+            size={t.icon.meta}
+            strokeWidth={t.icon.stroke}
+          />
+        </View>
+        <View style={styles.grow}>
+          <AppText variant="headline" numberOfLines={1}>
+            {chargerTitle(index)}
           </AppText>
+          {meta ? (
+            <AppText variant="caption" tone="secondary" tabular numberOfLines={1}>
+              {meta}
+            </AppText>
+          ) : null}
+        </View>
+        {total ? (
+          <View
+            style={{
+              paddingHorizontal: t.space[2] + t.space[1] / 2,
+              paddingVertical: t.space[1],
+              borderRadius: t.radius.pill,
+              backgroundColor: free
+                ? t.colors.status.connector.available.tint
+                : t.colors.surfaceSunken,
+            }}
+          >
+            <AppText
+              variant="caption"
+              tabular
+              style={{ color: free ? t.colors.successText : t.colors.textTertiary }}
+            >
+              {freeBadge(free, total)}
+            </AppText>
+          </View>
         ) : null}
       </View>
 
-      <ScrollView
-        horizontal
-        scrollEnabled={swipe}
-        showsHorizontalScrollIndicator={false}
-        snapToInterval={cardWidth + t.space[3]}
-        decelerationRate="fast"
-        contentContainerStyle={{ gap: t.space[3], paddingHorizontal: t.layout.screenPadding }}
-      >
-        {cards}
-      </ScrollView>
-    </View>
+      <View style={{ gap: t.space[2] }}>
+        {charger.connectors.map(connector => (
+          <ConnectorCard
+            key={connector.id}
+            charger={charger}
+            connector={connector}
+            onPress={onConnectorPress}
+          />
+        ))}
+      </View>
+    </Animated.View>
   );
 };
 
 export default ChargerGroup;
 
 const styles = StyleSheet.create({
-  card: {
-    overflow: 'hidden',
-  },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-  },
-  between: {
-    justifyContent: 'space-between',
   },
   center: {
     alignItems: 'center',
@@ -229,5 +257,8 @@ const styles = StyleSheet.create({
   },
   grow: {
     flex: 1,
+  },
+  track: {
+    overflow: 'hidden',
   },
 });

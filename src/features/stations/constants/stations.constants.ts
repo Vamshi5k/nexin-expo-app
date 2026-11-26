@@ -135,17 +135,22 @@ export const DETAILS_COPY = {
   address: 'Address',
   helpLine: 'Help line',
   connectorTypes: 'Connector types',
-  viewAll: 'View all details',
-  close: 'Close',
+  callShort: 'Call',
   copy: 'Copy',
   copied: 'Address copied',
   access: 'Access',
   openingHours: 'Opening hours',
   photo: 'Station photo',
   illustration: 'Electric cars charging at a station',
-  about: 'About this station',
   free: 'free',
+  info: 'Info',
+  sections: 'Station sections',
+  noInfo: 'No details yet',
+  noInfoBody: 'This station has not shared any details yet.',
 } as const;
+
+export const DETAILS_TABS = ['chargers', 'info'] as const;
+export type DetailsTab = (typeof DETAILS_TABS)[number];
 
 export const chargerTitle = (index: number) => `Charger ${index + 1}`;
 export const connectorTitle = (connectorId: string) => `Connector ${connectorId}`;
@@ -153,4 +158,3 @@ export const freeBadge = (free: number, total: number) => `${free}/${total} free
 export const connectorBusy = (status: string) => `Connector is currently ${status}`;
 
 export const pageLabel = (page: number, total: number) => `${page}/${total}`;
-export const moreChip = (count: number) => `+${count}`;

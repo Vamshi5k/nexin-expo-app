@@ -32,7 +32,6 @@ export const useStationDetails = (stationId: string) => {
   const directions = useDirections();
 
   const [refreshing, setRefreshing] = useState(false);
-  const [infoOpen, setInfoOpen] = useState(false);
   const [favouriteOverride, setFavouriteOverride] = useState<boolean | null>(null);
   const [savingFavourite, setSavingFavourite] = useState(false);
 
@@ -112,9 +111,6 @@ export const useStationDetails = (stationId: string) => {
     loading: details.loading && !station,
     error: station ? null : details.error,
     refreshing,
-    infoOpen,
-    openInfo: () => setInfoOpen(true),
-    closeInfo: () => setInfoOpen(false),
     copyAddress,
     distance,
     eta: distance !== null && distance <= MAX_ETA_KM ? formatEta(distance) : null,

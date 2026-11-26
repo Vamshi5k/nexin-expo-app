@@ -1,5 +1,6 @@
 import { act, fireEvent, screen, waitFor } from '@testing-library/react-native';
 import { router } from 'expo-router';
+import { Linking } from 'react-native';
 
 import { StationDetailsScreen } from '@/features/stations';
 import { stationsApi, toStationDetails } from '@/features/stations/api/stations.api';
@@ -91,15 +92,17 @@ describe('StationDetailsScreen', () => {
     setFavourite.mockResolvedValue(undefined);
   });
 
-  it('shows status as sent, charger groups, and no Call button without a phone number', async () => {
+  it('Chargers tab: each charger with its connectors, and directions in the hero', async () => {
     await renderStation();
 
-    // The charger header plus the same line on each of its two connector cards.
-    expect(screen.getAllByText('Charger 1 · DC · 60 kW')).toHaveLength(3);
+    expect(screen.getByRole('tab', { name: 'Chargers', selected: true })).toBeTruthy();
+    expect(screen.getByText('Charger 1')).toBeTruthy();
+    expect(screen.getByText('DC · 60 kW · ₹18.00/kWh')).toBeTruthy();
     expect(screen.getByText('1/2 free')).toBeTruthy();
+    expect(screen.getByLabelText('Connector 1, CCS2, Charging')).toBeTruthy();
+    expect(screen.getByLabelText('Connector 2, CCS2, Available')).toBeTruthy();
     expect(screen.getByText('Tap a connector to start charging')).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Get Directions' })).toBeTruthy();
-    expect(screen.queryByRole('button', { name: 'Call station' })).toBeNull();
   });
 
   describe('hero photos', () => {
@@ -140,31 +143,29 @@ describe('StationDetailsScreen', () => {
     });
   });
 
-  it('About shows 3 amenities and +2; the sheet lists everything and hides empty rows', async () => {
+  it('Info tab lists every detail and amenity, and hides empty rows', async () => {
     await renderStation();
-
-    expect(screen.getByText('Wifi')).toBeTruthy();
-    expect(screen.getByText('+2')).toBeTruthy();
-    expect(screen.queryByText('Not available')).toBeNull();
     expect(screen.queryByText('Lounge area')).toBeNull();
 
-    await fireEvent.press(screen.getByRole('button', { name: 'View all details' }));
+    await fireEvent.press(screen.getByRole('tab', { name: 'Info' }));
 
     expect(await screen.findByText('Lounge area')).toBeTruthy();
+    expect(screen.getByText('Wifi')).toBeTruthy();
     expect(screen.getByText('Public')).toBeTruthy();
     expect(screen.getByText('Connector types')).toBeTruthy();
     expect(screen.queryByText('Help line')).toBeNull();
-
-    await act(async () => fireEvent.press(screen.getByRole('button', { name: 'Close' })));
-    expect(screen.queryByText('Lounge area')).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Call station' })).toBeNull();
+    expect(screen.queryByText('Charger 1')).toBeNull();
   });
 
-  it('with a phone number: Call button, help line in the sheet, and Copy address', async () => {
+  it('with a phone number: help line with Call, and Copy address', async () => {
+    const openURL = jest.spyOn(Linking, 'openURL').mockResolvedValue(undefined);
     await renderStation({ ...STATION, phone: '+91 98765 43210' });
+    await fireEvent.press(screen.getByRole('tab', { name: 'Info' }));
 
-    expect(screen.getByRole('button', { name: 'Call station' })).toBeTruthy();
-    await fireEvent.press(screen.getByRole('button', { name: 'View all details' }));
     expect(await screen.findByText('Help line')).toBeTruthy();
+    await fireEvent.press(screen.getByRole('button', { name: 'Call station' }));
+    expect(openURL).toHaveBeenCalledWith('tel:+91 98765 43210');
 
     await fireEvent.press(screen.getByRole('button', { name: 'Copy Address' }));
     await waitFor(() => expect(toast.success).toHaveBeenCalledWith('Address copied'));
