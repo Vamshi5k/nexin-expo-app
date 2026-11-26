@@ -29,7 +29,7 @@ type StationDetailsScreenProps = {
 };
 
 // The hero takes about 40% of the screen at a fixed size, so images never push the page around.
-const HERO_RATIO = 0.4;
+const HERO_RATIO = 0.34;
 
 // Hero first (photos or the brand illustration, status, name, stats), then chargers grouped
 // with their connectors, a short About card with a full details sheet, and the Go bar.
@@ -95,9 +95,11 @@ const StationDetailsScreen = ({ stationId }: StationDetailsScreenProps) => {
         onScroll={header.onScroll}
         scrollEventThrottle={16}
         contentContainerStyle={{
-          gap: t.layout.sectionGapLarge,
+          gap: t.layout.sectionGap,
           paddingBottom: actionBarHeight(t, insets.bottom) + t.layout.sectionGap,
         }}
+        showsVerticalScrollIndicator={false}
+        bounces={true}
         refreshControl={
           <RefreshControl
             refreshing={details.refreshing}
@@ -118,7 +120,7 @@ const StationDetailsScreen = ({ stationId }: StationDetailsScreenProps) => {
           onImageError={hero.onError}
         />
 
-        <View style={{ gap: t.space[6] }}>
+        <View style={{ gap: t.space[4] }}>
           <View style={{ gap: t.space[1], paddingHorizontal: t.layout.screenPadding }}>
             <AppText variant="title2" accessibilityRole="header">
               {DETAILS_COPY.chargers}

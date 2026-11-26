@@ -93,6 +93,26 @@ const StationHero = ({
   const insets = useSafeAreaInsets();
   // Centred between the back button and the actions, clear of the status pill below.
   const artSize = height * ART_RATIO;
+
+  // Access and plug types next to the status, so the hero answers "can I charge here?".
+  const portTypes = [
+    ...new Set(
+      station.chargers.flatMap(charger =>
+        charger.connectors.flatMap(connector => (connector.portType ? [connector.portType] : [])),
+      ),
+    ),
+  ];
+  const facts = [station.accessType, portTypes.join(' · ')].filter((fact): fact is string =>
+    Boolean(fact),
+  );
+
+  const pill = {
+    gap: t.space[2],
+    paddingHorizontal: t.space[3],
+    paddingVertical: t.space[1],
+    borderRadius: t.radius.pill,
+    backgroundColor: t.colors.surface,
+  };
   const hasPhoto = images.length > 0;
   const statusColor = t.colors.connector[pinColorKey(station.status)];
   const ink = hasPhoto ? t.colors.surface : t.colors.textPrimary;
@@ -170,31 +190,31 @@ const StationHero = ({
         pointerEvents="box-none"
         style={[
           styles.content,
-          { gap: t.space[2], padding: t.layout.screenPadding, paddingBottom: t.space[5] },
+          { gap: t.space[2], padding: t.layout.screenPadding, paddingBottom: t.space[4] },
         ]}
       >
-        <View style={[styles.row, styles.between]}>
-          <View
-            style={[
-              styles.row,
-              {
-                gap: t.space[2],
-                paddingHorizontal: t.space[3],
-                paddingVertical: t.space[1],
-                borderRadius: t.radius.pill,
-                backgroundColor: t.colors.surface,
-              },
-            ]}
-          >
-            <View
-              style={{
-                width: t.space[2],
-                height: t.space[2],
-                borderRadius: t.radius.pill,
-                backgroundColor: statusColor,
-              }}
-            />
-            <AppText variant="caption">{station.rawStatus || STATUS_LABEL[station.status]}</AppText>
+        <View style={[styles.row, styles.between, { gap: t.space[2] }]}>
+          <View style={[styles.row, styles.wrap, styles.shrink, { gap: t.space[2] }]}>
+            <View style={[styles.row, pill]}>
+              <View
+                style={{
+                  width: t.space[2],
+                  height: t.space[2],
+                  borderRadius: t.radius.pill,
+                  backgroundColor: statusColor,
+                }}
+              />
+              <AppText variant="caption">
+                {station.rawStatus || STATUS_LABEL[station.status]}
+              </AppText>
+            </View>
+            {facts.map(fact => (
+              <View key={fact} style={[styles.row, pill]}>
+                <AppText variant="caption" numberOfLines={1}>
+                  {fact}
+                </AppText>
+              </View>
+            ))}
           </View>
           {images.length > 1 ? (
             <View
@@ -213,7 +233,7 @@ const StationHero = ({
         </View>
 
         <AppText
-          variant="title1"
+          variant="title2"
           numberOfLines={2}
           accessibilityRole="header"
           style={{ color: ink }}
@@ -226,7 +246,7 @@ const StationHero = ({
           </AppText>
         ) : null}
         {stats.length ? (
-          <View style={{ marginTop: t.space[2] }}>
+          <View style={{ marginTop: t.space[1] }}>
             <StatRow stats={stats} inverse={hasPhoto} />
           </View>
         ) : null}
@@ -238,6 +258,12 @@ const StationHero = ({
 export default StationHero;
 
 const styles = StyleSheet.create({
+  wrap: {
+    flexWrap: 'wrap',
+  },
+  shrink: {
+    flexShrink: 1,
+  },
   art: {
     position: 'absolute',
   },
