@@ -4,8 +4,6 @@ import { MapPin, Phone, PlugZap, Sparkles, type LucideIcon } from 'lucide-react-
 
 import { AppPressable, AppText } from '@/shared/components';
 
-import BrandGradient from './BrandGradient';
-
 import { useTheme } from '@/shared/theme';
 
 import { DETAILS_COPY } from '../constants/stations.constants';
@@ -46,18 +44,11 @@ const InfoRow = ({ icon: Icon, label, value, onPress, first }: InfoRowProps) => 
             width: t.layout.minTouch,
             height: t.layout.minTouch,
             borderRadius: t.radius.pill,
-            overflow: 'hidden',
+            backgroundColor: t.colors.surfaceSunken,
           },
         ]}
       >
-        <BrandGradient
-          id={`info-${label.replace(/\W/g, '')}`}
-          from={t.colors.accent}
-          to={t.colors.accentPressed}
-          fromOpacity={0.18}
-          toOpacity={0.32}
-        />
-        <Icon color={t.colors.accentText} size={t.icon.control} strokeWidth={t.icon.stroke} />
+        <Icon color={t.colors.textPrimary} size={t.icon.control} strokeWidth={t.icon.stroke} />
       </View>
       <View style={styles.grow}>
         <AppText variant="caption" tone="secondary">
@@ -138,7 +129,7 @@ const AboutSection = ({ station, onCall }: AboutSectionProps) => {
           >
             <View style={[styles.row, { gap: t.space[3] }]}>
               <Sparkles
-                color={t.colors.accentText}
+                color={t.colors.textPrimary}
                 size={t.icon.meta}
                 strokeWidth={t.icon.stroke}
               />
@@ -147,26 +138,19 @@ const AboutSection = ({ station, onCall }: AboutSectionProps) => {
               </AppText>
             </View>
             <View style={[styles.wrap, { gap: t.space[2] }]}>
-              {station.amenities.map((amenity, index) => (
+              {station.amenities.map(amenity => (
                 <View
                   key={amenity}
                   style={{
                     paddingHorizontal: t.space[3],
                     paddingVertical: t.space[1] + t.space[1] / 2,
                     borderRadius: t.radius.pill,
-                    overflow: 'hidden',
+                    borderWidth: t.layout.hairline,
+                    borderColor: t.colors.borderStrong,
+                    backgroundColor: t.colors.surface,
                   }}
                 >
-                  <BrandGradient
-                    id={`amenity-${index}`}
-                    from={t.colors.accent}
-                    to={t.colors.accentPressed}
-                    fromOpacity={0.1}
-                    toOpacity={0.2}
-                  />
-                  <AppText variant="subhead" tone="accent">
-                    {amenity}
-                  </AppText>
+                  <AppText variant="subhead">{amenity}</AppText>
                 </View>
               ))}
             </View>

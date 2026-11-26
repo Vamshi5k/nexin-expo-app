@@ -1,22 +1,16 @@
 import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 
-import { Heart, PlugZap, Share2, type LucideIcon } from 'lucide-react-native';
+import { PlugZap } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import {
-  AppBackButton,
-  AppEmptyState,
-  AppErrorState,
-  AppPressable,
-  AppSkeleton,
-  AppText,
-} from '@/shared/components';
+import { AppEmptyState, AppErrorState, AppSkeleton } from '@/shared/components';
 
 import AboutSection from '../components/AboutSection';
-import ConnectorGrid from '../components/ConnectorGrid';
+import ConnectorCarousel from '../components/ConnectorCarousel';
 import DetailsActionBar, { actionBarHeight } from '../components/DetailsActionBar';
+import DetailsHeroCard from '../components/DetailsHeroCard';
+import DetailsTopBar, { topBarSpace } from '../components/DetailsTopBar';
 import MapsChooserSheet from '../components/MapsChooserSheet';
-import SummaryCard from '../components/SummaryCard';
 
 import { useTheme } from '@/shared/theme';
 
@@ -29,130 +23,71 @@ type StationDetailsScreenProps = {
   stationId: string;
 };
 
-type IconButtonProps = {
-  icon: LucideIcon;
-  label: string;
-  onPress: () => void;
-  active?: boolean;
-};
-
-const IconButton = ({ icon: Icon, label, onPress, active }: IconButtonProps) => {
-  const t = useTheme();
-  const color = active ? t.colors.danger : t.colors.textPrimary;
-
-  return (
-    <AppPressable
-      onPress={onPress}
-      haptic="light"
-      accessibilityRole="button"
-      accessibilityLabel={label}
-      accessibilityState={active === undefined ? undefined : { selected: active }}
-      style={[
-        styles.center,
-        {
-          width: t.layout.minTouch,
-          height: t.layout.minTouch,
-          borderRadius: t.radius.pill,
-          backgroundColor: t.colors.surfaceSunken,
-        },
-      ]}
-    >
-      <Icon
-        color={color}
-        fill={active ? color : 'transparent'}
-        size={t.icon.control}
-        strokeWidth={t.icon.stroke}
-      />
-    </AppPressable>
-  );
-};
-
 const DetailsSkeleton = () => {
   const t = useTheme();
 
   return (
     <View testID="station-details-loading" style={{ gap: t.space[4] }}>
-      <AppSkeleton height={t.space[12] * 5} radius={t.radius.sheet} />
-      <AppSkeleton width="50%" height={Number(t.type.title2.lineHeight)} />
+      <AppSkeleton height={t.space[12] * 6} radius={t.radius.sheet} />
+      <AppSkeleton width="40%" height={Number(t.type.title2.lineHeight)} />
       <View style={[styles.row, { gap: t.space[3] }]}>
-        <AppSkeleton height={t.space[12] * 3} radius={t.radius.card} style={styles.grow} />
-        <AppSkeleton height={t.space[12] * 3} radius={t.radius.card} style={styles.grow} />
+        <AppSkeleton height={t.space[12] * 4} radius={t.radius.card} style={styles.grow} />
+        <AppSkeleton height={t.space[12] * 4} radius={t.radius.card} style={styles.grow} />
       </View>
     </View>
   );
 };
 
-// Organised in the order a driver decides: can I charge here (summary), which plug (bays),
-// anything else (about), then take me there (sticky bar).
+// Built from the map screen's pieces: the same glass capsule up top, the map card grown into
+// the hero, connectors as a swipeable card row, and the dark Go pill in a floating glass bar.
 const StationDetailsScreen = ({ stationId }: StationDetailsScreenProps) => {
   const t = useTheme();
   const insets = useSafeAreaInsets();
   const details = useStationDetails(stationId);
   const { station } = details;
+  const top = topBarSpace(t, insets.top);
 
   const topBar = (
-    <View
-      style={[
-        styles.row,
-        {
-          gap: t.space[2],
-          paddingTop: insets.top + t.space[2],
-          paddingBottom: t.space[3],
-          paddingHorizontal: t.layout.screenPadding,
-        },
-      ]}
-    >
-      <AppBackButton onPress={details.goBack} />
-      <View style={styles.grow} />
-      {station ? (
-        <>
-          <IconButton icon={Share2} label={DETAILS_COPY.share} onPress={details.share} />
-          <IconButton
-            icon={Heart}
-            label={details.isFavourite ? DETAILS_COPY.removeFavourite : DETAILS_COPY.addFavourite}
-            onPress={details.toggleFavourite}
-            active={details.isFavourite}
-          />
-        </>
-      ) : null}
-    </View>
+    <DetailsTopBar
+      title={station?.name ?? null}
+      isFavourite={details.isFavourite}
+      onBack={details.goBack}
+      onShare={station ? details.share : null}
+      onToggleFavourite={station ? details.toggleFavourite : null}
+    />
   );
 
   if (details.loading) {
     return (
       <View style={[styles.screen, { backgroundColor: t.colors.bg }]}>
-        {topBar}
-        <View style={{ paddingHorizontal: t.layout.screenPadding }}>
+        <View style={{ paddingTop: top, paddingHorizontal: t.layout.screenPadding }}>
           <DetailsSkeleton />
         </View>
+        {topBar}
       </View>
     );
   }
 
   if (!station) {
     return (
-      <View style={[styles.screen, { backgroundColor: t.colors.bg }]}>
+      <View style={[styles.screen, styles.center, { backgroundColor: t.colors.bg }]}>
+        <AppErrorState
+          title={DETAILS_COPY.loadError}
+          message={getErrorMessage(details.error)}
+          onRetry={details.retry}
+          retryLabel={DETAILS_COPY.retry}
+        />
         {topBar}
-        <View style={[styles.screen, styles.center]}>
-          <AppErrorState
-            title={DETAILS_COPY.loadError}
-            message={getErrorMessage(details.error)}
-            onRetry={details.retry}
-            retryLabel={DETAILS_COPY.retry}
-          />
-        </View>
       </View>
     );
   }
 
   return (
     <View style={[styles.screen, { backgroundColor: t.colors.bg }]}>
-      {topBar}
-
       <ScrollView
         contentContainerStyle={{
           gap: t.layout.sectionGapLarge,
-          paddingHorizontal: t.layout.screenPadding,
+          paddingTop: top,
           paddingBottom: actionBarHeight(t, insets.bottom) + t.layout.sectionGap,
         }}
         refreshControl={
@@ -160,43 +95,30 @@ const StationDetailsScreen = ({ stationId }: StationDetailsScreenProps) => {
             refreshing={details.refreshing}
             onRefresh={details.refresh}
             tintColor={t.colors.accentText}
+            progressViewOffset={top}
           />
         }
       >
-        <SummaryCard station={station} distance={details.distance} />
-
-        <View style={{ gap: t.space[4] }}>
-          <View style={{ gap: t.space[1] }}>
-            <AppText variant="title2" accessibilityRole="header">
-              {DETAILS_COPY.chooseConnector}
-            </AppText>
-            {details.chargers.length ? (
-              <AppText variant="subhead" tone="secondary">
-                {DETAILS_COPY.tip}
-              </AppText>
-            ) : null}
-          </View>
-
-          {details.chargers.length ? (
-            details.chargers.map((charger, index) => (
-              <ConnectorGrid
-                key={charger.id}
-                charger={charger}
-                index={index}
-                onConnectorPress={details.openConnector}
-              />
-            ))
-          ) : (
-            <AppEmptyState
-              icon={PlugZap}
-              title={DETAILS_COPY.noChargers}
-              description={DETAILS_COPY.noChargersBody}
-            />
-          )}
+        <View style={{ paddingHorizontal: t.layout.screenPadding }}>
+          <DetailsHeroCard station={station} distance={details.distance} />
         </View>
 
-        <AboutSection station={station} onCall={details.call} />
+        {details.chargers.length ? (
+          <ConnectorCarousel chargers={details.chargers} onConnectorPress={details.openConnector} />
+        ) : (
+          <AppEmptyState
+            icon={PlugZap}
+            title={DETAILS_COPY.noChargers}
+            description={DETAILS_COPY.noChargersBody}
+          />
+        )}
+
+        <View style={{ paddingHorizontal: t.layout.screenPadding }}>
+          <AboutSection station={station} onCall={details.call} />
+        </View>
       </ScrollView>
+
+      {topBar}
 
       <DetailsActionBar
         eta={details.eta}

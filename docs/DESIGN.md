@@ -111,14 +111,15 @@ the driver find, start, watch or pay for a charge.
   inputs are large chips; the price breakdown is collapsed by default.
 - Wallet: the balance card is the hero (large tabular number); transactions are grouped
   by date.
-- Station details, organised in the order a driver decides, no shadows: a top bar (back, share,
-  heart on sunken circles); a summary card on the accent-to-accentPressed gradient with a white
-  status pill, title1 name, address, a free-connectors ring ("0/2 free") and distance, drive,
-  max power and lowest rate in onAccent; "Choose a connector" with connectors as bay tiles in
-  two columns per charger (free bays in accentSoft with an accent border, others muted;
-  connector icon, "C1", type, rate, status dot); "About this station" as one grouped card
-  (address, help line, connector types, amenity chips in a light accent gradient); a sticky
-  gradient "Get Directions · 1h 58m" button, with Call only when there is a phone number.
+- Station details are built from the map screen's pieces, so opening a station feels like the
+  map card expanding: the map's glass capsule as the header (back, name, share, heart) with a
+  bg strip behind the status bar; a hero card that is the map card grown up (status gradient
+  from `CardGradient`, white status pill, "60 kW" pill, title1 name, address, `ChargerArt`,
+  `StatRow` with distance, drive and lowest rate); "Connectors" as a horizontal snapping row of
+  cards, each on its own connector-status gradient with a white icon tile, "C1" pill, type,
+  charger, rate and a white status pill; "About this station" as one neutral grouped card;
+  and a floating glass capsule like the tab bar holding the map card's dark Go pill
+  ("Get Directions · 1h 58m") and Call when there is a phone number. No brand-teal gradients.
 
 ## Splash, onboarding, auth and first-run setup (flat)
 - Completely flat: no shadows, glows or blurs. Shape comes from flat fills (accent,

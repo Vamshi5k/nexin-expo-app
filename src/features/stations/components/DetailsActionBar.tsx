@@ -3,9 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { Navigation, Phone } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { AppPressable, AppText } from '@/shared/components';
-
-import BrandGradient from './BrandGradient';
+import { AppGlass, AppPressable, AppText } from '@/shared/components';
 
 import { useTheme, type Theme } from '@/shared/theme';
 
@@ -18,9 +16,9 @@ type DetailsActionBarProps = {
 };
 
 export const actionBarHeight = (t: Theme, bottomInset: number) =>
-  t.layout.buttonHeight + t.space[3] * 2 + Math.max(bottomInset, t.space[3]);
+  t.layout.buttonHeight + t.space[1] * 2 + Math.max(bottomInset, t.space[3]);
 
-// Pinned to the bottom so directions are always one tap away (DESIGN.md: station details).
+// Floats like the map's tab bar: a glass capsule holding the map card's dark Go pill.
 const DetailsActionBar = ({ eta, onDirections, onCall }: DetailsActionBarProps) => {
   const t = useTheme();
   const insets = useSafeAreaInsets();
@@ -28,63 +26,63 @@ const DetailsActionBar = ({ eta, onDirections, onCall }: DetailsActionBarProps) 
 
   return (
     <View
+      pointerEvents="box-none"
       style={[
-        styles.bar,
-        {
-          gap: t.space[3],
-          paddingHorizontal: t.layout.screenPadding,
-          paddingTop: t.space[3],
-          paddingBottom: Math.max(insets.bottom, t.space[3]) + t.space[3],
-          borderTopWidth: t.layout.hairline,
-          borderTopColor: t.colors.border,
-          backgroundColor: t.colors.surface,
-        },
+        styles.wrap,
+        { paddingHorizontal: t.space[4], paddingBottom: Math.max(insets.bottom, t.space[3]) },
       ]}
     >
-      <AppPressable
-        onPress={onDirections}
-        haptic="light"
-        accessibilityRole="button"
-        accessibilityLabel={label}
-        style={[
-          styles.grow,
-          styles.center,
-          styles.row,
-          {
-            gap: t.space[2],
-            height: t.layout.buttonHeight,
-            borderRadius: t.radius.pill,
-            overflow: 'hidden',
-          },
-        ]}
+      <AppGlass
+        radius={t.radius.pill}
+        style={[styles.row, { gap: t.space[1], padding: t.space[1] }]}
       >
-        <BrandGradient id="directions-button" from={t.colors.accent} to={t.colors.accentPressed} />
-        <Navigation color={t.colors.onAccent} size={t.icon.control} strokeWidth={t.icon.stroke} />
-        <AppText variant="headline" tone="onAccent" tabular>
-          {label}
-        </AppText>
-      </AppPressable>
-      {onCall ? (
         <AppPressable
-          onPress={onCall}
+          onPress={onDirections}
           haptic="light"
           accessibilityRole="button"
-          accessibilityLabel={DETAILS_COPY.call}
+          accessibilityLabel={label}
           style={[
+            styles.row,
+            styles.grow,
             styles.center,
             {
-              width: t.layout.buttonHeight,
+              gap: t.space[2],
               height: t.layout.buttonHeight,
               borderRadius: t.radius.pill,
-              borderWidth: t.layout.hairline,
-              borderColor: t.colors.borderStrong,
-              backgroundColor: t.colors.surface,
+              backgroundColor: t.colors.textPrimary,
             },
           ]}
         >
-          <Phone color={t.colors.textPrimary} size={t.icon.control} strokeWidth={t.icon.stroke} />
+          <Navigation color={t.colors.surface} size={t.icon.control} strokeWidth={t.icon.stroke} />
+          <AppText
+            variant="subhead"
+            tabular
+            style={{ fontFamily: t.type.headline.fontFamily, color: t.colors.surface }}
+          >
+            {label}
+          </AppText>
         </AppPressable>
-      ) : null}
+
+        {onCall ? (
+          <AppPressable
+            onPress={onCall}
+            haptic="light"
+            accessibilityRole="button"
+            accessibilityLabel={DETAILS_COPY.call}
+            style={[
+              styles.center,
+              {
+                width: t.layout.buttonHeight,
+                height: t.layout.buttonHeight,
+                borderRadius: t.radius.pill,
+                backgroundColor: t.colors.surfaceSunken,
+              },
+            ]}
+          >
+            <Phone color={t.colors.textPrimary} size={t.icon.control} strokeWidth={t.icon.stroke} />
+          </AppPressable>
+        ) : null}
+      </AppGlass>
     </View>
   );
 };
@@ -92,16 +90,15 @@ const DetailsActionBar = ({ eta, onDirections, onCall }: DetailsActionBarProps) 
 export default DetailsActionBar;
 
 const styles = StyleSheet.create({
-  bar: {
+  wrap: {
     position: 'absolute',
     left: 0,
     right: 0,
     bottom: 0,
-    flexDirection: 'row',
-    alignItems: 'center',
   },
   row: {
     flexDirection: 'row',
+    alignItems: 'center',
   },
   center: {
     alignItems: 'center',

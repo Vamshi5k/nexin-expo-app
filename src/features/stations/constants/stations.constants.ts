@@ -115,6 +115,7 @@ export const DETAILS_COPY = {
   chargersCount: 'Chargers',
   notAvailable: 'Not available',
   about: 'About this station',
+  connectors: 'Connectors',
   chooseConnector: 'Choose a connector',
   free: 'free',
 } as const;

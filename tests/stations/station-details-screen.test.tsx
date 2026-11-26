@@ -59,10 +59,9 @@ describe('StationDetailsScreen', () => {
   it('shows the station, its chargers and no Call button without a phone number', async () => {
     await renderWithApp(<StationDetailsScreen stationId="9" />);
 
-    expect(await screen.findByText('Hub One')).toBeTruthy();
-    expect(screen.getByText('Charger 1')).toBeTruthy();
+    expect(await screen.findByRole('header', { name: 'Hub One' })).toBeTruthy();
+    expect(screen.getAllByText('Charger 1 · DC · 60 kW')).toHaveLength(2);
     expect(screen.getByText('1/2 free')).toBeTruthy();
-    expect(screen.getByLabelText('1 of 2 connectors free')).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Get Directions' })).toBeTruthy();
     expect(screen.queryByRole('button', { name: 'Call station' })).toBeNull();
     expect(getDetails).toHaveBeenCalledWith('9');
@@ -115,7 +114,7 @@ describe('StationDetailsScreen', () => {
 
     expect(await screen.findByText("Couldn't load this station")).toBeTruthy();
     await act(async () => fireEvent.press(screen.getByRole('button', { name: 'Retry' })));
-    expect(await screen.findByText('Hub One')).toBeTruthy();
+    expect(await screen.findByRole('header', { name: 'Hub One' })).toBeTruthy();
     expect(getDetails).toHaveBeenCalledTimes(2);
   });
 });
