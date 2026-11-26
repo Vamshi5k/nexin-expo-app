@@ -1,12 +1,12 @@
 import { StyleSheet, View } from 'react-native';
 
-import { ChevronRight } from 'lucide-react-native';
+import { ChevronRight, Zap } from 'lucide-react-native';
 import Animated from 'react-native-reanimated';
 import Svg, { Circle } from 'react-native-svg';
 
 import { AppConnectorIcon, AppPressable, AppText } from '@/shared/components';
 
-import StatusDot from './StatusDot';
+import StatusBadge from './StatusBadge';
 
 import { useTheme } from '@/shared/theme';
 
@@ -39,7 +39,6 @@ type ChargeRingProps = {
 };
 
 const RING_STROKE = 3;
-const DOWN_STATES = ['unavailable', 'faulted', 'offline'];
 
 const ChargeRing = ({ percent }: ChargeRingProps) => {
   const t = useTheme();
@@ -79,17 +78,14 @@ const ChargeRing = ({ percent }: ChargeRingProps) => {
   );
 };
 
-// A row per connector: its plug drawing, short number and type, then the live status. A free one is outlined
+// A row per connector: its plug drawing, short number and type, then a status badge. A free one is outlined
 // in the accent with a go arrow; charging shows a ring with the %.
 const ConnectorTile = ({ charger, connector, onPress }: ConnectorTileProps) => {
   const t = useTheme();
   const startable = canStartCharging(connector.state);
   const charging = connector.state === 'charging';
   const type = connector.portType ?? DETAILS_COPY.unknownType;
-  const status = t.colors.status.connector[connector.state];
   const eta = charging ? timeToFull(connector.minutesToFull) : null;
-  const down = DOWN_STATES.includes(connector.state);
-  const statusText = eta ? `${connector.label} · ${eta}` : connector.label;
 
   return (
     <AppPressable
@@ -126,7 +122,7 @@ const ConnectorTile = ({ charger, connector, onPress }: ConnectorTileProps) => {
         <AppConnectorIcon type={type} size={t.space[8]} available={startable || charging} />
       </View>
 
-      <View style={[styles.grow, { gap: t.space[1] / 2 }]}>
+      <View style={[styles.grow, { gap: t.space[1] }]}>
         <View style={[styles.row, { gap: t.space[2] }]}>
           <AppText variant="caption" tone="secondary" tabular>
             {shortConnector(connector.connectorId)}
@@ -143,24 +139,18 @@ const ConnectorTile = ({ charger, connector, onPress }: ConnectorTileProps) => {
           </AppText>
         </View>
         <View style={[styles.row, { gap: t.space[2] }]}>
-          {charging ? null : <StatusDot color={status.main} />}
-          <AppText
-            variant="caption"
-            numberOfLines={1}
-            style={[
-              styles.shrink,
-              {
-                fontFamily: t.type.headline.fontFamily,
-                color: charging
-                  ? t.colors.accentText
-                  : down
-                    ? t.colors.dangerText
-                    : t.colors.textPrimary,
-              },
-            ]}
-          >
-            {statusText}
-          </AppText>
+          <StatusBadge label={connector.label} state={connector.state} />
+          {eta ? (
+            <AppText
+              variant="caption"
+              tone="secondary"
+              tabular
+              numberOfLines={1}
+              style={styles.shrink}
+            >
+              {eta}
+            </AppText>
+          ) : null}
         </View>
       </View>
 
@@ -218,15 +208,23 @@ const ChargerGroup = ({ charger, index, onConnectorPress }: ChargerGroupProps) =
         </View>
         {total ? (
           <View
-            style={{
-              paddingHorizontal: t.space[2] + t.space[1] / 2,
-              paddingVertical: t.space[1] / 2,
-              borderRadius: t.radius.pill,
-              borderWidth: t.layout.hairline,
-              borderColor: free ? t.colors.success : t.colors.border,
-              backgroundColor: free ? t.colors.successSoft : t.colors.surfaceSunken,
-            }}
+            style={[
+              styles.row,
+              {
+                gap: t.space[1] + t.space[1] / 2,
+                height: t.space[6],
+                paddingHorizontal: t.space[2] + t.space[1] / 2,
+                borderRadius: t.radius.pill,
+                backgroundColor: free ? t.colors.successSoft : t.colors.surfaceSunken,
+              },
+            ]}
           >
+            <Zap
+              color={free ? t.colors.successText : t.colors.textTertiary}
+              fill={free ? t.colors.successText : t.colors.textTertiary}
+              size={t.icon.meta - 4}
+              strokeWidth={t.icon.stroke}
+            />
             <AppText
               variant="caption"
               tabular
