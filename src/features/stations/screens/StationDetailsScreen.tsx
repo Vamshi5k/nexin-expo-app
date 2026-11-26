@@ -24,7 +24,6 @@ import ChargerGroup from '../components/ChargerGroup';
 import DetailsTopBar, { topBarSpace } from '../components/DetailsTopBar';
 import IdleChargers from '../components/IdleChargers';
 import MapsChooserSheet from '../components/MapsChooserSheet';
-import SlideToCharge, { slideBarHeight } from '../components/SlideToCharge';
 import StationHero from '../components/StationHero';
 import StationInfo from '../components/StationInfo';
 import StationSummary from '../components/StationSummary';
@@ -55,7 +54,6 @@ const NOT_MEASURED = Number.MAX_SAFE_INTEGER;
 
 // Photo panel, then the name and the figures that matter (free connectors, power, price,
 // route), then Chargers / Info tabs that pin under a header with the name, status and address.
-// A free connector is picked, and the slide bar at the bottom starts charging on it.
 const StationDetailsScreen = ({ stationId }: StationDetailsScreenProps) => {
   const t = useTheme();
   const insets = useSafeAreaInsets();
@@ -75,7 +73,6 @@ const StationDetailsScreen = ({ stationId }: StationDetailsScreenProps) => {
   );
   const hero = useHeroImages(station?.imageUrls ?? []);
   const overPhoto = hero.images.length > 0 && !header.revealed;
-  const showSlide = tab === 'chargers' && details.picked !== null;
 
   const onTabsLayout = (event: LayoutChangeEvent) => {
     const { y } = event.nativeEvent.layout;
@@ -145,11 +142,7 @@ const StationDetailsScreen = ({ stationId }: StationDetailsScreenProps) => {
         ref={scrollRef}
         onScroll={header.onScroll}
         scrollEventThrottle={16}
-        contentContainerStyle={{
-          paddingBottom: showSlide
-            ? slideBarHeight(t, insets.bottom) + t.space[4]
-            : Math.max(insets.bottom, t.space[4]),
-        }}
+        contentContainerStyle={{ paddingBottom: Math.max(insets.bottom, t.space[4]) }}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
@@ -229,7 +222,7 @@ const StationDetailsScreen = ({ stationId }: StationDetailsScreenProps) => {
             {tab === 'chargers' ? (
               details.chargers.length ? (
                 <>
-                  {details.picked ? (
+                  {active.length ? (
                     <AppText
                       variant="caption"
                       tone="secondary"
@@ -243,12 +236,11 @@ const StationDetailsScreen = ({ stationId }: StationDetailsScreenProps) => {
                       key={charger.id}
                       charger={charger}
                       index={index}
-                      pickedId={details.picked?.connector.id ?? null}
-                      onConnectorPress={details.pickConnector}
+                      onConnectorPress={details.openConnector}
                     />
                   ))}
                   {idle.length ? (
-                    <IdleChargers chargers={idle} onConnectorPress={details.pickConnector} />
+                    <IdleChargers chargers={idle} onConnectorPress={details.openConnector} />
                   ) : null}
                 </>
               ) : (
@@ -273,13 +265,6 @@ const StationDetailsScreen = ({ stationId }: StationDetailsScreenProps) => {
       </Animated.ScrollView>
 
       {topBar}
-
-      {showSlide && details.picked ? (
-        <SlideToCharge
-          connectorId={details.picked.connector.connectorId}
-          onComplete={details.startCharging}
-        />
-      ) : null}
 
       <MapsChooserSheet
         open={details.directions.chooserOpen}

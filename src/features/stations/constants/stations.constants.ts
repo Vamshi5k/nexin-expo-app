@@ -116,7 +116,7 @@ export const DETAILS_COPY = {
   directions: 'Get Directions',
   call: 'Call station',
   chargers: 'Chargers',
-  tip: 'Pick a free connector, then slide to charge',
+  tip: 'Tap a connector to start charging',
   amenities: 'Amenities',
   noChargers: 'No chargers listed yet',
   noChargersBody: 'This station has no chargers to show right now.',
@@ -142,7 +142,6 @@ export const DETAILS_COPY = {
   connectorsFree: 'Connectors free',
   price: 'Price',
   route: 'Route',
-  slideHint: 'Swipe right to start charging',
   mapPreview: 'Map preview, opens directions',
   copy: 'Copy',
   copied: 'Address copied',
@@ -171,8 +170,5 @@ export const pad2 = (value: number) => String(value).padStart(2, '0');
 export const shortConnector = (connectorId: string) => `C${connectorId}`;
 export const connectorSummary = (count: number, type: string | null) =>
   type ? `${count} × ${type}` : `${count} connectors`;
-export const slideLabel = (connectorId: string) =>
-  `Slide to charge · ${shortConnector(connectorId)}`;
-export const startAt = (connectorId: string) => `Start charging at ${connectorTitle(connectorId)}`;
 export const routeLabel = (distance: string, eta: string | null) =>
   eta ? `${distance} · ${eta} drive` : distance;

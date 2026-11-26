@@ -20,7 +20,7 @@ import {
   MAX_ETA_KM,
 } from '../constants/stations.constants';
 import type { Charger, Connector } from '../types/stations.types';
-import { canStartCharging, firstStartable, sortChargers } from '../utils/connector';
+import { canStartCharging, sortChargers } from '../utils/connector';
 import { distanceKm, formatEta } from '../utils/geo';
 import { shareMessage } from '../utils/share';
 
@@ -34,19 +34,11 @@ export const useStationDetails = (stationId: string) => {
   const [refreshing, setRefreshing] = useState(false);
   const [favouriteOverride, setFavouriteOverride] = useState<boolean | null>(null);
   const [savingFavourite, setSavingFavourite] = useState(false);
-  const [pickedId, setPickedId] = useState<string | null>(null);
 
   const station = details.data ?? null;
   const isFavourite = favouriteOverride ?? favourites.data?.includes(stationId) ?? false;
   const distance = station && location ? distanceKm(location, station) : null;
   const chargers = station ? sortChargers(station.chargers) : [];
-
-  // The driver's pick while it is still free, otherwise the first free connector.
-  const picked =
-    chargers
-      .flatMap(charger => charger.connectors.map(connector => ({ charger, connector })))
-      .find(entry => entry.connector.id === pickedId && canStartCharging(entry.connector.state)) ??
-    firstStartable(chargers);
 
   const refresh = async () => {
     if (refreshing) return;
@@ -96,24 +88,15 @@ export const useStationDetails = (stationId: string) => {
     Linking.openURL(`tel:${station.phone}`).catch(() => toast.error(DETAILS_COPY.callError));
   };
 
-  const pickConnector = (_charger: Charger, connector: Connector) => {
+  const openConnector = (charger: Charger, connector: Connector) => {
     if (!canStartCharging(connector.state)) {
       toast.info(connectorBusy(connector.label));
       return;
     }
-    setPickedId(connector.id);
-  };
-
-  const startCharging = () => {
-    if (!picked) return;
 
     router.push({
       pathname: DETAILS_HREF.chargingSummary,
-      params: {
-        stationId,
-        chargerId: picked.charger.chargerId,
-        connectorId: picked.connector.connectorId,
-      },
+      params: { stationId, chargerId: charger.chargerId, connectorId: connector.connectorId },
     });
   };
 
@@ -126,7 +109,6 @@ export const useStationDetails = (stationId: string) => {
   return {
     station,
     chargers,
-    picked,
     loading: details.loading && !station,
     error: station ? null : details.error,
     refreshing,
@@ -139,8 +121,7 @@ export const useStationDetails = (stationId: string) => {
     toggleFavourite,
     share,
     call,
-    pickConnector,
-    startCharging,
+    openConnector,
     goBack,
     directions,
     openDirections: () => {

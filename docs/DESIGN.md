@@ -131,13 +131,11 @@ the driver find, start, watch or pay for a charge.
   - Chargers / Info segmented tabs (white track, dark thumb, "04" count) pin under a solid
     header with the name and "● status · address" once scrolled.
   - Chargers tab: chargers with something free or charging get a card ("Charger 01", specs,
-    "1/2 free") with connector tiles two per row: "C1", the type in title2, the status; the
-    picked tile has an accentSoft fill, accent outline and check; charging shows a % ring
-    and "Charging · time to full" (estimates past a day are hidden). The other chargers sit
-    as quiet rows in one card ("DC · 60 kW · 2 × CCS2", red status) that open to list their
-    connectors.
-  - Tapping a free connector picks it; a floating glass "Slide to charge · C1" capsule with
-    an accent knob starts the session. Screen readers get it as one button.
+    "1/2 free") with one full-width row per connector: "C1" and the type, then the status. A
+    free row has an accentSoft fill, accent outline and a dark go arrow, and tapping it opens
+    charging; charging shows a % ring and "Charging · time to full" (estimates past a day
+    are hidden). The other chargers sit as quiet rows in one card ("DC · 60 kW · 2 × CCS2",
+    red status) that open to list their connectors. No slide-to-charge bar.
   - Info tab: a card with a drawn map hint (roads, route, accent pin, distance chip), the
     ADDRESS overline, address, and Copy (outlined) + Directions (accent) pills; big-number
     tiles two per row (chargers, connectors, connector type, access); the help line with a

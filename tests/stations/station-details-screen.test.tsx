@@ -104,12 +104,8 @@ describe('StationDetailsScreen', () => {
     expect(screen.getByText('DC · 60 kW · ₹18.00/kWh')).toBeTruthy();
     expect(screen.getByText('1/2 free')).toBeTruthy();
     expect(screen.getByLabelText('Connector 1, CCS2, Charging')).toBeTruthy();
-    // The free connector is picked for the slide bar from the start.
-    expect(screen.getByLabelText('Connector 2, CCS2, Available')).toHaveProp(
-      'accessibilityState',
-      expect.objectContaining({ selected: true }),
-    );
-    expect(screen.getByRole('button', { name: 'Start charging at Connector 2' })).toBeTruthy();
+    expect(screen.getByLabelText('Connector 2, CCS2, Available')).toBeTruthy();
+    expect(screen.getByText('Tap a connector to start charging')).toBeTruthy();
   });
 
   describe('hero photos', () => {
@@ -180,26 +176,21 @@ describe('StationDetailsScreen', () => {
     await waitFor(() => expect(toast.success).toHaveBeenCalledWith('Address copied'));
   });
 
-  it('a busy connector explains why not; sliding starts charging on the picked one', async () => {
+  it('a free connector opens charging; a busy one explains why not', async () => {
     await renderStation();
 
     await fireEvent.press(screen.getByLabelText('Connector 1, CCS2, Charging'));
     expect(toast.info).toHaveBeenCalledWith('Connector is currently Charging');
+    expect(router.push).not.toHaveBeenCalled();
 
-    fireEvent(
-      screen.getByRole('button', { name: 'Start charging at Connector 2' }),
-      'accessibilityAction',
-      {
-        nativeEvent: { actionName: 'activate' },
-      },
-    );
+    await fireEvent.press(screen.getByLabelText('Connector 2, CCS2, Available'));
     expect(router.push).toHaveBeenCalledWith({
       pathname: '/(app)/charging-summary',
       params: { stationId: '9', chargerId: 'CRZ_01', connectorId: '2' },
     });
   });
 
-  it('no free connector: no slide bar', async () => {
+  it('nothing free or charging: the charger shows as a quiet row', async () => {
     await renderStation({
       ...STATION,
       chargers: STATION.chargers.map(charger => ({
@@ -212,8 +203,9 @@ describe('StationDetailsScreen', () => {
       })),
     });
 
-    expect(screen.queryByRole('button', { name: /Start charging/ })).toBeNull();
     expect(screen.getByText('Charger 01')).toBeTruthy();
+    expect(screen.getByText('DC · 60 kW · 2 × CCS2')).toBeTruthy();
+    expect(screen.queryByText('Tap a connector to start charging')).toBeNull();
   });
 
   it('the heart adds a favourite with the new state, and rolls back if it fails', async () => {

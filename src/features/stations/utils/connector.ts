@@ -73,17 +73,6 @@ export function timeToFull(minutes: number | null): string | null {
   return rest ? `${hours} h ${rest} min to full` : `${hours} h to full`;
 }
 
-// First free connector, for the slide-to-charge bar's starting pick.
-export function firstStartable(
-  chargers: Charger[],
-): { charger: Charger; connector: Connector } | null {
-  for (const charger of chargers) {
-    const connector = charger.connectors.find(item => canStartCharging(item.state));
-    if (connector) return { charger, connector };
-  }
-  return null;
-}
-
 // A charger worth opening up: something on it can start or is charging right now.
 export function isActiveCharger(charger: Charger): boolean {
   return charger.connectors.some(
