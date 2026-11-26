@@ -473,3 +473,45 @@ staging station (layout, amenities, busy-connector toast). Not checked on iOS ye
 **Left**
 
 - Charging Summary (Phase 4) behind the connector tap; Stations list (B2) still a placeholder.
+
+### Station Details redesign (2026-11-26, branch `feat/station-details`)
+
+**Done**
+
+- Hero (40% of the screen, fixed): a paging photo slider (expo-image, memory-disk cache) with
+  a "1/4" pill when there are several photos; broken URLs are skipped. With no usable photo, a
+  brand-coloured station scene (`StationScene`: two chargers, cables, two cars) fills the hero.
+  Status pill shows the station status exactly as the API sends it, then name, address and
+  stats (distance, drive, kW, price per kWh).
+- Header: glass back / share / heart float over the hero (light glass so they stay visible on
+  dark photos); past the hero a solid bar with the station name fades in.
+- Connector statuses: one mapper (`toConnectorStatus`) with the CruzeEV labels for every OCPP
+  code, colours from `brand.connectorStatusColors` (theme `status.connector[state]`, main +
+  tint). Offline codes use the old app's fallback ("Unavailable", red).
+- Chargers grouped: "Charger 1 · DC · 60 kW" with "1/2 free", connectors always in a
+  sideways swipe row (one connector fills the width), compact cards with the status gradient,
+  battery % and time to full while charging.
+- About card: address, 3 amenities + "+N", "View all details" opens a 60%/90% sheet with
+  Copy address, help line (only with a phone), access, connector types and all amenities with
+  icons. Rows without data are hidden.
+- Floating bottom bar: dark "Get Directions · ETA" plus Call only with a phone number.
+- Type: new `title3` (20) for section headings; labels and values at 14 bold; tighter gaps.
+- Sheets fix (also the map Filters and Maps chooser): `dismiss()` on a never-opened
+  BottomSheetModal fires `onDismiss`, which closed sheets as they opened. `AppSheet` and
+  `StationInfoSheet` now only dismiss and report back after they were presented.
+- Dev build hides the tools gear (`expo-dev-client` `toolsButton: false`); expo-clipboard
+  added.
+
+**Verified**: tsc, expo lint, jest (51 suites, 369 tests); iOS simulator and Android
+emulator (hero variants, scrolled header, sheet open/close/reopen, Filters sheet, statuses).
+
+**Notes**
+
+- The repeated Reanimated "Dependencies should only be used on the web" warning comes from
+  `@gorhom/bottom-sheet`, not app code.
+- iOS drive time needs a simulator location near the station (more than 300 km shows none).
+
+**Left**
+
+- App-wide pass with the compact type sizes (plan proposed, waiting for approval).
+- Charging Summary (Phase 4); Stations list (B2).
