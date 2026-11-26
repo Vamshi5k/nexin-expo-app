@@ -13,7 +13,6 @@ import {
 } from '@/shared/components';
 
 import AmountHero from '../components/AmountHero';
-import BalancePreview from '../components/BalancePreview';
 import CouponCard from '../components/CouponCard';
 import PaymentResultSheet from '../components/PaymentResultSheet';
 import SecureStrip from '../components/SecureStrip';
@@ -201,20 +200,12 @@ const AddMoneyScreen = ({ initialAmount }: AddMoneyScreenProps) => {
             balancePaise={money.balancePaise}
             error={showError ? (money.error ?? null) : null}
             minPaise={MIN_TOP_UP_PAISE}
+            afterPaise={money.valid ? money.balancePaise + money.totalPaise : null}
             quickAmountsPaise={quickAmountsPaise}
             onChange={money.setAmount}
             onPick={amount => money.setAmount(String(amount / 100))}
           />
         </Animated.View>
-
-        {money.valid ? (
-          <Animated.View
-            entering={FadeIn.duration(t.motion.duration)}
-            exiting={FadeOut.duration(t.motion.durationFast)}
-          >
-            <BalancePreview balancePaise={money.balancePaise} creditsPaise={money.totalPaise} />
-          </Animated.View>
-        ) : null}
 
         {money.coupon && money.bonusPaise > 0 ? (
           <Animated.View

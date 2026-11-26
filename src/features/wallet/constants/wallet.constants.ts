@@ -45,8 +45,6 @@ export const ADD_MONEY_COPY = {
   enterAmount: 'Enter Amount',
   currentBalance: 'Current balance',
   afterTopUp: 'Balance after top-up',
-  now: 'Now',
-  after: 'After',
   secure: 'Payments are secure and encrypted',
   methods: ['UPI', 'Cards', 'Net banking'],
   placeholder: 'Enter amount',

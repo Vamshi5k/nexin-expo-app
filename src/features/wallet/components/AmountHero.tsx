@@ -19,6 +19,8 @@ type AmountHeroProps = {
   balancePaise: number;
   error: string | null;
   minPaise: number;
+  // What the wallet will hold once this top-up lands; null until the amount is valid.
+  afterPaise: number | null;
   quickAmountsPaise: number[];
   onChange: (text: string) => void;
   onPick: (amountPaise: number) => void;
@@ -26,13 +28,14 @@ type AmountHeroProps = {
 
 // A white card with the balance card's soft brand wash: the label with the current balance,
 // the amount large and left-aligned with its symbol, a thin line (accent once typed, red with
-// the reason when not valid), the hint, then the quick amounts.
+// the reason when not valid), the hint or the balance after top-up, then the quick amounts.
 const AmountHero = ({
   amountText,
   amountPaise,
   balancePaise,
   error,
   minPaise,
+  afterPaise,
   quickAmountsPaise,
   onChange,
   onPick,
@@ -96,12 +99,28 @@ const AmountHero = ({
           />
         </View>
         <View style={{ height: 1.5, borderRadius: 1, backgroundColor: line }} />
-        <AppText
-          variant="caption"
-          style={{ color: error ? t.colors.dangerText : t.colors.textSecondary }}
-        >
-          {error ?? ADD_MONEY_COPY.amountMin(formatPaise(minPaise))}
-        </AppText>
+        {error ? (
+          <AppText variant="caption" style={{ color: t.colors.dangerText }}>
+            {error}
+          </AppText>
+        ) : afterPaise !== null ? (
+          <View style={[styles.row, styles.between]}>
+            <AppText variant="caption" tone="secondary">
+              {ADD_MONEY_COPY.afterTopUp}
+            </AppText>
+            <AppText
+              variant="caption"
+              tabular
+              style={{ fontFamily: t.type.headline.fontFamily, color: t.colors.successText }}
+            >
+              {formatPaise(afterPaise)}
+            </AppText>
+          </View>
+        ) : (
+          <AppText variant="caption" tone="secondary">
+            {ADD_MONEY_COPY.amountMin(formatPaise(minPaise))}
+          </AppText>
+        )}
       </View>
 
       <AmountChips amountsPaise={quickAmountsPaise} selectedPaise={amountPaise} onPick={onPick} />

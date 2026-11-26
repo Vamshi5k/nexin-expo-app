@@ -120,7 +120,8 @@ the driver find, start, watch or pay for a charge.
   accent wash and glow, never a dark ink slab, so it follows light and dark mode. Add Money
   looks like the Wallet tab: the brand wash at the top (`AppScreen wash`), a filled back
   button, then a left-aligned title2 with a subtitle; a white amount card with the same wash (ENTER AMOUNT overline with the balance beside it, the amount
-  large and left-aligned with its symbol, a thin line that turns accent or red, the hint),
+  large and left-aligned with its symbol, a thin line that turns accent or red, then the minimum hint, the error, or "Balance after
+  top-up" with the new total in success once the amount is valid; no separate preview card),
   grey quick-amount pills with the picked one dark, and a compact dashed card when there
   are no coupons; transactions are grouped
   by date.
