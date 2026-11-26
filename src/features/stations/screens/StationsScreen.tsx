@@ -11,6 +11,7 @@ import { AppEmptyState, AppErrorState, AppSkeleton, AppText } from '@/shared/com
 import Fade from '../components/Fade';
 import SearchCapsule from '../components/SearchCapsule';
 import StationListCard from '../components/StationListCard';
+import StationsHeaderArt from '../components/StationsHeaderArt';
 
 import { useTheme } from '@/shared/theme';
 
@@ -106,15 +107,20 @@ const StationsScreen = ({ focusSearch = false }: StationsScreenProps) => {
         }}
       >
         <Fade id="stations-wash" color={t.colors.accent} from={0.22} to={0} top />
-        <Animated.View entering={riseIn(0)} style={{ gap: t.space[1] }}>
-          <AppText variant="title1" accessibilityRole="header">
-            {LIST_COPY.title}
-          </AppText>
-          <AppText variant="subhead" tone="secondary">
-            {LIST_COPY.subtitle}
-          </AppText>
-        </Animated.View>
-        <Animated.View entering={dropIn(1)}>
+        <View style={[styles.header, { gap: t.space[3] }]}>
+          <Animated.View entering={riseIn(0)} style={[styles.grow, { gap: t.space[1] }]}>
+            <AppText variant="title1" accessibilityRole="header">
+              {LIST_COPY.title}
+            </AppText>
+            <AppText variant="subhead" tone="secondary">
+              {LIST_COPY.subtitle}
+            </AppText>
+          </Animated.View>
+          <Animated.View entering={riseIn(1)}>
+            <StationsHeaderArt size={t.space[12] + t.space[8]} />
+          </Animated.View>
+        </View>
+        <Animated.View entering={dropIn(2)}>
           <SearchCapsule
             value={list.query}
             inputRef={inputRef}
@@ -169,6 +175,13 @@ export default StationsScreen;
 
 const styles = StyleSheet.create({
   screen: {
+    flex: 1,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  grow: {
     flex: 1,
   },
 });
