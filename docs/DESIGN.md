@@ -41,6 +41,11 @@ the driver find, start, watch or pay for a charge.
 - Scale: display 34/40 semibold, title1 28/34 semibold, title2 22/28 semibold, title3 20/26 semibold (section headings),
   headline 17/24 semibold, body 16/24 regular, callout 15/20, subhead 14/20 medium,
   caption 12/16 medium. Slight negative letter-spacing on 22 and above.
+- One set of roles across the app (auth hero headings aside):
+  - Screen titles (Stations, Wallet, Profile, the station name in the hero): title2 22.
+  - Section, sheet and dialog headings (Chargers, About, Filters): headline 17.
+  - Card titles and key values (charger header, connector type, stats, price): subhead 14
+    in the semibold face. Pills, labels and hints: caption 12.
 - Numbers (currency, kWh, %, kW, timers) use tabular figures (fontVariant tabular-nums) so
   live values don't jitter.
 - Layouts survive font scaling up to 1.3x.

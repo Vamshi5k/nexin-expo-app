@@ -28,7 +28,7 @@ const ProfileScreen = () => {
           <AppText variant="subhead" tone="secondary">
             Signed in as
           </AppText>
-          <AppText variant="title2">{profile.name}</AppText>
+          <AppText variant="headline">{profile.name}</AppText>
           {profile.phone ? (
             <AppText tone="secondary" tabular>
               {profile.phone}

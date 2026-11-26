@@ -132,7 +132,7 @@ const StationDetailsScreen = ({ stationId }: StationDetailsScreenProps) => {
         >
           <Animated.View entering={riseIn(3)} style={{ gap: t.space[6] }}>
             <View style={{ gap: t.space[1], paddingHorizontal: t.layout.screenPadding }}>
-              <AppText variant="title3" accessibilityRole="header">
+              <AppText variant="headline" accessibilityRole="header">
                 {DETAILS_COPY.chargers}
               </AppText>
               {details.chargers.length ? (

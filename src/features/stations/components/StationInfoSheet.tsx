@@ -211,7 +211,7 @@ const StationInfoSheet = ({
           }}
         >
           <View style={[styles.row, { gap: t.space[3] }]}>
-            <AppText variant="title3" accessibilityRole="header" style={styles.grow}>
+            <AppText variant="headline" accessibilityRole="header" style={styles.grow}>
               {station.name}
             </AppText>
             <AppPressable

@@ -86,7 +86,7 @@ const AppDialog = ({
               />
             </View>
           ) : null}
-          <AppText variant="title2">{title}</AppText>
+          <AppText variant="headline">{title}</AppText>
           {message ? (
             <AppText variant="body" tone="secondary">
               {message}

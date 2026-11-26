@@ -206,7 +206,7 @@ const StationHero = ({
 
         <Animated.View entering={riseIn(1)} style={{ gap: t.space[2] }}>
           <AppText
-            variant="title1"
+            variant="title2"
             numberOfLines={2}
             accessibilityRole="header"
             style={{ color: ink }}
