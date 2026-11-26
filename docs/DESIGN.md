@@ -118,7 +118,7 @@ the driver find, start, watch or pay for a charge.
   station status pill exactly as the API sends it, title1 name, one-line address and a
   `StatRow` (distance, drive, power, rate). Glass back / share / heart float over the hero; a
   solid bar with the name fades in once scrolled past it. Chargers are grouped: "Charger 1 ·
-  DC · 60 kW" with "1/2 free", then its connector cards (stacked for 1-2, a swipe row from 3)
+  DC · 60 kW" with "1/2 free", then its connector cards (always a sideways swipe row; a single connector fills the width)
   on their status tint fading to white. "About this station" shows the address and 3
   amenities plus "+N"; "View all details" opens a 60%/90% sheet with Copy address, help line,
   access type, connector types and amenities with icons. Rows without data are hidden.

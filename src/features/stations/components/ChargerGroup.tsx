@@ -32,8 +32,7 @@ type ConnectorCardProps = {
   onPress: (charger: Charger, connector: Connector) => void;
 };
 
-// From this many connectors a charger swipes sideways instead of stacking.
-const SWIPE_FROM = 3;
+// Connectors always sit in a sideways row; the next card peeks so the swipe is obvious.
 const SWIPE_CARD_RATIO = 0.72;
 
 const chargerMeta = (charger: Charger, index: number) =>
@@ -150,13 +149,13 @@ const ConnectorCard = ({
   );
 };
 
-// One charger: its header, then its connectors stacked full width, or as a swipe row from 3 up.
+// One charger: its header, then its connectors in a sideways row (one connector fills the width).
 const ChargerGroup = ({ charger, index, onConnectorPress }: ChargerGroupProps) => {
   const t = useTheme();
   const { width: screenWidth } = useWindowDimensions();
   const free = freeConnectors(charger);
   const total = charger.connectors.length;
-  const swipe = total >= SWIPE_FROM;
+  const swipe = total > 1;
   const fullWidth = screenWidth - t.layout.screenPadding * 2;
   const cardWidth = swipe ? Math.round(screenWidth * SWIPE_CARD_RATIO) : fullWidth;
 
@@ -188,19 +187,16 @@ const ChargerGroup = ({ charger, index, onConnectorPress }: ChargerGroupProps) =
         ) : null}
       </View>
 
-      {swipe ? (
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          snapToInterval={cardWidth + t.space[3]}
-          decelerationRate="fast"
-          contentContainerStyle={{ gap: t.space[3], paddingHorizontal: t.layout.screenPadding }}
-        >
-          {cards}
-        </ScrollView>
-      ) : (
-        <View style={{ gap: t.space[3], paddingHorizontal: t.layout.screenPadding }}>{cards}</View>
-      )}
+      <ScrollView
+        horizontal
+        scrollEnabled={swipe}
+        showsHorizontalScrollIndicator={false}
+        snapToInterval={cardWidth + t.space[3]}
+        decelerationRate="fast"
+        contentContainerStyle={{ gap: t.space[3], paddingHorizontal: t.layout.screenPadding }}
+      >
+        {cards}
+      </ScrollView>
     </View>
   );
 };
