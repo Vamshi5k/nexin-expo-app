@@ -27,6 +27,12 @@ export const ENDPOINTS = {
   PROFILE: {
     UPDATE: '/profile',
   },
+  WALLET: {
+    TRANSACTIONS: '/transactions',
+    COUPONS: '/coupon',
+    ORDER: '/payment',
+    VERIFY: '/payment/verify',
+  },
   VEHICLES: {
     ADD: '/vehicle',
     BRANDS: '/vehicle/brand',

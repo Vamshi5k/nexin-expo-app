@@ -10,9 +10,8 @@ import { Image } from 'expo-image';
 import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { AppText } from '@/shared/components';
+import { AppText, AppFade } from '@/shared/components';
 
-import Fade from './Fade';
 import StationScene from './StationScene';
 import StatRow, { type Stat } from './StatRow';
 
@@ -120,7 +119,13 @@ const StationHero = ({
         />
       ) : (
         <View testID="station-hero-fallback" style={StyleSheet.absoluteFill}>
-          <Fade id={`hero-wash-${station.id}`} color={t.colors.accent} from={0.28} to={0.06} top />
+          <AppFade
+            id={`hero-wash-${station.id}`}
+            color={t.colors.accent}
+            from={0.28}
+            to={0.06}
+            top
+          />
           <View
             style={[
               styles.scene,
@@ -135,7 +140,7 @@ const StationHero = ({
       {hasPhoto ? (
         <>
           <View style={[styles.topScrim, { height: t.space[12] * 3 }]} pointerEvents="none">
-            <Fade
+            <AppFade
               id={`hero-top-${station.id}`}
               color={t.colors.textPrimary}
               from={TOP_SCRIM_OPACITY}
@@ -144,7 +149,7 @@ const StationHero = ({
             />
           </View>
           <View style={[styles.bottomScrim, { height: height * 0.7 }]} pointerEvents="none">
-            <Fade
+            <AppFade
               id={`hero-base-${station.id}`}
               color={t.colors.textPrimary}
               from={SCRIM_OPACITY}
@@ -154,7 +159,7 @@ const StationHero = ({
         </>
       ) : (
         <View style={[styles.bottomScrim, { height: height * 0.55 }]} pointerEvents="none">
-          <Fade id={`hero-base-${station.id}`} color={t.colors.bg} from={1} to={0} />
+          <AppFade id={`hero-base-${station.id}`} color={t.colors.bg} from={1} to={0} />
         </View>
       )}
 

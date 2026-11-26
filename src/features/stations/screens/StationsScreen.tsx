@@ -6,9 +6,8 @@ import { MapPinOff, PlugZap, SearchX } from 'lucide-react-native';
 import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { AppEmptyState, AppErrorState, AppSkeleton, AppText } from '@/shared/components';
+import { AppEmptyState, AppErrorState, AppSkeleton, AppText, AppFade } from '@/shared/components';
 
-import Fade from '../components/Fade';
 import SearchCapsule from '../components/SearchCapsule';
 import StationListCard from '../components/StationListCard';
 import StationsHeaderArt from '../components/StationsHeaderArt';
@@ -106,7 +105,7 @@ const StationsScreen = ({ focusSearch = false }: StationsScreenProps) => {
           paddingBottom: t.space[3],
         }}
       >
-        <Fade id="stations-wash" color={t.colors.accent} from={0.22} to={0} top />
+        <AppFade id="stations-wash" color={t.colors.accent} from={0.22} to={0} top />
         <View style={[styles.header, { gap: t.space[3] }]}>
           <Animated.View entering={riseIn(0)} style={[styles.grow, { gap: t.space[1] / 2 }]}>
             <AppText variant="title2" accessibilityRole="header">

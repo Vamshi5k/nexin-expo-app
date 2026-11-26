@@ -545,3 +545,35 @@ emulator (hero variants, scrolled header, sheet open/close/reopen, Filters sheet
 
 **Verified**: tsc, expo lint, jest (53 suites, 386 tests); Android emulator with staging
 (list, search with no results, Clear Search, map search pill focus).
+
+## Phase 4a: Wallet (branch `feat/stations-list`, 2026-11-26)
+
+**Done**
+
+- Wallet tab (D1): title, a dark balance card with an animated wallet (`WalletArt`: card
+  sliding out, coins bobbing), the balance counting up to its value, an eye to hide it and Add
+  Money; "Transactions" with See All and the latest 10 on one card. Quiet reload on focus (no
+  skeleton flash), pull to refresh, skeleton / empty / error + Retry.
+- Wallet History (D2, `/(app)/wallet/history`): All / Credit / Debit, sticky month headers,
+  10 a page with infinite scroll; pull to refresh keeps the list on screen.
+- Add Money (D3, `/(app)/wallet/add?amount=`): a large amount field, the brand's quick amounts
+  (`brand.quickTopUpRupees`) and the minimum (`brand.minTopUpRupees`) shown up front, coupons
+  as tickets (only ACTIVE, only with `features.coupons`), Price Breakdown with cashback.
+  Create order → Razorpay → verify → refresh the user. Result sheets with a drawn mark
+  (`ResultArt`): success (credits, order id), failure with Try Again on the same order, and
+  "Payment Not Confirmed" with no retry when verification fails after paying.
+- `src/core/payments.ts` wraps react-native-razorpay: loads it only when a payment starts and
+  reports `unavailable` on builds without the native module (toast, no crash).
+- `AppFade` moved to the shared kit (used by Stations, the station hero and Wallet).
+- Tests: wallet endpoint paths, mappers, amount and coupon rules, transaction display, and
+  flows for the three screens (balance, hide, retry, history filter paging, minimum, quick
+  amount, success, failure → retry, unverified, missing native module).
+
+**Deviations**
+
+- Credit / Debit filtering is client-side over paged data (OPEN_QUESTIONS #18).
+- react-native-razorpay was added: rebuild the dev build (`npx expo run:ios` /
+  `npx expo run:android`) before testing a real payment.
+
+**Verified**: tsc, expo lint, jest (55 suites, 411 tests); Android emulator (Wallet tab,
+Add Money with quick amounts). A real payment was not run.

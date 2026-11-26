@@ -2,7 +2,7 @@ import { StyleSheet } from 'react-native';
 
 import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
 
-type FadeProps = {
+export type AppFadeProps = {
   id: string;
   color: string;
   from: number;
@@ -12,7 +12,7 @@ type FadeProps = {
 
 // A vertical colour fade that fills its parent: brand washes behind headers and the hero, and
 // scrims over photos. `top` runs it top to bottom, otherwise bottom to top.
-const Fade = ({ id, color, from, to, top }: FadeProps) => (
+const AppFade = ({ id, color, from, to, top }: AppFadeProps) => (
   <Svg style={StyleSheet.absoluteFill} pointerEvents="none">
     <Defs>
       <LinearGradient id={id} x1="0" y1={top ? '0' : '1'} x2="0" y2={top ? '1' : '0'}>
@@ -24,4 +24,4 @@ const Fade = ({ id, color, from, to, top }: FadeProps) => (
   </Svg>
 );
 
-export default Fade;
+export default AppFade;
