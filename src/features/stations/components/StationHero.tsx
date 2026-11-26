@@ -12,7 +12,7 @@ import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
 
 import { AppText } from '@/shared/components';
 
-import ChargerArt from './ChargerArt';
+import StationScene from './StationScene';
 import StatRow, { type Stat } from './StatRow';
 
 import { useTheme, withAlpha } from '@/shared/theme';
@@ -25,7 +25,8 @@ import type { StationDetails } from '../types/stations.types';
 import { formatDistance, formatEta } from '../utils/geo';
 import { pinColorKey, STATUS_LABEL } from '../utils/status';
 
-const ART_RATIO = 0.3;
+// The scene fills the hero above the status pill, like a photo would.
+const SCENE_BOTTOM = 0.47;
 
 type StationHeroProps = {
   station: StationDetails;
@@ -91,8 +92,6 @@ const StationHero = ({
 }: StationHeroProps) => {
   const t = useTheme();
   const insets = useSafeAreaInsets();
-  // Centred between the back button and the actions, clear of the status pill below.
-  const artSize = height * ART_RATIO;
   const hasPhoto = images.length > 0;
   const statusColor = t.colors.connector[pinColorKey(station.status)];
   const ink = hasPhoto ? t.colors.surface : t.colors.textPrimary;
@@ -134,8 +133,13 @@ const StationHero = ({
       ) : (
         <View testID="station-hero-fallback" style={StyleSheet.absoluteFill}>
           <Fade id={`hero-wash-${station.id}`} color={t.colors.accent} from={0.28} to={0.06} top />
-          <View style={[styles.art, { top: insets.top + t.space[1], left: (width - artSize) / 2 }]}>
-            <ChargerArt size={artSize} glow={t.colors.accent} />
+          <View
+            style={[
+              styles.scene,
+              { top: insets.top + t.space[5], height: height * SCENE_BOTTOM - insets.top },
+            ]}
+          >
+            <StationScene />
           </View>
         </View>
       )}
@@ -238,8 +242,10 @@ const StationHero = ({
 export default StationHero;
 
 const styles = StyleSheet.create({
-  art: {
+  scene: {
     position: 'absolute',
+    left: 0,
+    right: 0,
   },
   topScrim: {
     position: 'absolute',

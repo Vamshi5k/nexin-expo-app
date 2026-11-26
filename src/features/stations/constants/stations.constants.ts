@@ -113,6 +113,7 @@ export const DETAILS_COPY = {
   access: 'Access',
   openingHours: 'Opening hours',
   photo: 'Station photo',
+  illustration: 'Electric cars charging at a station',
   about: 'About this station',
   free: 'free',
 } as const;
