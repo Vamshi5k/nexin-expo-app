@@ -34,9 +34,23 @@ const AppSheet = ({
   const insets = useSafeAreaInsets();
   const ref = useRef<BottomSheetModal>(null);
 
+  // dismiss() on a sheet that never opened still fires onDismiss, which would close it again
+  // right as it opens. Only a sheet we presented may dismiss or report back.
+  const presented = useRef(false);
+
+  const onDismiss = () => {
+    if (!presented.current) return;
+    presented.current = false;
+    onClose();
+  };
+
   useEffect(() => {
-    if (open) ref.current?.present();
-    else ref.current?.dismiss();
+    if (open) {
+      presented.current = true;
+      ref.current?.present();
+      return;
+    }
+    if (presented.current) ref.current?.dismiss();
   }, [open]);
 
   const backdrop = useCallback(
@@ -56,7 +70,8 @@ const AppSheet = ({
   return (
     <BottomSheetModal
       ref={ref}
-      onDismiss={onClose}
+      onDismiss={onDismiss}
+      stackBehavior="push"
       enablePanDownToClose={dismissible}
       backdropComponent={backdrop}
       backgroundStyle={{ backgroundColor: t.colors.surfaceRaised, borderRadius: t.radius.sheet }}

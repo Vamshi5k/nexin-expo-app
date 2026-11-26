@@ -10,16 +10,19 @@ export type AppGlassProps = {
   children?: ReactNode;
   radius: number;
   style?: StyleProp<ViewStyle>;
+  // 'light' keeps the glass light over any background (e.g. buttons floating over a photo).
+  appearance?: 'auto' | 'light';
 };
 
 const LIQUID_GLASS = Platform.OS === 'ios' && isLiquidGlassAvailable();
 const BLUR = Platform.OS === 'ios' && !LIQUID_GLASS;
+const LIGHT_TINT = 0.55;
 
 // Floating controls over the map and the tab bar. iOS 26 gets the native glass, older iOS a
 // blur, Android a solid raised surface (blur is slow there).
-const AppGlass = ({ children, radius, style }: AppGlassProps) => {
+const AppGlass = ({ children, radius, style, appearance = 'auto' }: AppGlassProps) => {
   const t = useTheme();
-  const dark = t.scheme === 'dark';
+  const dark = appearance === 'light' ? false : t.scheme === 'dark';
 
   const frame: ViewStyle = {
     borderRadius: radius,
@@ -33,6 +36,8 @@ const AppGlass = ({ children, radius, style }: AppGlassProps) => {
       <GlassView
         glassEffectStyle="regular"
         isInteractive
+        colorScheme={appearance === 'light' ? 'light' : 'auto'}
+        tintColor={appearance === 'light' ? withAlpha(t.colors.surface, LIGHT_TINT) : undefined}
         style={[{ borderRadius: radius, overflow: 'hidden' }, style]}
       >
         {children}

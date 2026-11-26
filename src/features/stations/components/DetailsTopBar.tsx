@@ -39,7 +39,7 @@ const GlassButton = ({ icon: Icon, label, onPress, active }: GlassButtonProps) =
   const color = active ? t.colors.danger : t.colors.textPrimary;
 
   return (
-    <AppGlass radius={t.radius.pill}>
+    <AppGlass radius={t.radius.pill} appearance="light">
       <AppPressable
         onPress={onPress}
         haptic="light"

@@ -107,14 +107,24 @@ const StationInfoSheet = ({
   const [shown, setShown] = useState(open);
   if (open && !shown) setShown(true);
 
+  // dismiss() on a sheet that never opened still fires onDismiss, which would close it again
+  // right as it opens. Only a sheet we presented may dismiss or report back.
+  const presented = useRef(false);
+
   const onDismiss = () => {
+    if (!presented.current) return;
+    presented.current = false;
     setShown(false);
     onClose();
   };
 
   useEffect(() => {
-    if (open) ref.current?.present();
-    else ref.current?.dismiss();
+    if (open) {
+      presented.current = true;
+      ref.current?.present();
+      return;
+    }
+    if (presented.current) ref.current?.dismiss();
   }, [open]);
 
   const backdrop = useCallback(
@@ -179,6 +189,7 @@ const StationInfoSheet = ({
     <BottomSheetModal
       ref={ref}
       snapPoints={SNAP_POINTS}
+      stackBehavior="push"
       enableDynamicSizing={false}
       onDismiss={onDismiss}
       backdropComponent={backdrop}
