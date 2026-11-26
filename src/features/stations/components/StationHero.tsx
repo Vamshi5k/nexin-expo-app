@@ -9,10 +9,10 @@ import {
 import { Image } from 'expo-image';
 import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
 
 import { AppText } from '@/shared/components';
 
+import Fade from './Fade';
 import StationScene from './StationScene';
 import StatRow, { type Stat } from './StatRow';
 
@@ -41,8 +41,6 @@ type StationHeroProps = {
   onImageError: (url: string) => void;
 };
 
-type FadeProps = { id: string; color: string; from: number; to: number; top?: boolean };
-
 const SCRIM_OPACITY = 0.78;
 const TOP_SCRIM_OPACITY = 0.35;
 
@@ -68,18 +66,6 @@ function isNumber(value: number | null): value is number {
 }
 
 // A vertical fade from `color` at `from` opacity to `to`, top-down (or bottom-up for the base).
-const Fade = ({ id, color, from, to, top }: FadeProps) => (
-  <Svg style={StyleSheet.absoluteFill} pointerEvents="none">
-    <Defs>
-      <LinearGradient id={id} x1="0" y1={top ? '0' : '1'} x2="0" y2={top ? '1' : '0'}>
-        <Stop offset="0" stopColor={color} stopOpacity={from} />
-        <Stop offset="1" stopColor={color} stopOpacity={to} />
-      </LinearGradient>
-    </Defs>
-    <Rect x="0" y="0" width="100%" height="100%" fill={`url(#${id})`} />
-  </Svg>
-);
-
 // Station photos from the backend (slider for many, still for one), or the brand illustration
 // when there are none or all of them fail. A fixed height keeps the page from jumping.
 const StationHero = ({

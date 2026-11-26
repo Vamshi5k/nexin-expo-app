@@ -1,6 +1,7 @@
 import { act, fireEvent, screen, waitFor } from '@testing-library/react-native';
 import * as Location from 'expo-location';
 import { router } from 'expo-router';
+import { Linking } from 'react-native';
 
 import { StationsScreen } from '@/features/stations';
 import { stationsApi } from '@/features/stations/api/stations.api';
@@ -175,6 +176,16 @@ describe('StationsScreen', () => {
       pathname: '/(app)/station/[stationId]',
       params: { stationId: '7' },
     });
+  });
+
+  it('Go opens directions to the station', async () => {
+    const openURL = jest.spyOn(Linking, 'openURL').mockResolvedValue(undefined);
+    searchStations.mockResolvedValue([station('3')]);
+    await renderWithApp(<StationsScreen />);
+
+    await fireEvent.press(await screen.findByRole('button', { name: 'Directions to Hub 3' }));
+    expect(openURL).toHaveBeenCalledWith(expect.stringContaining('17.4'));
+    openURL.mockRestore();
   });
 
   it('opened from the map search pill, it clears the focus param', async () => {

@@ -2,18 +2,20 @@ import { StyleSheet, View } from 'react-native';
 
 import { Heart, Navigation, Zap } from 'lucide-react-native';
 
-import { AppPressable, AppStatusChip, AppText } from '@/shared/components';
+import { AppPressable, AppText } from '@/shared/components';
 
 import CardGradient from './CardGradient';
+import StatRow, { type Stat } from './StatRow';
+import StatusDot from './StatusDot';
 
-import { useTheme } from '@/shared/theme';
+import { useTheme, withAlpha, type Theme } from '@/shared/theme';
 
 import { brand } from '@/core/config';
 import { formatRate } from '@/shared/utils/money';
 
-import { CARD_COPY, LIST_COPY } from '../constants/stations.constants';
+import { CARD_COPY, LIST_COPY, MAX_ETA_KM } from '../constants/stations.constants';
 import type { NearbyStation } from '../types/stations.types';
-import { formatDistance } from '../utils/geo';
+import { formatDistance, formatEta } from '../utils/geo';
 import { listAvailability } from '../utils/list';
 import { pinColorKey } from '../utils/status';
 
@@ -22,27 +24,53 @@ type StationListCardProps = {
   favourite: boolean;
   onPress: (stationId: string) => void;
   onToggleFavourite: (stationId: string) => void;
+  onDirections: (station: NearbyStation) => void;
 };
 
-// The map card's language, sized for a list: status gradient, name and address with a heart,
-// then availability, power, price and distance on one line.
+const pillHeight = (t: Theme) => t.space[6] + t.space[1];
+
+const footerStats = (station: NearbyStation): Stat[] => {
+  const km = station.distanceKm;
+  const stats: (Stat | null)[] = [
+    km !== null ? { value: formatDistance(km, brand.locale), label: CARD_COPY.distance } : null,
+    km !== null && km <= MAX_ETA_KM ? { value: formatEta(km), label: CARD_COPY.drive } : null,
+    station.pricePerKwhPaise !== null
+      ? { value: formatRate(station.pricePerKwhPaise), label: CARD_COPY.perKwh }
+      : null,
+  ];
+  return stats.filter((stat): stat is Stat => stat !== null);
+};
+
+// The map card at list size: status and power pills with the heart, the name, then distance,
+// drive and price beside the dark Go pill. The tint follows availability, so a station with
+// nothing free reads red even while it is open.
 const StationListCard = ({
   station,
   favourite,
   onPress,
   onToggleFavourite,
+  onDirections,
 }: StationListCardProps) => {
   const t = useTheme();
   const availability = listAvailability(station);
-  // The tint agrees with the pill: red when nothing is free, even if the station is open.
+  const stationColor = t.colors.connector[pinColorKey(station.status)];
   const tints = {
-    success: t.colors.connector[pinColorKey(station.status)],
+    success: stationColor,
     danger: t.colors.danger,
     warning: t.colors.warning,
-    neutral: t.colors.connector[pinColorKey(station.status)],
+    neutral: stationColor,
   };
-  const statusColor = tints[availability.tone];
-  const heartColor = favourite ? t.colors.danger : t.colors.textSecondary;
+  const tint = tints[availability.tone];
+  const heartColor = favourite ? t.colors.danger : t.colors.textPrimary;
+  const stats = footerStats(station);
+
+  const pill = {
+    height: pillHeight(t),
+    gap: t.space[2],
+    paddingHorizontal: t.space[3],
+    borderRadius: t.radius.pill,
+    backgroundColor: t.colors.surface,
+  };
 
   return (
     <AppPressable
@@ -53,43 +81,53 @@ const StationListCard = ({
         styles.card,
         {
           gap: t.space[3],
-          padding: t.space[3],
-          paddingLeft: t.space[4],
-          borderRadius: t.radius.card,
+          padding: t.space[4],
+          borderRadius: t.radius.sheet,
           borderWidth: t.layout.hairline,
           borderColor: t.colors.border,
           backgroundColor: t.colors.surfaceRaised,
         },
       ]}
     >
-      <CardGradient color={statusColor} id={`station-list-${station.id}`} />
+      <CardGradient color={tint} id={`station-list-${station.id}`} />
 
       <View style={[styles.row, { gap: t.space[2] }]}>
-        <View style={styles.grow}>
-          <AppText
-            variant="subhead"
-            numberOfLines={1}
-            style={{ fontFamily: t.type.headline.fontFamily }}
-          >
-            {station.name}
-          </AppText>
-          {station.address ? (
-            <AppText variant="caption" tone="secondary" numberOfLines={1}>
-              {station.address}
-            </AppText>
-          ) : null}
+        <View style={[styles.row, pill]}>
+          <StatusDot color={tint} />
+          <AppText variant="caption">{availability.label}</AppText>
         </View>
+        {station.maxPowerKw !== null ? (
+          <View
+            style={[
+              styles.row,
+              pill,
+              { gap: t.space[1], backgroundColor: withAlpha(t.colors.surface, 0.8) },
+            ]}
+          >
+            <Zap
+              color={t.colors.accentText}
+              fill={t.colors.accentText}
+              size={t.icon.meta}
+              strokeWidth={t.icon.stroke}
+            />
+            <AppText variant="caption" tabular>
+              {`${station.maxPowerKw} kW`}
+            </AppText>
+          </View>
+        ) : null}
+        <View style={styles.grow} />
         <AppPressable
           onPress={() => onToggleFavourite(station.id)}
           haptic="light"
           accessibilityRole="button"
           accessibilityLabel={`${favourite ? LIST_COPY.removeFavourite : LIST_COPY.addFavourite}, ${station.name}`}
           accessibilityState={{ selected: favourite }}
+          hitSlop={t.space[2]}
           style={[
             styles.center,
             {
-              width: t.layout.minTouch,
-              height: t.layout.minTouch,
+              width: pillHeight(t) + t.space[2],
+              height: pillHeight(t) + t.space[2],
               borderRadius: t.radius.pill,
               backgroundColor: t.colors.surface,
             },
@@ -104,39 +142,42 @@ const StationListCard = ({
         </AppPressable>
       </View>
 
-      <View style={[styles.row, { gap: t.space[2] }]}>
-        <AppStatusChip label={availability.label} tone={availability.tone} />
-        {station.maxPowerKw !== null ? (
-          <View style={[styles.row, { gap: t.space[1] }]}>
-            <Zap
-              color={t.colors.accentText}
-              fill={t.colors.accentText}
-              size={t.icon.meta}
-              strokeWidth={t.icon.stroke}
-            />
-            <AppText variant="caption" tabular>
-              {`${station.maxPowerKw} kW`}
-            </AppText>
-          </View>
-        ) : null}
-        {station.pricePerKwhPaise !== null ? (
-          <AppText variant="caption" tabular tone="secondary">
-            {`${formatRate(station.pricePerKwhPaise)}${CARD_COPY.price}`}
+      <View>
+        <AppText variant="headline" numberOfLines={1}>
+          {station.name}
+        </AppText>
+        {station.address ? (
+          <AppText variant="caption" tone="secondary" numberOfLines={1}>
+            {station.address}
           </AppText>
         ) : null}
-        <View style={styles.grow} />
-        {station.distanceKm !== null ? (
-          <View style={[styles.row, { gap: t.space[1] }]}>
-            <Navigation
-              color={t.colors.textSecondary}
-              size={t.icon.meta}
-              strokeWidth={t.icon.stroke}
-            />
-            <AppText variant="caption" tabular tone="secondary">
-              {formatDistance(station.distanceKm, brand.locale)}
-            </AppText>
-          </View>
-        ) : null}
+      </View>
+
+      <View style={[styles.row, { gap: t.space[3] }]}>
+        <View style={styles.grow}>
+          <StatRow stats={stats} />
+        </View>
+        <AppPressable
+          onPress={() => onDirections(station)}
+          haptic="light"
+          accessibilityRole="button"
+          accessibilityLabel={`${CARD_COPY.directions} ${station.name}`}
+          style={[
+            styles.row,
+            {
+              gap: t.space[2],
+              height: t.layout.minTouch,
+              paddingHorizontal: t.space[4],
+              borderRadius: t.radius.pill,
+              backgroundColor: t.colors.textPrimary,
+            },
+          ]}
+        >
+          <Navigation color={t.colors.surface} size={t.icon.meta} strokeWidth={t.icon.stroke} />
+          <AppText variant="subhead" style={{ color: t.colors.surface }}>
+            {CARD_COPY.go}
+          </AppText>
+        </AppPressable>
       </View>
     </AppPressable>
   );

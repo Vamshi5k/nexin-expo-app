@@ -2,25 +2,20 @@ import { useContext, useRef, type ComponentRef } from 'react';
 import { FlatList, RefreshControl, StyleSheet, View, type TextInput } from 'react-native';
 
 import { BottomTabBarHeightContext } from 'expo-router/tabs';
-import { MapPinOff, PlugZap, Search, SearchX, X } from 'lucide-react-native';
+import { MapPinOff, PlugZap, SearchX } from 'lucide-react-native';
 import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import {
-  AppEmptyState,
-  AppErrorState,
-  AppInput,
-  AppPressable,
-  AppSkeleton,
-  AppText,
-} from '@/shared/components';
+import { AppEmptyState, AppErrorState, AppSkeleton, AppText } from '@/shared/components';
 
+import Fade from '../components/Fade';
+import SearchCapsule from '../components/SearchCapsule';
 import StationListCard from '../components/StationListCard';
 
 import { useTheme } from '@/shared/theme';
 
 import { getErrorMessage } from '@/core/api';
-import { riseIn } from '@/shared/utils/motion';
+import { dropIn, riseIn } from '@/shared/utils/motion';
 
 import {
   LIST_COPY,
@@ -35,7 +30,7 @@ type StationsScreenProps = {
 
 const SKELETON_COUNT = 3;
 
-// Title and search stay put; the list scrolls under them, loads more near the end and
+// A brand wash behind the title and the map's glass search capsule stay put; the list scrolls under them, loads more near the end and
 // refreshes on pull.
 const StationsScreen = ({ focusSearch = false }: StationsScreenProps) => {
   const t = useTheme();
@@ -43,12 +38,12 @@ const StationsScreen = ({ focusSearch = false }: StationsScreenProps) => {
   const tabBarHeight = useContext(BottomTabBarHeightContext) ?? 0;
   const inputRef = useRef<ComponentRef<typeof TextInput>>(null);
   const list = useStationList({ focusSearch, inputRef });
-  const cardSkeletonHeight = t.space[12] * 2;
+  const cardSkeletonHeight = t.space[12] * 3 + t.space[4];
 
   const skeletons = (count: number) => (
     <View style={{ gap: t.space[3] }}>
       {Array.from({ length: count }, (_, index) => (
-        <AppSkeleton key={index} height={cardSkeletonHeight} radius={t.radius.card} />
+        <AppSkeleton key={index} height={cardSkeletonHeight} radius={t.radius.sheet} />
       ))}
     </View>
   );
@@ -104,40 +99,29 @@ const StationsScreen = ({ focusSearch = false }: StationsScreenProps) => {
     <View style={[styles.screen, { backgroundColor: t.colors.bg }]}>
       <View
         style={{
-          gap: t.space[3],
-          paddingTop: insets.top + t.space[3],
+          gap: t.space[4],
+          paddingTop: insets.top + t.space[4],
           paddingHorizontal: t.layout.screenPadding,
           paddingBottom: t.space[3],
         }}
       >
-        <AppText variant="title1" accessibilityRole="header">
-          {LIST_COPY.title}
-        </AppText>
-        <AppInput
-          ref={inputRef}
-          icon={Search}
-          value={list.query}
-          onChangeText={list.setQuery}
-          placeholder={LIST_COPY.searchPlaceholder}
-          accessibilityLabel={LIST_COPY.searchPlaceholder}
-          returnKeyType="search"
-          autoCorrect={false}
-          autoCapitalize="none"
-          clearButtonMode="never"
-          trailing={
-            list.query ? (
-              <AppPressable
-                onPress={list.clearSearch}
-                haptic="light"
-                accessibilityRole="button"
-                accessibilityLabel={LIST_COPY.clearSearch}
-                hitSlop={t.space[2]}
-              >
-                <X color={t.colors.textSecondary} size={t.icon.meta} strokeWidth={t.icon.stroke} />
-              </AppPressable>
-            ) : null
-          }
-        />
+        <Fade id="stations-wash" color={t.colors.accent} from={0.22} to={0} top />
+        <Animated.View entering={riseIn(0)} style={{ gap: t.space[1] }}>
+          <AppText variant="title1" accessibilityRole="header">
+            {LIST_COPY.title}
+          </AppText>
+          <AppText variant="subhead" tone="secondary">
+            {LIST_COPY.subtitle}
+          </AppText>
+        </Animated.View>
+        <Animated.View entering={dropIn(1)}>
+          <SearchCapsule
+            value={list.query}
+            inputRef={inputRef}
+            onChange={list.setQuery}
+            onClear={list.clearSearch}
+          />
+        </Animated.View>
       </View>
 
       <FlatList
@@ -151,6 +135,7 @@ const StationsScreen = ({ focusSearch = false }: StationsScreenProps) => {
               favourite={list.isFavourite(item.id)}
               onPress={list.openStation}
               onToggleFavourite={id => void list.toggleFavourite(id)}
+              onDirections={list.openDirections}
             />
           </Animated.View>
         )}

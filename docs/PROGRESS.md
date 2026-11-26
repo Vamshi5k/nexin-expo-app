@@ -525,7 +525,9 @@ emulator (hero variants, scrolled header, sheet open/close/reopen, Filters sheet
 - Search runs 500 ms after typing stops (`useDebouncedValue`); answers for an older search are
   dropped. Infinite scroll at 40% from the end, pull to refresh, the list drag closes the
   keyboard.
-- `StationListCard`: the map card's language at list size. Name, address, heart, then
+- `StationListCard`: the map card at list size: white availability and kW pills with a heart,
+  the name, then distance · drive · ₹/kWh beside a dark Go pill (opens directions). Header has
+  a brand wash, subtitle and the map's glass search capsule. Previously: name, address, heart, then
   "2/4 Free" or red "Unavailable", kW, price per kWh and distance. The tint follows the pill.
 - Hearts flip at once, toast "Added to favourites" / "Removed from favourites", roll back on
   error, and re-sync from the server every time the tab is focused.

@@ -43,6 +43,7 @@ export const LOAD_MORE_THRESHOLD = 0.4;
 
 export const LIST_COPY = {
   title: 'Stations',
+  subtitle: 'Nearest charging stations first',
   searchPlaceholder: 'Search stations...',
   clearSearch: 'Clear search',
   locationOffTitle: 'Location is off',

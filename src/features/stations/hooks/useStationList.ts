@@ -10,6 +10,7 @@ import { useRequest } from '@/core/request';
 import { useDebouncedValue } from '@/shared/utils/debounce';
 import { toast } from '@/shared/utils/toast';
 
+import { openStationDirections } from './useDirections';
 import { useUserLocation } from './useUserLocation';
 import { stationsApi } from '../api/stations.api';
 import {
@@ -183,6 +184,7 @@ export const useStationList = ({ focusSearch, inputRef }: StationListOptions) =>
     enableLocation: locate,
     isFavourite,
     toggleFavourite,
+    openDirections: openStationDirections,
     openStation: (stationId: string) =>
       router.push({ pathname: '/(app)/station/[stationId]', params: { stationId } }),
   };
