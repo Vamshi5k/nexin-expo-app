@@ -167,6 +167,7 @@ export const useAddMoney = (initialAmount?: string) => {
     coupon,
     bonusPaise: couponBonusPaise(coupon, amountPaise),
     totalPaise: totalCreditsPaise(coupon, amountPaise),
+    balancePaise: user?.walletBalancePaise ?? 0,
     toggleCoupon,
     busy,
     step,

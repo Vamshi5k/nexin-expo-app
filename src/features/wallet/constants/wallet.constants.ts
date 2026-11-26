@@ -41,6 +41,12 @@ export const HISTORY_COPY = {
 export const ADD_MONEY_COPY = {
   title: 'Add Money',
   enterAmount: 'Enter Amount',
+  currentBalance: 'Current balance',
+  afterTopUp: 'Balance after top-up',
+  now: 'Now',
+  after: 'After',
+  secure: 'Payments are secure and encrypted',
+  methods: ['UPI', 'Cards', 'Net banking'],
   placeholder: 'Enter amount',
   quickAmounts: 'Quick amounts',
   amountRequired: 'Amount is required',

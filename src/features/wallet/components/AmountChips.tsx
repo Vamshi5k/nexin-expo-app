@@ -2,7 +2,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { AppPressable, AppText } from '@/shared/components';
 
-import { useTheme } from '@/shared/theme';
+import { useTheme, withAlpha } from '@/shared/theme';
 
 import { formatPaise } from '@/shared/utils/money';
 
@@ -10,11 +10,30 @@ type AmountChipsProps = {
   amountsPaise: number[];
   selectedPaise: number;
   onPick: (amountPaise: number) => void;
+  // On a dark card: glassy pills, the picked one in the accent.
+  inverse?: boolean;
 };
 
 // The brand's quick top-up amounts as equal pills in one row; the one matching the field is filled.
-const AmountChips = ({ amountsPaise, selectedPaise, onPick }: AmountChipsProps) => {
+const AmountChips = ({ amountsPaise, selectedPaise, onPick, inverse }: AmountChipsProps) => {
   const t = useTheme();
+  const look = inverse
+    ? {
+        border: withAlpha(t.colors.surface, 0.18),
+        fill: withAlpha(t.colors.surface, 0.08),
+        ink: t.colors.surface,
+        pickedBorder: t.colors.accent,
+        pickedFill: t.colors.accent,
+        pickedInk: t.colors.onAccent,
+      }
+    : {
+        border: t.colors.borderStrong,
+        fill: t.colors.surface,
+        ink: t.colors.textPrimary,
+        pickedBorder: t.colors.accent,
+        pickedFill: t.colors.accentSoft,
+        pickedInk: t.colors.accentText,
+      };
 
   return (
     <View style={[styles.wrap, { gap: t.space[2] }]}>
@@ -36,8 +55,8 @@ const AmountChips = ({ amountsPaise, selectedPaise, onPick }: AmountChipsProps) 
               paddingVertical: t.space[2],
               borderRadius: t.radius.pill,
               borderWidth: t.layout.hairline,
-              borderColor: selected ? t.colors.accent : t.colors.borderStrong,
-              backgroundColor: selected ? t.colors.accentSoft : t.colors.surface,
+              borderColor: selected ? look.pickedBorder : look.border,
+              backgroundColor: selected ? look.pickedFill : look.fill,
             }}
           >
             <AppText
@@ -47,7 +66,7 @@ const AmountChips = ({ amountsPaise, selectedPaise, onPick }: AmountChipsProps) 
               adjustsFontSizeToFit
               style={{
                 fontFamily: t.type.headline.fontFamily,
-                color: selected ? t.colors.accentText : t.colors.textPrimary,
+                color: selected ? look.pickedInk : look.ink,
               }}
             >
               {formatPaise(amount)}

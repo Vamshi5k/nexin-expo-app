@@ -1,6 +1,6 @@
-import { ActivityIndicator, StyleSheet, TextInput, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
-import { TicketPercent } from 'lucide-react-native';
+import { Lock, TicketPercent } from 'lucide-react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 
 import {
@@ -13,13 +13,14 @@ import {
   AppText,
 } from '@/shared/components';
 
-import AmountChips from '../components/AmountChips';
+import AmountHero from '../components/AmountHero';
+import BalancePreview from '../components/BalancePreview';
 import CouponCard from '../components/CouponCard';
 import PaymentResultSheet from '../components/PaymentResultSheet';
+import SecureStrip from '../components/SecureStrip';
 
-import { useTheme, withAlpha } from '@/shared/theme';
+import { useTheme } from '@/shared/theme';
 
-import { brand } from '@/core/config';
 import { formatPaise } from '@/shared/utils/money';
 import { riseIn } from '@/shared/utils/motion';
 
@@ -138,6 +139,7 @@ const AddMoneyScreen = ({ initialAmount }: AddMoneyScreenProps) => {
         footer={
           <AppButton
             label={payLabel}
+            icon={Lock}
             onPress={money.submit}
             loading={money.busy}
             disabled={!money.valid}
@@ -146,66 +148,27 @@ const AddMoneyScreen = ({ initialAmount }: AddMoneyScreenProps) => {
       >
         <AppHeader title={ADD_MONEY_COPY.title} back />
 
-        <Animated.View
-          entering={riseIn(0)}
-          style={[
-            styles.center,
-            {
-              gap: t.space[3],
-              padding: t.space[5],
-              borderRadius: t.radius.sheet,
-              borderWidth: t.layout.hairline,
-              borderColor: t.colors.border,
-              backgroundColor: t.colors.surfaceRaised,
-            },
-          ]}
-        >
-          <AppText variant="caption" tone="secondary">
-            {ADD_MONEY_COPY.enterAmount}
-          </AppText>
-          <View style={[styles.row, { gap: t.space[1] }]}>
-            <AppText variant="title1" tone={money.amountText ? 'primary' : 'tertiary'}>
-              {brand.currency.symbol}
-            </AppText>
-            <TextInput
-              value={money.amountText}
-              onChangeText={money.setAmount}
-              placeholder="0"
-              placeholderTextColor={t.colors.textTertiary}
-              keyboardType="decimal-pad"
-              returnKeyType="done"
-              selectionColor={t.colors.accent}
-              accessibilityLabel={ADD_MONEY_COPY.placeholder}
-              maxFontSizeMultiplier={t.layout.maxFontScale}
-              style={[
-                t.type.title1,
-                t.tabularNums,
-                styles.amountInput,
-                { lineHeight: undefined, color: t.colors.textPrimary },
-              ]}
-            />
-          </View>
-          <View
-            style={{
-              alignSelf: 'stretch',
-              height: 2,
-              borderRadius: 1,
-              backgroundColor: showError ? t.colors.danger : withAlpha(t.colors.accent, 0.5),
-            }}
-          />
-          <AppText
-            variant="caption"
-            align="center"
-            style={{ color: showError ? t.colors.dangerText : t.colors.textSecondary }}
-          >
-            {showError ? money.error : ADD_MONEY_COPY.amountMin(formatPaise(MIN_TOP_UP_PAISE))}
-          </AppText>
-          <AmountChips
-            amountsPaise={quickAmountsPaise}
-            selectedPaise={money.amountPaise}
+        <Animated.View entering={riseIn(0)}>
+          <AmountHero
+            amountText={money.amountText}
+            amountPaise={money.amountPaise}
+            balancePaise={money.balancePaise}
+            error={showError ? (money.error ?? null) : null}
+            minPaise={MIN_TOP_UP_PAISE}
+            quickAmountsPaise={quickAmountsPaise}
+            onChange={money.setAmount}
             onPick={amount => money.setAmount(String(amount / 100))}
           />
         </Animated.View>
+
+        {money.valid ? (
+          <Animated.View
+            entering={FadeIn.duration(t.motion.duration)}
+            exiting={FadeOut.duration(t.motion.durationFast)}
+          >
+            <BalancePreview balancePaise={money.balancePaise} creditsPaise={money.totalPaise} />
+          </Animated.View>
+        ) : null}
 
         {money.coupon && money.bonusPaise > 0 ? (
           <Animated.View
@@ -245,6 +208,9 @@ const AddMoneyScreen = ({ initialAmount }: AddMoneyScreenProps) => {
             {coupons}
           </Animated.View>
         ) : null}
+        <Animated.View entering={riseIn(4)}>
+          <SecureStrip />
+        </Animated.View>
       </AppScreen>
 
       {money.step === 'ordering' || money.step === 'verifying' ? (
@@ -297,9 +263,5 @@ const styles = StyleSheet.create({
   },
   grow: {
     flex: 1,
-  },
-  amountInput: {
-    minWidth: 24,
-    paddingVertical: 0,
   },
 });
