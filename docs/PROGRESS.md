@@ -577,3 +577,56 @@ emulator (hero variants, scrolled header, sheet open/close/reopen, Filters sheet
 
 **Verified**: tsc, expo lint, jest (55 suites, 411 tests); Android emulator (Wallet tab,
 Add Money with quick amounts). A real payment was not run.
+
+## Phase 7a + 7b: Profile tab and Edit Profile (branch `feat/profile`, 2026-11-26)
+
+Stacked on `feat/stations-list` (PR #6, itself stacked on #5).
+
+**Done**
+
+- Profile tab (E1), in the Wallet tab's style: brand wash, "Account" title with the user ID, a
+  bell (no badge: the API sends no unread count, OPEN_QUESTIONS #22), and the account card
+  (initials, name, email or "No email provided", phone, edit). Counts from `GET /profile`
+  (`data.stats`): skeletons while loading, friendly zero ("No vehicles yet") and singular /
+  plural ("1 vehicle"). Coming back to the tab refreshes them quietly behind what is shown;
+  pull to refresh; an error strip with Retry when they can't load.
+- Rows for screens not built yet (My Vehicles, Charging History, Favourite Spots,
+  Notifications) open a "Coming soon" screen at their final route
+  (`/(app)/vehicles`, `/(app)/charging/history`, `/(app)/favorites`, `/(app)/notifications`).
+- Help & Support opens the support URL in the in-app browser, hidden when there is none.
+  Log out keeps its confirm. Delete Account is a separate red row (see Deviations).
+- Version line "{brandName} v{version} ({build})" from expo-application, with the config
+  version as a fallback on dev builds made before the module was added.
+- Edit Profile (E2, `/(app)/profile/edit`): first and last name kept apart (fixes the
+  duplicated surname), email optional, phone with the brand's country code as a fixed prefix,
+  GSTIN validated (15-character format) and uppercased. Inline errors on blur. Save stays off
+  until something changed and everything is valid. A new phone number needs OTP first: a
+  4-digit sheet that focuses on open, verifies on the last digit (paste and SMS autofill come
+  from the shared OtpInput), resends after 30 s, and says so on a wrong or expired code.
+  `PUT /profile` sends only changed fields; on success the user is reloaded (Profile shows
+  the new name at once), a toast, then back. Server field errors go under their field; other
+  errors show with Retry above Save. Leaving with edits (back button, Android back, swipe)
+  asks "Discard changes?".
+- An account that signed up by email has no phone: phone is optional for it (required only
+  when the account already has one, so it can't be cleared).
+- `AppBackButton` takes a `fallbackHref`; `OtpInput` is exported from auth.
+- Tests: validation (email, phone, GSTIN), changed fields, counts, the deletion path, the
+  error mapper, the stats mapper and endpoints; flows through the real router (loaded,
+  loading, error + Retry, bell, Delete Account with the brand's URL, edit → OTP → save →
+  Profile shows the new name, wrong code, server field error, GSTIN, email-only account,
+  discard); Delete Account per brand (own URL; no URL → support, never cruzeev.in).
+
+**Deviations**
+
+- Delete Account: no in-app deletion yet (OPEN_QUESTIONS #19). It opens the brand's own page
+  after a confirm, or "Contact support" when the brand has none. `brand.deleteAccountUrl` is
+  now optional so no brand inherits another's page.
+- Email changes save without OTP until `/profile/send-otp` is tested with an email
+  (OPEN_QUESTIONS #20). The `PUT /profile` error shape is unconfirmed (#21).
+- "Error with Retry" on save is an inline strip above Save, not a toast action: adding an
+  action to the toast helper was left out because that file has uncommitted local edits.
+- expo-application was added: rebuild the dev build to show the native version and build.
+
+**Verified**: tsc, expo lint, jest (58 suites, 444 tests); iOS simulator (Profile loaded,
+zero counts); Android emulator (Profile, Delete Account confirm, Edit Profile validation,
+Discard on Android back).

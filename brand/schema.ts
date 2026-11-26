@@ -94,8 +94,11 @@ const BrandObjectSchema = z.object({
   webDomain: domain,
   /** Domains for iOS universal links and Android app links. */
   deepLinkDomains: z.array(domain).default([]),
-  /** Web page where users request account deletion (opened from Profile). */
-  deleteAccountUrl: z.url(),
+  /**
+   * Web page where users request account deletion (opened from Profile). Optional: a brand
+   * without one gets a "Contact support" path instead, never another brand's page.
+   */
+  deleteAccountUrl: z.url().optional(),
   /**
    * Build-time fallbacks for the legal and support links. Runtime URLs from GET /client/info
    * win; these are used before it has ever loaded (fresh install offline) or if it omits one.
