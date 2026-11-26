@@ -136,6 +136,7 @@ export const DETAILS_COPY = {
   helpLine: 'Help line',
   connectorTypes: 'Connector types',
   directionsShort: 'Directions',
+  start: 'Start',
   chargerCount: 'Chargers',
   connectorCount: 'Connectors',
   connectorType: 'Connector type',

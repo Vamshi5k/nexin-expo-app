@@ -1,6 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 
-import { ChevronRight, Zap } from 'lucide-react-native';
+import { ChevronRight } from 'lucide-react-native';
 import Animated from 'react-native-reanimated';
 import Svg, { Circle } from 'react-native-svg';
 
@@ -8,7 +8,7 @@ import { AppConnectorIcon, AppPressable, AppText } from '@/shared/components';
 
 import StatusBadge from './StatusBadge';
 
-import { useTheme } from '@/shared/theme';
+import { useTheme, withAlpha } from '@/shared/theme';
 
 import { riseIn } from '@/shared/utils/motion';
 
@@ -28,7 +28,7 @@ type ChargerGroupProps = {
   onConnectorPress: (charger: Charger, connector: Connector) => void;
 };
 
-type ConnectorTileProps = {
+type ConnectorRowProps = {
   charger: Charger;
   connector: Connector;
   onPress: (charger: Charger, connector: Connector) => void;
@@ -39,10 +39,11 @@ type ChargeRingProps = {
 };
 
 const RING_STROKE = 3;
+const SOFT = 0.12;
 
 const ChargeRing = ({ percent }: ChargeRingProps) => {
   const t = useTheme();
-  const size = t.space[8];
+  const size = t.space[8] + t.space[1];
   const radius = (size - RING_STROKE) / 2;
   const length = 2 * Math.PI * radius;
   const clamped = Math.min(100, Math.max(0, percent));
@@ -78,69 +79,55 @@ const ChargeRing = ({ percent }: ChargeRingProps) => {
   );
 };
 
-// A row per connector: its plug drawing, short number and type, then a status badge. A free one is outlined
-// in the accent with a go arrow; charging shows a ring with the %.
-const ConnectorTile = ({ charger, connector, onPress }: ConnectorTileProps) => {
+// One list row per connector: the plug on a soft status circle, type and number, a status badge,
+// then Start when it is free or the charge ring while charging. Busy rows end there.
+const ConnectorRow = ({ charger, connector, onPress }: ConnectorRowProps) => {
   const t = useTheme();
   const startable = canStartCharging(connector.state);
   const charging = connector.state === 'charging';
   const type = connector.portType ?? DETAILS_COPY.unknownType;
+  const main = t.colors.status.connector[connector.state].main;
   const eta = charging ? timeToFull(connector.minutesToFull) : null;
+  const plug = t.space[10];
 
   return (
     <AppPressable
       onPress={() => onPress(charger, connector)}
+      feedback="opacity"
       accessibilityRole="button"
       accessibilityLabel={`${connectorTitle(connector.connectorId)}, ${type}, ${connector.label}`}
       accessibilityState={{ disabled: !startable }}
-      style={[
-        styles.row,
-        {
-          gap: t.space[2] + t.space[1] / 2,
-          padding: t.space[2],
-          paddingRight: t.space[3],
-          borderRadius: t.radius.control,
-          borderWidth: startable ? t.layout.selectedBorder : t.layout.hairline,
-          borderColor: startable ? t.colors.accentText : t.colors.border,
-          backgroundColor: startable ? t.colors.accentSoft : t.colors.surface,
-        },
-      ]}
+      style={[styles.row, { gap: t.space[3], paddingVertical: t.space[2] + t.space[1] / 2 }]}
     >
       <View
         style={[
           styles.center,
           {
-            width: t.space[10],
-            height: t.space[10],
-            borderRadius: t.radius.control,
-            borderWidth: t.layout.hairline,
-            borderColor: t.colors.border,
-            backgroundColor: t.colors.surface,
+            width: plug,
+            height: plug,
+            borderRadius: t.radius.pill,
+            backgroundColor: withAlpha(main, SOFT),
           },
         ]}
       >
-        <AppConnectorIcon
-          type={type}
-          size={t.space[6] + t.space[1]}
-          available={startable || charging}
-        />
+        <AppConnectorIcon type={type} size={t.space[6]} available={startable || charging} />
       </View>
 
       <View style={[styles.grow, { gap: t.space[1] }]}>
         <View style={[styles.row, { gap: t.space[1] + t.space[1] / 2 }]}>
-          <AppText variant="caption" tone="secondary" tabular>
-            {shortConnector(connector.connectorId)}
-          </AppText>
           <AppText
             variant="subhead"
             numberOfLines={1}
             style={[
               styles.shrink,
               { fontFamily: t.type.headline.fontFamily },
-              startable || charging ? undefined : { color: t.colors.textTertiary },
+              startable || charging ? undefined : { color: t.colors.textSecondary },
             ]}
           >
             {type}
+          </AppText>
+          <AppText variant="caption" tone="tertiary" tabular>
+            {shortConnector(connector.connectorId)}
           </AppText>
         </View>
         <View style={[styles.row, { gap: t.space[2] }]}>
@@ -165,15 +152,23 @@ const ConnectorTile = ({ charger, connector, onPress }: ConnectorTileProps) => {
       {startable ? (
         <View
           style={[
-            styles.center,
+            styles.row,
             {
-              width: t.space[6] + t.space[1],
-              height: t.space[6] + t.space[1],
+              gap: t.space[1] / 2,
+              height: t.space[8],
+              paddingLeft: t.space[3],
+              paddingRight: t.space[2],
               borderRadius: t.radius.pill,
               backgroundColor: t.colors.textPrimary,
             },
           ]}
         >
+          <AppText
+            variant="caption"
+            style={{ fontFamily: t.type.headline.fontFamily, color: t.colors.surface }}
+          >
+            {DETAILS_COPY.start}
+          </AppText>
           <ChevronRight color={t.colors.surface} size={t.icon.meta} strokeWidth={t.icon.stroke} />
         </View>
       ) : null}
@@ -181,7 +176,8 @@ const ConnectorTile = ({ charger, connector, onPress }: ConnectorTileProps) => {
   );
 };
 
-// One charger: name, specs and free count, then each connector on its own full-width row.
+// One charger as a single card: name and specs with the free count, a hairline, then its
+// connectors as list rows.
 const ChargerGroup = ({ charger, index, onConnectorPress }: ChargerGroupProps) => {
   const t = useTheme();
   const free = freeConnectors(charger);
@@ -192,15 +188,24 @@ const ChargerGroup = ({ charger, index, onConnectorPress }: ChargerGroupProps) =
     <Animated.View
       entering={riseIn(index + 1)}
       style={{
-        gap: t.space[2],
-        padding: t.space[2] + t.space[1] / 2,
+        paddingHorizontal: t.space[3] + t.space[1],
         borderRadius: t.radius.card,
         borderWidth: t.layout.hairline,
         borderColor: t.colors.border,
         backgroundColor: t.colors.surfaceRaised,
       }}
     >
-      <View style={[styles.row, { gap: t.space[3], paddingHorizontal: t.space[1] }]}>
+      <View
+        style={[
+          styles.row,
+          {
+            gap: t.space[3],
+            paddingVertical: t.space[3],
+            borderBottomWidth: t.layout.hairline,
+            borderBottomColor: t.colors.border,
+          },
+        ]}
+      >
         <View style={styles.grow}>
           <AppText
             variant="subhead"
@@ -216,46 +221,33 @@ const ChargerGroup = ({ charger, index, onConnectorPress }: ChargerGroupProps) =
           ) : null}
         </View>
         {total ? (
-          <View
-            style={[
-              styles.row,
-              {
-                gap: t.space[1] + t.space[1] / 2,
-                height: t.space[5],
-                paddingHorizontal: t.space[2],
-                borderRadius: t.radius.pill,
-                backgroundColor: free ? t.colors.successSoft : t.colors.surfaceSunken,
-              },
-            ]}
+          <AppText
+            variant="caption"
+            tabular
+            style={{
+              fontFamily: t.type.headline.fontFamily,
+              color: free ? t.colors.successText : t.colors.textTertiary,
+            }}
           >
-            <Zap
-              color={free ? t.colors.successText : t.colors.textTertiary}
-              fill={free ? t.colors.successText : t.colors.textTertiary}
-              size={t.icon.meta - 4}
-              strokeWidth={t.icon.stroke}
-            />
-            <AppText
-              variant="caption"
-              tabular
-              style={{
-                fontFamily: t.type.headline.fontFamily,
-                color: free ? t.colors.successText : t.colors.textTertiary,
-              }}
-            >
-              {freeBadge(free, total)}
-            </AppText>
-          </View>
+            {freeBadge(free, total)}
+          </AppText>
         ) : null}
       </View>
 
-      <View style={{ gap: t.space[1] + t.space[1] / 2 }}>
-        {charger.connectors.map(connector => (
-          <ConnectorTile
-            key={connector.id}
-            charger={charger}
-            connector={connector}
-            onPress={onConnectorPress}
-          />
+      <View style={{ paddingVertical: t.space[1] }}>
+        {charger.connectors.map((connector, position) => (
+          <View key={connector.id}>
+            {position ? (
+              <View
+                style={{
+                  height: t.layout.hairline,
+                  marginLeft: t.space[10] + t.space[3],
+                  backgroundColor: t.colors.border,
+                }}
+              />
+            ) : null}
+            <ConnectorRow charger={charger} connector={connector} onPress={onConnectorPress} />
+          </View>
         ))}
       </View>
     </Animated.View>
