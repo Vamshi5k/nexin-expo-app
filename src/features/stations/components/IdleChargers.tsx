@@ -4,7 +4,7 @@ import { StyleSheet, View } from 'react-native';
 import { ChevronDown } from 'lucide-react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 
-import { AppPressable, AppText } from '@/shared/components';
+import { AppConnectorIcon, AppPressable, AppText } from '@/shared/components';
 
 import StatusDot from './StatusDot';
 
@@ -125,6 +125,11 @@ const IdleChargers = ({ chargers, onConnectorPress }: IdleChargersProps) => {
                       },
                     ]}
                   >
+                    <AppConnectorIcon
+                      type={connector.portType ?? DETAILS_COPY.unknownType}
+                      size={t.space[6]}
+                      available={false}
+                    />
                     <AppText variant="subhead" tone="secondary" tabular>
                       {shortConnector(connector.connectorId)}
                     </AppText>

@@ -4,7 +4,7 @@ import { ChevronRight } from 'lucide-react-native';
 import Animated from 'react-native-reanimated';
 import Svg, { Circle } from 'react-native-svg';
 
-import { AppPressable, AppText } from '@/shared/components';
+import { AppConnectorIcon, AppPressable, AppText } from '@/shared/components';
 
 import StatusDot from './StatusDot';
 
@@ -78,7 +78,7 @@ const ChargeRing = ({ percent }: ChargeRingProps) => {
   );
 };
 
-// A row per connector: its short number and type, then the live status. A free one is outlined
+// A row per connector: its plug drawing, short number and type, then the live status. A free one is outlined
 // in the accent with a go arrow; charging shows a ring with the %.
 const ConnectorTile = ({ charger, connector, onPress }: ConnectorTileProps) => {
   const t = useTheme();
@@ -99,8 +99,7 @@ const ConnectorTile = ({ charger, connector, onPress }: ConnectorTileProps) => {
         styles.row,
         {
           gap: t.space[3],
-          paddingVertical: t.space[3],
-          paddingLeft: t.space[4],
+          padding: t.space[2] + t.space[1] / 2,
           paddingRight: t.space[3],
           borderRadius: t.radius.control,
           borderWidth: startable ? t.layout.selectedBorder : t.layout.hairline,
@@ -109,6 +108,22 @@ const ConnectorTile = ({ charger, connector, onPress }: ConnectorTileProps) => {
         },
       ]}
     >
+      <View
+        style={[
+          styles.center,
+          {
+            width: t.space[12],
+            height: t.space[12],
+            borderRadius: t.radius.control,
+            borderWidth: t.layout.hairline,
+            borderColor: t.colors.border,
+            backgroundColor: t.colors.surface,
+          },
+        ]}
+      >
+        <AppConnectorIcon type={type} size={t.space[8]} available={startable || charging} />
+      </View>
+
       <View style={[styles.grow, { gap: t.space[1] / 2 }]}>
         <View style={[styles.row, { gap: t.space[2] }]}>
           <AppText variant="caption" tone="secondary" tabular>
