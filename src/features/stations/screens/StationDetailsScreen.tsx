@@ -120,11 +120,11 @@ const StationDetailsScreen = ({ stationId }: StationDetailsScreenProps) => {
 
         <View style={{ gap: t.space[6] }}>
           <View style={{ gap: t.space[1], paddingHorizontal: t.layout.screenPadding }}>
-            <AppText variant="title2" accessibilityRole="header">
+            <AppText variant="title3" accessibilityRole="header">
               {DETAILS_COPY.chargers}
             </AppText>
             {details.chargers.length ? (
-              <AppText variant="subhead" tone="secondary">
+              <AppText variant="caption" tone="secondary">
                 {DETAILS_COPY.tip}
               </AppText>
             ) : null}
