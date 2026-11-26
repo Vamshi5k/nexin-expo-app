@@ -43,12 +43,12 @@ const StatusLabel = ({ label, state }: StatusLabelProps) => {
   const main = t.colors.status.connector[state].main;
 
   return (
-    <View style={[styles.row, { gap: t.space[2] }]}>
+    <View style={[styles.row, { gap: t.space[2] + t.space[1] / 2 }]}>
       <StatusDot color={main} glow live={state === 'charging'} />
       <AppText
         variant="caption"
         numberOfLines={1}
-        style={[styles.shrink, { fontFamily: t.type.headline.fontFamily, color: inkFor(t, state) }]}
+        style={[styles.shrink, { color: inkFor(t, state) }]}
       >
         {label}
       </AppText>

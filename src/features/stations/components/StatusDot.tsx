@@ -11,7 +11,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
-import { useTheme } from '@/shared/theme';
+import { useTheme, withAlpha } from '@/shared/theme';
 
 type StatusDotProps = {
   color: string;
@@ -22,7 +22,8 @@ type StatusDotProps = {
 
 const PULSE_MS = 1600;
 const PULSE_SCALE = 2.6;
-const GLOW_SCALE = 2.2;
+const GLOW_BLUR = 6;
+const GLOW_ALPHA = 0.7;
 
 // A small status dot, optionally with a soft glow. When live a ring keeps radiating from it.
 const StatusDot = ({ color, live, glow }: StatusDotProps) => {
@@ -47,33 +48,15 @@ const StatusDot = ({ color, live, glow }: StatusDotProps) => {
   const size = t.space[2];
   const dot = { width: size, height: size, borderRadius: t.radius.pill, backgroundColor: color };
 
-  const halo = size * GLOW_SCALE;
+  // A real light bleed in the dot's own colour, not a flat circle behind it.
+  const lit = glow ? { boxShadow: `0 0 ${GLOW_BLUR}px 1px ${withAlpha(color, GLOW_ALPHA)}` } : null;
 
   return (
-    <View style={[styles.center, { width: size, height: size }]}>
-      {glow ? (
-        <View
-          style={[
-            styles.halo,
-            { width: halo, height: halo, borderRadius: t.radius.pill, backgroundColor: color },
-          ]}
-        />
-      ) : null}
+    <View style={{ width: size, height: size }}>
       {animate ? <Animated.View style={[StyleSheet.absoluteFill, dot, ring]} /> : null}
-      <View style={dot} />
+      <View style={[dot, lit]} />
     </View>
   );
 };
 
 export default StatusDot;
-
-const styles = StyleSheet.create({
-  center: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  halo: {
-    position: 'absolute',
-    opacity: 0.22,
-  },
-});
