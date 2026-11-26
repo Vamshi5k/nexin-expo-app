@@ -33,7 +33,7 @@ type ConnectorCardProps = {
 };
 
 // Connectors always sit in a sideways row; the next card peeks so the swipe is obvious.
-const SWIPE_CARD_RATIO = 0.8;
+const SWIPE_CARD_RATIO = 0.72;
 
 const chargerMeta = (charger: Charger, index: number) =>
   [
@@ -77,8 +77,8 @@ const ConnectorCard = ({
         styles.card,
         {
           width,
-          gap: t.space[4],
-          padding: t.space[4],
+          gap: t.space[3],
+          padding: t.space[3],
           borderRadius: t.radius.card,
           borderWidth: t.layout.hairline,
           borderColor: t.colors.border,
@@ -93,17 +93,21 @@ const ConnectorCard = ({
           style={[
             styles.center,
             {
-              width: t.space[12],
-              height: t.space[12],
+              width: t.space[10],
+              height: t.space[10],
               borderRadius: t.radius.control,
               backgroundColor: t.colors.surface,
             },
           ]}
         >
-          <AppConnectorIcon type={type} size={t.space[8]} available={startable} />
+          <AppConnectorIcon type={type} size={t.space[6]} available={startable} />
         </View>
         <View style={styles.grow}>
-          <AppText variant="headline" numberOfLines={1}>
+          <AppText
+            variant="subhead"
+            numberOfLines={1}
+            style={{ fontFamily: t.type.headline.fontFamily }}
+          >
             {type}
           </AppText>
           <AppText variant="caption" tone="secondary" numberOfLines={1}>
