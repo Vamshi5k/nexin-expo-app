@@ -27,7 +27,7 @@ type StationListCardProps = {
   onDirections: (station: NearbyStation) => void;
 };
 
-const pillHeight = (t: Theme) => t.space[6] + t.space[1];
+const pillHeight = (t: Theme) => t.space[6];
 
 const footerStats = (station: NearbyStation): Stat[] => {
   const km = station.distanceKm;
@@ -80,9 +80,10 @@ const StationListCard = ({
       style={[
         styles.card,
         {
-          gap: t.space[3],
-          padding: t.space[4],
-          borderRadius: t.radius.sheet,
+          gap: t.space[2],
+          padding: t.space[3],
+          paddingLeft: t.space[4],
+          borderRadius: t.radius.card,
           borderWidth: t.layout.hairline,
           borderColor: t.colors.border,
           backgroundColor: t.colors.surfaceRaised,
@@ -143,7 +144,11 @@ const StationListCard = ({
       </View>
 
       <View>
-        <AppText variant="headline" numberOfLines={1}>
+        <AppText
+          variant="subhead"
+          numberOfLines={1}
+          style={{ fontFamily: t.type.headline.fontFamily }}
+        >
           {station.name}
         </AppText>
         {station.address ? (
@@ -162,19 +167,20 @@ const StationListCard = ({
           haptic="light"
           accessibilityRole="button"
           accessibilityLabel={`${CARD_COPY.directions} ${station.name}`}
+          hitSlop={t.space[1]}
           style={[
             styles.row,
             {
-              gap: t.space[2],
-              height: t.layout.minTouch,
-              paddingHorizontal: t.space[4],
+              gap: t.space[1] + t.space[1] / 2,
+              height: t.space[8] + t.space[1],
+              paddingHorizontal: t.space[3],
               borderRadius: t.radius.pill,
               backgroundColor: t.colors.textPrimary,
             },
           ]}
         >
           <Navigation color={t.colors.surface} size={t.icon.meta} strokeWidth={t.icon.stroke} />
-          <AppText variant="subhead" style={{ color: t.colors.surface }}>
+          <AppText variant="caption" style={{ color: t.colors.surface }}>
             {CARD_COPY.go}
           </AppText>
         </AppPressable>

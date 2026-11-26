@@ -38,12 +38,12 @@ const StationsScreen = ({ focusSearch = false }: StationsScreenProps) => {
   const tabBarHeight = useContext(BottomTabBarHeightContext) ?? 0;
   const inputRef = useRef<ComponentRef<typeof TextInput>>(null);
   const list = useStationList({ focusSearch, inputRef });
-  const cardSkeletonHeight = t.space[12] * 3 + t.space[4];
+  const cardSkeletonHeight = t.space[12] * 2 + t.space[8];
 
   const skeletons = (count: number) => (
     <View style={{ gap: t.space[3] }}>
       {Array.from({ length: count }, (_, index) => (
-        <AppSkeleton key={index} height={cardSkeletonHeight} radius={t.radius.sheet} />
+        <AppSkeleton key={index} height={cardSkeletonHeight} radius={t.radius.card} />
       ))}
     </View>
   );
