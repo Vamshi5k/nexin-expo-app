@@ -7,6 +7,7 @@ import {
 } from 'react-native';
 
 import { Image } from 'expo-image';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
 
 import { AppText } from '@/shared/components';
@@ -23,6 +24,8 @@ import { DETAILS_COPY, MAX_ETA_KM, pageLabel } from '../constants/stations.const
 import type { StationDetails } from '../types/stations.types';
 import { formatDistance, formatEta } from '../utils/geo';
 import { pinColorKey, STATUS_LABEL } from '../utils/status';
+
+const ART_RATIO = 0.3;
 
 type StationHeroProps = {
   station: StationDetails;
@@ -87,6 +90,9 @@ const StationHero = ({
   onImageError,
 }: StationHeroProps) => {
   const t = useTheme();
+  const insets = useSafeAreaInsets();
+  // Centred between the back button and the actions, clear of the status pill below.
+  const artSize = height * ART_RATIO;
   const hasPhoto = images.length > 0;
   const statusColor = t.colors.connector[pinColorKey(station.status)];
   const ink = hasPhoto ? t.colors.surface : t.colors.textPrimary;
@@ -128,8 +134,8 @@ const StationHero = ({
       ) : (
         <View testID="station-hero-fallback" style={StyleSheet.absoluteFill}>
           <Fade id={`hero-wash-${station.id}`} color={t.colors.accent} from={0.28} to={0.06} top />
-          <View style={[styles.art, { top: height * 0.12, right: t.space[4] }]}>
-            <ChargerArt size={height * 0.42} glow={t.colors.accent} />
+          <View style={[styles.art, { top: insets.top + t.space[1], left: (width - artSize) / 2 }]}>
+            <ChargerArt size={artSize} glow={t.colors.accent} />
           </View>
         </View>
       )}
