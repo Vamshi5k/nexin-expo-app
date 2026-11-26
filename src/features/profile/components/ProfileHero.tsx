@@ -2,7 +2,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { Pencil } from 'lucide-react-native';
 
-import { AppFade, AppPressable, AppText } from '@/shared/components';
+import { AppPressable, AppText } from '@/shared/components';
 
 import { useTheme } from '@/shared/theme';
 
@@ -17,7 +17,7 @@ type ProfileHeroProps = {
 };
 
 // The account card: initials, name, email (or a quiet "No email provided") and phone, with the
-// edit button. The same soft brand wash as the wallet's balance card.
+// edit button. Plain white, sitting on the screen's brand wash.
 const ProfileHero = ({ name, initials, email, phone, onEdit }: ProfileHeroProps) => {
   const t = useTheme();
   const avatar = t.space[12] + t.space[2];
@@ -37,8 +37,6 @@ const ProfileHero = ({ name, initials, email, phone, onEdit }: ProfileHeroProps)
         },
       ]}
     >
-      <AppFade id="profile-wash" color={t.colors.accent} from={0.12} to={0} top />
-
       <View
         style={[
           styles.center,
