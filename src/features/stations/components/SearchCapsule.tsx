@@ -5,8 +5,6 @@ import { Search, X } from 'lucide-react-native';
 
 import { AppGlass, AppPressable } from '@/shared/components';
 
-import { mapTopBarHeight } from './MapTopBar';
-
 import { useTheme } from '@/shared/theme';
 
 import { LIST_COPY } from '../constants/stations.constants';
@@ -21,18 +19,20 @@ type SearchCapsuleProps = {
 // The map's glass search capsule, but a real field: same height, icon and pill shape.
 const SearchCapsule = ({ value, inputRef, onChange, onClear }: SearchCapsuleProps) => {
   const t = useTheme();
-  const height = mapTopBarHeight(t);
-  const inset = (height - t.layout.minTouch) / 2;
+  // A little slimmer than the map's capsule: here it sits under a title, not over a map.
+  const height = t.layout.minTouch + t.space[1];
+  const clear = t.space[8];
+  const inset = (height - clear) / 2;
 
   return (
     <AppGlass
       radius={t.radius.pill}
       style={[
         styles.capsule,
-        { height, gap: t.space[3], paddingLeft: t.space[5], paddingRight: inset },
+        { height, gap: t.space[2], paddingLeft: t.space[4], paddingRight: inset },
       ]}
     >
-      <Search color={t.colors.textSecondary} size={t.icon.control} strokeWidth={t.icon.stroke} />
+      <Search color={t.colors.textSecondary} size={t.icon.meta} strokeWidth={t.icon.stroke} />
       <TextInput
         ref={inputRef}
         value={value}
@@ -45,7 +45,11 @@ const SearchCapsule = ({ value, inputRef, onChange, onClear }: SearchCapsuleProp
         autoCorrect={false}
         autoCapitalize="none"
         maxFontSizeMultiplier={t.layout.maxFontScale}
-        style={[styles.input, t.type.body, { lineHeight: undefined, color: t.colors.textPrimary }]}
+        style={[
+          styles.input,
+          t.type.subhead,
+          { lineHeight: undefined, color: t.colors.textPrimary },
+        ]}
       />
       {value ? (
         <AppPressable
@@ -53,11 +57,12 @@ const SearchCapsule = ({ value, inputRef, onChange, onClear }: SearchCapsuleProp
           haptic="light"
           accessibilityRole="button"
           accessibilityLabel={LIST_COPY.clearSearch}
+          hitSlop={t.space[1]}
           style={[
             styles.center,
             {
-              width: t.layout.minTouch,
-              height: t.layout.minTouch,
+              width: clear,
+              height: clear,
               borderRadius: t.radius.pill,
               backgroundColor: t.colors.surfaceSunken,
             },

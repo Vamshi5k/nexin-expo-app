@@ -100,24 +100,24 @@ const StationsScreen = ({ focusSearch = false }: StationsScreenProps) => {
     <View style={[styles.screen, { backgroundColor: t.colors.bg }]}>
       <View
         style={{
-          gap: t.space[4],
-          paddingTop: insets.top + t.space[4],
+          gap: t.space[3],
+          paddingTop: insets.top + t.space[2],
           paddingHorizontal: t.layout.screenPadding,
           paddingBottom: t.space[3],
         }}
       >
         <Fade id="stations-wash" color={t.colors.accent} from={0.22} to={0} top />
         <View style={[styles.header, { gap: t.space[3] }]}>
-          <Animated.View entering={riseIn(0)} style={[styles.grow, { gap: t.space[1] }]}>
-            <AppText variant="title1" accessibilityRole="header">
+          <Animated.View entering={riseIn(0)} style={[styles.grow, { gap: t.space[1] / 2 }]}>
+            <AppText variant="title2" accessibilityRole="header">
               {LIST_COPY.title}
             </AppText>
-            <AppText variant="subhead" tone="secondary">
+            <AppText variant="caption" tone="secondary">
               {LIST_COPY.subtitle}
             </AppText>
           </Animated.View>
           <Animated.View entering={riseIn(1)}>
-            <StationsHeaderArt size={t.space[12] + t.space[8]} />
+            <StationsHeaderArt size={t.space[12] + t.space[4]} />
           </Animated.View>
         </View>
         <Animated.View entering={dropIn(2)}>
