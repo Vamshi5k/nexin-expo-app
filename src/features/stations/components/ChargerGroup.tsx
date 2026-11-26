@@ -39,6 +39,7 @@ type ChargeRingProps = {
 };
 
 const RING_STROKE = 3;
+const DOWN_STATES = ['unavailable', 'faulted', 'offline'];
 
 const ChargeRing = ({ percent }: ChargeRingProps) => {
   const t = useTheme();
@@ -87,6 +88,7 @@ const ConnectorTile = ({ charger, connector, onPress }: ConnectorTileProps) => {
   const type = connector.portType ?? DETAILS_COPY.unknownType;
   const status = t.colors.status.connector[connector.state];
   const eta = charging ? timeToFull(connector.minutesToFull) : null;
+  const down = DOWN_STATES.includes(connector.state);
   const statusText = eta ? `${connector.label} · ${eta}` : connector.label;
 
   return (
@@ -149,7 +151,11 @@ const ConnectorTile = ({ charger, connector, onPress }: ConnectorTileProps) => {
               styles.shrink,
               {
                 fontFamily: t.type.headline.fontFamily,
-                color: charging ? t.colors.accentText : t.colors.textPrimary,
+                color: charging
+                  ? t.colors.accentText
+                  : down
+                    ? t.colors.dangerText
+                    : t.colors.textPrimary,
               },
             ]}
           >
@@ -180,13 +186,12 @@ const ConnectorTile = ({ charger, connector, onPress }: ConnectorTileProps) => {
   );
 };
 
-// A charger with something free or charging: name, specs and free count, then each connector
-// on its own full-width row.
+// One charger: name, specs and free count, then each connector on its own full-width row.
 const ChargerGroup = ({ charger, index, onConnectorPress }: ChargerGroupProps) => {
   const t = useTheme();
   const free = freeConnectors(charger);
   const total = charger.connectors.length;
-  const specs = chargerSpecs(charger, 'price');
+  const specs = chargerSpecs(charger);
 
   return (
     <Animated.View

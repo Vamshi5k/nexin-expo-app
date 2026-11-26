@@ -190,7 +190,7 @@ describe('StationDetailsScreen', () => {
     });
   });
 
-  it('nothing free or charging: the charger shows as a quiet row', async () => {
+  it('nothing free: the charger still shows as a card with its connectors', async () => {
     await renderStation({
       ...STATION,
       chargers: STATION.chargers.map(charger => ({
@@ -204,7 +204,8 @@ describe('StationDetailsScreen', () => {
     });
 
     expect(screen.getByText('Charger 01')).toBeTruthy();
-    expect(screen.getByText('DC · 60 kW · 2 × CCS2')).toBeTruthy();
+    expect(screen.getByText('0/2 free')).toBeTruthy();
+    expect(screen.getByLabelText('Connector 1, CCS2, Unavailable')).toBeTruthy();
     expect(screen.queryByText('Tap a connector to start charging')).toBeNull();
   });
 

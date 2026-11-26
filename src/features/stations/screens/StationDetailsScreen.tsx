@@ -22,7 +22,6 @@ import {
 
 import ChargerGroup from '../components/ChargerGroup';
 import DetailsTopBar, { topBarSpace } from '../components/DetailsTopBar';
-import IdleChargers from '../components/IdleChargers';
 import MapsChooserSheet from '../components/MapsChooserSheet';
 import StationHero from '../components/StationHero';
 import StationInfo from '../components/StationInfo';
@@ -39,7 +38,7 @@ import { useHeroImages } from '../hooks/useHeroImages';
 import { useHeroParallax } from '../hooks/useHeroParallax';
 import { useStationDetails } from '../hooks/useStationDetails';
 import { useStickyTabs } from '../hooks/useStickyTabs';
-import { isActiveCharger } from '../utils/connector';
+import { freeConnectors } from '../utils/connector';
 import { pinColorKey, STATUS_LABEL } from '../utils/status';
 
 type StationDetailsScreenProps = {
@@ -130,10 +129,6 @@ const StationDetailsScreen = ({ stationId }: StationDetailsScreenProps) => {
     );
   }
 
-  const indexed = details.chargers.map((charger, index) => ({ charger, index }));
-  const active = indexed.filter(entry => isActiveCharger(entry.charger));
-  const idle = indexed.filter(entry => !isActiveCharger(entry.charger));
-
   return (
     <View style={[styles.screen, { backgroundColor: t.colors.bg }]}>
       <StatusBar style={overPhoto ? 'light' : 'dark'} />
@@ -222,7 +217,7 @@ const StationDetailsScreen = ({ stationId }: StationDetailsScreenProps) => {
             {tab === 'chargers' ? (
               details.chargers.length ? (
                 <>
-                  {active.length ? (
+                  {details.chargers.some(charger => freeConnectors(charger) > 0) ? (
                     <AppText
                       variant="caption"
                       tone="secondary"
@@ -231,7 +226,7 @@ const StationDetailsScreen = ({ stationId }: StationDetailsScreenProps) => {
                       {DETAILS_COPY.tip}
                     </AppText>
                   ) : null}
-                  {active.map(({ charger, index }) => (
+                  {details.chargers.map((charger, index) => (
                     <ChargerGroup
                       key={charger.id}
                       charger={charger}
@@ -239,9 +234,6 @@ const StationDetailsScreen = ({ stationId }: StationDetailsScreenProps) => {
                       onConnectorPress={details.openConnector}
                     />
                   ))}
-                  {idle.length ? (
-                    <IdleChargers chargers={idle} onConnectorPress={details.openConnector} />
-                  ) : null}
                 </>
               ) : (
                 <AppEmptyState

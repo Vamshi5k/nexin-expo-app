@@ -1,7 +1,7 @@
 import { formatRate } from '@/shared/utils/money';
 import type { ConnectorState } from '@brand/schema';
 
-import { CARD_COPY, connectorSummary } from '../constants/stations.constants';
+import { CARD_COPY } from '../constants/stations.constants';
 import type { Charger, Connector } from '../types/stations.types';
 
 export type ConnectorStatus = { state: ConnectorState; label: string };
@@ -73,13 +73,6 @@ export function timeToFull(minutes: number | null): string | null {
   return rest ? `${hours} h ${rest} min to full` : `${hours} h to full`;
 }
 
-// A charger worth opening up: something on it can start or is charging right now.
-export function isActiveCharger(charger: Charger): boolean {
-  return charger.connectors.some(
-    connector => canStartCharging(connector.state) || connector.state === 'charging',
-  );
-}
-
 export function chargingProgress(connector: Connector): string | null {
   if (connector.state !== 'charging') return null;
 
@@ -91,20 +84,15 @@ export function chargingProgress(connector: Connector): string | null {
   return text || null;
 }
 
-// "DC · 60 kW", then either the rate or how many connectors of which type ("2 × CCS2").
-export function chargerSpecs(charger: Charger, tail: 'price' | 'connectors'): string {
-  const types = [...new Set(charger.connectors.map(connector => connector.portType))];
-  const type = types.length === 1 ? (types[0] ?? null) : null;
-  const last =
-    tail === 'price'
-      ? charger.pricePerKwhPaise !== null
-        ? `${formatRate(charger.pricePerKwhPaise)}${CARD_COPY.price}`
-        : null
-      : charger.connectors.length
-        ? connectorSummary(charger.connectors.length, type)
-        : null;
-
-  return [charger.powerType, charger.capacityKw !== null ? `${charger.capacityKw} kW` : null, last]
+// "DC · 60 kW · ₹18.00/kWh", leaving out whatever the charger does not report.
+export function chargerSpecs(charger: Charger): string {
+  return [
+    charger.powerType,
+    charger.capacityKw !== null ? `${charger.capacityKw} kW` : null,
+    charger.pricePerKwhPaise !== null
+      ? `${formatRate(charger.pricePerKwhPaise)}${CARD_COPY.price}`
+      : null,
+  ]
     .filter(Boolean)
     .join(' · ');
 }

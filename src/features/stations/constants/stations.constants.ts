@@ -168,7 +168,5 @@ export const connectorBusy = (status: string) => `Connector is currently ${statu
 export const pageLabel = (page: number, total: number) => `${pad2(page)} / ${pad2(total)}`;
 export const pad2 = (value: number) => String(value).padStart(2, '0');
 export const shortConnector = (connectorId: string) => `C${connectorId}`;
-export const connectorSummary = (count: number, type: string | null) =>
-  type ? `${count} × ${type}` : `${count} connectors`;
 export const routeLabel = (distance: string, eta: string | null) =>
   eta ? `${distance} · ${eta} drive` : distance;

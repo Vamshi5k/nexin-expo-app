@@ -130,12 +130,12 @@ the driver find, start, watch or pay for a charge.
     tiles; a Route tile ("1.9 km · 4 min drive") with a dark circle that opens directions.
   - Chargers / Info segmented tabs (white track, dark thumb, "04" count) pin under a solid
     header with the name and "● status · address" once scrolled.
-  - Chargers tab: chargers with something free or charging get a card ("Charger 01", specs,
-    "1/2 free") with one full-width row per connector: "C1" and the type, then the status. A
+  - Chargers tab: every charger gets a card ("Charger 01", specs, "1/2 free") with one
+    full-width row per connector: the plug drawing in a white square: "C1" and the type, then the status. A
     free row has an accentSoft fill, accent outline and a dark go arrow, and tapping it opens
     charging; charging shows a % ring and "Charging · time to full" (estimates past a day
-    are hidden). The other chargers sit as quiet rows in one card ("DC · 60 kW · 2 × CCS2",
-    red status) that open to list their connectors. No slide-to-charge bar.
+    are hidden); busy rows stay white with a grey plug and red text for Unavailable,
+    Faulted and offline. No slide-to-charge bar.
   - Info tab: a card with a drawn map hint (roads, route, accent pin, distance chip), the
     ADDRESS overline, address, and Copy (outlined) + Directions (accent) pills; big-number
     tiles two per row (chargers, connectors, connector type, access); the help line with a
