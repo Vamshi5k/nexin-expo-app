@@ -2,7 +2,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { Eye, EyeOff, Plus } from 'lucide-react-native';
 
-import { AppPressable, AppText } from '@/shared/components';
+import { AppFade, AppPressable, AppText } from '@/shared/components';
 
 import WalletArt from './WalletArt';
 
@@ -21,13 +21,14 @@ type BalanceCardProps = {
   onAddMoney: () => void;
 };
 
-// The brand's dark ink as a card, a soft accent glow, the animated wallet, and the balance
-// rolling up to its value. The eye hides it (not remembered, like the old app).
+// A raised card with a soft brand wash and glow, the animated wallet, and the balance rolling up
+// to its value. Theme surfaces only, so it is light in light mode and dark in dark mode. The eye
+// hides the balance (not remembered, like the old app).
 const BalanceCard = ({ balancePaise, hidden, onToggleHidden, onAddMoney }: BalanceCardProps) => {
   const t = useTheme();
   const shown = useCountUp(balancePaise);
-  const ink = t.colors.surface;
-  const soft = withAlpha(t.colors.surface, 0.7);
+  const ink = t.colors.textPrimary;
+  const soft = t.colors.textSecondary;
   const EyeIcon = hidden ? Eye : EyeOff;
 
   return (
@@ -38,10 +39,13 @@ const BalanceCard = ({ balancePaise, hidden, onToggleHidden, onAddMoney }: Balan
           gap: t.space[4],
           padding: t.space[4],
           borderRadius: t.radius.sheet,
-          backgroundColor: t.colors.textPrimary,
+          borderWidth: t.layout.hairline,
+          borderColor: t.colors.border,
+          backgroundColor: t.colors.surfaceRaised,
         },
       ]}
     >
+      <AppFade id="balance-wash" color={t.colors.accent} from={0.14} to={0} top />
       <View
         pointerEvents="none"
         style={[
@@ -50,7 +54,7 @@ const BalanceCard = ({ balancePaise, hidden, onToggleHidden, onAddMoney }: Balan
             width: t.space[12] * 4,
             height: t.space[12] * 4,
             borderRadius: t.radius.pill,
-            backgroundColor: withAlpha(t.colors.accent, 0.22),
+            backgroundColor: withAlpha(t.colors.accent, 0.08),
           },
         ]}
       />

@@ -21,7 +21,7 @@ type WalletArtProps = {
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 const AnimatedRect = Animated.createAnimatedComponent(Rect);
 
-// Drawn in a 120 x 120 viewBox, for a dark card: a wallet with a charge card peeking out and
+// Drawn in a 120 x 120 viewBox, for light or dark cards: a wallet with a charge card peeking out and
 // two energy coins floating above it.
 const CARD = { x: 30, y: 30, width: 54, height: 34 };
 const CARD_RISE = 8;
@@ -93,7 +93,16 @@ const WalletArt = ({ size }: WalletArtProps) => {
       />
 
       {/* Wallet */}
-      <Rect x={20} y={48} width={78} height={54} rx={14} fill={c.surface} />
+      <Rect
+        x={20}
+        y={48}
+        width={78}
+        height={54}
+        rx={14}
+        fill={c.surface}
+        stroke={withAlpha(c.textPrimary, 0.12)}
+        strokeWidth={1}
+      />
       <Path
         d="M20 62 Q20 48 34 48 H84 Q98 48 98 62 V64 H20 Z"
         fill={withAlpha(c.textPrimary, 0.08)}

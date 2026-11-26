@@ -116,7 +116,9 @@ the driver find, start, watch or pay for a charge.
   tiles, Stop as a full-width danger-outline button.
 - Charging summary: the total to pay is the most prominent number on screen; amount
   inputs are large chips; the price breakdown is collapsed by default.
-- Wallet: the balance card is the hero (large tabular number); transactions are grouped
+- Wallet: the balance card is the hero (large tabular number) on surfaceRaised with a soft
+  accent wash and glow, never a dark ink slab, so it follows light and dark mode; Add Money's
+  amount card matches it with light quick-amount pills; transactions are grouped
   by date.
 - Station details (decided with the client from a reference, Nov 2026):
   - Photo, about a third of the screen at a fixed size, edge to edge. The page rises over its

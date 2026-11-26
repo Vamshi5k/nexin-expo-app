@@ -1,6 +1,6 @@
 import { StyleSheet, TextInput, View } from 'react-native';
 
-import { AppText } from '@/shared/components';
+import { AppFade, AppText } from '@/shared/components';
 
 import AmountChips from './AmountChips';
 
@@ -22,8 +22,9 @@ type AmountHeroProps = {
   onPick: (amountPaise: number) => void;
 };
 
-// The wallet's dark card again: current balance on top, the amount large in the middle with an
-// accent underline (red with the reason when it's not valid), quick amounts as glass pills.
+// The wallet's card again: current balance on top, the amount large in the middle with an
+// accent underline (red with the reason when it's not valid), quick amounts as pills. Theme
+// surfaces only, so it follows light and dark mode.
 const AmountHero = ({
   amountText,
   amountPaise,
@@ -35,8 +36,8 @@ const AmountHero = ({
   onPick,
 }: AmountHeroProps) => {
   const t = useTheme();
-  const ink = t.colors.surface;
-  const soft = withAlpha(t.colors.surface, 0.65);
+  const ink = t.colors.textPrimary;
+  const soft = t.colors.textTertiary;
 
   return (
     <View
@@ -46,10 +47,13 @@ const AmountHero = ({
           gap: t.space[4],
           padding: t.space[5],
           borderRadius: t.radius.sheet,
-          backgroundColor: t.colors.textPrimary,
+          borderWidth: t.layout.hairline,
+          borderColor: t.colors.border,
+          backgroundColor: t.colors.surfaceRaised,
         },
       ]}
     >
+      <AppFade id="amount-wash" color={t.colors.accent} from={0.12} to={0} top />
       <View
         pointerEvents="none"
         style={[
@@ -58,13 +62,13 @@ const AmountHero = ({
             width: t.space[12] * 5,
             height: t.space[12] * 5,
             borderRadius: t.radius.pill,
-            backgroundColor: withAlpha(t.colors.accent, 0.16),
+            backgroundColor: withAlpha(t.colors.accent, 0.07),
           },
         ]}
       />
 
       <View style={[styles.row, styles.between]}>
-        <AppText variant="caption" style={{ color: soft }}>
+        <AppText variant="caption" tone="secondary">
           {ADD_MONEY_COPY.enterAmount}
         </AppText>
         <View
@@ -75,11 +79,11 @@ const AmountHero = ({
               paddingHorizontal: t.space[3],
               paddingVertical: t.space[1],
               borderRadius: t.radius.pill,
-              backgroundColor: withAlpha(t.colors.surface, 0.1),
+              backgroundColor: t.colors.surfaceSunken,
             },
           ]}
         >
-          <AppText variant="caption" style={{ color: soft }}>
+          <AppText variant="caption" tone="secondary">
             {ADD_MONEY_COPY.currentBalance}
           </AppText>
           <AppText
@@ -124,17 +128,16 @@ const AmountHero = ({
             opacity: amountPaise || error ? 1 : 0.4,
           }}
         />
-        <AppText variant="caption" align="center" style={{ color: error ? t.colors.danger : soft }}>
+        <AppText
+          variant="caption"
+          align="center"
+          style={{ color: error ? t.colors.dangerText : t.colors.textSecondary }}
+        >
           {error ?? ADD_MONEY_COPY.amountMin(formatPaise(minPaise))}
         </AppText>
       </View>
 
-      <AmountChips
-        amountsPaise={quickAmountsPaise}
-        selectedPaise={amountPaise}
-        onPick={onPick}
-        inverse
-      />
+      <AmountChips amountsPaise={quickAmountsPaise} selectedPaise={amountPaise} onPick={onPick} />
     </View>
   );
 };
