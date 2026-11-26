@@ -98,6 +98,8 @@ const StationDetailsScreen = ({ stationId }: StationDetailsScreenProps) => {
           gap: t.layout.sectionGap,
           paddingBottom: actionBarHeight(t, insets.bottom) + t.layout.sectionGap,
         }}
+        showsVerticalScrollIndicator={false}
+        bounces={true}
         refreshControl={
           <RefreshControl
             refreshing={details.refreshing}
