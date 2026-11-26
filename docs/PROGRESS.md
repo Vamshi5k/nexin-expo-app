@@ -627,6 +627,8 @@ Stacked on `feat/stations-list` (PR #6, itself stacked on #5).
   action to the toast helper was left out because that file has uncommitted local edits.
 - expo-application was added: rebuild the dev build to show the native version and build.
 
-**Verified**: tsc, expo lint, jest (58 suites, 444 tests); iOS simulator (Profile loaded,
+**Verified**: tsc, expo lint, jest (58 suites, 445 tests); iOS simulator (Profile loaded,
 zero counts); Android emulator (Profile, Delete Account confirm, Edit Profile validation,
-Discard on Android back).
+Discard on Android back). Not seen on a device: the Profile error strip (needs `/profile` to
+fail while boot succeeds; covered by a flow test) and the OTP sheet (needs a test contact so no
+code goes to a real person).
