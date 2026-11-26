@@ -31,8 +31,8 @@ const AboutSection = ({ station, onViewAll }: AboutSectionProps) => {
       </AppText>
       <View
         style={{
-          gap: t.space[4],
-          padding: t.space[4],
+          gap: t.space[3],
+          padding: t.space[3],
           borderRadius: t.radius.card,
           borderWidth: t.layout.hairline,
           borderColor: t.colors.border,
@@ -40,13 +40,9 @@ const AboutSection = ({ station, onViewAll }: AboutSectionProps) => {
         }}
       >
         {station.address ? (
-          <View style={[styles.row, { gap: t.space[3] }]}>
-            <MapPin
-              color={t.colors.textSecondary}
-              size={t.icon.control}
-              strokeWidth={t.icon.stroke}
-            />
-            <AppText variant="body" numberOfLines={2} style={styles.grow}>
+          <View style={[styles.row, { gap: t.space[2] }]}>
+            <MapPin color={t.colors.textSecondary} size={t.icon.meta} strokeWidth={t.icon.stroke} />
+            <AppText variant="subhead" numberOfLines={2} style={styles.grow}>
               {station.address}
             </AppText>
           </View>
@@ -61,7 +57,13 @@ const AboutSection = ({ station, onViewAll }: AboutSectionProps) => {
           </View>
         ) : null}
 
-        <AppButton label={DETAILS_COPY.viewAll} variant="secondary" onPress={onViewAll} />
+        <AppButton
+          label={DETAILS_COPY.viewAll}
+          variant="secondary"
+          size="medium"
+          fullWidth
+          onPress={onViewAll}
+        />
       </View>
     </View>
   );

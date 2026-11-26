@@ -173,7 +173,11 @@ const ChargerGroup = ({ charger, index, onConnectorPress }: ChargerGroupProps) =
   return (
     <View style={{ gap: t.space[3] }}>
       <View style={[styles.row, styles.between, { paddingHorizontal: t.layout.screenPadding }]}>
-        <AppText variant="headline" numberOfLines={1} style={styles.shrink}>
+        <AppText
+          variant="subhead"
+          numberOfLines={1}
+          style={[styles.shrink, { fontFamily: t.type.headline.fontFamily }]}
+        >
           {chargerMeta(charger, index)}
         </AppText>
         {total ? (
