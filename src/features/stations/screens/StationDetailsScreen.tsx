@@ -65,7 +65,7 @@ const StationDetailsScreen = ({ stationId }: StationDetailsScreenProps) => {
   const stickAt = tabsY === null ? NOT_MEASURED : tabsY - top;
   const header = useHeaderReveal(heroHeight - top + t.space[12], t.space[10]);
   const heroStyle = useHeroParallax(header.scrollY, heroHeight);
-  const { tab, selectTab, scrollRef, tabsStyle } = useStickyTabs<DetailsTab>(
+  const { tab, selectTab, scrollRef, pinnedStyle } = useStickyTabs<DetailsTab>(
     'chargers',
     header.scrollY,
     stickAt,
@@ -129,6 +129,28 @@ const StationDetailsScreen = ({ stationId }: StationDetailsScreenProps) => {
     );
   }
 
+  const tabsWrap = {
+    paddingHorizontal: t.layout.screenPadding,
+    paddingVertical: t.space[2],
+    backgroundColor: t.colors.bg,
+  };
+
+  const tabsBar = (
+    <AppSegmentedControl
+      segments={[
+        {
+          value: 'chargers',
+          label: DETAILS_COPY.chargers,
+          badge: details.chargers.length ? pad2(details.chargers.length) : undefined,
+        },
+        { value: 'info', label: DETAILS_COPY.info },
+      ]}
+      value={tab}
+      onChange={selectTab}
+      accessibilityLabel={DETAILS_COPY.sections}
+    />
+  );
+
   return (
     <View style={[styles.screen, { backgroundColor: t.colors.bg }]}>
       <StatusBar style={overPhoto ? 'light' : 'dark'} />
@@ -176,33 +198,9 @@ const StationDetailsScreen = ({ stationId }: StationDetailsScreenProps) => {
           />
         </View>
 
-        {/* Above the content so it covers it once pinned under the header. */}
-        <Animated.View
-          onLayout={onTabsLayout}
-          style={[
-            styles.tabs,
-            {
-              paddingHorizontal: t.layout.screenPadding,
-              paddingVertical: t.space[2],
-              backgroundColor: t.colors.bg,
-            },
-            tabsStyle,
-          ]}
-        >
-          <AppSegmentedControl
-            segments={[
-              {
-                value: 'chargers',
-                label: DETAILS_COPY.chargers,
-                badge: details.chargers.length ? pad2(details.chargers.length) : undefined,
-              },
-              { value: 'info', label: DETAILS_COPY.info },
-            ]}
-            value={tab}
-            onChange={selectTab}
-            accessibilityLabel={DETAILS_COPY.sections}
-          />
-        </Animated.View>
+        <View onLayout={onTabsLayout} style={tabsWrap}>
+          {tabsBar}
+        </View>
 
         {/* At least a screen tall, so switching to a short tab never unpins the tabs. */}
         <View
@@ -256,6 +254,15 @@ const StationDetailsScreen = ({ stationId }: StationDetailsScreenProps) => {
         </View>
       </Animated.ScrollView>
 
+      {/* Screen readers use the tabs in the page; this copy is only the visual pin. */}
+      <Animated.View
+        accessibilityElementsHidden
+        importantForAccessibility="no-hide-descendants"
+        style={[styles.pinned, tabsWrap, { top }, pinnedStyle]}
+      >
+        {tabsBar}
+      </Animated.View>
+
       {topBar}
 
       <MapsChooserSheet
@@ -278,7 +285,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  tabs: {
-    zIndex: 1,
+  pinned: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
   },
 });
