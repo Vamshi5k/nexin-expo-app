@@ -34,7 +34,7 @@ type ActionPillProps = {
   onPress: () => void;
 };
 
-const MAP_HEIGHT = 128;
+const MAP_HEIGHT = 108;
 
 const ActionPill = ({
   icon: Icon,
@@ -58,7 +58,7 @@ const ActionPill = ({
         styles.center,
         {
           gap: t.space[2],
-          height: t.layout.minTouch,
+          height: t.space[10],
           borderRadius: t.radius.pill,
           borderWidth: primary ? 0 : t.layout.hairline,
           borderColor: t.colors.borderStrong,
@@ -131,18 +131,20 @@ const StationInfo = ({
   };
 
   return (
-    <View style={{ gap: t.space[3] }}>
+    <View style={{ gap: t.space[2] }}>
       {station.address ? (
         <View style={[styles.clip, card]}>
           <MapPreview height={MAP_HEIGHT} label={route} onPress={onDirections} />
-          <View style={{ gap: t.space[3], padding: t.space[4] }}>
-            <View style={{ gap: t.space[1] }}>
+          <View style={{ gap: t.space[2] + t.space[1], padding: t.space[3] }}>
+            <View style={{ gap: t.space[1] / 2 }}>
               <AppText variant="caption" tone="secondary" style={styles.overline}>
                 {DETAILS_COPY.address}
               </AppText>
-              <AppText variant="headline">{station.address}</AppText>
+              <AppText variant="subhead" style={{ fontFamily: t.type.headline.fontFamily }}>
+                {station.address}
+              </AppText>
             </View>
-            <View style={[styles.row, { gap: t.space[3] }]}>
+            <View style={[styles.row, { gap: t.space[2] }]}>
               <ActionPill
                 icon={Copy}
                 label={DETAILS_COPY.copy}
@@ -162,13 +164,13 @@ const StationInfo = ({
       ) : null}
 
       {factRows.map(row => (
-        <View key={row[0]!.label} style={[styles.stretch, { gap: t.space[3] }]}>
+        <View key={row[0]!.label} style={[styles.stretch, { gap: t.space[2] }]}>
           {row.map(fact => (
             <View
               key={fact.label}
-              style={[styles.grow, card, { gap: t.space[1] / 2, padding: t.space[4] }]}
+              style={[styles.grow, card, { gap: t.space[1] / 2, padding: t.space[3] }]}
             >
-              <AppText variant="title2" tabular numberOfLines={1} adjustsFontSizeToFit>
+              <AppText variant="headline" tabular numberOfLines={1} adjustsFontSizeToFit>
                 {fact.value}
               </AppText>
               <AppText variant="caption" tone="secondary">
@@ -181,12 +183,12 @@ const StationInfo = ({
       ))}
 
       {station.phone ? (
-        <View style={[styles.row, card, { gap: t.space[3], padding: t.space[4] }]}>
+        <View style={[styles.row, card, { gap: t.space[3], padding: t.space[3] }]}>
           <View style={styles.grow}>
             <AppText variant="caption" tone="secondary">
               {DETAILS_COPY.helpLine}
             </AppText>
-            <AppText variant="headline" tabular>
+            <AppText variant="subhead" tabular style={{ fontFamily: t.type.headline.fontFamily }}>
               {station.phone}
             </AppText>
           </View>
@@ -198,20 +200,20 @@ const StationInfo = ({
             style={[
               styles.center,
               {
-                width: t.space[10] + t.space[1],
-                height: t.space[10] + t.space[1],
+                width: t.space[8] + t.space[1],
+                height: t.space[8] + t.space[1],
                 borderRadius: t.radius.pill,
                 backgroundColor: t.colors.textPrimary,
               },
             ]}
           >
-            <Phone color={t.colors.surface} size={t.icon.control} strokeWidth={t.icon.stroke} />
+            <Phone color={t.colors.surface} size={t.icon.meta} strokeWidth={t.icon.stroke} />
           </AppPressable>
         </View>
       ) : null}
 
       {station.amenities.length ? (
-        <View style={{ gap: t.space[2], marginTop: t.space[3] }}>
+        <View style={{ gap: t.space[2], marginTop: t.space[2] }}>
           <AppText
             variant="caption"
             tone="secondary"

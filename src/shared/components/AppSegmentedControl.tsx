@@ -23,7 +23,7 @@ export type AppSegmentedControlProps<T extends string> = {
 };
 
 const PAD = 4;
-const HEIGHT = 44;
+const HEIGHT = 40;
 
 // A white pill track with one dark thumb that springs to the selected segment.
 const AppSegmentedControl = <T extends string>({

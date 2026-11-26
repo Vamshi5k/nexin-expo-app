@@ -87,7 +87,7 @@ const AmenityChip = ({ label, withIcon, tile }: AmenityChipProps) => {
         {
           gap: withIcon ? t.space[2] : t.space[1] + t.space[1] / 2,
           paddingHorizontal: t.space[3],
-          paddingVertical: withIcon ? t.space[2] : t.space[1],
+          paddingVertical: withIcon ? t.space[1] + t.space[1] / 2 : t.space[1],
           borderRadius: t.radius.pill,
           borderWidth: t.layout.hairline,
           borderColor: withIcon ? t.colors.border : t.colors.borderStrong,

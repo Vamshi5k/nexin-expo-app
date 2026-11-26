@@ -38,9 +38,9 @@ const FigureTile = ({ label, value, unit }: FigureTileProps) => {
         styles.grow,
         {
           gap: t.space[1] / 2,
-          paddingHorizontal: t.space[4],
-          paddingVertical: t.space[3],
-          borderRadius: t.radius.card,
+          paddingHorizontal: t.space[3],
+          paddingVertical: t.space[2] + t.space[1] / 2,
+          borderRadius: t.radius.control,
           borderWidth: t.layout.hairline,
           borderColor: t.colors.border,
           backgroundColor: t.colors.surfaceRaised,
@@ -51,7 +51,7 @@ const FigureTile = ({ label, value, unit }: FigureTileProps) => {
         {label}
       </AppText>
       <View style={[styles.baseline, { gap: t.space[1] / 2 }]}>
-        <AppText variant="title3" tabular numberOfLines={1} style={styles.shrink}>
+        <AppText variant="headline" tabular numberOfLines={1} style={styles.shrink}>
           {value}
         </AppText>
         <AppText variant="caption" tone="secondary">
@@ -75,16 +75,16 @@ const StationSummary = ({ station, distance, eta, onDirections }: StationSummary
     charger.pricePerKwhPaise !== null ? [charger.pricePerKwhPaise] : [],
   );
   const ink = t.colors.onAccent;
-  const square = t.space[3] + t.space[1] / 2;
+  const square = t.space[3];
 
   return (
-    <View style={{ gap: t.space[2] + t.space[1] }}>
+    <View style={{ gap: t.space[2] }}>
       <Animated.View entering={riseIn(0)} style={{ gap: t.space[1] / 2, marginBottom: t.space[1] }}>
-        <AppText variant="title2" accessibilityRole="header">
+        <AppText variant="title3" accessibilityRole="header">
           {station.name}
         </AppText>
         {station.address ? (
-          <AppText variant="subhead" tone="secondary">
+          <AppText variant="caption" tone="secondary">
             {station.address}
           </AppText>
         ) : null}
@@ -99,22 +99,22 @@ const StationSummary = ({ station, distance, eta, onDirections }: StationSummary
             styles.row,
             {
               gap: t.space[3],
-              paddingHorizontal: t.space[4],
-              paddingVertical: t.space[3] + t.space[1] / 2,
-              borderRadius: t.radius.card,
+              paddingHorizontal: t.space[3],
+              paddingVertical: t.space[2] + t.space[1] / 2,
+              borderRadius: t.radius.control,
               backgroundColor: t.colors.accent,
             },
           ]}
         >
-          <View style={[styles.grow, { gap: t.space[1] }]}>
+          <View style={[styles.grow, { gap: t.space[1] / 2 }]}>
             <AppText variant="caption" style={[styles.overline, { color: ink }]}>
               {DETAILS_COPY.connectorsFree}
             </AppText>
             <View style={styles.baseline}>
-              <AppText variant="title1" tabular style={{ color: ink }}>
+              <AppText variant="title2" tabular style={{ color: ink }}>
                 {free}
               </AppText>
-              <AppText variant="subhead" tabular style={{ color: withAlpha(ink, 0.6) }}>
+              <AppText variant="caption" tabular style={{ color: withAlpha(ink, 0.6) }}>
                 {`/${connectors.length}`}
               </AppText>
             </View>
@@ -142,7 +142,7 @@ const StationSummary = ({ station, distance, eta, onDirections }: StationSummary
       ) : null}
 
       {powers.length || prices.length ? (
-        <Animated.View entering={riseIn(2)} style={[styles.row, { gap: t.space[3] }]}>
+        <Animated.View entering={riseIn(2)} style={[styles.row, { gap: t.space[2] }]}>
           {powers.length ? (
             <FigureTile label={DETAILS_COPY.power} value={`${Math.max(...powers)}`} unit="kW" />
           ) : null}
@@ -167,7 +167,7 @@ const StationSummary = ({ station, distance, eta, onDirections }: StationSummary
             {
               gap: t.space[3],
               paddingVertical: t.space[2],
-              paddingLeft: t.space[4],
+              paddingLeft: t.space[3],
               paddingRight: t.space[2],
               borderRadius: t.radius.card,
               borderWidth: t.layout.hairline,
@@ -180,7 +180,12 @@ const StationSummary = ({ station, distance, eta, onDirections }: StationSummary
             <AppText variant="caption" tone="secondary">
               {DETAILS_COPY.route}
             </AppText>
-            <AppText variant="headline" tabular numberOfLines={1}>
+            <AppText
+              variant="subhead"
+              tabular
+              numberOfLines={1}
+              style={{ fontFamily: t.type.headline.fontFamily }}
+            >
               {distance !== null
                 ? routeLabel(formatDistance(distance, brand.locale), eta)
                 : DETAILS_COPY.directions}
@@ -190,18 +195,14 @@ const StationSummary = ({ station, distance, eta, onDirections }: StationSummary
             style={[
               styles.center,
               {
-                width: t.space[10],
-                height: t.space[10],
+                width: t.space[8],
+                height: t.space[8],
                 borderRadius: t.radius.pill,
                 backgroundColor: t.colors.textPrimary,
               },
             ]}
           >
-            <ArrowUpRight
-              color={t.colors.surface}
-              size={t.icon.control}
-              strokeWidth={t.icon.stroke}
-            />
+            <ArrowUpRight color={t.colors.surface} size={t.icon.meta} strokeWidth={t.icon.stroke} />
           </View>
         </AppPressable>
       </Animated.View>

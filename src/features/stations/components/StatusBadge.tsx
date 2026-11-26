@@ -48,9 +48,9 @@ const StatusBadge = ({ label, state }: StatusBadgeProps) => {
       style={[
         styles.badge,
         {
-          gap: t.space[1] + t.space[1] / 2,
-          height: t.space[6],
-          paddingHorizontal: t.space[2] + t.space[1] / 2,
+          gap: t.space[1],
+          height: t.space[5],
+          paddingHorizontal: t.space[2],
           borderRadius: t.radius.pill,
           backgroundColor: withAlpha(main, SOFT),
         },
