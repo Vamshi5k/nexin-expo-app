@@ -20,7 +20,7 @@ type ProfileHeroProps = {
 // edit button. Plain white, sitting on the screen's brand wash.
 const ProfileHero = ({ name, initials, email, phone, onEdit }: ProfileHeroProps) => {
   const t = useTheme();
-  const avatar = t.space[12] + t.space[2];
+  const avatar = t.space[12];
 
   return (
     <View
@@ -29,8 +29,8 @@ const ProfileHero = ({ name, initials, email, phone, onEdit }: ProfileHeroProps)
         styles.row,
         {
           gap: t.space[3],
-          padding: t.space[4],
-          borderRadius: t.radius.sheet,
+          padding: t.space[3],
+          borderRadius: t.radius.card,
           borderWidth: t.layout.hairline,
           borderColor: t.colors.border,
           backgroundColor: t.colors.surfaceRaised,
@@ -48,13 +48,17 @@ const ProfileHero = ({ name, initials, email, phone, onEdit }: ProfileHeroProps)
           },
         ]}
       >
-        <AppText variant="title3" tone="accent">
+        <AppText variant="headline" tone="accent">
           {initials || '·'}
         </AppText>
       </View>
 
       <View style={[styles.grow, { gap: t.space[1] / 2 }]}>
-        <AppText variant="headline" numberOfLines={1}>
+        <AppText
+          variant="subhead"
+          numberOfLines={1}
+          style={{ fontFamily: t.type.headline.fontFamily }}
+        >
           {name}
         </AppText>
         <AppText variant="caption" tone={email ? 'secondary' : 'tertiary'} numberOfLines={1}>
@@ -70,14 +74,14 @@ const ProfileHero = ({ name, initials, email, phone, onEdit }: ProfileHeroProps)
       <AppPressable
         onPress={onEdit}
         haptic="light"
-        hitSlop={t.space[1]}
+        hitSlop={t.space[2]}
         accessibilityRole="button"
         accessibilityLabel={PROFILE_COPY.editProfile}
         style={[
           styles.center,
           {
-            width: t.space[10],
-            height: t.space[10],
+            width: t.space[8] + t.space[1],
+            height: t.space[8] + t.space[1],
             borderRadius: t.radius.pill,
             borderWidth: t.layout.hairline,
             borderColor: t.colors.border,

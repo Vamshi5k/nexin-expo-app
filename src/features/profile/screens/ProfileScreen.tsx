@@ -2,32 +2,16 @@ import { useContext } from 'react';
 import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 
 import { BottomTabBarHeightContext } from 'expo-router/tabs';
-import {
-  Bell,
-  Car,
-  Heart,
-  History,
-  LayoutGrid,
-  LifeBuoy,
-  LogOut,
-  ShieldCheck,
-  Trash2,
-} from 'lucide-react-native';
+import { LayoutGrid, ShieldCheck } from 'lucide-react-native';
 import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import {
-  AppButton,
-  AppDialog,
-  AppFade,
-  AppListGroup,
-  AppListRow,
-  AppPressable,
-  AppSkeleton,
-  AppText,
-} from '@/shared/components';
+import { AppButton, AppDialog, AppFade, AppPressable, AppText } from '@/shared/components';
 
+import ProfileGlyph, { type ProfileGlyphName } from '../components/ProfileGlyph';
+import ProfileGroup from '../components/ProfileGroup';
 import ProfileHero from '../components/ProfileHero';
+import ProfileRow from '../components/ProfileRow';
 import { LogoutDialog } from '@/features/auth';
 
 import { useTheme } from '@/shared/theme';
@@ -38,7 +22,7 @@ import { DELETE_COPY, PROFILE_COPY } from '../constants/profile.constants';
 import { useProfile } from '../hooks/useProfile';
 
 // Profile tab (BLUEPRINT E1): the account card, counts that link to their screens, support,
-// log out and account deletion, then the app version.
+// log out and account deletion, then the app version. Rows use the Profile duotone icons.
 const ProfileScreen = () => {
   const t = useTheme();
   const insets = useSafeAreaInsets();
@@ -46,24 +30,17 @@ const ProfileScreen = () => {
   const profile = useProfile();
   const { logout, deletion } = profile;
 
-  const countSkeleton = profile.countsLoading ? (
-    <AppSkeleton width={t.space[12] + t.space[4]} height={t.space[3]} />
-  ) : undefined;
+  const glyph = (name: ProfileGlyphName, tone: 'accent' | 'neutral' | 'danger' = 'accent') => {
+    const inks = {
+      accent: t.colors.accentText,
+      neutral: t.colors.textSecondary,
+      danger: t.colors.dangerText,
+    };
+    return <ProfileGlyph name={name} color={inks[tone]} size={t.icon.control} />;
+  };
 
-  const countRow = (
-    icon: typeof Car,
-    title: string,
-    subtitle: string | null,
-    onPress: () => void,
-  ) => (
-    <AppListRow
-      icon={icon}
-      title={title}
-      subtitle={subtitle ?? undefined}
-      trailing={countSkeleton}
-      chevron
-      onPress={onPress}
-    />
+  const lucide = (Icon: typeof LayoutGrid) => (
+    <Icon color={t.colors.textSecondary} size={t.icon.meta} strokeWidth={t.icon.stroke} />
   );
 
   return (
@@ -76,7 +53,7 @@ const ProfileScreen = () => {
         testID="profile-scroll"
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{
-          gap: t.space[5],
+          gap: t.space[4],
           paddingTop: insets.top + t.space[2],
           paddingHorizontal: t.layout.screenPadding,
           paddingBottom: tabBarHeight + t.space[6],
@@ -92,7 +69,7 @@ const ProfileScreen = () => {
       >
         <Animated.View entering={riseIn(0)} style={[styles.row, { gap: t.space[3] }]}>
           <View style={[styles.grow, { gap: t.space[1] / 2 }]}>
-            <AppText variant="title2" accessibilityRole="header">
+            <AppText variant="title3" accessibilityRole="header">
               {PROFILE_COPY.title}
             </AppText>
             {profile.userId ? (
@@ -104,13 +81,14 @@ const ProfileScreen = () => {
           <AppPressable
             onPress={profile.openNotifications}
             haptic="light"
+            hitSlop={t.space[1]}
             accessibilityRole="button"
             accessibilityLabel={PROFILE_COPY.notifications}
             style={[
               styles.center,
               {
-                width: t.layout.minTouch,
-                height: t.layout.minTouch,
+                width: t.space[10],
+                height: t.space[10],
                 borderRadius: t.radius.pill,
                 borderWidth: t.layout.hairline,
                 borderColor: t.colors.border,
@@ -118,7 +96,7 @@ const ProfileScreen = () => {
               },
             ]}
           >
-            <Bell color={t.colors.textPrimary} size={t.icon.control} strokeWidth={t.icon.stroke} />
+            <ProfileGlyph name="bell" color={t.colors.textPrimary} size={t.icon.control} />
           </AppPressable>
         </Animated.View>
 
@@ -139,14 +117,14 @@ const ProfileScreen = () => {
               styles.row,
               {
                 gap: t.space[3],
-                padding: t.space[3],
-                paddingLeft: t.space[4],
-                borderRadius: t.radius.card,
+                padding: t.space[2],
+                paddingLeft: t.space[3],
+                borderRadius: t.radius.control,
                 backgroundColor: t.colors.dangerSoft,
               },
             ]}
           >
-            <AppText variant="subhead" style={[styles.grow, { color: t.colors.dangerText }]}>
+            <AppText variant="caption" style={[styles.grow, { color: t.colors.dangerText }]}>
               {PROFILE_COPY.loadError}
             </AppText>
             <AppButton
@@ -159,57 +137,85 @@ const ProfileScreen = () => {
         ) : null}
 
         <Animated.View entering={riseIn(2)}>
-          <AppListGroup title={PROFILE_COPY.account}>
-            {countRow(Car, PROFILE_COPY.vehicles, profile.vehicles, profile.openVehicles)}
-            {countRow(History, PROFILE_COPY.history, profile.sessions, profile.openHistory)}
-            {countRow(Heart, PROFILE_COPY.favourites, profile.favourites, profile.openFavourites)}
-          </AppListGroup>
+          <ProfileGroup title={PROFILE_COPY.account}>
+            <ProfileRow
+              first
+              icon={glyph('car')}
+              title={PROFILE_COPY.vehicles}
+              subtitle={profile.vehicles}
+              loading={profile.countsLoading}
+              onPress={profile.openVehicles}
+            />
+            <ProfileRow
+              icon={glyph('history')}
+              title={PROFILE_COPY.history}
+              subtitle={profile.sessions}
+              loading={profile.countsLoading}
+              onPress={profile.openHistory}
+            />
+            <ProfileRow
+              icon={glyph('heart')}
+              title={PROFILE_COPY.favourites}
+              subtitle={profile.favourites}
+              loading={profile.countsLoading}
+              onPress={profile.openFavourites}
+            />
+          </ProfileGroup>
         </Animated.View>
 
         {profile.hasSupport ? (
           <Animated.View entering={riseIn(3)}>
-            <AppListGroup title={PROFILE_COPY.support}>
-              <AppListRow
-                icon={LifeBuoy}
+            <ProfileGroup title={PROFILE_COPY.support}>
+              <ProfileRow
+                first
+                icon={glyph('support')}
                 title={PROFILE_COPY.help}
                 subtitle={PROFILE_COPY.helpBody}
                 onPress={profile.openSupport}
               />
-            </AppListGroup>
+            </ProfileGroup>
           </Animated.View>
         ) : null}
 
         {profile.showDevTools ? (
-          <AppListGroup title={PROFILE_COPY.developer}>
-            <AppListRow icon={LayoutGrid} title={PROFILE_COPY.uiKit} onPress={profile.openUiKit} />
-            <AppListRow
-              icon={ShieldCheck}
-              iconTone="neutral"
+          <ProfileGroup title={PROFILE_COPY.developer}>
+            <ProfileRow
+              first
+              tone="neutral"
+              icon={lucide(LayoutGrid)}
+              title={PROFILE_COPY.uiKit}
+              onPress={profile.openUiKit}
+            />
+            <ProfileRow
+              tone="neutral"
+              icon={lucide(ShieldCheck)}
               title={PROFILE_COPY.cookieCheck}
               onPress={profile.openCookieCheck}
             />
-          </AppListGroup>
+          </ProfileGroup>
         ) : null}
 
         <Animated.View entering={riseIn(4)} style={{ gap: t.space[3] }}>
-          <AppListGroup>
-            <AppListRow
-              icon={LogOut}
-              iconTone="neutral"
+          <ProfileGroup>
+            <ProfileRow
+              first
+              tone="neutral"
+              icon={glyph('logout', 'neutral')}
               title={logout.leaving ? PROFILE_COPY.loggingOut : PROFILE_COPY.logout}
               chevron={false}
               onPress={logout.leaving ? undefined : logout.ask}
             />
-          </AppListGroup>
-          <AppListGroup>
-            <AppListRow
-              icon={Trash2}
+          </ProfileGroup>
+          <ProfileGroup>
+            <ProfileRow
+              first
+              tone="danger"
+              icon={glyph('delete', 'danger')}
               title={PROFILE_COPY.deleteAccount}
-              destructive
               chevron={false}
               onPress={deletion.ask}
             />
-          </AppListGroup>
+          </ProfileGroup>
         </Animated.View>
 
         <AppText variant="caption" tone="tertiary" align="center" tabular>
@@ -220,7 +226,6 @@ const ProfileScreen = () => {
       <LogoutDialog state={logout} />
       <AppDialog
         open={deletion.open}
-        icon={Trash2}
         title={DELETE_COPY.title}
         message={deletion.message}
         confirmLabel={deletion.confirmLabel}
