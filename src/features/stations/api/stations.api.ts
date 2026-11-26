@@ -15,7 +15,7 @@ import type {
   StationPin,
   StationPinDto,
 } from '../types/stations.types';
-import { toConnectorState } from '../utils/connector';
+import { toConnectorStatus } from '../utils/connector';
 import { toFilterParams } from '../utils/filters';
 import { toStationStatus } from '../utils/status';
 
@@ -82,11 +82,17 @@ type ConnectorDto = NonNullable<ChargerDto['connectors']>[number];
 
 const text = (value: string | null | undefined) => value?.trim() || null;
 
+// Only http(s) links can be images; anything else would render as an empty box.
+const webUrl = (value: string | null | undefined) => {
+  const url = text(value);
+  return url && /^https?:\/\/\S+$/i.test(url) ? url : null;
+};
+
 const toConnector = (dto: ConnectorDto, index: number): Connector => ({
   id: String(dto.id ?? index),
   connectorId: String(dto.connectorId ?? index + 1),
   portType: text(dto.portType),
-  state: toConnectorState(dto.status),
+  ...toConnectorStatus(dto.status),
   socPercent: toNumber(dto.currentSoc),
   minutesToFull: toNumber(dto.estimatedFullChargeMinutes),
 });
@@ -115,9 +121,11 @@ export const toStationDetails = (dto: StationDetailsDto): StationDetails => {
     latitude: toNumber(location?.latitude) ?? 0,
     longitude: toNumber(location?.longitude) ?? 0,
     status: toStationStatus(dto.status ?? dto.stationStatus),
+    rawStatus: text(dto.status ?? dto.stationStatus) ?? '',
     phone: text(dto.helpNumber),
+    accessType: text(dto.stationType),
     amenities: (dto.amenities ?? []).map(item => text(item.name)).filter(isPresent),
-    imageUrl: text(dto.stationMedia?.[0]?.url),
+    imageUrls: (dto.stationMedia ?? []).map(media => webUrl(media.url)).filter(isPresent),
     chargers: (dto.chargers ?? []).map(toCharger),
   };
 };

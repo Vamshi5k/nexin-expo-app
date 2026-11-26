@@ -60,10 +60,6 @@ export const CARD_COPY = {
   distance: 'Distance',
   drive: 'Drive',
   perKwh: 'per kWh',
-  address: 'Address',
-  helpLine: 'Help line',
-  connectorTypes: 'Connector types',
-  notAvailable: 'Not available',
 } as const;
 
 export const FILTERS_COPY = {
@@ -91,7 +87,7 @@ export const DETAILS_COPY = {
   directions: 'Get Directions',
   call: 'Call station',
   chargers: 'Chargers',
-  tip: 'Tap a connector to check live status and start a session.',
+  tip: 'Tap a connector to start charging',
   amenities: 'Amenities',
   noChargers: 'No chargers listed yet',
   noChargersBody: 'This station has no chargers to show right now.',
@@ -107,16 +103,17 @@ export const DETAILS_COPY = {
   drive: 'Drive',
   power: 'Max power',
   perKwh: 'per kWh',
-  tabChargers: 'Chargers',
-  tabInfo: 'Info',
   address: 'Address',
   helpLine: 'Help line',
   connectorTypes: 'Connector types',
-  chargersCount: 'Chargers',
-  notAvailable: 'Not available',
+  viewAll: 'View all details',
+  close: 'Close',
+  copy: 'Copy',
+  copied: 'Address copied',
+  access: 'Access',
+  openingHours: 'Opening hours',
+  photo: 'Station photo',
   about: 'About this station',
-  connectors: 'Connectors',
-  chooseConnector: 'Choose a connector',
   free: 'free',
 } as const;
 
@@ -124,3 +121,6 @@ export const chargerTitle = (index: number) => `Charger ${index + 1}`;
 export const connectorTitle = (connectorId: string) => `Connector ${connectorId}`;
 export const freeBadge = (free: number, total: number) => `${free}/${total} free`;
 export const connectorBusy = (status: string) => `Connector is currently ${status}`;
+
+export const pageLabel = (page: number, total: number) => `${page}/${total}`;
+export const moreChip = (count: number) => `+${count}`;

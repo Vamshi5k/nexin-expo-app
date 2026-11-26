@@ -4,29 +4,57 @@ import {
   canStartCharging,
   chargingProgress,
   sortChargers,
-  toConnectorState,
+  toConnectorStatus,
 } from '@/features/stations/utils/connector';
 import { mapsAppUrls } from '@/features/stations/utils/directions';
 import { shareMessage } from '@/features/stations/utils/share';
+import { buildTheme } from '@/shared/theme';
 
-describe('toConnectorState', () => {
+describe('toConnectorStatus (CruzeEV labels and colours)', () => {
+  const { colors } = buildTheme('light');
+
+  // [raw OCPP code, state, CruzeEV label, main colour, card tint]
   it.each([
-    ['Available', 'available'],
-    ['Preparing', 'preparing'],
-    ['SuspendedEVSE', 'charging'],
-    ['Faulted - Door Open', 'faulted'],
-    ['Unavailable', 'unavailable'],
-    ['something new', 'unknown'],
-    [null, 'unknown'],
-  ])('%s -> %s', (raw, expected) => {
-    expect(toConnectorState(raw)).toBe(expected);
+    ['Available', 'available', 'Available', '#16A34A', '#22C55E'],
+    ['Preparing', 'preparing', 'Preparing', '#F59E0B', '#F59E0B'],
+    ['Charging', 'charging', 'Charging', '#0DD5E3', '#00C8D0'],
+    ['SuspendedEV', 'suspendedEv', 'Suspended EV', '#F59E0B', '#F59E0B'],
+    ['SuspendedEVSE', 'suspendedEvse', 'Suspended EVSE', '#F59E0B', '#F59E0B'],
+    ['Finishing', 'finishing', 'Finishing', '#1A8F99', '#00C8D0'],
+    ['Reserved', 'reserved', 'Reserved', '#F59E0B', '#F59E0B'],
+    ['Engaged', 'engaged', 'Engaged', '#1A8F99', '#00C8D0'],
+    ['Unavailable', 'unavailable', 'Unavailable', '#EF4444', '#D32F2F'],
+    ['Faulted', 'faulted', 'Faulted', '#D32F2F', '#D32F2F'],
+    ['Offline', 'offline', 'Unavailable', '#D32F2F', '#D32F2F'],
+  ])('%s -> %s "%s"', (raw, state, label, main, tint) => {
+    const status = toConnectorStatus(raw);
+    expect(status).toEqual({ state, label });
+    expect(colors.status.connector[status.state]).toEqual({ main, tint });
+  });
+
+  it('spelling and case do not matter', () => {
+    expect(toConnectorStatus(' suspended_evse ').state).toBe('suspendedEvse');
+    expect(toConnectorStatus('FAULTED').state).toBe('faulted');
+  });
+
+  it('"Faulted - Door Open" keeps its full text with the Faulted colours', () => {
+    expect(toConnectorStatus('Faulted - Door Open')).toEqual({
+      state: 'faulted',
+      label: 'Faulted - Door Open',
+    });
+  });
+
+  it('unknown codes show their raw text in the unknown grey, never crash', () => {
+    expect(toConnectorStatus('Exploded')).toEqual({ state: 'unknown', label: 'Exploded' });
+    expect(toConnectorStatus(null)).toEqual({ state: 'unknown', label: 'Unknown' });
+    expect(colors.status.connector.unknown).toEqual({ main: '#9CA3AF', tint: '#9CA3AF' });
   });
 
   it('only available and preparing connectors can start a session', () => {
     expect(canStartCharging('available')).toBe(true);
     expect(canStartCharging('preparing')).toBe(true);
     expect(canStartCharging('charging')).toBe(false);
-    expect(canStartCharging('faulted')).toBe(false);
+    expect(canStartCharging('offline')).toBe(false);
   });
 });
 
@@ -63,8 +91,10 @@ describe('toStationDetails', () => {
       address: 'MG Road, Hyd',
       phone: null,
       amenities: ['Wifi'],
-      imageUrl: null,
+      imageUrls: [],
       status: 'available',
+      rawStatus: 'Available',
+      accessType: null,
     });
     expect(station.chargers[0]).toMatchObject({
       chargerId: 'CRZ_01',
@@ -79,6 +109,64 @@ describe('toStationDetails', () => {
       minutesToFull: null,
     });
     expect(station.chargers[1]?.pricePerKwhPaise).toBeNull();
+  });
+
+  it('groups connectors under their own charger with the real ids from the API', () => {
+    const station = toStationDetails({
+      id: 19,
+      status: 'Available',
+      stationType: 'Public',
+      stationLocation: { latitude: 17.39, longitude: 77.83 },
+      chargers: [
+        {
+          id: 58,
+          chargerId: 'CRZ_60kW_01',
+          capacity: 60,
+          powerType: 'DC',
+          connectors: [
+            { id: 164, connectorId: '1', portType: 'CCS2', status: 'Unavailable' },
+            { id: 165, connectorId: '2', portType: 'CCS2', status: 'Charging' },
+          ],
+        },
+        {
+          id: 59,
+          chargerId: 'CRZ_22kW_02',
+          capacity: 22,
+          powerType: 'AC',
+          connectors: [{ id: 170, connectorId: '1', portType: 'Type 2', status: 'Available' }],
+        },
+      ],
+    });
+
+    expect(station.accessType).toBe('Public');
+    expect(
+      station.chargers.map(charger => ({
+        id: charger.chargerId,
+        connectors: charger.connectors.map(item => `${item.connectorId}:${item.label}`),
+      })),
+    ).toEqual([
+      { id: 'CRZ_60kW_01', connectors: ['1:Unavailable', '2:Charging'] },
+      { id: 'CRZ_22kW_02', connectors: ['1:Available'] },
+    ]);
+  });
+
+  it('keeps only real image links, in order, and the station status as sent', () => {
+    const station = toStationDetails({
+      id: 1,
+      status: 'Up-Coming',
+      stationLocation: { latitude: 1, longitude: 2 },
+      stationMedia: [
+        { url: 'https://cdn.example/a.jpg' },
+        { url: '' },
+        { url: 'not a url' },
+        { url: null },
+        { url: 'https://cdn.example/b.jpg' },
+      ],
+    });
+
+    expect(station.imageUrls).toEqual(['https://cdn.example/a.jpg', 'https://cdn.example/b.jpg']);
+    expect(station.rawStatus).toBe('Up-Coming');
+    expect(station.status).toBe('upcoming');
   });
 
   it('favourite ids are strings and skip rows without one', () => {
@@ -100,7 +188,7 @@ describe('chargers', () => {
       id: `${id}-${index}`,
       connectorId: String(index + 1),
       portType: 'CCS2',
-      state: toConnectorState(state),
+      ...toConnectorStatus(state),
       socPercent: null,
       minutesToFull: null,
     })),
@@ -122,6 +210,7 @@ describe('chargers', () => {
     );
     expect(chargingProgress(base)).toBeNull();
     expect(chargingProgress({ ...base, state: 'available', socPercent: 45 })).toBeNull();
+    expect(chargingProgress({ ...base, state: 'suspendedEv', socPercent: 45 })).toBeNull();
   });
 });
 

@@ -1,6 +1,7 @@
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 
 import { ChevronLeft, Heart, Share2, type LucideIcon } from 'lucide-react-native';
+import Animated, { type AnimatedStyle } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppGlass, AppPressable, AppText } from '@/shared/components';
@@ -14,107 +15,118 @@ import { DETAILS_COPY } from '../constants/stations.constants';
 type DetailsTopBarProps = {
   title: string | null;
   isFavourite: boolean;
+  barStyle?: StyleProp<AnimatedStyle<ViewStyle>>;
+  titleStyle?: StyleProp<AnimatedStyle<ViewStyle>>;
   onBack: () => void;
   onShare: (() => void) | null;
   onToggleFavourite: (() => void) | null;
 };
 
-type CapsuleButtonProps = {
+type GlassButtonProps = {
   icon: LucideIcon;
   label: string;
   onPress: () => void;
   active?: boolean;
 };
 
+// Status bar plus the capsule row: where scrolled content must stop.
 export const topBarSpace = (t: Theme, topInset: number) =>
-  topInset + t.space[2] + mapTopBarHeight(t) + t.space[4];
+  topInset + t.space[2] + mapTopBarHeight(t) + t.space[2];
 
-const CapsuleButton = ({ icon: Icon, label, onPress, active }: CapsuleButtonProps) => {
+// The map's glass style, one circle per action so a photo shows between them.
+const GlassButton = ({ icon: Icon, label, onPress, active }: GlassButtonProps) => {
   const t = useTheme();
   const color = active ? t.colors.danger : t.colors.textPrimary;
 
   return (
-    <AppPressable
-      onPress={onPress}
-      haptic="light"
-      accessibilityRole="button"
-      accessibilityLabel={label}
-      accessibilityState={active === undefined ? undefined : { selected: active }}
-      style={[
-        styles.center,
-        { width: t.layout.minTouch, height: t.layout.minTouch, borderRadius: t.radius.pill },
-      ]}
-    >
-      <Icon
-        color={color}
-        fill={active ? color : 'transparent'}
-        size={t.icon.control}
-        strokeWidth={t.icon.stroke}
-      />
-    </AppPressable>
+    <AppGlass radius={t.radius.pill}>
+      <AppPressable
+        onPress={onPress}
+        haptic="light"
+        accessibilityRole="button"
+        accessibilityLabel={label}
+        accessibilityState={active === undefined ? undefined : { selected: active }}
+        style={[styles.center, { width: t.layout.minTouch, height: t.layout.minTouch }]}
+      >
+        <Icon
+          color={color}
+          fill={active ? color : 'transparent'}
+          size={t.icon.control}
+          strokeWidth={t.icon.stroke}
+        />
+      </AppPressable>
+    </AppGlass>
   );
 };
 
-// The map's search capsule, reused as the details header; the page scrolls under the glass.
+// Floats over the hero; once scrolled past it a solid bar (status bar included) fades in with
+// the station name, so nothing scrolls visibly behind the buttons.
 const DetailsTopBar = ({
   title,
   isFavourite,
+  barStyle,
+  titleStyle,
   onBack,
   onShare,
   onToggleFavourite,
 }: DetailsTopBarProps) => {
   const t = useTheme();
   const insets = useSafeAreaInsets();
-  const height = mapTopBarHeight(t);
-  const inset = (height - t.layout.minTouch) / 2;
 
   return (
-    <>
-      {/* Keeps scrolled content out from under the clock and status icons. */}
-      <View
+    <View pointerEvents="box-none" style={[styles.wrap, { height: topBarSpace(t, insets.top) }]}>
+      <Animated.View
         pointerEvents="none"
-        style={[styles.statusStrip, { height: insets.top, backgroundColor: t.colors.bg }]}
+        style={[
+          StyleSheet.absoluteFill,
+          {
+            backgroundColor: t.colors.surface,
+            borderBottomWidth: t.layout.hairline,
+            borderBottomColor: t.colors.border,
+          },
+          barStyle,
+        ]}
       />
       <View
         pointerEvents="box-none"
-        style={[styles.wrap, { top: insets.top + t.space[2], paddingHorizontal: t.space[4] }]}
+        style={[
+          styles.row,
+          {
+            gap: t.space[3],
+            marginTop: insets.top + t.space[2],
+            height: mapTopBarHeight(t),
+            paddingHorizontal: t.space[4],
+          },
+        ]}
       >
-        <AppGlass
-          radius={t.radius.pill}
-          style={[styles.row, { height, paddingHorizontal: inset, gap: t.space[1] }]}
-        >
-          <CapsuleButton icon={ChevronLeft} label={DETAILS_COPY.back} onPress={onBack} />
-          <AppText variant="headline" numberOfLines={1} style={styles.grow}>
+        <GlassButton icon={ChevronLeft} label={DETAILS_COPY.back} onPress={onBack} />
+        <Animated.View style={[styles.grow, titleStyle]} pointerEvents="none">
+          <AppText variant="headline" numberOfLines={1}>
             {title ?? ''}
           </AppText>
-          {onShare ? (
-            <CapsuleButton icon={Share2} label={DETAILS_COPY.share} onPress={onShare} />
-          ) : null}
-          {onToggleFavourite ? (
-            <CapsuleButton
-              icon={Heart}
-              label={isFavourite ? DETAILS_COPY.removeFavourite : DETAILS_COPY.addFavourite}
-              onPress={onToggleFavourite}
-              active={isFavourite}
-            />
-          ) : null}
-        </AppGlass>
+        </Animated.View>
+        {onShare ? (
+          <GlassButton icon={Share2} label={DETAILS_COPY.share} onPress={onShare} />
+        ) : null}
+        {onToggleFavourite ? (
+          <GlassButton
+            icon={Heart}
+            label={isFavourite ? DETAILS_COPY.removeFavourite : DETAILS_COPY.addFavourite}
+            onPress={onToggleFavourite}
+            active={isFavourite}
+          />
+        ) : null}
       </View>
-    </>
+    </View>
   );
 };
 
 export default DetailsTopBar;
 
 const styles = StyleSheet.create({
-  statusStrip: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-  },
   wrap: {
     position: 'absolute',
+    top: 0,
     left: 0,
     right: 0,
   },

@@ -2,20 +2,26 @@ import { StyleSheet, View } from 'react-native';
 
 import { AppText } from '@/shared/components';
 
-import { useTheme } from '@/shared/theme';
+import { useTheme, withAlpha } from '@/shared/theme';
 
 export type Stat = { value: string; label: string };
 
 type StatRowProps = {
   stats: Stat[];
+  // Light text for use over a photo scrim.
+  inverse?: boolean;
 };
 
 // Long values or a large system text size shrink a little to fit instead of being cut off.
 const MIN_STAT_SCALE = 0.85;
 
 // Figures side by side: a semibold value over a quiet label, split by hairlines.
-const StatRow = ({ stats }: StatRowProps) => {
+const StatRow = ({ stats, inverse }: StatRowProps) => {
   const t = useTheme();
+  const light = t.colors.surface;
+  const valueColor = inverse ? light : t.colors.textPrimary;
+  const labelColor = inverse ? withAlpha(light, 0.8) : t.colors.textTertiary;
+  const dividerColor = inverse ? withAlpha(light, 0.35) : t.colors.borderStrong;
 
   return (
     <View style={styles.row}>
@@ -28,7 +34,7 @@ const StatRow = ({ stats }: StatRowProps) => {
                 {
                   height: t.space[6],
                   marginHorizontal: t.space[3],
-                  backgroundColor: t.colors.borderStrong,
+                  backgroundColor: dividerColor,
                 },
               ]}
             />
@@ -40,11 +46,11 @@ const StatRow = ({ stats }: StatRowProps) => {
               numberOfLines={1}
               adjustsFontSizeToFit
               minimumFontScale={MIN_STAT_SCALE}
-              style={{ fontFamily: t.type.headline.fontFamily }}
+              style={{ fontFamily: t.type.headline.fontFamily, color: valueColor }}
             >
               {stat.value}
             </AppText>
-            <AppText variant="caption" tone="tertiary" numberOfLines={1}>
+            <AppText variant="caption" numberOfLines={1} style={{ color: labelColor }}>
               {stat.label}
             </AppText>
           </View>

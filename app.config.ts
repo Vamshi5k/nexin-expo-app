@@ -96,7 +96,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 
   plugins: [
     'expo-router',
-    'expo-dev-client',
+    // Dev builds only: hide the floating tools button so it never covers primary actions.
+    // The dev menu still opens with a shake (or `adb shell input keyevent 82`).
+    ['expo-dev-client', { toolsButton: false }],
     [
       'expo-splash-screen',
       {

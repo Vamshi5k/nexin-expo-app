@@ -3,6 +3,7 @@ import { router } from 'expo-router';
 
 import { StationDetailsScreen } from '@/features/stations';
 import { stationsApi, toStationDetails } from '@/features/stations/api/stations.api';
+import type { StationDetails } from '@/features/stations/types/stations.types';
 import { toast } from '@/shared/utils/toast';
 
 import { renderWithApp } from '../helpers/render';
@@ -14,7 +15,26 @@ jest.mock('expo-router', () => ({
     jest.requireActual('react').useEffect(effect, [effect]),
 }));
 jest.mock('expo-linking', () => ({ createURL: (path: string) => `cruzeev://${path}` }));
-jest.mock('expo-image', () => ({ Image: () => null }));
+jest.mock('expo-clipboard', () => ({ setStringAsync: jest.fn(async () => true) }));
+// A plain view that keeps onError, so a test can make one photo fail to load.
+jest.mock('expo-image', () => {
+  const { View } = jest.requireActual('react-native');
+  return {
+    Image: ({ onError, testID }: { onError: () => void; testID: string }) =>
+      jest.requireActual('react').createElement(View, { onError, testID }),
+  };
+});
+// The library's mock never animates; make dismiss() report back like the real sheet does.
+jest.mock('@gorhom/bottom-sheet', () => {
+  const mock = jest.requireActual('@gorhom/bottom-sheet/mock');
+  class BottomSheetModal extends mock.BottomSheetModal {
+    dismiss() {
+      super.dismiss();
+      this.props.onDismiss?.();
+    }
+  }
+  return { ...mock, BottomSheetModal };
+});
 jest.mock('expo-location', () => ({
   getForegroundPermissionsAsync: jest.fn(async () => ({ granted: false, canAskAgain: true })),
 }));
@@ -32,7 +52,15 @@ const STATION = toStationDetails({
   name: 'Hub One',
   status: 'Available',
   helpNumber: null,
+  stationType: 'Public',
   stationLocation: { latitude: 17.4, longitude: 78.3, address: 'MG Road' },
+  amenities: [
+    { name: 'Wifi' },
+    { name: 'Restaurant' },
+    { name: 'Parking' },
+    { name: 'Lounge area' },
+    { name: 'Play Zone' },
+  ],
   chargers: [
     {
       id: 1,
@@ -48,41 +76,104 @@ const STATION = toStationDetails({
   ],
 });
 
+const withImages = (urls: string[]): StationDetails => ({ ...STATION, imageUrls: urls });
+
+const renderStation = async (station: StationDetails = STATION) => {
+  getDetails.mockResolvedValue(station);
+  await renderWithApp(<StationDetailsScreen stationId="9" />);
+  await screen.findByRole('header', { name: 'Hub One' });
+};
+
 describe('StationDetailsScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    getDetails.mockResolvedValue(STATION);
     getFavouriteIds.mockResolvedValue([]);
     setFavourite.mockResolvedValue(undefined);
   });
 
-  it('shows the station, its chargers and no Call button without a phone number', async () => {
-    await renderWithApp(<StationDetailsScreen stationId="9" />);
+  it('shows status as sent, charger groups, and no Call button without a phone number', async () => {
+    await renderStation();
 
-    expect(await screen.findByRole('header', { name: 'Hub One' })).toBeTruthy();
-    expect(screen.getAllByText('Charger 1 · DC · 60 kW')).toHaveLength(2);
+    // The charger header plus the same line on each of its two connector cards.
+    expect(screen.getAllByText('Charger 1 · DC · 60 kW')).toHaveLength(3);
     expect(screen.getByText('1/2 free')).toBeTruthy();
+    expect(screen.getByText('Tap a connector to start charging')).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Get Directions' })).toBeTruthy();
     expect(screen.queryByRole('button', { name: 'Call station' })).toBeNull();
-    expect(getDetails).toHaveBeenCalledWith('9');
   });
 
-  it('About this station lists address, help line, connector types and amenities', async () => {
-    getDetails.mockResolvedValueOnce({ ...STATION, amenities: ['Wifi'] });
-    await renderWithApp(<StationDetailsScreen stationId="9" />);
+  describe('hero photos', () => {
+    it('no photos: the brand illustration', async () => {
+      await renderStation(withImages([]));
+      expect(screen.getByTestId('station-hero-fallback')).toBeTruthy();
+      expect(screen.queryByTestId('station-hero-image')).toBeNull();
+    });
 
-    expect(await screen.findByText('About this station')).toBeTruthy();
-    expect(screen.getAllByText('MG Road')).toHaveLength(2);
-    expect(screen.getByText('Not available')).toBeTruthy();
-    expect(screen.getByText('Connector types')).toBeTruthy();
-    expect(screen.getAllByText('CCS2')).toHaveLength(3);
+    it('one photo: no slider indicator', async () => {
+      await renderStation(withImages(['https://cdn.example/a.jpg']));
+      expect(screen.getAllByTestId('station-hero-image')).toHaveLength(1);
+      expect(screen.queryByText('1/1')).toBeNull();
+      expect(screen.queryByTestId('station-hero-fallback')).toBeNull();
+    });
+
+    it('many photos: a page indicator, and a broken one is skipped', async () => {
+      await renderStation(
+        withImages([
+          'https://cdn.example/a.jpg',
+          'https://cdn.example/b.jpg',
+          'https://cdn.example/c.jpg',
+        ]),
+      );
+      expect(screen.getByText('1/3')).toBeTruthy();
+
+      await act(async () => fireEvent(screen.getAllByTestId('station-hero-image')[0]!, 'error'));
+      expect(screen.getByText('1/2')).toBeTruthy();
+    });
+
+    it('every photo broken: falls back to the illustration', async () => {
+      await renderStation(withImages(['https://cdn.example/a.jpg', 'https://cdn.example/b.jpg']));
+
+      while (screen.queryAllByTestId('station-hero-image').length) {
+        await act(async () => fireEvent(screen.getAllByTestId('station-hero-image')[0]!, 'error'));
+      }
+      expect(screen.getByTestId('station-hero-fallback')).toBeTruthy();
+    });
+  });
+
+  it('About shows 3 amenities and +2; the sheet lists everything and hides empty rows', async () => {
+    await renderStation();
+
     expect(screen.getByText('Wifi')).toBeTruthy();
+    expect(screen.getByText('+2')).toBeTruthy();
+    expect(screen.queryByText('Not available')).toBeNull();
+    expect(screen.queryByText('Lounge area')).toBeNull();
+
+    await fireEvent.press(screen.getByRole('button', { name: 'View all details' }));
+
+    expect(await screen.findByText('Lounge area')).toBeTruthy();
+    expect(screen.getByText('Public')).toBeTruthy();
+    expect(screen.getByText('Connector types')).toBeTruthy();
+    expect(screen.queryByText('Help line')).toBeNull();
+
+    await act(async () => fireEvent.press(screen.getByRole('button', { name: 'Close' })));
+    expect(screen.queryByText('Lounge area')).toBeNull();
+  });
+
+  it('with a phone number: Call button, help line in the sheet, and Copy address', async () => {
+    await renderStation({ ...STATION, phone: '+91 98765 43210' });
+
+    expect(screen.getByRole('button', { name: 'Call station' })).toBeTruthy();
+    await fireEvent.press(screen.getByRole('button', { name: 'View all details' }));
+    expect(await screen.findByText('Help line')).toBeTruthy();
+
+    await fireEvent.press(screen.getByRole('button', { name: 'Copy Address' }));
+    await waitFor(() => expect(toast.success).toHaveBeenCalledWith('Address copied'));
   });
 
   it('a free connector opens charging; a busy one explains why not', async () => {
-    await renderWithApp(<StationDetailsScreen stationId="9" />);
+    await renderStation();
 
-    await fireEvent.press(await screen.findByLabelText('Connector 1, CCS2, Charging'));
+    await fireEvent.press(screen.getByLabelText('Connector 1, CCS2, Charging'));
     expect(toast.info).toHaveBeenCalledWith('Connector is currently Charging');
     expect(router.push).not.toHaveBeenCalled();
 
@@ -94,9 +185,9 @@ describe('StationDetailsScreen', () => {
   });
 
   it('the heart adds a favourite with the new state, and rolls back if it fails', async () => {
-    await renderWithApp(<StationDetailsScreen stationId="9" />);
+    await renderStation();
 
-    await fireEvent.press(await screen.findByRole('button', { name: 'Add to favourites' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Add to favourites' }));
     expect(setFavourite).toHaveBeenCalledWith('9', true);
     await waitFor(() => expect(toast.success).toHaveBeenCalledWith('Added to favourites'));
     expect(screen.getByRole('button', { name: 'Remove from favourites' })).toBeTruthy();
@@ -109,7 +200,7 @@ describe('StationDetailsScreen', () => {
   });
 
   it('a failed load shows the error with Retry', async () => {
-    getDetails.mockRejectedValueOnce(new Error('down'));
+    getDetails.mockRejectedValueOnce(new Error('down')).mockResolvedValue(STATION);
     await renderWithApp(<StationDetailsScreen stationId="9" />);
 
     expect(await screen.findByText("Couldn't load this station")).toBeTruthy();

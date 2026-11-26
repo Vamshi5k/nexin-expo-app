@@ -1,5 +1,7 @@
 import type { ConnectorType } from '@/shared/components';
 
+import type { ConnectorState } from '@brand/schema';
+
 type NumberLike = number | string | null | undefined;
 
 type StationLocationDto = {
@@ -97,6 +99,7 @@ export type StationDetailsDto = {
   status?: string | null;
   stationStatus?: string | null;
   helpNumber?: string | null;
+  stationType?: string | null;
   amenities?: { name?: string | null }[] | null;
   stationMedia?: { url?: string | null }[] | null;
   stationLocation?: StationLocationDto;
@@ -105,21 +108,12 @@ export type StationDetailsDto = {
 
 export type FavouriteDto = { stationId?: number | string | null };
 
-export type ConnectorState =
-  | 'available'
-  | 'preparing'
-  | 'charging'
-  | 'finishing'
-  | 'reserved'
-  | 'unavailable'
-  | 'faulted'
-  | 'unknown';
-
 export type Connector = {
   id: string;
   connectorId: string;
   portType: string | null;
   state: ConnectorState;
+  label: string;
   socPercent: number | null;
   minutesToFull: number | null;
 };
@@ -138,8 +132,11 @@ export type StationDetails = Coordinates & {
   name: string;
   address: string;
   status: StationStatus;
+  // Exactly as the API sends it, for the hero badge; `status` is the mapped value for colour.
+  rawStatus: string;
   phone: string | null;
+  accessType: string | null;
   amenities: string[];
-  imageUrl: string | null;
+  imageUrls: string[];
   chargers: Charger[];
 };

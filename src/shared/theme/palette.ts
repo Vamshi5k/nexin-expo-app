@@ -1,4 +1,4 @@
-import type { BrandConfig, ConnectorStatus } from '@brand/schema';
+import type { BrandConfig, ConnectorState, ConnectorStatus } from '@brand/schema';
 
 import { ensureContrast, hslToHex, hue, mix, readableOn, withAlpha } from './color';
 
@@ -36,6 +36,7 @@ export type Palette = {
   connector: Record<ConnectorStatus, string>;
   // Text or icon colour on a connector-coloured fill (map pins), picked by contrast.
   onConnector: Record<ConnectorStatus, string>;
+  status: { connector: Record<ConnectorState, { main: string; tint: string }> };
   neutral: Record<NeutralStep, string>;
   overlay: string;
   skeleton: string;
@@ -149,6 +150,7 @@ export function buildPalette(brand: BrandConfig, scheme: ColorScheme): Palette {
     onConnector: Object.fromEntries(
       Object.entries(brand.connectorColors).map(([key, fill]) => [key, onFill(fill, darkText)]),
     ) as Record<ConnectorStatus, string>,
+    status: { connector: brand.connectorStatusColors },
     neutral,
     overlay: withAlpha(neutral[950], light ? 0.45 : 0.6),
     skeleton: light ? mix(surface, neutral[300], 0.45) : neutral[800],

@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
 import { Linking, Share } from 'react-native';
 
+import * as Clipboard from 'expo-clipboard';
 import * as ExpoLinking from 'expo-linking';
 import { router } from 'expo-router';
 
@@ -19,7 +20,7 @@ import {
   MAX_ETA_KM,
 } from '../constants/stations.constants';
 import type { Charger, Connector } from '../types/stations.types';
-import { canStartCharging, CONNECTOR_LABEL, sortChargers } from '../utils/connector';
+import { canStartCharging, sortChargers } from '../utils/connector';
 import { distanceKm, formatEta } from '../utils/geo';
 import { shareMessage } from '../utils/share';
 
@@ -31,6 +32,7 @@ export const useStationDetails = (stationId: string) => {
   const directions = useDirections();
 
   const [refreshing, setRefreshing] = useState(false);
+  const [infoOpen, setInfoOpen] = useState(false);
   const [favouriteOverride, setFavouriteOverride] = useState<boolean | null>(null);
   const [savingFavourite, setSavingFavourite] = useState(false);
 
@@ -74,6 +76,13 @@ export const useStationDetails = (stationId: string) => {
     Share.share({ message }).catch(() => toast.error(DETAILS_COPY.shareError));
   };
 
+  const copyAddress = () => {
+    if (!station?.address) return;
+    Clipboard.setStringAsync(station.address)
+      .then(() => toast.success(DETAILS_COPY.copied))
+      .catch((error: unknown) => toast.error(getErrorMessage(error)));
+  };
+
   const call = () => {
     if (!station?.phone) return;
     Linking.openURL(`tel:${station.phone}`).catch(() => toast.error(DETAILS_COPY.callError));
@@ -81,7 +90,7 @@ export const useStationDetails = (stationId: string) => {
 
   const openConnector = (charger: Charger, connector: Connector) => {
     if (!canStartCharging(connector.state)) {
-      toast.info(connectorBusy(CONNECTOR_LABEL[connector.state]));
+      toast.info(connectorBusy(connector.label));
       return;
     }
 
@@ -103,6 +112,10 @@ export const useStationDetails = (stationId: string) => {
     loading: details.loading && !station,
     error: station ? null : details.error,
     refreshing,
+    infoOpen,
+    openInfo: () => setInfoOpen(true),
+    closeInfo: () => setInfoOpen(false),
+    copyAddress,
     distance,
     eta: distance !== null && distance <= MAX_ETA_KM ? formatEta(distance) : null,
     isFavourite,

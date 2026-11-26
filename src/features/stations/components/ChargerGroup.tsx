@@ -16,16 +16,11 @@ import {
   freeBadge,
 } from '../constants/stations.constants';
 import type { Charger, Connector } from '../types/stations.types';
-import {
-  canStartCharging,
-  chargingProgress,
-  CONNECTOR_LABEL,
-  connectorColorKey,
-  freeConnectors,
-} from '../utils/connector';
+import { canStartCharging, chargingProgress, freeConnectors } from '../utils/connector';
 
-type ConnectorCarouselProps = {
-  chargers: Charger[];
+type ChargerGroupProps = {
+  charger: Charger;
+  index: number;
   onConnectorPress: (charger: Charger, connector: Connector) => void;
 };
 
@@ -37,7 +32,9 @@ type ConnectorCardProps = {
   onPress: (charger: Charger, connector: Connector) => void;
 };
 
-const CARD_WIDTH_RATIO = 0.62;
+// From this many connectors a charger swipes sideways instead of stacking.
+const SWIPE_FROM = 3;
+const SWIPE_CARD_RATIO = 0.72;
 
 const chargerMeta = (charger: Charger, index: number) =>
   [
@@ -58,10 +55,10 @@ const ConnectorCard = ({
 }: ConnectorCardProps) => {
   const t = useTheme();
   const startable = canStartCharging(connector.state);
-  const label = CONNECTOR_LABEL[connector.state];
+  const { label } = connector;
   const type = connector.portType ?? DETAILS_COPY.unknownType;
   const progress = chargingProgress(connector);
-  const color = t.colors.connector[connectorColorKey(connector.state)];
+  const status = t.colors.status.connector[connector.state];
 
   const pill = {
     gap: t.space[2],
@@ -90,7 +87,7 @@ const ConnectorCard = ({
         },
       ]}
     >
-      <CardGradient color={color} id={`connector-${charger.id}-${connector.id}`} />
+      <CardGradient color={status.tint} id={`connector-${charger.id}-${connector.id}`} />
 
       <View style={[styles.row, styles.between]}>
         <View
@@ -136,7 +133,7 @@ const ConnectorCard = ({
               width: t.space[2],
               height: t.space[2],
               borderRadius: t.radius.pill,
-              backgroundColor: color,
+              backgroundColor: status.main,
             }}
           />
           <AppText variant="caption" numberOfLines={1} style={styles.shrink}>
@@ -148,62 +145,62 @@ const ConnectorCard = ({
   );
 };
 
-// Every connector of the station in one swipeable row, like the map's card carousel.
-const ConnectorCarousel = ({ chargers, onConnectorPress }: ConnectorCarouselProps) => {
+// One charger: its header, then its connectors stacked full width, or as a swipe row from 3 up.
+const ChargerGroup = ({ charger, index, onConnectorPress }: ChargerGroupProps) => {
   const t = useTheme();
   const { width: screenWidth } = useWindowDimensions();
-  const cardWidth = Math.round(screenWidth * CARD_WIDTH_RATIO);
+  const free = freeConnectors(charger);
+  const total = charger.connectors.length;
+  const swipe = total >= SWIPE_FROM;
+  const fullWidth = screenWidth - t.layout.screenPadding * 2;
+  const cardWidth = swipe ? Math.round(screenWidth * SWIPE_CARD_RATIO) : fullWidth;
 
-  const free = chargers.reduce((sum, charger) => sum + freeConnectors(charger), 0);
-  const total = chargers.reduce((sum, charger) => sum + charger.connectors.length, 0);
+  const cards = charger.connectors.map(connector => (
+    <ConnectorCard
+      key={connector.id}
+      charger={charger}
+      chargerIndex={index}
+      connector={connector}
+      width={cardWidth}
+      onPress={onConnectorPress}
+    />
+  ));
 
   return (
     <View style={{ gap: t.space[3] }}>
       <View style={[styles.row, styles.between, { paddingHorizontal: t.layout.screenPadding }]}>
-        <AppText variant="title2" accessibilityRole="header">
-          {DETAILS_COPY.connectors}
+        <AppText variant="headline" numberOfLines={1} style={styles.shrink}>
+          {chargerMeta(charger, index)}
         </AppText>
-        <AppText
-          variant="subhead"
-          tabular
-          style={{ color: free ? t.colors.successText : t.colors.textTertiary }}
-        >
-          {freeBadge(free, total)}
-        </AppText>
+        {total ? (
+          <AppText
+            variant="subhead"
+            tabular
+            style={{ color: free ? t.colors.successText : t.colors.textTertiary }}
+          >
+            {freeBadge(free, total)}
+          </AppText>
+        ) : null}
       </View>
-      <AppText
-        variant="subhead"
-        tone="secondary"
-        style={{ paddingHorizontal: t.layout.screenPadding }}
-      >
-        {DETAILS_COPY.tip}
-      </AppText>
 
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        snapToInterval={cardWidth + t.space[3]}
-        decelerationRate="fast"
-        contentContainerStyle={{ gap: t.space[3], paddingHorizontal: t.layout.screenPadding }}
-      >
-        {chargers.flatMap((charger, chargerIndex) =>
-          charger.connectors.map(connector => (
-            <ConnectorCard
-              key={`${charger.id}-${connector.id}`}
-              charger={charger}
-              chargerIndex={chargerIndex}
-              connector={connector}
-              width={cardWidth}
-              onPress={onConnectorPress}
-            />
-          )),
-        )}
-      </ScrollView>
+      {swipe ? (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          snapToInterval={cardWidth + t.space[3]}
+          decelerationRate="fast"
+          contentContainerStyle={{ gap: t.space[3], paddingHorizontal: t.layout.screenPadding }}
+        >
+          {cards}
+        </ScrollView>
+      ) : (
+        <View style={{ gap: t.space[3], paddingHorizontal: t.layout.screenPadding }}>{cards}</View>
+      )}
     </View>
   );
 };
 
-export default ConnectorCarousel;
+export default ChargerGroup;
 
 const styles = StyleSheet.create({
   card: {

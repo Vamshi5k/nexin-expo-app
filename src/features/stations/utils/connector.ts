@@ -1,57 +1,45 @@
-import type { ConnectorStatus } from '@brand/schema';
+import type { ConnectorState } from '@brand/schema';
 
-import type { Charger, Connector, ConnectorState } from '../types/stations.types';
+import type { Charger, Connector } from '../types/stations.types';
 
-const STATE_BY_KEY: Record<string, ConnectorState> = {
-  available: 'available',
-  preparing: 'preparing',
-  charging: 'charging',
-  suspendedev: 'charging',
-  suspendedevse: 'charging',
-  finishing: 'finishing',
-  reserved: 'reserved',
-  occupied: 'charging',
-  unavailable: 'unavailable',
-  inoperative: 'unavailable',
-  faulted: 'faulted',
+export type ConnectorStatus = { state: ConnectorState; label: string };
+
+// The CruzeEV app's connector status display: OCPP code -> state and label.
+const OCPP: Record<string, ConnectorStatus> = {
+  available: { state: 'available', label: 'Available' },
+  preparing: { state: 'preparing', label: 'Preparing' },
+  charging: { state: 'charging', label: 'Charging' },
+  suspendedev: { state: 'suspendedEv', label: 'Suspended EV' },
+  suspendedevse: { state: 'suspendedEvse', label: 'Suspended EVSE' },
+  finishing: { state: 'finishing', label: 'Finishing' },
+  reserved: { state: 'reserved', label: 'Reserved' },
+  engaged: { state: 'engaged', label: 'Engaged' },
+  unavailable: { state: 'unavailable', label: 'Unavailable' },
+  faulted: { state: 'faulted', label: 'Faulted' },
 };
 
-export const CONNECTOR_LABEL: Record<ConnectorState, string> = {
-  available: 'Available',
-  preparing: 'Preparing',
-  charging: 'Charging',
-  finishing: 'Finishing',
-  reserved: 'Reserved',
-  unavailable: 'Unavailable',
-  faulted: 'Faulted',
-  unknown: 'Unknown',
-};
+// No heartbeat: the old app had no connector entry and its fallback showed "Unavailable" in red.
+const OFFLINE_KEYS = ['offline', 'inactive', 'outoforder', 'inoperative', 'removed'];
+const OFFLINE: ConnectorStatus = { state: 'offline', label: 'Unavailable' };
 
-const COLOR_KEY: Record<ConnectorState, ConnectorStatus> = {
-  available: 'Available',
-  preparing: 'Reserved',
-  charging: 'Charging',
-  finishing: 'Charging',
-  reserved: 'Reserved',
-  unavailable: 'Unavailable',
-  faulted: 'Faulted',
-  unknown: 'Unknown',
-};
+const UNKNOWN_LABEL = 'Unknown';
 
 const key = (value: string) => value.toLowerCase().replace(/[\s_-]/g, '');
 
-// OCPP statuses arrive raw ("SuspendedEVSE", "Faulted - Door Open"); drivers see a plain word.
-export function toConnectorState(raw: string | null | undefined): ConnectorState {
+/**
+ * Raw OCPP status -> what the driver sees. "Faulted - Door Open" keeps its full text with the
+ * Faulted colours, like the old app; codes nobody knows show their raw text in the unknown grey.
+ */
+export function toConnectorStatus(raw: string | null | undefined): ConnectorStatus {
   const text = (raw ?? '').trim();
-  const direct = STATE_BY_KEY[key(text)];
+  const direct = OCPP[key(text)];
   if (direct) return direct;
 
-  const prefix = text.split(/\s+-\s+|:/)[0] ?? '';
-  return STATE_BY_KEY[key(prefix)] ?? 'unknown';
-}
+  const prefix = OCPP[key(text.split(/\s+-\s+|:/)[0] ?? '')];
+  if (prefix && text) return { state: prefix.state, label: text };
 
-export function connectorColorKey(state: ConnectorState): ConnectorStatus {
-  return COLOR_KEY[state];
+  if (OFFLINE_KEYS.includes(key(text))) return OFFLINE;
+  return { state: 'unknown', label: text || UNKNOWN_LABEL };
 }
 
 // Only these two can start a session, same rule as the old app.

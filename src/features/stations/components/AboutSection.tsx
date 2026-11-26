@@ -1,90 +1,28 @@
 import { StyleSheet, View } from 'react-native';
 
-import { MapPin, Phone, PlugZap, Sparkles, type LucideIcon } from 'lucide-react-native';
+import { MapPin } from 'lucide-react-native';
 
-import { AppPressable, AppText } from '@/shared/components';
+import { AppButton, AppText } from '@/shared/components';
+
+import AmenityChip from './AmenityChip';
 
 import { useTheme } from '@/shared/theme';
 
-import { DETAILS_COPY } from '../constants/stations.constants';
+import { DETAILS_COPY, moreChip } from '../constants/stations.constants';
 import type { StationDetails } from '../types/stations.types';
 
 type AboutSectionProps = {
   station: StationDetails;
-  onCall: () => void;
+  onViewAll: () => void;
 };
 
-type InfoRowProps = {
-  icon: LucideIcon;
-  label: string;
-  value: string;
-  onPress?: () => void;
-  first?: boolean;
-};
+const VISIBLE_AMENITIES = 3;
 
-const InfoRow = ({ icon: Icon, label, value, onPress, first }: InfoRowProps) => {
+// A short summary; everything else lives in the details sheet so the page stays light.
+const AboutSection = ({ station, onViewAll }: AboutSectionProps) => {
   const t = useTheme();
-
-  const body = (
-    <View
-      style={[
-        styles.row,
-        {
-          gap: t.space[3],
-          paddingVertical: t.space[3],
-          borderTopWidth: first ? 0 : t.layout.hairline,
-          borderTopColor: t.colors.border,
-        },
-      ]}
-    >
-      <View
-        style={[
-          styles.center,
-          {
-            width: t.layout.minTouch,
-            height: t.layout.minTouch,
-            borderRadius: t.radius.pill,
-            backgroundColor: t.colors.surfaceSunken,
-          },
-        ]}
-      >
-        <Icon color={t.colors.textPrimary} size={t.icon.control} strokeWidth={t.icon.stroke} />
-      </View>
-      <View style={styles.grow}>
-        <AppText variant="caption" tone="secondary">
-          {label}
-        </AppText>
-        <AppText variant="headline" tone={onPress ? 'accent' : 'primary'}>
-          {value}
-        </AppText>
-      </View>
-    </View>
-  );
-
-  if (!onPress) return body;
-  return (
-    <AppPressable
-      onPress={onPress}
-      feedback="opacity"
-      accessibilityRole="button"
-      accessibilityLabel={`${label}, ${value}`}
-    >
-      {body}
-    </AppPressable>
-  );
-};
-
-// Everything that is not a charger, in one grouped card: where, who to call, what plugs fit
-// and what is around.
-const AboutSection = ({ station, onCall }: AboutSectionProps) => {
-  const t = useTheme();
-  const types = [
-    ...new Set(
-      station.chargers.flatMap(charger =>
-        charger.connectors.map(connector => connector.portType).filter(Boolean),
-      ),
-    ),
-  ];
+  const shown = station.amenities.slice(0, VISIBLE_AMENITIES);
+  const hidden = station.amenities.length - shown.length;
 
   return (
     <View style={{ gap: t.space[3] }}>
@@ -93,69 +31,37 @@ const AboutSection = ({ station, onCall }: AboutSectionProps) => {
       </AppText>
       <View
         style={{
-          paddingHorizontal: t.space[4],
+          gap: t.space[4],
+          padding: t.space[4],
           borderRadius: t.radius.card,
           borderWidth: t.layout.hairline,
           borderColor: t.colors.border,
           backgroundColor: t.colors.surfaceRaised,
         }}
       >
-        <InfoRow
-          first
-          icon={MapPin}
-          label={DETAILS_COPY.address}
-          value={station.address || DETAILS_COPY.notAvailable}
-        />
-        <InfoRow
-          icon={Phone}
-          label={DETAILS_COPY.helpLine}
-          value={station.phone ?? DETAILS_COPY.notAvailable}
-          onPress={station.phone ? onCall : undefined}
-        />
-        <InfoRow
-          icon={PlugZap}
-          label={DETAILS_COPY.connectorTypes}
-          value={types.length ? types.join(', ') : DETAILS_COPY.notAvailable}
-        />
-
-        {station.amenities.length ? (
-          <View
-            style={{
-              gap: t.space[3],
-              paddingVertical: t.space[4],
-              borderTopWidth: t.layout.hairline,
-              borderTopColor: t.colors.border,
-            }}
-          >
-            <View style={[styles.row, { gap: t.space[3] }]}>
-              <Sparkles
-                color={t.colors.textPrimary}
-                size={t.icon.meta}
-                strokeWidth={t.icon.stroke}
-              />
-              <AppText variant="caption" tone="secondary">
-                {DETAILS_COPY.amenities}
-              </AppText>
-            </View>
-            <View style={[styles.wrap, { gap: t.space[2] }]}>
-              {station.amenities.map(amenity => (
-                <View
-                  key={amenity}
-                  style={{
-                    paddingHorizontal: t.space[3],
-                    paddingVertical: t.space[1] + t.space[1] / 2,
-                    borderRadius: t.radius.pill,
-                    borderWidth: t.layout.hairline,
-                    borderColor: t.colors.borderStrong,
-                    backgroundColor: t.colors.surface,
-                  }}
-                >
-                  <AppText variant="subhead">{amenity}</AppText>
-                </View>
-              ))}
-            </View>
+        {station.address ? (
+          <View style={[styles.row, { gap: t.space[3] }]}>
+            <MapPin
+              color={t.colors.textSecondary}
+              size={t.icon.control}
+              strokeWidth={t.icon.stroke}
+            />
+            <AppText variant="body" numberOfLines={2} style={styles.grow}>
+              {station.address}
+            </AppText>
           </View>
         ) : null}
+
+        {shown.length ? (
+          <View style={[styles.wrap, { gap: t.space[2] }]}>
+            {shown.map(amenity => (
+              <AmenityChip key={amenity} label={amenity} />
+            ))}
+            {hidden > 0 ? <AmenityChip label={moreChip(hidden)} /> : null}
+          </View>
+        ) : null}
+
+        <AppButton label={DETAILS_COPY.viewAll} variant="secondary" onPress={onViewAll} />
       </View>
     </View>
   );
@@ -167,10 +73,6 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-  },
-  center: {
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   grow: {
     flex: 1,
