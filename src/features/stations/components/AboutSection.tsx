@@ -26,7 +26,7 @@ const AboutSection = ({ station, onViewAll }: AboutSectionProps) => {
 
   return (
     <View style={{ gap: t.space[3] }}>
-      <AppText variant="title2" accessibilityRole="header">
+      <AppText variant="title3" accessibilityRole="header">
         {DETAILS_COPY.about}
       </AppText>
       <View

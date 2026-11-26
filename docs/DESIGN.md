@@ -38,7 +38,7 @@ the driver find, start, watch or pay for a charge.
   even while a brand ships light only. Cruze EV stays on 'light' until the core screens exist.
 
 ## Typography (font from brand, Inter by default)
-- Scale: display 34/40 semibold, title1 28/34 semibold, title2 22/28 semibold,
+- Scale: display 34/40 semibold, title1 28/34 semibold, title2 22/28 semibold, title3 20/26 semibold (section headings),
   headline 17/24 semibold, body 16/24 regular, callout 15/20, subhead 14/20 medium,
   caption 12/16 medium. Slight negative letter-spacing on 22 and above.
 - Numbers (currency, kWh, %, kW, timers) use tabular figures (fontVariant tabular-nums) so
