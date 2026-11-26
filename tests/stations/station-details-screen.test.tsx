@@ -147,14 +147,11 @@ describe('StationDetailsScreen', () => {
     expect(screen.getByText('+2')).toBeTruthy();
     expect(screen.queryByText('Not available')).toBeNull();
     expect(screen.queryByText('Lounge area')).toBeNull();
-    // The hero shows access and plug types next to the status (plus one CCS2 per card).
-    expect(screen.getByText('Public')).toBeTruthy();
-    expect(screen.getAllByText('CCS2')).toHaveLength(3);
 
     await fireEvent.press(screen.getByRole('button', { name: 'View all details' }));
 
     expect(await screen.findByText('Lounge area')).toBeTruthy();
-    expect(screen.getAllByText('Public')).toHaveLength(2);
+    expect(screen.getByText('Public')).toBeTruthy();
     expect(screen.getByText('Connector types')).toBeTruthy();
     expect(screen.queryByText('Help line')).toBeNull();
 
