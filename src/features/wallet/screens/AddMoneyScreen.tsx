@@ -23,7 +23,7 @@ import { useTheme } from '@/shared/theme';
 import { formatPaise } from '@/shared/utils/money';
 import { riseIn } from '@/shared/utils/motion';
 
-import { ADD_MONEY_COPY } from '../constants/wallet.constants';
+import { ADD_MONEY_COPY, WALLET_HREF } from '../constants/wallet.constants';
 import { useAddMoney } from '../hooks/useAddMoney';
 import { isCouponEligible, MIN_TOP_UP_PAISE, quickAmountsPaise } from '../utils/amount';
 
@@ -182,7 +182,7 @@ const AddMoneyScreen = ({ initialAmount }: AddMoneyScreenProps) => {
       >
         <Animated.View entering={riseIn(0)} style={{ gap: t.space[4] }}>
           <View style={styles.row}>
-            <AppBackButton />
+            <AppBackButton fallbackHref={WALLET_HREF.tab} />
           </View>
           <View style={{ gap: t.space[1] / 2 }}>
             <AppText variant="title2" accessibilityRole="header">

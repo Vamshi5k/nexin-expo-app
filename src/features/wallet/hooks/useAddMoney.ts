@@ -17,7 +17,7 @@ import { formatPaise } from '@/shared/utils/money';
 import { toast } from '@/shared/utils/toast';
 
 import { walletApi } from '../api/wallet.api';
-import { ADD_MONEY_COPY } from '../constants/wallet.constants';
+import { ADD_MONEY_COPY, WALLET_HREF } from '../constants/wallet.constants';
 import type { AddMoneyForm, Coupon, PaymentOrder, PaymentOutcome } from '../types/wallet.types';
 import {
   amountSchema,
@@ -149,7 +149,11 @@ export const useAddMoney = (initialAmount?: string) => {
   const closeOutcome = () => {
     const done = outcome?.kind === 'success' || outcome?.kind === 'unconfirmed';
     setOutcome(null);
-    if (done && router.canGoBack()) router.back();
+    if (!done) return;
+
+    // Opened from a deep link there is nothing behind it; land on the wallet instead.
+    if (router.canGoBack()) router.back();
+    else router.replace(WALLET_HREF.tab);
   };
 
   return {

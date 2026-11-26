@@ -3,6 +3,7 @@ export const HISTORY_PAGE_SIZE = 10;
 export const LOAD_MORE_THRESHOLD = 0.5;
 
 export const WALLET_HREF = {
+  tab: '/(app)/(tabs)/wallet',
   history: '/(app)/wallet/history',
   add: '/(app)/wallet/add',
 } as const;

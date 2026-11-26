@@ -7,7 +7,7 @@ import { AppBackButton } from '@/shared/components';
 import { renderWithApp } from '../helpers/render';
 
 jest.mock('expo-router', () => ({
-  router: { push: jest.fn(), back: jest.fn(), replace: jest.fn() },
+  router: { push: jest.fn(), back: jest.fn(), replace: jest.fn(), canGoBack: jest.fn(() => true) },
   useFocusEffect: (effect: () => void | (() => void)) =>
     jest.requireActual('react').useEffect(effect, [effect]),
 }));
@@ -19,6 +19,22 @@ describe('AppBackButton', () => {
     await renderWithApp(<AppBackButton />);
     await fireEvent.press(screen.getByRole('button', { name: 'Back' }));
     expect(router.back).toHaveBeenCalledTimes(1);
+  });
+
+  it('with nothing to go back to, replaces with the fallback (root by default)', async () => {
+    jest.mocked(router.canGoBack).mockReturnValue(false);
+
+    const root = await renderWithApp(<AppBackButton />);
+    await fireEvent.press(screen.getByRole('button', { name: 'Back' }));
+    expect(router.replace).toHaveBeenLastCalledWith('/');
+    await root.unmount();
+
+    await renderWithApp(<AppBackButton fallbackHref="/(app)/(tabs)/wallet" />);
+    await fireEvent.press(screen.getByRole('button', { name: 'Back' }));
+    expect(router.replace).toHaveBeenLastCalledWith('/(app)/(tabs)/wallet');
+    expect(router.back).not.toHaveBeenCalled();
+
+    jest.mocked(router.canGoBack).mockReturnValue(true);
   });
 
   it('runs a custom handler instead of the router', async () => {
