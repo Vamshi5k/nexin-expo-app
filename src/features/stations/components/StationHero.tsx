@@ -7,100 +7,84 @@ import {
 } from 'react-native';
 
 import { Image } from 'expo-image';
-import { Navigation } from 'lucide-react-native';
-import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { AppFade, AppPressable, AppText } from '@/shared/components';
+import { AppFade, AppText } from '@/shared/components';
 
 import StationScene from './StationScene';
-import StatRow, { type Stat } from './StatRow';
+import StatusDot from './StatusDot';
 
 import { useTheme, withAlpha } from '@/shared/theme';
 
-import { brand } from '@/core/config';
-import { formatRate } from '@/shared/utils/money';
-import { riseIn } from '@/shared/utils/motion';
-
-import { DETAILS_COPY, MAX_ETA_KM, pageLabel } from '../constants/stations.constants';
+import { DETAILS_COPY, pageLabel } from '../constants/stations.constants';
 import type { StationDetails } from '../types/stations.types';
-import { formatDistance, formatEta } from '../utils/geo';
 import { pinColorKey, STATUS_LABEL } from '../utils/status';
-
-// The scene fills the hero above the status pill, like a photo would.
-const SCENE_BOTTOM = 0.47;
 
 type StationHeroProps = {
   station: StationDetails;
-  distance: number | null;
   images: string[];
   page: number;
   width: number;
   height: number;
   onPageChange: (page: number) => void;
   onImageError: (url: string) => void;
-  onDirections: () => void;
 };
 
-const SCRIM_OPACITY = 0.78;
-const TOP_SCRIM_OPACITY = 0.35;
+// The scene fills the hero below the floating buttons, like a photo would.
+const SCENE_TOP = 0.18;
+const TOP_SCRIM_OPACITY = 0.4;
+const BASE_SCRIM_OPACITY = 0.35;
 
-const heroStats = (station: StationDetails, distance: number | null): Stat[] => {
-  const powers = station.chargers.map(charger => charger.capacityKw).filter(isNumber);
-  const prices = station.chargers.map(charger => charger.pricePerKwhPaise).filter(isNumber);
-
-  const stats: (Stat | null)[] = [
-    distance !== null
-      ? { value: formatDistance(distance, brand.locale), label: DETAILS_COPY.distance }
-      : null,
-    distance !== null && distance <= MAX_ETA_KM
-      ? { value: formatEta(distance), label: DETAILS_COPY.drive }
-      : null,
-    powers.length ? { value: `${Math.max(...powers)} kW`, label: DETAILS_COPY.power } : null,
-    prices.length ? { value: formatRate(Math.min(...prices)), label: DETAILS_COPY.perKwh } : null,
-  ];
-  return stats.filter((stat): stat is Stat => stat !== null);
-};
-
-function isNumber(value: number | null): value is number {
-  return value !== null;
-}
-
-// A vertical fade from `color` at `from` opacity to `to`, top-down (or bottom-up for the base).
-// Station photos from the backend (slider for many, still for one), or the brand illustration
-// when there are none or all of them fail. A fixed height keeps the page from jumping.
+// Photos (a paging slider with story-style segments) or the brand illustration, in a panel
+// with a rounded base. Only the live status and the photo count sit on it; the name and
+// figures live below on the page.
 const StationHero = ({
   station,
-  distance,
   images,
   page,
   width,
   height,
   onPageChange,
   onImageError,
-  onDirections,
 }: StationHeroProps) => {
   const t = useTheme();
   const insets = useSafeAreaInsets();
   const hasPhoto = images.length > 0;
+  const many = images.length > 1;
   const statusColor = t.colors.connector[pinColorKey(station.status)];
-  const ink = hasPhoto ? t.colors.surface : t.colors.textPrimary;
-  const subInk = hasPhoto ? withAlpha(t.colors.surface, 0.85) : t.colors.textSecondary;
-  const stats = heroStats(station, distance);
+  const segmentInk = hasPhoto ? t.colors.surface : t.colors.textPrimary;
 
   const onPageEnd = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     onPageChange(Math.round(event.nativeEvent.contentOffset.x / width));
   };
 
+  const chip = {
+    paddingHorizontal: t.space[3],
+    height: t.space[8],
+    borderRadius: t.radius.pill,
+    backgroundColor: t.colors.surface,
+  };
+
   return (
-    <View style={{ width, height, backgroundColor: t.colors.surfaceSunken }}>
+    <View
+      style={[
+        styles.clip,
+        {
+          width,
+          height,
+          borderBottomLeftRadius: t.radius.sheet,
+          borderBottomRightRadius: t.radius.sheet,
+          backgroundColor: t.colors.surfaceSunken,
+        },
+      ]}
+    >
       {hasPhoto ? (
         <FlatList
           testID="station-hero-slider"
           data={images}
           horizontal
           pagingEnabled
-          scrollEnabled={images.length > 1}
+          scrollEnabled={many}
           showsHorizontalScrollIndicator={false}
           keyExtractor={url => url}
           onMomentumScrollEnd={onPageEnd}
@@ -125,16 +109,11 @@ const StationHero = ({
           <AppFade
             id={`hero-wash-${station.id}`}
             color={t.colors.accent}
-            from={0.28}
-            to={0.06}
+            from={0.22}
+            to={0.08}
             top
           />
-          <View
-            style={[
-              styles.scene,
-              { top: insets.top + t.space[5], height: height * SCENE_BOTTOM - insets.top },
-            ]}
-          >
+          <View style={[styles.scene, { top: height * SCENE_TOP, bottom: t.space[12] }]}>
             <StationScene />
           </View>
         </View>
@@ -142,7 +121,7 @@ const StationHero = ({
 
       {hasPhoto ? (
         <>
-          <View style={[styles.topScrim, { height: t.space[12] * 3 }]} pointerEvents="none">
+          <View style={[styles.top, { height: t.space[12] * 3 }]} pointerEvents="none">
             <AppFade
               id={`hero-top-${station.id}`}
               color={t.colors.textPrimary}
@@ -151,111 +130,62 @@ const StationHero = ({
               top
             />
           </View>
-          <View style={[styles.bottomScrim, { height: height * 0.7 }]} pointerEvents="none">
+          <View style={[styles.base, { height: t.space[12] * 2 }]} pointerEvents="none">
             <AppFade
               id={`hero-base-${station.id}`}
               color={t.colors.textPrimary}
-              from={SCRIM_OPACITY}
+              from={BASE_SCRIM_OPACITY}
               to={0}
             />
           </View>
         </>
-      ) : (
-        <View style={[styles.bottomScrim, { height: height * 0.55 }]} pointerEvents="none">
-          <AppFade id={`hero-base-${station.id}`} color={t.colors.bg} from={1} to={0} />
+      ) : null}
+
+      {many ? (
+        <View
+          pointerEvents="none"
+          style={[
+            styles.segments,
+            {
+              top: insets.top + t.space[1],
+              left: t.layout.screenPadding,
+              right: t.layout.screenPadding,
+              gap: t.space[1] + t.space[1] / 2,
+            },
+          ]}
+        >
+          {images.map((url, index) => (
+            <View
+              key={url}
+              style={[
+                styles.grow,
+                {
+                  height: 3,
+                  borderRadius: t.radius.pill,
+                  backgroundColor: withAlpha(segmentInk, index === page ? 0.95 : 0.3),
+                },
+              ]}
+            />
+          ))}
         </View>
-      )}
+      ) : null}
 
       <View
-        pointerEvents="box-none"
-        style={[
-          styles.content,
-          { gap: t.space[2], padding: t.layout.screenPadding, paddingBottom: t.space[2] },
-        ]}
+        pointerEvents="none"
+        style={[styles.chips, { left: t.space[4], right: t.space[4], bottom: t.space[4] }]}
       >
-        <Animated.View entering={riseIn(0)} style={[styles.row, styles.between]}>
-          <View
-            style={[
-              styles.row,
-              {
-                gap: t.space[2],
-                paddingHorizontal: t.space[3],
-                paddingVertical: t.space[1],
-                borderRadius: t.radius.pill,
-                backgroundColor: t.colors.surface,
-              },
-            ]}
-          >
-            <View
-              style={{
-                width: t.space[2],
-                height: t.space[2],
-                borderRadius: t.radius.pill,
-                backgroundColor: statusColor,
-              }}
-            />
-            <AppText variant="caption">{station.rawStatus || STATUS_LABEL[station.status]}</AppText>
-          </View>
-          {images.length > 1 ? (
-            <View
-              style={{
-                paddingHorizontal: t.space[3],
-                paddingVertical: t.space[1],
-                borderRadius: t.radius.pill,
-                backgroundColor: withAlpha(t.colors.textPrimary, 0.55),
-              }}
-            >
-              <AppText variant="caption" tabular style={{ color: t.colors.surface }}>
-                {pageLabel(page + 1, images.length)}
-              </AppText>
-            </View>
-          ) : null}
-        </Animated.View>
-
-        <Animated.View entering={riseIn(1)} style={[styles.row, { gap: t.space[3] }]}>
-          <View style={[styles.grow, { gap: t.space[1] }]}>
-            <AppText
-              variant="title2"
-              numberOfLines={2}
-              accessibilityRole="header"
-              style={{ color: ink }}
-            >
-              {station.name}
+        <View style={[styles.row, chip, { gap: t.space[2] }]}>
+          <StatusDot color={statusColor} live={station.status === 'available'} />
+          <AppText variant="subhead" style={{ fontFamily: t.type.headline.fontFamily }}>
+            {station.rawStatus || STATUS_LABEL[station.status]}
+          </AppText>
+        </View>
+        {many ? (
+          <View style={[styles.row, chip]}>
+            <AppText variant="subhead" tabular>
+              {pageLabel(page + 1, images.length)}
             </AppText>
-            {station.address ? (
-              <AppText variant="subhead" numberOfLines={1} style={{ color: subInk }}>
-                {station.address}
-              </AppText>
-            ) : null}
           </View>
-          <AppPressable
-            onPress={onDirections}
-            haptic="light"
-            hitSlop={t.space[1]}
-            accessibilityRole="button"
-            accessibilityLabel={DETAILS_COPY.directions}
-            style={[
-              styles.center,
-              {
-                width: t.space[10],
-                height: t.space[10],
-                borderRadius: t.radius.pill,
-                backgroundColor: t.colors.accent,
-              },
-            ]}
-          >
-            <Navigation
-              color={t.colors.onAccent}
-              fill={t.colors.onAccent}
-              size={t.icon.meta}
-              strokeWidth={t.icon.stroke}
-            />
-          </AppPressable>
-        </Animated.View>
-        {stats.length ? (
-          <Animated.View entering={riseIn(2)} style={{ marginTop: t.space[2] }}>
-            <StatRow stats={stats} inverse={hasPhoto} />
-          </Animated.View>
         ) : null}
       </View>
     </View>
@@ -265,39 +195,39 @@ const StationHero = ({
 export default StationHero;
 
 const styles = StyleSheet.create({
+  clip: {
+    overflow: 'hidden',
+  },
   scene: {
     position: 'absolute',
     left: 0,
     right: 0,
   },
-  topScrim: {
+  top: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
   },
-  bottomScrim: {
+  base: {
     position: 'absolute',
     left: 0,
     right: 0,
     bottom: 0,
   },
-  content: {
+  segments: {
     position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
+    flexDirection: 'row',
+  },
+  chips: {
+    position: 'absolute',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-  },
-  between: {
-    justifyContent: 'space-between',
-  },
-  center: {
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   grow: {
     flex: 1,

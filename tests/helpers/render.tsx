@@ -1,6 +1,7 @@
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { render } from '@testing-library/react-native';
 import { useEffect, type ReactElement, type ReactNode } from 'react';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { AuthProvider } from '@/features/auth';
@@ -30,18 +31,20 @@ export function AppProviders({
   primeConfig?: boolean;
 }) {
   return (
-    <SafeAreaProvider initialMetrics={METRICS}>
-      <ClientConfigProvider>
-        {primeConfig ? <PrimeClientConfig /> : null}
-        <FleetProvider>
-          <AuthProvider>
-            <ThemeProvider>
-              <BottomSheetModalProvider>{children}</BottomSheetModalProvider>
-            </ThemeProvider>
-          </AuthProvider>
-        </FleetProvider>
-      </ClientConfigProvider>
-    </SafeAreaProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SafeAreaProvider initialMetrics={METRICS}>
+        <ClientConfigProvider>
+          {primeConfig ? <PrimeClientConfig /> : null}
+          <FleetProvider>
+            <AuthProvider>
+              <ThemeProvider>
+                <BottomSheetModalProvider>{children}</BottomSheetModalProvider>
+              </ThemeProvider>
+            </AuthProvider>
+          </FleetProvider>
+        </ClientConfigProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }
 

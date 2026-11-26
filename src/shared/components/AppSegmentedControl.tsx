@@ -11,9 +11,9 @@ import Animated, {
 import AppPressable from './AppPressable';
 import AppText from './AppText';
 
-import { useTheme } from '@/shared/theme';
+import { useTheme, withAlpha } from '@/shared/theme';
 
-export type Segment<T extends string> = { value: T; label: string; count?: number };
+export type Segment<T extends string> = { value: T; label: string; badge?: string };
 
 export type AppSegmentedControlProps<T extends string> = {
   segments: Segment<T>[];
@@ -23,9 +23,9 @@ export type AppSegmentedControlProps<T extends string> = {
 };
 
 const PAD = 4;
-const HEIGHT = 44;
+const HEIGHT = 52;
 
-// A pill track with one white thumb that springs to the selected segment.
+// A white pill track with one dark thumb that springs to the selected segment.
 const AppSegmentedControl = <T extends string>({
   segments,
   value,
@@ -62,7 +62,9 @@ const AppSegmentedControl = <T extends string>({
           height: HEIGHT,
           padding: PAD,
           borderRadius: t.radius.pill,
-          backgroundColor: t.colors.surfaceSunken,
+          borderWidth: t.layout.hairline,
+          borderColor: t.colors.border,
+          backgroundColor: t.colors.surfaceRaised,
         },
       ]}
     >
@@ -77,9 +79,7 @@ const AppSegmentedControl = <T extends string>({
               bottom: PAD,
               width: segmentWidth,
               borderRadius: t.radius.pill,
-              borderWidth: t.layout.hairline,
-              borderColor: t.colors.border,
-              backgroundColor: t.colors.surfaceRaised,
+              backgroundColor: t.colors.textPrimary,
             },
             thumbStyle,
           ]}
@@ -100,33 +100,22 @@ const AppSegmentedControl = <T extends string>({
             style={[styles.segment, { gap: t.space[2] }]}
           >
             <AppText
-              variant="subhead"
-              tone={selected ? 'primary' : 'secondary'}
+              variant="headline"
               numberOfLines={1}
-              style={selected ? { fontFamily: t.type.headline.fontFamily } : undefined}
+              style={{ color: selected ? t.colors.surface : t.colors.textSecondary }}
             >
               {s.label}
             </AppText>
-            {s.count !== undefined ? (
-              <View
-                style={[
-                  styles.count,
-                  {
-                    minWidth: t.space[5],
-                    paddingHorizontal: t.space[1] + t.space[1] / 2,
-                    borderRadius: t.radius.pill,
-                    backgroundColor: selected ? t.colors.accentSoft : t.colors.surface,
-                  },
-                ]}
+            {s.badge ? (
+              <AppText
+                variant="caption"
+                tabular
+                style={{
+                  color: selected ? withAlpha(t.colors.surface, 0.6) : t.colors.textTertiary,
+                }}
               >
-                <AppText
-                  variant="caption"
-                  tabular
-                  style={{ color: selected ? t.colors.accentText : t.colors.textSecondary }}
-                >
-                  {s.count}
-                </AppText>
-              </View>
+                {s.badge}
+              </AppText>
             ) : null}
           </AppPressable>
         );
@@ -149,8 +138,5 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  count: {
-    alignItems: 'center',
   },
 });

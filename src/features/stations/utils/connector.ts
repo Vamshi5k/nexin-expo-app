@@ -1,5 +1,7 @@
+import { formatRate } from '@/shared/utils/money';
 import type { ConnectorState } from '@brand/schema';
 
+import { CARD_COPY, connectorSummary } from '../constants/stations.constants';
 import type { Charger, Connector } from '../types/stations.types';
 
 export type ConnectorStatus = { state: ConnectorState; label: string };
@@ -59,13 +61,61 @@ export function sortChargers(chargers: Charger[]): Charger[] {
     .map(entry => entry.charger);
 }
 
+// Chargers sometimes report a nonsense estimate (weeks); anything past a day is not shown.
+const MAX_MINUTES_TO_FULL = 24 * 60;
+
+export function timeToFull(minutes: number | null): string | null {
+  if (minutes === null || minutes <= 0 || minutes > MAX_MINUTES_TO_FULL) return null;
+
+  const hours = Math.floor(minutes / 60);
+  const rest = Math.round(minutes % 60);
+  if (!hours) return `${rest} min to full`;
+  return rest ? `${hours} h ${rest} min to full` : `${hours} h to full`;
+}
+
+// First free connector, for the slide-to-charge bar's starting pick.
+export function firstStartable(
+  chargers: Charger[],
+): { charger: Charger; connector: Connector } | null {
+  for (const charger of chargers) {
+    const connector = charger.connectors.find(item => canStartCharging(item.state));
+    if (connector) return { charger, connector };
+  }
+  return null;
+}
+
+// A charger worth opening up: something on it can start or is charging right now.
+export function isActiveCharger(charger: Charger): boolean {
+  return charger.connectors.some(
+    connector => canStartCharging(connector.state) || connector.state === 'charging',
+  );
+}
+
 export function chargingProgress(connector: Connector): string | null {
   if (connector.state !== 'charging') return null;
 
   const parts = [
     connector.socPercent !== null ? `${connector.socPercent}%` : null,
-    connector.minutesToFull !== null ? `${connector.minutesToFull} min to full` : null,
+    timeToFull(connector.minutesToFull),
   ];
   const text = parts.filter(Boolean).join(' · ');
   return text || null;
+}
+
+// "DC · 60 kW", then either the rate or how many connectors of which type ("2 × CCS2").
+export function chargerSpecs(charger: Charger, tail: 'price' | 'connectors'): string {
+  const types = [...new Set(charger.connectors.map(connector => connector.portType))];
+  const type = types.length === 1 ? (types[0] ?? null) : null;
+  const last =
+    tail === 'price'
+      ? charger.pricePerKwhPaise !== null
+        ? `${formatRate(charger.pricePerKwhPaise)}${CARD_COPY.price}`
+        : null
+      : charger.connectors.length
+        ? connectorSummary(charger.connectors.length, type)
+        : null;
+
+  return [charger.powerType, charger.capacityKw !== null ? `${charger.capacityKw} kW` : null, last]
+    .filter(Boolean)
+    .join(' · ');
 }

@@ -92,21 +92,24 @@ describe('StationDetailsScreen', () => {
     setFavourite.mockResolvedValue(undefined);
   });
 
-  it('Chargers tab: each charger with its connectors, and directions in the hero', async () => {
+  it('summary figures, then the Chargers tab with each charger and its connectors', async () => {
     await renderStation();
 
+    expect(screen.getByLabelText('1 of 2 Connectors free')).toBeTruthy();
+    expect(screen.getByText('Max power')).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Get Directions' })).toBeTruthy();
+
     expect(screen.getByRole('tab', { name: 'Chargers', selected: true })).toBeTruthy();
-    expect(screen.getByText('Charger 1')).toBeTruthy();
-    expect(screen.getByText('DC')).toBeTruthy();
-    expect(screen.getAllByText('60 kW')).toHaveLength(2); // hero stat + spec pill
-    expect(screen.getByText('₹18.00/kWh')).toBeTruthy();
-    // Only the free connector offers Start.
-    expect(screen.getAllByText('Start')).toHaveLength(1);
+    expect(screen.getByText('Charger 01')).toBeTruthy();
+    expect(screen.getByText('DC · 60 kW · ₹18.00/kWh')).toBeTruthy();
     expect(screen.getByText('1/2 free')).toBeTruthy();
     expect(screen.getByLabelText('Connector 1, CCS2, Charging')).toBeTruthy();
-    expect(screen.getByLabelText('Connector 2, CCS2, Available')).toBeTruthy();
-    expect(screen.getByText('Tap a connector to start charging')).toBeTruthy();
-    expect(screen.getByRole('button', { name: 'Get Directions' })).toBeTruthy();
+    // The free connector is picked for the slide bar from the start.
+    expect(screen.getByLabelText('Connector 2, CCS2, Available')).toHaveProp(
+      'accessibilityState',
+      expect.objectContaining({ selected: true }),
+    );
+    expect(screen.getByRole('button', { name: 'Start charging at Connector 2' })).toBeTruthy();
   });
 
   describe('hero photos', () => {
@@ -119,7 +122,7 @@ describe('StationDetailsScreen', () => {
     it('one photo: no slider indicator', async () => {
       await renderStation(withImages(['https://cdn.example/a.jpg']));
       expect(screen.getAllByTestId('station-hero-image')).toHaveLength(1);
-      expect(screen.queryByText('1/1')).toBeNull();
+      expect(screen.queryByText('01 / 01')).toBeNull();
       expect(screen.queryByTestId('station-hero-fallback')).toBeNull();
     });
 
@@ -131,10 +134,10 @@ describe('StationDetailsScreen', () => {
           'https://cdn.example/c.jpg',
         ]),
       );
-      expect(screen.getByText('1/3')).toBeTruthy();
+      expect(screen.getByText('01 / 03')).toBeTruthy();
 
       await act(async () => fireEvent(screen.getAllByTestId('station-hero-image')[0]!, 'error'));
-      expect(screen.getByText('1/2')).toBeTruthy();
+      expect(screen.getByText('01 / 02')).toBeTruthy();
     });
 
     it('every photo broken: falls back to the illustration', async () => {
@@ -156,8 +159,9 @@ describe('StationDetailsScreen', () => {
     expect(await screen.findByText('Lounge area')).toBeTruthy();
     expect(screen.getByText('Wifi')).toBeTruthy();
     expect(screen.getByText('Public')).toBeTruthy();
-    expect(screen.getByText('Connector types')).toBeTruthy();
+    expect(screen.getByText('Connector type')).toBeTruthy();
     expect(screen.getByText('Connectors')).toBeTruthy();
+    expect(screen.getByText('02')).toBeTruthy();
     expect(screen.queryByText('Help line')).toBeNull();
     expect(screen.queryByRole('button', { name: 'Call station' })).toBeNull();
     expect(screen.queryByText('Charger 1')).toBeNull();
@@ -176,18 +180,40 @@ describe('StationDetailsScreen', () => {
     await waitFor(() => expect(toast.success).toHaveBeenCalledWith('Address copied'));
   });
 
-  it('a free connector opens charging; a busy one explains why not', async () => {
+  it('a busy connector explains why not; sliding starts charging on the picked one', async () => {
     await renderStation();
 
     await fireEvent.press(screen.getByLabelText('Connector 1, CCS2, Charging'));
     expect(toast.info).toHaveBeenCalledWith('Connector is currently Charging');
-    expect(router.push).not.toHaveBeenCalled();
 
-    await fireEvent.press(screen.getByLabelText('Connector 2, CCS2, Available'));
+    fireEvent(
+      screen.getByRole('button', { name: 'Start charging at Connector 2' }),
+      'accessibilityAction',
+      {
+        nativeEvent: { actionName: 'activate' },
+      },
+    );
     expect(router.push).toHaveBeenCalledWith({
       pathname: '/(app)/charging-summary',
       params: { stationId: '9', chargerId: 'CRZ_01', connectorId: '2' },
     });
+  });
+
+  it('no free connector: no slide bar', async () => {
+    await renderStation({
+      ...STATION,
+      chargers: STATION.chargers.map(charger => ({
+        ...charger,
+        connectors: charger.connectors.map(connector => ({
+          ...connector,
+          state: 'unavailable' as const,
+          label: 'Unavailable',
+        })),
+      })),
+    });
+
+    expect(screen.queryByRole('button', { name: /Start charging/ })).toBeNull();
+    expect(screen.getByText('Charger 01')).toBeTruthy();
   });
 
   it('the heart adds a favourite with the new state, and rolls back if it fails', async () => {

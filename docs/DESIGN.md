@@ -118,25 +118,30 @@ the driver find, start, watch or pay for a charge.
   inputs are large chips; the price breakdown is collapsed by default.
 - Wallet: the balance card is the hero (large tabular number); transactions are grouped
   by date.
-- Station details keep the map screen's language (white surfaces, glass, flat fills).
-  Hero, about 40% of the screen at a fixed size: backend photos as a paging slider with a
-  "1/4" pill (one photo: no slider; none or all broken: the station illustration on a soft
-  accent wash), a readable gradient (dark scrim over photos, page colour over the
-  illustration), then the status pill exactly as the API sends it, title2 name and one-line
-  address with a small accent directions circle beside them, and a `StatRow` (distance,
-  drive, power, rate). No bottom action bar. Glass back / share / heart float over the hero.
-  Scrolling drifts and fades the hero; a solid bar with name and address fades in, and the
-  Chargers (with count) / Info segmented tabs pin right under it. Switching tabs while pinned
-  starts the new tab at its top.
-  Chargers tab: one card per charger (accentSoft bolt, "Charger 1", "1/2 free" in success
-  soft), spec pills (DC, 60 kW, rate), then a bento grid of connector tiles two per row (a
-  single connector lays out sideways at full width). A tile: plug on a soft status fill,
-  status pill, type as a headline and "Connector N"; a free tile gets a status-coloured
-  selected border and a dark "Start" pill pinned to its bottom; charging shows a thin charge
-  bar with "% · min to full".
-  Info tab, also bento: address card with Copy and Directions pills, Chargers / Connectors
-  count tiles, fact tiles two per row (help line taps to call, access, connector types) and
-  a 3-column amenity grid with icons. Tiles without data are hidden.
+- Station details (decided with the client from a reference, Nov 2026):
+  - Photo panel, about a third of the screen at a fixed size, with a sheet-radius rounded
+    base: backend photos as a paging slider with story-style segments at the top and a
+    "01 / 04" chip; none or all broken: the station illustration on a soft accent wash. A
+    white status chip (live dot) sits bottom-left. Glass back / share / heart float over it.
+  - Below it on the page: the name in `display`, the address, then the figures, biggest
+    first: a "Connectors free" card filled with the brand accent (an exception to "accent
+    never fills cards", chosen for this card only) with a big "1/8" and one square per
+    connector (filled = free, outlined = charging, faint = busy); Max power and Price
+    tiles; a Route tile ("1.9 km · 4 min drive") with a dark circle that opens directions.
+  - Chargers / Info segmented tabs (white track, dark thumb, "04" count) pin under a solid
+    header with the name and "● status · address" once scrolled.
+  - Chargers tab: chargers with something free or charging get a card ("Charger 01", specs,
+    "1/2 free") with connector tiles two per row: "C1", the type in title2, the status; the
+    picked tile has an accentSoft fill, accent outline and check; charging shows a % ring
+    and "Charging · time to full" (estimates past a day are hidden). The other chargers sit
+    as quiet rows in one card ("DC · 60 kW · 2 × CCS2", red status) that open to list their
+    connectors.
+  - Tapping a free connector picks it; a floating glass "Slide to charge · C1" capsule with
+    an accent knob starts the session. Screen readers get it as one button.
+  - Info tab: a card with a drawn map hint (roads, route, accent pin, distance chip), the
+    ADDRESS overline, address, and Copy (outlined) + Directions (accent) pills; big-number
+    tiles two per row (chargers, connectors, connector type, access); the help line with a
+    dark call circle; AMENITIES overline and chips with accent icons.
 - Connector status colours come from `brand.connectorStatusColors` (CruzeEV defaults) as
   `t.colors.status.connector.<state>` with `main` (pill dot) and `tint` (card wash); labels
   follow the CruzeEV app (Suspended EV, Suspended EVSE, Engaged; Offline shows "Unavailable").

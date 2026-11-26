@@ -37,7 +37,7 @@ const ICON_BY_KEY: [RegExp, LucideIcon][] = [
 const iconFor = (label: string) =>
   ICON_BY_KEY.find(([pattern]) => pattern.test(label.toLowerCase()))?.[1] ?? Sparkles;
 
-// White pill like the map card's pills; icons only in the full details sheet.
+// White pill like the map card's pills; the Info tab's larger version carries an accent icon.
 const AmenityChip = ({ label, withIcon, tile }: AmenityChipProps) => {
   const t = useTheme();
 
@@ -85,24 +85,24 @@ const AmenityChip = ({ label, withIcon, tile }: AmenityChipProps) => {
       style={[
         styles.row,
         {
-          gap: t.space[1] + t.space[1] / 2,
-          paddingHorizontal: t.space[3],
-          paddingVertical: t.space[1],
+          gap: withIcon ? t.space[2] : t.space[1] + t.space[1] / 2,
+          paddingHorizontal: withIcon ? t.space[4] : t.space[3],
+          paddingVertical: withIcon ? t.space[2] + t.space[1] / 2 : t.space[1],
           borderRadius: t.radius.pill,
           borderWidth: t.layout.hairline,
-          borderColor: t.colors.borderStrong,
-          backgroundColor: t.colors.surface,
+          borderColor: withIcon ? t.colors.border : t.colors.borderStrong,
+          backgroundColor: withIcon ? t.colors.surfaceRaised : t.colors.surface,
         },
       ]}
     >
       {withIcon
         ? createElement(iconFor(label), {
-            color: t.colors.textSecondary,
-            size: t.icon.meta,
+            color: t.colors.accentText,
+            size: t.icon.control,
             strokeWidth: t.icon.stroke,
           })
         : null}
-      <AppText variant="subhead">{label}</AppText>
+      <AppText variant={withIcon ? 'callout' : 'subhead'}>{label}</AppText>
     </View>
   );
 };

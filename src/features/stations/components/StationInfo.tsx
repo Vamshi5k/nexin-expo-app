@@ -1,65 +1,50 @@
 import { StyleSheet, View } from 'react-native';
 
-import {
-  ArrowUpRight,
-  Building2,
-  Copy,
-  MapPin,
-  Navigation,
-  Phone,
-  PlugZap,
-  type LucideIcon,
-} from 'lucide-react-native';
+import { Building2, Copy, Navigation, Phone, type LucideIcon } from 'lucide-react-native';
 
 import { AppEmptyState, AppPressable, AppText } from '@/shared/components';
 
 import AmenityChip from './AmenityChip';
+import MapPreview from './MapPreview';
 
 import { useTheme } from '@/shared/theme';
 
-import { DETAILS_COPY } from '../constants/stations.constants';
+import { brand } from '@/core/config';
+
+import { DETAILS_COPY, pad2 } from '../constants/stations.constants';
 import type { StationDetails } from '../types/stations.types';
+import { formatDistance } from '../utils/geo';
 
 type StationInfoProps = {
   station: StationDetails;
+  distance: number | null;
+  eta: string | null;
   onCopyAddress: () => void;
   onCall: () => void;
   onDirections: () => void;
 };
 
-type Fact = {
-  icon: LucideIcon;
-  label: string;
-  value: string;
-  onPress?: () => void;
-  accessibilityLabel?: string;
-};
-
-type FactTileProps = Fact;
-
-type NumberTileProps = {
-  value: number;
-  label: string;
-};
+type Fact = { value: string; label: string };
 
 type ActionPillProps = {
   icon: LucideIcon;
   label: string;
   accessibilityLabel: string;
+  primary?: boolean;
   onPress: () => void;
 };
 
-const AMENITY_COLUMNS = 3;
+const MAP_HEIGHT = 168;
 
-const chunk = <T,>(items: T[], size: number) =>
-  items.reduce<T[][]>((rows, item, position) => {
-    if (position % size === 0) rows.push([item]);
-    else rows[rows.length - 1]!.push(item);
-    return rows;
-  }, []);
-
-const ActionPill = ({ icon: Icon, label, accessibilityLabel, onPress }: ActionPillProps) => {
+const ActionPill = ({
+  icon: Icon,
+  label,
+  accessibilityLabel,
+  primary,
+  onPress,
+}: ActionPillProps) => {
   const t = useTheme();
+  const ink = primary ? t.colors.onAccent : t.colors.textPrimary;
 
   return (
     <AppPressable
@@ -73,148 +58,62 @@ const ActionPill = ({ icon: Icon, label, accessibilityLabel, onPress }: ActionPi
         styles.center,
         {
           gap: t.space[2],
-          height: t.layout.minTouch,
+          height: t.layout.buttonHeight,
           borderRadius: t.radius.pill,
-          backgroundColor: t.colors.surfaceSunken,
+          borderWidth: primary ? 0 : t.layout.hairline,
+          borderColor: t.colors.borderStrong,
+          backgroundColor: primary ? t.colors.accent : t.colors.surface,
         },
       ]}
     >
-      <Icon color={t.colors.textPrimary} size={t.icon.meta} strokeWidth={t.icon.stroke} />
-      <AppText variant="subhead" style={{ fontFamily: t.type.headline.fontFamily }}>
+      <Icon color={ink} size={t.icon.control} strokeWidth={t.icon.stroke} />
+      <AppText variant="headline" style={{ color: ink }}>
         {label}
       </AppText>
     </AppPressable>
   );
 };
 
-const NumberTile = ({ value, label }: NumberTileProps) => {
+// The Info tab: a map card with the address and its actions, big-number tiles, the help line
+// and the amenities. Anything without data is left out.
+const StationInfo = ({
+  station,
+  distance,
+  eta,
+  onCopyAddress,
+  onCall,
+  onDirections,
+}: StationInfoProps) => {
   const t = useTheme();
-
-  return (
-    <View
-      style={[
-        styles.grow,
-        {
-          gap: t.space[1],
-          padding: t.space[4],
-          borderRadius: t.radius.card,
-          borderWidth: t.layout.hairline,
-          borderColor: t.colors.border,
-          backgroundColor: t.colors.surfaceRaised,
-        },
-      ]}
-    >
-      <AppText variant="title2" tabular>
-        {value}
-      </AppText>
-      <AppText variant="caption" tone="secondary">
-        {label}
-      </AppText>
-    </View>
-  );
-};
-
-const FactTile = ({ icon: Icon, label, value, onPress, accessibilityLabel }: FactTileProps) => {
-  const t = useTheme();
-
-  const body = (
-    <>
-      <View style={[styles.row, styles.between]}>
-        <View
-          style={[
-            styles.center,
-            {
-              width: t.space[8],
-              height: t.space[8],
-              borderRadius: t.radius.pill,
-              backgroundColor: t.colors.surfaceSunken,
-            },
-          ]}
-        >
-          <Icon color={t.colors.textPrimary} size={t.icon.meta} strokeWidth={t.icon.stroke} />
-        </View>
-        {onPress ? (
-          <ArrowUpRight
-            color={t.colors.textTertiary}
-            size={t.icon.meta}
-            strokeWidth={t.icon.stroke}
-          />
-        ) : null}
-      </View>
-      <View>
-        <AppText variant="caption" tone="secondary">
-          {label}
-        </AppText>
-        <AppText variant="subhead" style={{ fontFamily: t.type.headline.fontFamily }}>
-          {value}
-        </AppText>
-      </View>
-    </>
-  );
-
-  const style = [
-    styles.grow,
-    {
-      gap: t.space[3],
-      padding: t.space[4],
-      borderRadius: t.radius.card,
-      borderWidth: t.layout.hairline,
-      borderColor: t.colors.border,
-      backgroundColor: t.colors.surfaceRaised,
-    },
-  ];
-
-  if (!onPress) return <View style={style}>{body}</View>;
-  return (
-    <AppPressable
-      onPress={onPress}
-      haptic="light"
-      accessibilityRole="button"
-      accessibilityLabel={accessibilityLabel ?? `${label}, ${value}`}
-      style={style}
-    >
-      {body}
-    </AppPressable>
-  );
-};
-
-// The Info tab as a bento: address with its actions, the station's counts, fact tiles two per
-// row and an amenity grid. Anything without data is left out.
-const StationInfo = ({ station, onCopyAddress, onCall, onDirections }: StationInfoProps) => {
-  const t = useTheme();
-  const connectorCount = station.chargers.reduce(
-    (sum, charger) => sum + charger.connectors.length,
-    0,
-  );
-
+  const connectors = station.chargers.reduce((sum, charger) => sum + charger.connectors.length, 0);
   const types = [
     ...new Set(
       station.chargers.flatMap(charger =>
-        charger.connectors.map(connector => connector.portType).filter(Boolean),
+        charger.connectors.flatMap(connector => (connector.portType ? [connector.portType] : [])),
       ),
     ),
   ];
+  const route =
+    distance !== null
+      ? [formatDistance(distance, brand.locale), eta].filter(Boolean).join(' · ')
+      : null;
 
   const candidates: (Fact | null)[] = [
-    station.phone
-      ? {
-          icon: Phone,
-          label: DETAILS_COPY.helpLine,
-          value: station.phone,
-          onPress: onCall,
-          accessibilityLabel: DETAILS_COPY.call,
-        }
+    station.chargers.length
+      ? { value: pad2(station.chargers.length), label: DETAILS_COPY.chargerCount }
       : null,
-    station.accessType
-      ? { icon: Building2, label: DETAILS_COPY.access, value: station.accessType }
-      : null,
-    types.length
-      ? { icon: PlugZap, label: DETAILS_COPY.connectorTypes, value: types.join(', ') }
-      : null,
+    connectors ? { value: pad2(connectors), label: DETAILS_COPY.connectorCount } : null,
+    types.length ? { value: types.join(', '), label: DETAILS_COPY.connectorType } : null,
+    station.accessType ? { value: station.accessType, label: DETAILS_COPY.access } : null,
   ];
   const facts = candidates.filter((fact): fact is Fact => fact !== null);
+  const factRows = facts.reduce<Fact[][]>((rows, fact, position) => {
+    if (position % 2 === 0) rows.push([fact]);
+    else rows[rows.length - 1]!.push(fact);
+    return rows;
+  }, []);
 
-  if (!station.address && !facts.length && !station.amenities.length && !connectorCount) {
+  if (!station.address && !facts.length && !station.phone && !station.amenities.length) {
     return (
       <AppEmptyState
         icon={Building2}
@@ -224,93 +123,108 @@ const StationInfo = ({ station, onCopyAddress, onCall, onDirections }: StationIn
     );
   }
 
+  const card = {
+    borderRadius: t.radius.sheet,
+    borderWidth: t.layout.hairline,
+    borderColor: t.colors.border,
+    backgroundColor: t.colors.surfaceRaised,
+  };
+
   return (
     <View style={{ gap: t.space[3] }}>
       {station.address ? (
-        <View
-          style={{
-            gap: t.space[4],
-            padding: t.space[4],
-            borderRadius: t.radius.card,
-            borderWidth: t.layout.hairline,
-            borderColor: t.colors.border,
-            backgroundColor: t.colors.surfaceRaised,
-          }}
-        >
-          <View style={[styles.row, { gap: t.space[3] }]}>
-            <View
-              style={[
-                styles.center,
-                {
-                  width: t.space[10],
-                  height: t.space[10],
-                  borderRadius: t.radius.control,
-                  backgroundColor: t.colors.accentSoft,
-                },
-              ]}
-            >
-              <MapPin
-                color={t.colors.accentText}
-                size={t.icon.control}
-                strokeWidth={t.icon.stroke}
-              />
-            </View>
-            <View style={styles.grow}>
-              <AppText variant="caption" tone="secondary">
+        <View style={[styles.clip, card]}>
+          <MapPreview height={MAP_HEIGHT} label={route} onPress={onDirections} />
+          <View style={{ gap: t.space[4], padding: t.space[5] }}>
+            <View style={{ gap: t.space[1] }}>
+              <AppText variant="caption" tone="secondary" style={styles.overline}>
                 {DETAILS_COPY.address}
               </AppText>
-              <AppText variant="subhead" style={{ fontFamily: t.type.headline.fontFamily }}>
-                {station.address}
-              </AppText>
+              <AppText variant="title3">{station.address}</AppText>
+            </View>
+            <View style={[styles.row, { gap: t.space[3] }]}>
+              <ActionPill
+                icon={Copy}
+                label={DETAILS_COPY.copy}
+                accessibilityLabel={`${DETAILS_COPY.copy} ${DETAILS_COPY.address}`}
+                onPress={onCopyAddress}
+              />
+              <ActionPill
+                icon={Navigation}
+                label={DETAILS_COPY.directionsShort}
+                accessibilityLabel={DETAILS_COPY.directions}
+                primary
+                onPress={onDirections}
+              />
             </View>
           </View>
-          <View style={[styles.row, { gap: t.space[2] }]}>
-            <ActionPill
-              icon={Copy}
-              label={DETAILS_COPY.copy}
-              accessibilityLabel={`${DETAILS_COPY.copy} ${DETAILS_COPY.address}`}
-              onPress={onCopyAddress}
-            />
-            <ActionPill
-              icon={Navigation}
-              label={DETAILS_COPY.directionsShort}
-              accessibilityLabel={DETAILS_COPY.directions}
-              onPress={onDirections}
-            />
-          </View>
         </View>
       ) : null}
 
-      {connectorCount ? (
-        <View style={[styles.row, { gap: t.space[3] }]}>
-          <NumberTile value={station.chargers.length} label={DETAILS_COPY.chargerCount} />
-          <NumberTile value={connectorCount} label={DETAILS_COPY.connectorCount} />
-        </View>
-      ) : null}
-
-      {chunk(facts, 2).map(row => (
+      {factRows.map(row => (
         <View key={row[0]!.label} style={[styles.stretch, { gap: t.space[3] }]}>
           {row.map(fact => (
-            <FactTile key={fact.label} {...fact} />
+            <View
+              key={fact.label}
+              style={[styles.grow, card, { gap: t.space[1], padding: t.space[5] }]}
+            >
+              <AppText variant="display" tabular numberOfLines={1} adjustsFontSizeToFit>
+                {fact.value}
+              </AppText>
+              <AppText variant="callout" tone="secondary">
+                {fact.label}
+              </AppText>
+            </View>
           ))}
+          {row.length === 1 ? <View style={styles.grow} /> : null}
         </View>
       ))}
 
+      {station.phone ? (
+        <View style={[styles.row, card, { gap: t.space[3], padding: t.space[5] }]}>
+          <View style={styles.grow}>
+            <AppText variant="callout" tone="secondary">
+              {DETAILS_COPY.helpLine}
+            </AppText>
+            <AppText variant="title2" tabular>
+              {station.phone}
+            </AppText>
+          </View>
+          <AppPressable
+            onPress={onCall}
+            haptic="light"
+            accessibilityRole="button"
+            accessibilityLabel={DETAILS_COPY.call}
+            style={[
+              styles.center,
+              {
+                width: t.space[12] + t.space[2],
+                height: t.space[12] + t.space[2],
+                borderRadius: t.radius.pill,
+                backgroundColor: t.colors.textPrimary,
+              },
+            ]}
+          >
+            <Phone color={t.colors.surface} size={t.icon.nav} strokeWidth={t.icon.stroke} />
+          </AppPressable>
+        </View>
+      ) : null}
+
       {station.amenities.length ? (
-        <View style={{ gap: t.space[3], marginTop: t.space[3] }}>
-          <AppText variant="headline" accessibilityRole="header">
+        <View style={{ gap: t.space[3], marginTop: t.space[4] }}>
+          <AppText
+            variant="caption"
+            tone="secondary"
+            accessibilityRole="header"
+            style={[styles.overline, { paddingHorizontal: t.space[1] }]}
+          >
             {DETAILS_COPY.amenities}
           </AppText>
-          {chunk(station.amenities, AMENITY_COLUMNS).map(row => (
-            <View key={row[0]} style={[styles.stretch, { gap: t.space[2] }]}>
-              {row.map(amenity => (
-                <AmenityChip key={amenity} label={amenity} tile />
-              ))}
-              {Array.from({ length: AMENITY_COLUMNS - row.length }, (_, gap) => (
-                <View key={`gap-${gap}`} style={styles.grow} />
-              ))}
-            </View>
-          ))}
+          <View style={[styles.wrap, { gap: t.space[2] }]}>
+            {station.amenities.map(amenity => (
+              <AmenityChip key={amenity} label={amenity} withIcon />
+            ))}
+          </View>
         </View>
       ) : null}
     </View>
@@ -328,14 +242,22 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'stretch',
   },
-  between: {
-    justifyContent: 'space-between',
-  },
   center: {
     alignItems: 'center',
     justifyContent: 'center',
   },
   grow: {
     flex: 1,
+  },
+  clip: {
+    overflow: 'hidden',
+  },
+  wrap: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  overline: {
+    textTransform: 'uppercase',
+    letterSpacing: 1,
   },
 });

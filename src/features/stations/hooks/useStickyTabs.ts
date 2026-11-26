@@ -24,7 +24,8 @@ export const useStickyTabs = <T extends string>(
     if (next === tab) return;
 
     setTab(next);
-    if (scrollY.get() > stickAt) scrollRef.current?.scrollTo({ y: stickAt, animated: false });
+    if (Number.isFinite(stickAt) && scrollY.get() > stickAt)
+      scrollRef.current?.scrollTo({ y: stickAt, animated: false });
   };
 
   return { tab, selectTab, scrollRef, tabsStyle };

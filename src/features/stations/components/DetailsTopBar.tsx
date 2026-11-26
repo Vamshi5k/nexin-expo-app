@@ -23,6 +23,7 @@ import { DETAILS_COPY } from '../constants/stations.constants';
 type DetailsTopBarProps = {
   title: string | null;
   subtitle?: string | null;
+  statusColor?: string;
   isFavourite: boolean;
   barStyle?: StyleProp<AnimatedStyle<ViewStyle>>;
   titleStyle?: StyleProp<AnimatedStyle<ViewStyle>>;
@@ -92,6 +93,7 @@ const GlassButton = ({ icon: Icon, label, onPress, active }: GlassButtonProps) =
 const DetailsTopBar = ({
   title,
   subtitle,
+  statusColor,
   isFavourite,
   barStyle,
   titleStyle,
@@ -134,9 +136,21 @@ const DetailsTopBar = ({
             {title ?? ''}
           </AppText>
           {subtitle ? (
-            <AppText variant="caption" tone="secondary" numberOfLines={1}>
-              {subtitle}
-            </AppText>
+            <View style={[styles.row, { gap: t.space[1] + t.space[1] / 2 }]}>
+              {statusColor ? (
+                <View
+                  style={{
+                    width: t.space[2],
+                    height: t.space[2],
+                    borderRadius: t.radius.pill,
+                    backgroundColor: statusColor,
+                  }}
+                />
+              ) : null}
+              <AppText variant="caption" tone="secondary" numberOfLines={1} style={styles.grow}>
+                {subtitle}
+              </AppText>
+            </View>
           ) : null}
         </Animated.View>
         {onShare ? (

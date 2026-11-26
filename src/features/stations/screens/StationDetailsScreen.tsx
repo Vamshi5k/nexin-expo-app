@@ -1,4 +1,11 @@
-import { RefreshControl, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { useState } from 'react';
+import {
+  RefreshControl,
+  StyleSheet,
+  useWindowDimensions,
+  View,
+  type LayoutChangeEvent,
+} from 'react-native';
 
 import { StatusBar } from 'expo-status-bar';
 import { PlugZap } from 'lucide-react-native';
@@ -15,32 +22,40 @@ import {
 
 import ChargerGroup from '../components/ChargerGroup';
 import DetailsTopBar, { topBarSpace } from '../components/DetailsTopBar';
+import IdleChargers from '../components/IdleChargers';
 import MapsChooserSheet from '../components/MapsChooserSheet';
+import SlideToCharge, { slideBarHeight } from '../components/SlideToCharge';
 import StationHero from '../components/StationHero';
 import StationInfo from '../components/StationInfo';
+import StationSummary from '../components/StationSummary';
 
 import { useTheme } from '@/shared/theme';
 
 import { getErrorMessage } from '@/core/api';
 import { riseIn } from '@/shared/utils/motion';
 
-import { DETAILS_COPY, type DetailsTab } from '../constants/stations.constants';
+import { DETAILS_COPY, pad2, type DetailsTab } from '../constants/stations.constants';
 import { useHeaderReveal } from '../hooks/useHeaderReveal';
 import { useHeroImages } from '../hooks/useHeroImages';
 import { useHeroParallax } from '../hooks/useHeroParallax';
 import { useStationDetails } from '../hooks/useStationDetails';
 import { useStickyTabs } from '../hooks/useStickyTabs';
+import { isActiveCharger } from '../utils/connector';
+import { pinColorKey, STATUS_LABEL } from '../utils/status';
 
 type StationDetailsScreenProps = {
   stationId: string;
 };
 
-// The hero takes about 40% of the screen at a fixed size, so images never push the page around.
-const HERO_RATIO = 0.4;
+// The photo panel takes about a third of the screen at a fixed size, so images never push the
+// page around.
+const HERO_RATIO = 0.36;
+// Until the tabs are measured they never pin.
+const NOT_MEASURED = Number.MAX_SAFE_INTEGER;
 
-// Hero first (photos or the brand illustration, status, name, directions, stats), then
-// Chargers / Info tabs. Scrolling fades the hero away and pins the tabs under a header that
-// shows the station name and address.
+// Photo panel, then the name and the figures that matter (free connectors, power, price,
+// route), then Chargers / Info tabs that pin under a header with the name, status and address.
+// A free connector is picked, and the slide bar at the bottom starts charging on it.
 const StationDetailsScreen = ({ stationId }: StationDetailsScreenProps) => {
   const t = useTheme();
   const insets = useSafeAreaInsets();
@@ -49,8 +64,9 @@ const StationDetailsScreen = ({ stationId }: StationDetailsScreenProps) => {
   const { station } = details;
   const heroHeight = Math.round(screenHeight * HERO_RATIO);
   const top = topBarSpace(t, insets.top);
-  const stickAt = heroHeight - top;
-  const header = useHeaderReveal(stickAt, t.space[12]);
+  const [tabsY, setTabsY] = useState<number | null>(null);
+  const stickAt = tabsY === null ? NOT_MEASURED : tabsY - top;
+  const header = useHeaderReveal(heroHeight - top + t.space[12], t.space[10]);
   const heroStyle = useHeroParallax(header.scrollY, heroHeight);
   const { tab, selectTab, scrollRef, tabsStyle } = useStickyTabs<DetailsTab>(
     'chargers',
@@ -59,11 +75,24 @@ const StationDetailsScreen = ({ stationId }: StationDetailsScreenProps) => {
   );
   const hero = useHeroImages(station?.imageUrls ?? []);
   const overPhoto = hero.images.length > 0 && !header.revealed;
+  const showSlide = tab === 'chargers' && details.picked !== null;
+
+  const onTabsLayout = (event: LayoutChangeEvent) => {
+    const { y } = event.nativeEvent.layout;
+    if (y !== tabsY) setTabsY(y);
+  };
 
   const topBar = (
     <DetailsTopBar
       title={station?.name ?? null}
-      subtitle={station?.address ?? null}
+      subtitle={
+        station
+          ? [station.rawStatus || STATUS_LABEL[station.status], station.address]
+              .filter(Boolean)
+              .join(' · ')
+          : null
+      }
+      statusColor={station ? t.colors.connector[pinColorKey(station.status)] : undefined}
       isFavourite={details.isFavourite}
       barStyle={station ? header.barStyle : undefined}
       titleStyle={header.titleStyle}
@@ -77,12 +106,13 @@ const StationDetailsScreen = ({ stationId }: StationDetailsScreenProps) => {
     return (
       <View style={[styles.screen, { backgroundColor: t.colors.bg }]}>
         <View testID="station-details-loading">
-          <AppSkeleton height={heroHeight} radius={0} />
+          <AppSkeleton height={heroHeight} radius={t.radius.sheet} />
         </View>
         <View style={{ gap: t.space[3], padding: t.layout.screenPadding }}>
-          <AppSkeleton width="40%" height={Number(t.type.headline.lineHeight)} />
-          <AppSkeleton height={t.space[12] * 4} radius={t.radius.card} />
-          <AppSkeleton height={t.space[12] * 4} radius={t.radius.card} />
+          <AppSkeleton width="70%" height={Number(t.type.display.lineHeight)} />
+          <AppSkeleton height={t.space[12] * 3} radius={t.radius.sheet} />
+          <AppSkeleton height={t.space[12] * 2} radius={t.radius.card} />
+          <AppSkeleton height={t.space[12] * 4} radius={t.radius.sheet} />
         </View>
         {topBar}
       </View>
@@ -103,6 +133,10 @@ const StationDetailsScreen = ({ stationId }: StationDetailsScreenProps) => {
     );
   }
 
+  const indexed = details.chargers.map((charger, index) => ({ charger, index }));
+  const active = indexed.filter(entry => isActiveCharger(entry.charger));
+  const idle = indexed.filter(entry => !isActiveCharger(entry.charger));
+
   return (
     <View style={[styles.screen, { backgroundColor: t.colors.bg }]}>
       <StatusBar style={overPhoto ? 'light' : 'dark'} />
@@ -111,9 +145,12 @@ const StationDetailsScreen = ({ stationId }: StationDetailsScreenProps) => {
         ref={scrollRef}
         onScroll={header.onScroll}
         scrollEventThrottle={16}
-        contentContainerStyle={{ paddingBottom: Math.max(insets.bottom, t.space[4]) }}
+        contentContainerStyle={{
+          paddingBottom: showSlide
+            ? slideBarHeight(t, insets.bottom) + t.space[4]
+            : Math.max(insets.bottom, t.space[4]),
+        }}
         showsVerticalScrollIndicator={false}
-        bounces={true}
         refreshControl={
           <RefreshControl
             refreshing={details.refreshing}
@@ -126,19 +163,34 @@ const StationDetailsScreen = ({ stationId }: StationDetailsScreenProps) => {
         <Animated.View style={heroStyle}>
           <StationHero
             station={station}
-            distance={details.distance}
             images={hero.images}
             page={hero.page}
             width={width}
             height={heroHeight}
             onPageChange={hero.setPage}
             onImageError={hero.onError}
-            onDirections={details.openDirections}
           />
         </Animated.View>
 
+        <View
+          style={{
+            paddingHorizontal: t.layout.screenPadding,
+            paddingTop: t.space[6],
+            paddingBottom: t.space[3],
+            backgroundColor: t.colors.bg,
+          }}
+        >
+          <StationSummary
+            station={station}
+            distance={details.distance}
+            eta={details.eta}
+            onDirections={details.openDirections}
+          />
+        </View>
+
         {/* Above the content so it covers it once pinned under the header. */}
         <Animated.View
+          onLayout={onTabsLayout}
           style={[
             styles.tabs,
             {
@@ -151,7 +203,11 @@ const StationDetailsScreen = ({ stationId }: StationDetailsScreenProps) => {
         >
           <AppSegmentedControl
             segments={[
-              { value: 'chargers', label: DETAILS_COPY.chargers, count: details.chargers.length },
+              {
+                value: 'chargers',
+                label: DETAILS_COPY.chargers,
+                badge: details.chargers.length ? pad2(details.chargers.length) : undefined,
+              },
               { value: 'info', label: DETAILS_COPY.info },
             ]}
             value={tab}
@@ -169,21 +225,31 @@ const StationDetailsScreen = ({ stationId }: StationDetailsScreenProps) => {
             backgroundColor: t.colors.bg,
           }}
         >
-          <Animated.View key={tab} entering={riseIn(0)} style={{ gap: t.space[4] }}>
+          <Animated.View key={tab} entering={riseIn(0)} style={{ gap: t.space[3] }}>
             {tab === 'chargers' ? (
               details.chargers.length ? (
                 <>
-                  <AppText variant="caption" tone="secondary">
-                    {DETAILS_COPY.tip}
-                  </AppText>
-                  {details.chargers.map((charger, index) => (
+                  {details.picked ? (
+                    <AppText
+                      variant="subhead"
+                      tone="secondary"
+                      style={{ paddingHorizontal: t.space[1] }}
+                    >
+                      {DETAILS_COPY.tip}
+                    </AppText>
+                  ) : null}
+                  {active.map(({ charger, index }) => (
                     <ChargerGroup
                       key={charger.id}
                       charger={charger}
                       index={index}
-                      onConnectorPress={details.openConnector}
+                      pickedId={details.picked?.connector.id ?? null}
+                      onConnectorPress={details.pickConnector}
                     />
                   ))}
+                  {idle.length ? (
+                    <IdleChargers chargers={idle} onConnectorPress={details.pickConnector} />
+                  ) : null}
                 </>
               ) : (
                 <AppEmptyState
@@ -195,6 +261,8 @@ const StationDetailsScreen = ({ stationId }: StationDetailsScreenProps) => {
             ) : (
               <StationInfo
                 station={station}
+                distance={details.distance}
+                eta={details.eta}
                 onCopyAddress={details.copyAddress}
                 onCall={details.call}
                 onDirections={details.openDirections}
@@ -205,6 +273,13 @@ const StationDetailsScreen = ({ stationId }: StationDetailsScreenProps) => {
       </Animated.ScrollView>
 
       {topBar}
+
+      {showSlide && details.picked ? (
+        <SlideToCharge
+          connectorId={details.picked.connector.connectorId}
+          onComplete={details.startCharging}
+        />
+      ) : null}
 
       <MapsChooserSheet
         open={details.directions.chooserOpen}

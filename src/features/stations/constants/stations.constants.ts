@@ -116,7 +116,7 @@ export const DETAILS_COPY = {
   directions: 'Get Directions',
   call: 'Call station',
   chargers: 'Chargers',
-  tip: 'Tap a connector to start charging',
+  tip: 'Pick a free connector, then slide to charge',
   amenities: 'Amenities',
   noChargers: 'No chargers listed yet',
   noChargersBody: 'This station has no chargers to show right now.',
@@ -135,11 +135,15 @@ export const DETAILS_COPY = {
   address: 'Address',
   helpLine: 'Help line',
   connectorTypes: 'Connector types',
-  callShort: 'Call',
-  start: 'Start',
   directionsShort: 'Directions',
   chargerCount: 'Chargers',
   connectorCount: 'Connectors',
+  connectorType: 'Connector type',
+  connectorsFree: 'Connectors free',
+  price: 'Price',
+  route: 'Route',
+  slideHint: 'Swipe right to start charging',
+  mapPreview: 'Map preview, opens directions',
   copy: 'Copy',
   copied: 'Address copied',
   access: 'Access',
@@ -157,8 +161,18 @@ export const DETAILS_TABS = ['chargers', 'info'] as const;
 export type DetailsTab = (typeof DETAILS_TABS)[number];
 
 export const chargerTitle = (index: number) => `Charger ${index + 1}`;
+export const chargerName = (index: number) => `Charger ${String(index + 1).padStart(2, '0')}`;
 export const connectorTitle = (connectorId: string) => `Connector ${connectorId}`;
 export const freeBadge = (free: number, total: number) => `${free}/${total} free`;
 export const connectorBusy = (status: string) => `Connector is currently ${status}`;
 
-export const pageLabel = (page: number, total: number) => `${page}/${total}`;
+export const pageLabel = (page: number, total: number) => `${pad2(page)} / ${pad2(total)}`;
+export const pad2 = (value: number) => String(value).padStart(2, '0');
+export const shortConnector = (connectorId: string) => `C${connectorId}`;
+export const connectorSummary = (count: number, type: string | null) =>
+  type ? `${count} × ${type}` : `${count} connectors`;
+export const slideLabel = (connectorId: string) =>
+  `Slide to charge · ${shortConnector(connectorId)}`;
+export const startAt = (connectorId: string) => `Start charging at ${connectorTitle(connectorId)}`;
+export const routeLabel = (distance: string, eta: string | null) =>
+  eta ? `${distance} · ${eta} drive` : distance;
