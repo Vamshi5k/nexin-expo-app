@@ -148,9 +148,9 @@ the driver find, start, watch or pay for a charge.
 - Stations tab: title, subtitle and the header charger art on a soft accent wash, then a
   solid white search pill (hairline border, not glass). Cards are plain white (no gradient):
   a bolt tile tinted by availability, the name and address, a quiet heart; a hairline, then
-  the availability as a glowing dot plus coloured text ("1/8 Free", "Unavailable"), power and
-  rate underneath, and on the right the distance and drive time beside a dark directions
-  circle.
+  a one-line footer: the availability as a glowing dot plus coloured text ("1/8 Free",
+  "Unavailable"), "· 60 kW · ₹18.99/kWh" in secondary text, and on the right the distance
+  beside a small dark directions circle (drive time lives on the details screen).
 - Connector status colours come from `brand.connectorStatusColors` (CruzeEV defaults) as
   `t.colors.status.connector.<state>` with `main` (pill dot) and `tint` (card wash); labels
   follow the CruzeEV app (Suspended EV, Suspended EVSE, Engaged; Offline shows "Unavailable").

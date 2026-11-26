@@ -11,9 +11,9 @@ import { useTheme, withAlpha, type Theme } from '@/shared/theme';
 import { brand } from '@/core/config';
 import { formatRate } from '@/shared/utils/money';
 
-import { CARD_COPY, LIST_COPY, MAX_ETA_KM } from '../constants/stations.constants';
+import { CARD_COPY, LIST_COPY } from '../constants/stations.constants';
 import type { NearbyStation } from '../types/stations.types';
-import { formatDistance, formatEta } from '../utils/geo';
+import { formatDistance } from '../utils/geo';
 import { listAvailability } from '../utils/list';
 import type { Availability } from '../utils/status';
 
@@ -41,8 +41,8 @@ const toneColors = (t: Theme, tone: Availability['tone']) => {
 };
 
 // A clean white card: a bolt tile tinted by availability, the name and address with the heart,
-// then a footer with the glowing availability, power and price, and the distance beside a dark
-// directions button.
+// then a one-line footer: the glowing availability, power and price, and the distance beside a
+// dark directions button.
 const StationListCard = ({
   station,
   favourite,
@@ -128,42 +128,44 @@ const StationListCard = ({
         style={[
           styles.row,
           {
-            gap: t.space[3],
-            paddingTop: t.space[3],
+            gap: t.space[2],
+            paddingTop: t.space[2] + t.space[1] / 2,
             borderTopWidth: t.layout.hairline,
             borderTopColor: t.colors.border,
           },
         ]}
       >
-        <View style={[styles.grow, { gap: t.space[1] }]}>
-          <View style={[styles.row, { gap: t.space[2] }]}>
-            <StatusDot color={tone.dot} glow />
-            <AppText
-              variant="caption"
-              numberOfLines={1}
-              style={{ fontFamily: t.type.headline.fontFamily, color: tone.ink }}
-            >
-              {availability.label}
-            </AppText>
-          </View>
-          {specs.length ? (
-            <AppText variant="caption" tone="secondary" tabular numberOfLines={1}>
-              {specs.join(' · ')}
-            </AppText>
-          ) : null}
-        </View>
+        <StatusDot color={tone.dot} glow />
+        <AppText
+          variant="caption"
+          numberOfLines={1}
+          style={{ fontFamily: t.type.headline.fontFamily, color: tone.ink }}
+        >
+          {availability.label}
+        </AppText>
+        {specs.length ? (
+          <AppText
+            variant="caption"
+            tone="secondary"
+            tabular
+            numberOfLines={1}
+            style={styles.shrink}
+          >
+            {`· ${specs.join(' · ')}`}
+          </AppText>
+        ) : null}
+
+        <View style={styles.grow} />
 
         {km !== null ? (
-          <View style={styles.end}>
-            <AppText variant="subhead" tabular style={{ fontFamily: t.type.headline.fontFamily }}>
-              {formatDistance(km, brand.locale)}
-            </AppText>
-            {km <= MAX_ETA_KM ? (
-              <AppText variant="caption" tone="tertiary" tabular>
-                {formatEta(km)}
-              </AppText>
-            ) : null}
-          </View>
+          <AppText
+            variant="caption"
+            tabular
+            numberOfLines={1}
+            style={{ fontFamily: t.type.headline.fontFamily }}
+          >
+            {formatDistance(km, brand.locale)}
+          </AppText>
         ) : null}
 
         <AppPressable
@@ -171,22 +173,18 @@ const StationListCard = ({
           haptic="light"
           accessibilityRole="button"
           accessibilityLabel={`${CARD_COPY.directions} ${station.name}`}
-          hitSlop={t.space[1]}
+          hitSlop={t.space[2]}
           style={[
             styles.center,
             {
-              width: t.space[10],
-              height: t.space[10],
+              width: t.space[8],
+              height: t.space[8],
               borderRadius: t.radius.pill,
               backgroundColor: t.colors.textPrimary,
             },
           ]}
         >
-          <ArrowUpRight
-            color={t.colors.surface}
-            size={t.icon.control}
-            strokeWidth={t.icon.stroke}
-          />
+          <ArrowUpRight color={t.colors.surface} size={t.icon.meta} strokeWidth={t.icon.stroke} />
         </AppPressable>
       </View>
     </AppPressable>
@@ -204,8 +202,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  end: {
-    alignItems: 'flex-end',
+  shrink: {
+    flexShrink: 1,
   },
   grow: {
     flex: 1,
