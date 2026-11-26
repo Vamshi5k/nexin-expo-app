@@ -78,8 +78,8 @@ const ConnectorCard = ({
         styles.card,
         {
           width,
-          gap: t.space[4],
-          padding: t.space[4],
+          gap: t.space[3],
+          padding: t.space[3],
           borderRadius: t.radius.card,
           borderWidth: t.layout.hairline,
           borderColor: t.colors.border,
@@ -89,19 +89,27 @@ const ConnectorCard = ({
     >
       <CardGradient color={status.tint} id={`connector-${charger.id}-${connector.id}`} />
 
-      <View style={[styles.row, styles.between]}>
+      <View style={[styles.row, { gap: t.space[3] }]}>
         <View
           style={[
             styles.center,
             {
-              width: t.space[12],
-              height: t.space[12],
+              width: t.space[10],
+              height: t.space[10],
               borderRadius: t.radius.control,
               backgroundColor: t.colors.surface,
             },
           ]}
         >
-          <AppConnectorIcon type={type} size={t.space[8]} available={startable} />
+          <AppConnectorIcon type={type} size={t.space[6]} available={startable} />
+        </View>
+        <View style={styles.grow}>
+          <AppText variant="headline" numberOfLines={1}>
+            {type}
+          </AppText>
+          <AppText variant="caption" tone="secondary" numberOfLines={1}>
+            {chargerMeta(charger, chargerIndex)}
+          </AppText>
         </View>
         <View style={[styles.row, pill]}>
           <AppText variant="caption" tabular>
@@ -110,19 +118,11 @@ const ConnectorCard = ({
         </View>
       </View>
 
-      <View style={{ gap: t.space[1] / 2 }}>
-        <AppText variant="headline" numberOfLines={1}>
-          {type}
+      {progress ? (
+        <AppText variant="subhead" tabular style={{ fontFamily: t.type.headline.fontFamily }}>
+          {progress}
         </AppText>
-        <AppText variant="caption" tone="secondary" numberOfLines={1}>
-          {chargerMeta(charger, chargerIndex)}
-        </AppText>
-        {progress ? (
-          <AppText variant="subhead" tabular style={{ fontFamily: t.type.headline.fontFamily }}>
-            {progress}
-          </AppText>
-        ) : null}
-      </View>
+      ) : null}
 
       <View style={[styles.row, styles.between, { gap: t.space[2] }]}>
         {charger.pricePerKwhPaise !== null ? (
@@ -224,5 +224,8 @@ const styles = StyleSheet.create({
   },
   shrink: {
     flexShrink: 1,
+  },
+  grow: {
+    flex: 1,
   },
 });
