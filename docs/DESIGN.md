@@ -111,15 +111,20 @@ the driver find, start, watch or pay for a charge.
   inputs are large chips; the price breakdown is collapsed by default.
 - Wallet: the balance card is the hero (large tabular number); transactions are grouped
   by date.
-- Station details are built from the map screen's pieces, so opening a station feels like the
-  map card expanding: the map's glass capsule as the header (back, name, share, heart) with a
-  bg strip behind the status bar; a hero card that is the map card grown up (status gradient
-  from `CardGradient`, white status pill, "60 kW" pill, title1 name, address, `ChargerArt`,
-  `StatRow` with distance, drive and lowest rate); "Connectors" as a horizontal snapping row of
-  cards, each on its own connector-status gradient with a white icon tile, "C1" pill, type,
-  charger, rate and a white status pill; "About this station" as one neutral grouped card;
-  and a floating glass capsule like the tab bar holding the map card's dark Go pill
-  ("Get Directions · 1h 58m") and Call when there is a phone number. No brand-teal gradients.
+- Station details keep the map screen's language (white surfaces, glass, the dark Go pill).
+  Hero, about 40% of the screen at a fixed size: backend photos as a paging slider with a
+  "1/4" pill (one photo: no slider; none or all broken: `ChargerArt` on a soft accent wash),
+  a readable gradient (dark scrim over photos, page colour over the illustration), then the
+  station status pill exactly as the API sends it, title1 name, one-line address and a
+  `StatRow` (distance, drive, power, rate). Glass back / share / heart float over the hero; a
+  solid bar with the name fades in once scrolled past it. Chargers are grouped: "Charger 1 ·
+  DC · 60 kW" with "1/2 free", then its connector cards (stacked for 1-2, a swipe row from 3)
+  on their status tint fading to white. "About this station" shows the address and 3
+  amenities plus "+N"; "View all details" opens a 60%/90% sheet with Copy address, help line,
+  access type, connector types and amenities with icons. Rows without data are hidden.
+- Connector status colours come from `brand.connectorStatusColors` (CruzeEV defaults) as
+  `t.colors.status.connector.<state>` with `main` (pill dot) and `tint` (card wash); labels
+  follow the CruzeEV app (Suspended EV, Suspended EVSE, Engaged; Offline shows "Unavailable").
 
 ## Splash, onboarding, auth and first-run setup (flat)
 - Completely flat: no shadows, glows or blurs. Shape comes from flat fills (accent,

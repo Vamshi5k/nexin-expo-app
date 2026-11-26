@@ -25,7 +25,6 @@ export const useHeaderReveal = (revealAt: number, fadeDistance: number) => {
     (now, before) => {
       if (now !== before) scheduleOnRN(setRevealed, now);
     },
-    [revealAt],
   );
 
   const progress = () => {

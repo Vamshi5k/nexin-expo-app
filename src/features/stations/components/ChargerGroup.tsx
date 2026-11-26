@@ -117,6 +117,11 @@ const ConnectorCard = ({
         <AppText variant="caption" tone="secondary" numberOfLines={1}>
           {chargerMeta(charger, chargerIndex)}
         </AppText>
+        {progress ? (
+          <AppText variant="subhead" tabular style={{ fontFamily: t.type.headline.fontFamily }}>
+            {progress}
+          </AppText>
+        ) : null}
       </View>
 
       <View style={[styles.row, styles.between, { gap: t.space[2] }]}>
@@ -137,7 +142,7 @@ const ConnectorCard = ({
             }}
           />
           <AppText variant="caption" numberOfLines={1} style={styles.shrink}>
-            {progress ?? label}
+            {label}
           </AppText>
         </View>
       </View>
