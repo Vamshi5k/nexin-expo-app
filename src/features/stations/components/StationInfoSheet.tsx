@@ -47,7 +47,7 @@ const InfoRow = ({ icon: Icon, label, value, first, onPress, action }: InfoRowPr
         styles.row,
         {
           gap: t.space[3],
-          paddingVertical: t.space[3],
+          paddingVertical: t.space[2] + t.space[1],
           borderTopWidth: first ? 0 : t.layout.hairline,
           borderTopColor: t.colors.border,
         },
@@ -57,20 +57,24 @@ const InfoRow = ({ icon: Icon, label, value, first, onPress, action }: InfoRowPr
         style={[
           styles.center,
           {
-            width: t.layout.minTouch,
-            height: t.layout.minTouch,
+            width: t.space[8] + t.space[1],
+            height: t.space[8] + t.space[1],
             borderRadius: t.radius.pill,
             backgroundColor: t.colors.surfaceSunken,
           },
         ]}
       >
-        <Icon color={t.colors.textPrimary} size={t.icon.control} strokeWidth={t.icon.stroke} />
+        <Icon color={t.colors.textPrimary} size={t.icon.meta} strokeWidth={t.icon.stroke} />
       </View>
       <View style={styles.grow}>
         <AppText variant="caption" tone="secondary">
           {label}
         </AppText>
-        <AppText variant="headline" tone={onPress ? 'accent' : 'primary'}>
+        <AppText
+          variant="subhead"
+          tone={onPress ? 'accent' : 'primary'}
+          style={{ fontFamily: t.type.headline.fontFamily }}
+        >
           {value}
         </AppText>
       </View>
@@ -163,12 +167,12 @@ const StationInfoSheet = ({
               accessibilityLabel={`${DETAILS_COPY.copy} ${DETAILS_COPY.address}`}
               style={{
                 paddingHorizontal: t.space[3],
-                paddingVertical: t.space[2],
+                paddingVertical: t.space[1] + t.space[1] / 2,
                 borderRadius: t.radius.pill,
                 backgroundColor: t.colors.surfaceSunken,
               }}
             >
-              <AppText variant="subhead">{DETAILS_COPY.copy}</AppText>
+              <AppText variant="caption">{DETAILS_COPY.copy}</AppText>
             </AppPressable>
           ),
         }
@@ -200,31 +204,32 @@ const StationInfoSheet = ({
       {shown ? (
         <BottomSheetScrollView
           contentContainerStyle={{
-            gap: t.space[5],
+            gap: t.space[4],
             paddingHorizontal: t.layout.screenPadding,
             paddingTop: t.space[2],
             paddingBottom: Math.max(insets.bottom, t.space[4]) + t.space[4],
           }}
         >
           <View style={[styles.row, { gap: t.space[3] }]}>
-            <AppText variant="title2" accessibilityRole="header" style={styles.grow}>
+            <AppText variant="title3" accessibilityRole="header" style={styles.grow}>
               {station.name}
             </AppText>
             <AppPressable
               onPress={onClose}
               accessibilityRole="button"
               accessibilityLabel={DETAILS_COPY.close}
+              hitSlop={t.space[1]}
               style={[
                 styles.center,
                 {
-                  width: t.layout.minTouch,
-                  height: t.layout.minTouch,
+                  width: t.space[8] + t.space[1],
+                  height: t.space[8] + t.space[1],
                   borderRadius: t.radius.pill,
                   backgroundColor: t.colors.surfaceSunken,
                 },
               ]}
             >
-              <X color={t.colors.textPrimary} size={t.icon.control} strokeWidth={t.icon.stroke} />
+              <X color={t.colors.textPrimary} size={t.icon.meta} strokeWidth={t.icon.stroke} />
             </AppPressable>
           </View>
 
@@ -237,8 +242,10 @@ const StationInfoSheet = ({
           ) : null}
 
           {station.amenities.length ? (
-            <View style={{ gap: t.space[3] }}>
-              <AppText variant="headline">{DETAILS_COPY.amenities}</AppText>
+            <View style={{ gap: t.space[2] }}>
+              <AppText variant="subhead" style={{ fontFamily: t.type.headline.fontFamily }}>
+                {DETAILS_COPY.amenities}
+              </AppText>
               <View style={[styles.wrap, { gap: t.space[2] }]}>
                 {station.amenities.map(amenity => (
                   <AmenityChip key={amenity} label={amenity} withIcon />

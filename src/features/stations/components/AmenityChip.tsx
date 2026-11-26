@@ -44,9 +44,9 @@ const AmenityChip = ({ label, withIcon }: AmenityChipProps) => {
       style={[
         styles.row,
         {
-          gap: t.space[2],
+          gap: t.space[1] + t.space[1] / 2,
           paddingHorizontal: t.space[3],
-          paddingVertical: t.space[1] + t.space[1] / 2,
+          paddingVertical: t.space[1],
           borderRadius: t.radius.pill,
           borderWidth: t.layout.hairline,
           borderColor: t.colors.borderStrong,
