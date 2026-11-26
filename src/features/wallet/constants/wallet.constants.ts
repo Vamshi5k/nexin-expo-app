@@ -40,6 +40,7 @@ export const HISTORY_COPY = {
 
 export const ADD_MONEY_COPY = {
   title: 'Add Money',
+  subtitle: 'Top up your wallet in seconds',
   enterAmount: 'Enter Amount',
   currentBalance: 'Current balance',
   afterTopUp: 'Balance after top-up',

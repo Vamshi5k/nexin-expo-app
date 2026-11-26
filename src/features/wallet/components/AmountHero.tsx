@@ -2,7 +2,7 @@ import { StyleSheet, TextInput, View } from 'react-native';
 
 import { Wallet } from 'lucide-react-native';
 
-import { AppText } from '@/shared/components';
+import { AppFade, AppText } from '@/shared/components';
 
 import AmountChips from './AmountChips';
 
@@ -24,9 +24,9 @@ type AmountHeroProps = {
   onPick: (amountPaise: number) => void;
 };
 
-// A clean white card: the label with the current balance, the amount large and left-aligned
-// with its symbol, a thin line (accent once typed, red with the reason when not valid), the
-// hint, then the quick amounts.
+// A white card with the balance card's soft brand wash: the label with the current balance,
+// the amount large and left-aligned with its symbol, a thin line (accent once typed, red with
+// the reason when not valid), the hint, then the quick amounts.
 const AmountHero = ({
   amountText,
   amountPaise,
@@ -43,15 +43,19 @@ const AmountHero = ({
 
   return (
     <View
-      style={{
-        gap: t.space[4],
-        padding: t.space[4],
-        borderRadius: t.radius.sheet,
-        borderWidth: t.layout.hairline,
-        borderColor: t.colors.border,
-        backgroundColor: t.colors.surfaceRaised,
-      }}
+      style={[
+        styles.clip,
+        {
+          gap: t.space[4],
+          padding: t.space[4],
+          borderRadius: t.radius.sheet,
+          borderWidth: t.layout.hairline,
+          borderColor: t.colors.border,
+          backgroundColor: t.colors.surfaceRaised,
+        },
+      ]}
     >
+      <AppFade id="amount-wash" color={t.colors.accent} from={0.12} to={0} top />
       <View style={[styles.row, styles.between, { gap: t.space[3] }]}>
         <AppText variant="caption" tone="secondary" style={styles.overline}>
           {ADD_MONEY_COPY.enterAmount}
@@ -108,6 +112,9 @@ const AmountHero = ({
 export default AmountHero;
 
 const styles = StyleSheet.create({
+  clip: {
+    overflow: 'hidden',
+  },
   row: {
     flexDirection: 'row',
     alignItems: 'center',

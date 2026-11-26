@@ -6,7 +6,7 @@ import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import {
   AppButton,
   AppErrorState,
-  AppHeader,
+  AppBackButton,
   AppScreen,
   AppSkeleton,
   AppText,
@@ -168,6 +168,7 @@ const AddMoneyScreen = ({ initialAmount }: AddMoneyScreenProps) => {
     <>
       <AppScreen
         scroll
+        wash
         contentStyle={{ gap: t.space[5], paddingTop: t.space[2] }}
         footer={
           <AppButton
@@ -179,9 +180,21 @@ const AddMoneyScreen = ({ initialAmount }: AddMoneyScreenProps) => {
           />
         }
       >
-        <AppHeader title={ADD_MONEY_COPY.title} back />
+        <Animated.View entering={riseIn(0)} style={{ gap: t.space[4] }}>
+          <View style={styles.row}>
+            <AppBackButton />
+          </View>
+          <View style={{ gap: t.space[1] / 2 }}>
+            <AppText variant="title2" accessibilityRole="header">
+              {ADD_MONEY_COPY.title}
+            </AppText>
+            <AppText variant="caption" tone="secondary">
+              {ADD_MONEY_COPY.subtitle}
+            </AppText>
+          </View>
+        </Animated.View>
 
-        <Animated.View entering={riseIn(0)}>
+        <Animated.View entering={riseIn(1)}>
           <AmountHero
             amountText={money.amountText}
             amountPaise={money.amountPaise}

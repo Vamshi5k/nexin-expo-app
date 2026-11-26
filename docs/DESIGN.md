@@ -117,8 +117,9 @@ the driver find, start, watch or pay for a charge.
 - Charging summary: the total to pay is the most prominent number on screen; amount
   inputs are large chips; the price breakdown is collapsed by default.
 - Wallet: the balance card is the hero (large tabular number) on surfaceRaised with a soft
-  accent wash and glow, never a dark ink slab, so it follows light and dark mode. Add Money:
-  a plain white amount card (ENTER AMOUNT overline with the balance beside it, the amount
+  accent wash and glow, never a dark ink slab, so it follows light and dark mode. Add Money
+  looks like the Wallet tab: the brand wash at the top (`AppScreen wash`), a filled back
+  button, then a left-aligned title2 with a subtitle; a white amount card with the same wash (ENTER AMOUNT overline with the balance beside it, the amount
   large and left-aligned with its symbol, a thin line that turns accent or red, the hint),
   grey quick-amount pills with the picked one dark, and a compact dashed card when there
   are no coupons; transactions are grouped
