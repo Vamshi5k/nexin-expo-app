@@ -1,11 +1,14 @@
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet } from 'react-native';
 
 import { Navigation, Phone } from 'lucide-react-native';
+import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppGlass, AppPressable, AppText } from '@/shared/components';
 
 import { useTheme, type Theme } from '@/shared/theme';
+
+import { springUp } from '@/shared/utils/motion';
 
 import { DETAILS_COPY } from '../constants/stations.constants';
 
@@ -25,7 +28,8 @@ const DetailsActionBar = ({ eta, onDirections, onCall }: DetailsActionBarProps) 
   const label = eta ? `${DETAILS_COPY.directions} · ${eta}` : DETAILS_COPY.directions;
 
   return (
-    <View
+    <Animated.View
+      entering={springUp(4)}
       pointerEvents="box-none"
       style={[
         styles.wrap,
@@ -83,7 +87,7 @@ const DetailsActionBar = ({ eta, onDirections, onCall }: DetailsActionBarProps) 
           </AppPressable>
         ) : null}
       </AppGlass>
-    </View>
+    </Animated.View>
   );
 };
 

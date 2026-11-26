@@ -7,6 +7,7 @@ import {
 } from 'react-native';
 
 import { Image } from 'expo-image';
+import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
 
@@ -19,6 +20,7 @@ import { useTheme, withAlpha } from '@/shared/theme';
 
 import { brand } from '@/core/config';
 import { formatRate } from '@/shared/utils/money';
+import { riseIn } from '@/shared/utils/motion';
 
 import { DETAILS_COPY, MAX_ETA_KM, pageLabel } from '../constants/stations.constants';
 import type { StationDetails } from '../types/stations.types';
@@ -177,7 +179,7 @@ const StationHero = ({
           { gap: t.space[2], padding: t.layout.screenPadding, paddingBottom: t.space[2] },
         ]}
       >
-        <View style={[styles.row, styles.between]}>
+        <Animated.View entering={riseIn(0)} style={[styles.row, styles.between]}>
           <View
             style={[
               styles.row,
@@ -214,25 +216,27 @@ const StationHero = ({
               </AppText>
             </View>
           ) : null}
-        </View>
+        </Animated.View>
 
-        <AppText
-          variant="title1"
-          numberOfLines={2}
-          accessibilityRole="header"
-          style={{ color: ink }}
-        >
-          {station.name}
-        </AppText>
-        {station.address ? (
-          <AppText variant="subhead" numberOfLines={1} style={{ color: subInk }}>
-            {station.address}
+        <Animated.View entering={riseIn(1)} style={{ gap: t.space[2] }}>
+          <AppText
+            variant="title1"
+            numberOfLines={2}
+            accessibilityRole="header"
+            style={{ color: ink }}
+          >
+            {station.name}
           </AppText>
-        ) : null}
+          {station.address ? (
+            <AppText variant="subhead" numberOfLines={1} style={{ color: subInk }}>
+              {station.address}
+            </AppText>
+          ) : null}
+        </Animated.View>
         {stats.length ? (
-          <View style={{ marginTop: t.space[2] }}>
+          <Animated.View entering={riseIn(2)} style={{ marginTop: t.space[2] }}>
             <StatRow stats={stats} inverse={hasPhoto} />
-          </View>
+          </Animated.View>
         ) : null}
       </View>
     </View>

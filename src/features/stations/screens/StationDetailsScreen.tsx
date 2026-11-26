@@ -18,10 +18,12 @@ import StationInfoSheet from '../components/StationInfoSheet';
 import { useTheme } from '@/shared/theme';
 
 import { getErrorMessage } from '@/core/api';
+import { riseIn } from '@/shared/utils/motion';
 
 import { DETAILS_COPY } from '../constants/stations.constants';
 import { useHeaderReveal } from '../hooks/useHeaderReveal';
 import { useHeroImages } from '../hooks/useHeroImages';
+import { useHeroParallax } from '../hooks/useHeroParallax';
 import { useStationDetails } from '../hooks/useStationDetails';
 
 type StationDetailsScreenProps = {
@@ -42,6 +44,7 @@ const StationDetailsScreen = ({ stationId }: StationDetailsScreenProps) => {
   const heroHeight = Math.round(screenHeight * HERO_RATIO);
   const top = topBarSpace(t, insets.top);
   const header = useHeaderReveal(heroHeight - top, t.space[12]);
+  const heroStyle = useHeroParallax(header.scrollY, heroHeight);
   const hero = useHeroImages(station?.imageUrls ?? []);
   const overPhoto = hero.images.length > 0 && !header.revealed;
 
@@ -94,10 +97,7 @@ const StationDetailsScreen = ({ stationId }: StationDetailsScreenProps) => {
       <Animated.ScrollView
         onScroll={header.onScroll}
         scrollEventThrottle={16}
-        contentContainerStyle={{
-          gap: t.layout.sectionGap,
-          paddingBottom: actionBarHeight(t, insets.bottom) + t.layout.sectionGap,
-        }}
+        contentContainerStyle={{ paddingBottom: actionBarHeight(t, insets.bottom) }}
         showsVerticalScrollIndicator={false}
         bounces={true}
         refreshControl={
@@ -109,49 +109,60 @@ const StationDetailsScreen = ({ stationId }: StationDetailsScreenProps) => {
           />
         }
       >
-        <StationHero
-          station={station}
-          distance={details.distance}
-          images={hero.images}
-          page={hero.page}
-          width={width}
-          height={heroHeight}
-          onPageChange={hero.setPage}
-          onImageError={hero.onError}
-        />
+        <Animated.View style={heroStyle}>
+          <StationHero
+            station={station}
+            distance={details.distance}
+            images={hero.images}
+            page={hero.page}
+            width={width}
+            height={heroHeight}
+            onPageChange={hero.setPage}
+            onImageError={hero.onError}
+          />
+        </Animated.View>
 
-        <View style={{ gap: t.space[6] }}>
-          <View style={{ gap: t.space[1], paddingHorizontal: t.layout.screenPadding }}>
-            <AppText variant="title3" accessibilityRole="header">
-              {DETAILS_COPY.chargers}
-            </AppText>
-            {details.chargers.length ? (
-              <AppText variant="caption" tone="secondary">
-                {DETAILS_COPY.tip}
+        {/* Opaque so the hero slides behind it while it drifts (parallax). */}
+        <View
+          style={{
+            gap: t.layout.sectionGap,
+            paddingVertical: t.layout.sectionGap,
+            backgroundColor: t.colors.bg,
+          }}
+        >
+          <Animated.View entering={riseIn(3)} style={{ gap: t.space[6] }}>
+            <View style={{ gap: t.space[1], paddingHorizontal: t.layout.screenPadding }}>
+              <AppText variant="title3" accessibilityRole="header">
+                {DETAILS_COPY.chargers}
               </AppText>
-            ) : null}
-          </View>
+              {details.chargers.length ? (
+                <AppText variant="caption" tone="secondary">
+                  {DETAILS_COPY.tip}
+                </AppText>
+              ) : null}
+            </View>
 
-          {details.chargers.length ? (
-            details.chargers.map((charger, index) => (
-              <ChargerGroup
-                key={charger.id}
-                charger={charger}
-                index={index}
-                onConnectorPress={details.openConnector}
+            {details.chargers.length ? (
+              details.chargers.map((charger, index) => (
+                <ChargerGroup
+                  key={charger.id}
+                  charger={charger}
+                  index={index}
+                  onConnectorPress={details.openConnector}
+                />
+              ))
+            ) : (
+              <AppEmptyState
+                icon={PlugZap}
+                title={DETAILS_COPY.noChargers}
+                description={DETAILS_COPY.noChargersBody}
               />
-            ))
-          ) : (
-            <AppEmptyState
-              icon={PlugZap}
-              title={DETAILS_COPY.noChargers}
-              description={DETAILS_COPY.noChargersBody}
-            />
-          )}
-        </View>
+            )}
+          </Animated.View>
 
-        <View style={{ paddingHorizontal: t.layout.screenPadding }}>
-          <AboutSection station={station} onViewAll={details.openInfo} />
+          <Animated.View entering={riseIn(4)} style={{ paddingHorizontal: t.layout.screenPadding }}>
+            <AboutSection station={station} onViewAll={details.openInfo} />
+          </Animated.View>
         </View>
       </Animated.ScrollView>
 

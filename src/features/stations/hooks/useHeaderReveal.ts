@@ -40,5 +40,5 @@ export const useHeaderReveal = (revealAt: number, fadeDistance: number) => {
   const barStyle = useAnimatedStyle(() => ({ opacity: progress() }));
   const titleStyle = useAnimatedStyle(() => ({ opacity: progress() }));
 
-  return { onScroll, barStyle, titleStyle, revealed };
+  return { onScroll, scrollY, barStyle, titleStyle, revealed };
 };

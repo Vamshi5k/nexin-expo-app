@@ -185,6 +185,12 @@ the driver find, start, watch or pay for a charge.
 - expo-haptics: light on selections and toggles, success on payment and charge start,
   warning on stop or delete confirmation.
 - Everything tappable has a pressed state (opacity, or scale 0.98). No dead taps.
+- Entrances come from `src/shared/utils/motion.ts` so every screen moves the same way:
+  `riseIn(step)` for content (staggered by `motion.stagger`), `dropIn` for top controls,
+  `slideIn` for cards in a sideways row, `springUp` for bars pinned to the bottom.
+- Station Details: the hero drifts at 40% of the scroll speed and stretches on pull-down; the
+  heart bounces when added; a charging connector's dot pulses. Map pins stay static (they are
+  native snapshots on Android, and animating them makes the map stutter).
 
 ## Avoid
 Gradient backgrounds (except the backdrop fades above and the map station card), more than one accent colour, shadows of any kind, centred paragraphs,

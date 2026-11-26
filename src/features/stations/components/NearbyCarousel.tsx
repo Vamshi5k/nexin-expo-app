@@ -21,6 +21,8 @@ import StationCard, { stationCardHeight } from './StationCard';
 
 import { useTheme } from '@/shared/theme';
 
+import { riseIn } from '@/shared/utils/motion';
+
 import { MAP_COPY } from '../constants/stations.constants';
 import type { NearbyStation } from '../types/stations.types';
 
@@ -193,7 +195,7 @@ const NearbyCarousel = ({
     }
 
     return (
-      <Animated.View key="list" entering={FadeIn}>
+      <Animated.View key="list" entering={riseIn(1)}>
         <Animated.FlatList
           ref={listRef}
           horizontal

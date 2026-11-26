@@ -1,12 +1,16 @@
 import { ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 
+import Animated from 'react-native-reanimated';
+
 import { AppConnectorIcon, AppPressable, AppText } from '@/shared/components';
 
 import CardGradient from './CardGradient';
+import StatusDot from './StatusDot';
 
 import { useTheme } from '@/shared/theme';
 
 import { formatRate } from '@/shared/utils/money';
+import { slideIn } from '@/shared/utils/motion';
 
 import {
   CARD_COPY,
@@ -136,14 +140,7 @@ const ConnectorCard = ({
           <View />
         )}
         <View style={[styles.row, pill, styles.shrink]}>
-          <View
-            style={{
-              width: t.space[2],
-              height: t.space[2],
-              borderRadius: t.radius.pill,
-              backgroundColor: status.main,
-            }}
-          />
+          <StatusDot color={status.main} live={connector.state === 'charging'} />
           <AppText variant="caption" numberOfLines={1} style={styles.shrink}>
             {label}
           </AppText>
@@ -163,15 +160,16 @@ const ChargerGroup = ({ charger, index, onConnectorPress }: ChargerGroupProps) =
   const fullWidth = screenWidth - t.layout.screenPadding * 2;
   const cardWidth = swipe ? Math.round(screenWidth * SWIPE_CARD_RATIO) : fullWidth;
 
-  const cards = charger.connectors.map(connector => (
-    <ConnectorCard
-      key={connector.id}
-      charger={charger}
-      chargerIndex={index}
-      connector={connector}
-      width={cardWidth}
-      onPress={onConnectorPress}
-    />
+  const cards = charger.connectors.map((connector, position) => (
+    <Animated.View key={connector.id} entering={slideIn(position + 4)}>
+      <ConnectorCard
+        charger={charger}
+        chargerIndex={index}
+        connector={connector}
+        width={cardWidth}
+        onPress={onConnectorPress}
+      />
+    </Animated.View>
   ));
 
   return (

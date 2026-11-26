@@ -1,7 +1,15 @@
+import { useEffect, useRef } from 'react';
 import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 
 import { ChevronLeft, Heart, Share2, type LucideIcon } from 'lucide-react-native';
-import Animated, { type AnimatedStyle } from 'react-native-reanimated';
+import Animated, {
+  useAnimatedStyle,
+  useReducedMotion,
+  useSharedValue,
+  withSequence,
+  withSpring,
+  type AnimatedStyle,
+} from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppGlass, AppPressable, AppText } from '@/shared/components';
@@ -29,6 +37,8 @@ type GlassButtonProps = {
   active?: boolean;
 };
 
+const POP_SCALE = 1.3;
+
 // Status bar plus the capsule row: where scrolled content must stop.
 export const topBarSpace = (t: Theme, topInset: number) =>
   topInset + t.space[2] + mapTopBarHeight(t) + t.space[2];
@@ -37,6 +47,21 @@ export const topBarSpace = (t: Theme, topInset: number) =>
 const GlassButton = ({ icon: Icon, label, onPress, active }: GlassButtonProps) => {
   const t = useTheme();
   const color = active ? t.colors.danger : t.colors.textPrimary;
+  const reduceMotion = useReducedMotion();
+  const pop = useSharedValue(1);
+  const wasActive = useRef(active);
+
+  // A quick bounce when it turns on (the heart), not on first paint or when it turns off.
+  useEffect(() => {
+    const turnedOn = active && !wasActive.current;
+    wasActive.current = active;
+    if (!turnedOn || reduceMotion) return;
+    pop.set(
+      withSequence(withSpring(POP_SCALE, t.motion.springSnappy), withSpring(1, t.motion.spring)),
+    );
+  }, [active, pop, reduceMotion, t.motion.spring, t.motion.springSnappy]);
+
+  const iconStyle = useAnimatedStyle(() => ({ transform: [{ scale: pop.value }] }));
 
   return (
     <AppGlass radius={t.radius.pill} appearance="light">
@@ -48,12 +73,14 @@ const GlassButton = ({ icon: Icon, label, onPress, active }: GlassButtonProps) =
         accessibilityState={active === undefined ? undefined : { selected: active }}
         style={[styles.center, { width: t.layout.minTouch, height: t.layout.minTouch }]}
       >
-        <Icon
-          color={color}
-          fill={active ? color : 'transparent'}
-          size={t.icon.control}
-          strokeWidth={t.icon.stroke}
-        />
+        <Animated.View style={iconStyle}>
+          <Icon
+            color={color}
+            fill={active ? color : 'transparent'}
+            size={t.icon.control}
+            strokeWidth={t.icon.stroke}
+          />
+        </Animated.View>
       </AppPressable>
     </AppGlass>
   );
