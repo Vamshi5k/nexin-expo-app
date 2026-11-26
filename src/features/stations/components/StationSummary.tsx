@@ -2,6 +2,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { ArrowUpRight } from 'lucide-react-native';
 import Animated from 'react-native-reanimated';
+import Svg, { Defs, RadialGradient, Rect, Stop } from 'react-native-svg';
 
 import { AppPressable, AppText } from '@/shared/components';
 
@@ -15,6 +16,10 @@ import { CARD_COPY, DETAILS_COPY, routeLabel } from '../constants/stations.const
 import type { StationDetails } from '../types/stations.types';
 import { canStartCharging } from '../utils/connector';
 import { formatDistance } from '../utils/geo';
+
+const GLOW = 0.14;
+// Busy connectors keep their status colour, quieter than the free and charging ones.
+const BUSY = 0.45;
 
 type StationSummaryProps = {
   station: StationDetails;
@@ -74,7 +79,7 @@ const StationSummary = ({ station, distance, eta, onDirections }: StationSummary
   const prices = station.chargers.flatMap(charger =>
     charger.pricePerKwhPaise !== null ? [charger.pricePerKwhPaise] : [],
   );
-  const ink = t.colors.onAccent;
+  const glow = free ? t.colors.success : t.colors.danger;
   const square = t.space[3];
 
   return (
@@ -97,43 +102,62 @@ const StationSummary = ({ station, distance, eta, onDirections }: StationSummary
           accessibilityLabel={`${free} of ${connectors.length} ${DETAILS_COPY.connectorsFree}`}
           style={[
             styles.row,
+            styles.clip,
             {
               gap: t.space[3],
               paddingHorizontal: t.space[3],
               paddingVertical: t.space[2] + t.space[1] / 2,
               borderRadius: t.radius.control,
-              backgroundColor: t.colors.accent,
+              borderWidth: t.layout.hairline,
+              borderColor: t.colors.border,
+              backgroundColor: t.colors.surfaceRaised,
             },
           ]}
         >
+          <Svg style={StyleSheet.absoluteFill} pointerEvents="none">
+            <Defs>
+              <RadialGradient id={`free-glow-${station.id}`} cx="100%" cy="0%" rx="60%" ry="90%">
+                <Stop offset="0" stopColor={glow} stopOpacity={GLOW} />
+                <Stop offset="1" stopColor={glow} stopOpacity={0} />
+              </RadialGradient>
+            </Defs>
+            <Rect x="0" y="0" width="100%" height="100%" fill={`url(#free-glow-${station.id})`} />
+          </Svg>
+
           <View style={[styles.grow, { gap: t.space[1] / 2 }]}>
-            <AppText variant="caption" style={[styles.overline, { color: ink }]}>
+            <AppText variant="caption" tone="secondary" style={styles.overline}>
               {DETAILS_COPY.connectorsFree}
             </AppText>
             <View style={styles.baseline}>
-              <AppText variant="title2" tabular style={{ color: ink }}>
+              <AppText
+                variant="title2"
+                tabular
+                style={{ color: free ? t.colors.successText : t.colors.dangerText }}
+              >
                 {free}
               </AppText>
-              <AppText variant="caption" tabular style={{ color: withAlpha(ink, 0.6) }}>
+              <AppText variant="caption" tone="tertiary" tabular>
                 {`/${connectors.length}`}
               </AppText>
             </View>
           </View>
           <View style={[styles.wrap, { gap: t.space[1], maxWidth: (square + t.space[1]) * 4 }]}>
             {connectors.map(connector => {
-              const open = canStartCharging(connector.state);
-              const charging = connector.state === 'charging';
+              const color = t.colors.status.connector[connector.state].main;
+              const lit = canStartCharging(connector.state) || connector.state === 'charging';
               return (
                 <View
                   key={connector.id}
-                  style={{
-                    width: square,
-                    height: square,
-                    borderRadius: t.space[1],
-                    borderWidth: charging ? 2 : 0,
-                    borderColor: ink,
-                    backgroundColor: open ? ink : charging ? 'transparent' : withAlpha(ink, 0.14),
-                  }}
+                  accessible={false}
+                  style={[
+                    {
+                      width: square,
+                      height: square,
+                      borderRadius: t.space[1],
+                      backgroundColor: lit ? color : withAlpha(color, BUSY),
+                    },
+                    lit ? { boxShadow: `0 0 6px ${withAlpha(color, 0.6)}` } : null,
+                  ]}
                 />
               );
             })}
@@ -213,6 +237,9 @@ const StationSummary = ({ station, distance, eta, onDirections }: StationSummary
 export default StationSummary;
 
 const styles = StyleSheet.create({
+  clip: {
+    overflow: 'hidden',
+  },
   row: {
     flexDirection: 'row',
     alignItems: 'center',

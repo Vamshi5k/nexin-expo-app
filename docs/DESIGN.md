@@ -134,9 +134,10 @@ the driver find, start, watch or pay for a charge.
     heart readable; over photos a soft dark base gradient. A glass status chip with a
     glowing dot floats bottom-left, just above the sheet.
   - On the sheet: the name, the address, then the figures, biggest
-    first: a "Connectors free" card filled with the brand accent (an exception to "accent
-    never fills cards", chosen for this card only) with a big "1/8" and one square per
-    connector (filled = free, outlined = charging, faint = busy); Max power and Price
+    first: a white "Connectors free" card with the Stations card's corner glow (success
+    when something is free, danger when nothing is), the free count in that colour over
+    "/8", and one square per connector in its own status colour (free and charging lit with
+    a soft glow, busy ones at 45%); Max power and Price
     tiles; a Route tile ("1.9 km · 4 min drive") with a dark circle that opens directions.
   - Chargers / Info segmented tabs (white track, dark thumb, "04" count) pin under a solid
     header with the name and "● status · address" once scrolled.
