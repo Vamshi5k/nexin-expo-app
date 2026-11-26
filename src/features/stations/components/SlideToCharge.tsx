@@ -30,7 +30,7 @@ type SlideToChargeProps = {
 // Share of the track the knob must travel before letting go starts the session.
 const COMPLETE_AT = 0.8;
 
-const knobSize = (t: Theme) => t.space[12] + t.space[2];
+const knobSize = (t: Theme) => t.space[12];
 
 export const slideBarHeight = (t: Theme, bottomInset: number) =>
   knobSize(t) + t.space[1] * 2 + Math.max(bottomInset, t.space[3]);
@@ -96,12 +96,12 @@ const SlideToCharge = ({ connectorId, onComplete }: SlideToChargeProps) => {
             pointerEvents="none"
             style={[styles.row, { gap: t.space[1], paddingLeft: knob }, labelStyle]}
           >
-            <AppText variant="headline" tabular>
+            <AppText variant="subhead" tabular style={{ fontFamily: t.type.headline.fontFamily }}>
               {slideLabel(connectorId)}
             </AppText>
             <ChevronsRight
               color={t.colors.textTertiary}
-              size={t.icon.control}
+              size={t.icon.meta}
               strokeWidth={t.icon.stroke}
             />
           </Animated.View>
@@ -120,7 +120,7 @@ const SlideToCharge = ({ connectorId, onComplete }: SlideToChargeProps) => {
                 knobStyle,
               ]}
             >
-              <Zap color={t.colors.onAccent} size={t.icon.nav} strokeWidth={t.icon.stroke} />
+              <Zap color={t.colors.onAccent} size={t.icon.control} strokeWidth={t.icon.stroke} />
             </Animated.View>
           </GestureDetector>
         </View>

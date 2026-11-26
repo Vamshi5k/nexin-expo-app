@@ -60,7 +60,7 @@ const StationHero = ({
 
   const chip = {
     paddingHorizontal: t.space[3],
-    height: t.space[8],
+    height: t.space[6] + t.space[1],
     borderRadius: t.radius.pill,
     backgroundColor: t.colors.surface,
   };
@@ -72,8 +72,8 @@ const StationHero = ({
         {
           width,
           height,
-          borderBottomLeftRadius: t.radius.sheet,
-          borderBottomRightRadius: t.radius.sheet,
+          borderBottomLeftRadius: t.radius.card,
+          borderBottomRightRadius: t.radius.card,
           backgroundColor: t.colors.surfaceSunken,
         },
       ]}
@@ -172,17 +172,15 @@ const StationHero = ({
 
       <View
         pointerEvents="none"
-        style={[styles.chips, { left: t.space[4], right: t.space[4], bottom: t.space[4] }]}
+        style={[styles.chips, { left: t.space[3], right: t.space[3], bottom: t.space[3] }]}
       >
         <View style={[styles.row, chip, { gap: t.space[2] }]}>
           <StatusDot color={statusColor} live={station.status === 'available'} />
-          <AppText variant="subhead" style={{ fontFamily: t.type.headline.fontFamily }}>
-            {station.rawStatus || STATUS_LABEL[station.status]}
-          </AppText>
+          <AppText variant="caption">{station.rawStatus || STATUS_LABEL[station.status]}</AppText>
         </View>
         {many ? (
           <View style={[styles.row, chip]}>
-            <AppText variant="subhead" tabular>
+            <AppText variant="caption" tabular>
               {pageLabel(page + 1, images.length)}
             </AppText>
           </View>

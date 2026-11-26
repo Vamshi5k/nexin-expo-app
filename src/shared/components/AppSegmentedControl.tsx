@@ -23,7 +23,7 @@ export type AppSegmentedControlProps<T extends string> = {
 };
 
 const PAD = 4;
-const HEIGHT = 52;
+const HEIGHT = 44;
 
 // A white pill track with one dark thumb that springs to the selected segment.
 const AppSegmentedControl = <T extends string>({
@@ -100,9 +100,12 @@ const AppSegmentedControl = <T extends string>({
             style={[styles.segment, { gap: t.space[2] }]}
           >
             <AppText
-              variant="headline"
+              variant="subhead"
               numberOfLines={1}
-              style={{ color: selected ? t.colors.surface : t.colors.textSecondary }}
+              style={{
+                fontFamily: t.type.headline.fontFamily,
+                color: selected ? t.colors.surface : t.colors.textSecondary,
+              }}
             >
               {s.label}
             </AppText>

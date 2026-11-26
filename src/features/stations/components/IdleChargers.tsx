@@ -39,7 +39,7 @@ const IdleChargers = ({ chargers, onConnectorPress }: IdleChargersProps) => {
     <View
       style={{
         paddingHorizontal: t.space[4],
-        borderRadius: t.radius.sheet,
+        borderRadius: t.radius.card,
         borderWidth: t.layout.hairline,
         borderColor: t.colors.border,
         backgroundColor: t.colors.surfaceRaised,
@@ -64,13 +64,17 @@ const IdleChargers = ({ chargers, onConnectorPress }: IdleChargersProps) => {
               accessibilityRole="button"
               accessibilityState={{ expanded }}
               accessibilityLabel={`${chargerName(index)}, ${first?.label ?? ''}`}
-              style={[styles.row, { gap: t.space[3], paddingVertical: t.space[4] }]}
+              style={[styles.row, { gap: t.space[3], paddingVertical: t.space[3] }]}
             >
               <View style={styles.grow}>
-                <AppText variant="headline" numberOfLines={1}>
+                <AppText
+                  variant="subhead"
+                  numberOfLines={1}
+                  style={{ fontFamily: t.type.headline.fontFamily }}
+                >
                   {chargerName(index)}
                 </AppText>
-                <AppText variant="subhead" tone="secondary" tabular numberOfLines={1}>
+                <AppText variant="caption" tone="secondary" tabular numberOfLines={1}>
                   {chargerSpecs(charger, 'connectors')}
                 </AppText>
               </View>
@@ -78,7 +82,7 @@ const IdleChargers = ({ chargers, onConnectorPress }: IdleChargersProps) => {
                 <View style={[styles.row, styles.shrink, { gap: t.space[2] }]}>
                   <StatusDot color={status.main} />
                   <AppText
-                    variant="subhead"
+                    variant="caption"
                     numberOfLines={1}
                     style={[
                       styles.shrink,
@@ -101,7 +105,7 @@ const IdleChargers = ({ chargers, onConnectorPress }: IdleChargersProps) => {
             {expanded ? (
               <Animated.View
                 entering={FadeIn.duration(t.motion.duration)}
-                style={{ gap: t.space[2], paddingBottom: t.space[4] }}
+                style={{ gap: t.space[2], paddingBottom: t.space[3] }}
               >
                 {charger.connectors.map(connector => (
                   <AppPressable

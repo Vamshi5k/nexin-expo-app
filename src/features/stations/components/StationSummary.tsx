@@ -37,8 +37,9 @@ const FigureTile = ({ label, value, unit }: FigureTileProps) => {
       style={[
         styles.grow,
         {
-          gap: t.space[1],
-          padding: t.space[4],
+          gap: t.space[1] / 2,
+          paddingHorizontal: t.space[4],
+          paddingVertical: t.space[3],
           borderRadius: t.radius.card,
           borderWidth: t.layout.hairline,
           borderColor: t.colors.border,
@@ -46,14 +47,14 @@ const FigureTile = ({ label, value, unit }: FigureTileProps) => {
         },
       ]}
     >
-      <AppText variant="subhead" tone="secondary">
+      <AppText variant="caption" tone="secondary">
         {label}
       </AppText>
       <View style={[styles.baseline, { gap: t.space[1] / 2 }]}>
-        <AppText variant="title1" tabular numberOfLines={1} style={styles.shrink}>
+        <AppText variant="title3" tabular numberOfLines={1} style={styles.shrink}>
           {value}
         </AppText>
-        <AppText variant="subhead" tone="secondary">
+        <AppText variant="caption" tone="secondary">
           {unit}
         </AppText>
       </View>
@@ -74,16 +75,16 @@ const StationSummary = ({ station, distance, eta, onDirections }: StationSummary
     charger.pricePerKwhPaise !== null ? [charger.pricePerKwhPaise] : [],
   );
   const ink = t.colors.onAccent;
-  const square = t.space[4] + t.space[1];
+  const square = t.space[3] + t.space[1] / 2;
 
   return (
-    <View style={{ gap: t.space[3] }}>
-      <Animated.View entering={riseIn(0)} style={{ gap: t.space[1], marginBottom: t.space[2] }}>
-        <AppText variant="display" accessibilityRole="header">
+    <View style={{ gap: t.space[2] + t.space[1] }}>
+      <Animated.View entering={riseIn(0)} style={{ gap: t.space[1] / 2, marginBottom: t.space[1] }}>
+        <AppText variant="title2" accessibilityRole="header">
           {station.name}
         </AppText>
         {station.address ? (
-          <AppText variant="callout" tone="secondary">
+          <AppText variant="subhead" tone="secondary">
             {station.address}
           </AppText>
         ) : null}
@@ -97,32 +98,28 @@ const StationSummary = ({ station, distance, eta, onDirections }: StationSummary
           style={[
             styles.row,
             {
-              gap: t.space[4],
-              padding: t.space[5],
-              borderRadius: t.radius.sheet,
+              gap: t.space[3],
+              paddingHorizontal: t.space[4],
+              paddingVertical: t.space[3] + t.space[1] / 2,
+              borderRadius: t.radius.card,
               backgroundColor: t.colors.accent,
             },
           ]}
         >
-          <View style={[styles.grow, { gap: t.space[2] }]}>
+          <View style={[styles.grow, { gap: t.space[1] }]}>
             <AppText variant="caption" style={[styles.overline, { color: ink }]}>
               {DETAILS_COPY.connectorsFree}
             </AppText>
             <View style={styles.baseline}>
-              <AppText variant="display" tabular style={{ color: ink }}>
+              <AppText variant="title1" tabular style={{ color: ink }}>
                 {free}
               </AppText>
-              <AppText variant="title3" tabular style={{ color: withAlpha(ink, 0.6) }}>
+              <AppText variant="subhead" tabular style={{ color: withAlpha(ink, 0.6) }}>
                 {`/${connectors.length}`}
               </AppText>
             </View>
           </View>
-          <View
-            style={[
-              styles.wrap,
-              { gap: t.space[1] + t.space[1] / 2, maxWidth: (square + t.space[2]) * 4 },
-            ]}
-          >
+          <View style={[styles.wrap, { gap: t.space[1], maxWidth: (square + t.space[1]) * 4 }]}>
             {connectors.map(connector => {
               const open = canStartCharging(connector.state);
               const charging = connector.state === 'charging';
@@ -132,7 +129,7 @@ const StationSummary = ({ station, distance, eta, onDirections }: StationSummary
                   style={{
                     width: square,
                     height: square,
-                    borderRadius: t.space[1] + t.space[1] / 2,
+                    borderRadius: t.space[1],
                     borderWidth: charging ? 2 : 0,
                     borderColor: ink,
                     backgroundColor: open ? ink : charging ? 'transparent' : withAlpha(ink, 0.14),
@@ -169,9 +166,9 @@ const StationSummary = ({ station, distance, eta, onDirections }: StationSummary
             styles.row,
             {
               gap: t.space[3],
-              paddingVertical: t.space[3],
+              paddingVertical: t.space[2],
               paddingLeft: t.space[4],
-              paddingRight: t.space[3],
+              paddingRight: t.space[2],
               borderRadius: t.radius.card,
               borderWidth: t.layout.hairline,
               borderColor: t.colors.border,
@@ -180,10 +177,10 @@ const StationSummary = ({ station, distance, eta, onDirections }: StationSummary
           ]}
         >
           <View style={styles.grow}>
-            <AppText variant="subhead" tone="secondary">
+            <AppText variant="caption" tone="secondary">
               {DETAILS_COPY.route}
             </AppText>
-            <AppText variant="title3" tabular numberOfLines={1}>
+            <AppText variant="headline" tabular numberOfLines={1}>
               {distance !== null
                 ? routeLabel(formatDistance(distance, brand.locale), eta)
                 : DETAILS_COPY.directions}
@@ -193,14 +190,18 @@ const StationSummary = ({ station, distance, eta, onDirections }: StationSummary
             style={[
               styles.center,
               {
-                width: t.space[12],
-                height: t.space[12],
+                width: t.space[10],
+                height: t.space[10],
                 borderRadius: t.radius.pill,
                 backgroundColor: t.colors.textPrimary,
               },
             ]}
           >
-            <ArrowUpRight color={t.colors.surface} size={t.icon.nav} strokeWidth={t.icon.stroke} />
+            <ArrowUpRight
+              color={t.colors.surface}
+              size={t.icon.control}
+              strokeWidth={t.icon.stroke}
+            />
           </View>
         </AppPressable>
       </Animated.View>

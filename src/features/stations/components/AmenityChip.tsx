@@ -86,8 +86,8 @@ const AmenityChip = ({ label, withIcon, tile }: AmenityChipProps) => {
         styles.row,
         {
           gap: withIcon ? t.space[2] : t.space[1] + t.space[1] / 2,
-          paddingHorizontal: withIcon ? t.space[4] : t.space[3],
-          paddingVertical: withIcon ? t.space[2] + t.space[1] / 2 : t.space[1],
+          paddingHorizontal: t.space[3],
+          paddingVertical: withIcon ? t.space[2] : t.space[1],
           borderRadius: t.radius.pill,
           borderWidth: t.layout.hairline,
           borderColor: withIcon ? t.colors.border : t.colors.borderStrong,
@@ -98,11 +98,11 @@ const AmenityChip = ({ label, withIcon, tile }: AmenityChipProps) => {
       {withIcon
         ? createElement(iconFor(label), {
             color: t.colors.accentText,
-            size: t.icon.control,
+            size: t.icon.meta,
             strokeWidth: t.icon.stroke,
           })
         : null}
-      <AppText variant={withIcon ? 'callout' : 'subhead'}>{label}</AppText>
+      <AppText variant="subhead">{label}</AppText>
     </View>
   );
 };

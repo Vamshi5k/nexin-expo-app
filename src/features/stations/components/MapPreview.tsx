@@ -24,8 +24,8 @@ const YOU = { x: 0.12, y: 0.7 };
 const MapPreview = ({ height, label, onPress }: MapPreviewProps) => {
   const t = useTheme();
   const road = t.colors.surface;
-  const pin = t.space[12];
-  const halo = pin + t.space[6];
+  const pin = t.space[10];
+  const halo = pin + t.space[4];
 
   return (
     <AppPressable
@@ -86,7 +86,7 @@ const MapPreview = ({ height, label, onPress }: MapPreviewProps) => {
             },
           ]}
         >
-          <Zap color={t.colors.onAccent} size={t.icon.nav} strokeWidth={t.icon.stroke} />
+          <Zap color={t.colors.onAccent} size={t.icon.control} strokeWidth={t.icon.stroke} />
         </View>
       </View>
 

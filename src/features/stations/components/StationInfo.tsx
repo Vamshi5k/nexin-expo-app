@@ -34,7 +34,7 @@ type ActionPillProps = {
   onPress: () => void;
 };
 
-const MAP_HEIGHT = 168;
+const MAP_HEIGHT = 128;
 
 const ActionPill = ({
   icon: Icon,
@@ -58,7 +58,7 @@ const ActionPill = ({
         styles.center,
         {
           gap: t.space[2],
-          height: t.layout.buttonHeight,
+          height: t.layout.minTouch,
           borderRadius: t.radius.pill,
           borderWidth: primary ? 0 : t.layout.hairline,
           borderColor: t.colors.borderStrong,
@@ -66,8 +66,8 @@ const ActionPill = ({
         },
       ]}
     >
-      <Icon color={ink} size={t.icon.control} strokeWidth={t.icon.stroke} />
-      <AppText variant="headline" style={{ color: ink }}>
+      <Icon color={ink} size={t.icon.meta} strokeWidth={t.icon.stroke} />
+      <AppText variant="subhead" style={{ fontFamily: t.type.headline.fontFamily, color: ink }}>
         {label}
       </AppText>
     </AppPressable>
@@ -124,7 +124,7 @@ const StationInfo = ({
   }
 
   const card = {
-    borderRadius: t.radius.sheet,
+    borderRadius: t.radius.card,
     borderWidth: t.layout.hairline,
     borderColor: t.colors.border,
     backgroundColor: t.colors.surfaceRaised,
@@ -135,12 +135,12 @@ const StationInfo = ({
       {station.address ? (
         <View style={[styles.clip, card]}>
           <MapPreview height={MAP_HEIGHT} label={route} onPress={onDirections} />
-          <View style={{ gap: t.space[4], padding: t.space[5] }}>
+          <View style={{ gap: t.space[3], padding: t.space[4] }}>
             <View style={{ gap: t.space[1] }}>
               <AppText variant="caption" tone="secondary" style={styles.overline}>
                 {DETAILS_COPY.address}
               </AppText>
-              <AppText variant="title3">{station.address}</AppText>
+              <AppText variant="headline">{station.address}</AppText>
             </View>
             <View style={[styles.row, { gap: t.space[3] }]}>
               <ActionPill
@@ -166,12 +166,12 @@ const StationInfo = ({
           {row.map(fact => (
             <View
               key={fact.label}
-              style={[styles.grow, card, { gap: t.space[1], padding: t.space[5] }]}
+              style={[styles.grow, card, { gap: t.space[1] / 2, padding: t.space[4] }]}
             >
-              <AppText variant="display" tabular numberOfLines={1} adjustsFontSizeToFit>
+              <AppText variant="title2" tabular numberOfLines={1} adjustsFontSizeToFit>
                 {fact.value}
               </AppText>
-              <AppText variant="callout" tone="secondary">
+              <AppText variant="caption" tone="secondary">
                 {fact.label}
               </AppText>
             </View>
@@ -181,12 +181,12 @@ const StationInfo = ({
       ))}
 
       {station.phone ? (
-        <View style={[styles.row, card, { gap: t.space[3], padding: t.space[5] }]}>
+        <View style={[styles.row, card, { gap: t.space[3], padding: t.space[4] }]}>
           <View style={styles.grow}>
-            <AppText variant="callout" tone="secondary">
+            <AppText variant="caption" tone="secondary">
               {DETAILS_COPY.helpLine}
             </AppText>
-            <AppText variant="title2" tabular>
+            <AppText variant="headline" tabular>
               {station.phone}
             </AppText>
           </View>
@@ -198,20 +198,20 @@ const StationInfo = ({
             style={[
               styles.center,
               {
-                width: t.space[12] + t.space[2],
-                height: t.space[12] + t.space[2],
+                width: t.space[10] + t.space[1],
+                height: t.space[10] + t.space[1],
                 borderRadius: t.radius.pill,
                 backgroundColor: t.colors.textPrimary,
               },
             ]}
           >
-            <Phone color={t.colors.surface} size={t.icon.nav} strokeWidth={t.icon.stroke} />
+            <Phone color={t.colors.surface} size={t.icon.control} strokeWidth={t.icon.stroke} />
           </AppPressable>
         </View>
       ) : null}
 
       {station.amenities.length ? (
-        <View style={{ gap: t.space[3], marginTop: t.space[4] }}>
+        <View style={{ gap: t.space[2], marginTop: t.space[3] }}>
           <AppText
             variant="caption"
             tone="secondary"

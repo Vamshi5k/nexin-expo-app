@@ -49,7 +49,7 @@ type StationDetailsScreenProps = {
 
 // The photo panel takes about a third of the screen at a fixed size, so images never push the
 // page around.
-const HERO_RATIO = 0.36;
+const HERO_RATIO = 0.3;
 // Until the tabs are measured they never pin.
 const NOT_MEASURED = Number.MAX_SAFE_INTEGER;
 
@@ -175,8 +175,8 @@ const StationDetailsScreen = ({ stationId }: StationDetailsScreenProps) => {
         <View
           style={{
             paddingHorizontal: t.layout.screenPadding,
-            paddingTop: t.space[6],
-            paddingBottom: t.space[3],
+            paddingTop: t.space[4],
+            paddingBottom: t.space[2],
             backgroundColor: t.colors.bg,
           }}
         >
@@ -195,7 +195,7 @@ const StationDetailsScreen = ({ stationId }: StationDetailsScreenProps) => {
             styles.tabs,
             {
               paddingHorizontal: t.layout.screenPadding,
-              paddingVertical: t.space[3],
+              paddingVertical: t.space[2],
               backgroundColor: t.colors.bg,
             },
             tabsStyle,
@@ -225,13 +225,13 @@ const StationDetailsScreen = ({ stationId }: StationDetailsScreenProps) => {
             backgroundColor: t.colors.bg,
           }}
         >
-          <Animated.View key={tab} entering={riseIn(0)} style={{ gap: t.space[3] }}>
+          <Animated.View key={tab} entering={riseIn(0)} style={{ gap: t.space[2] + t.space[1] }}>
             {tab === 'chargers' ? (
               details.chargers.length ? (
                 <>
                   {details.picked ? (
                     <AppText
-                      variant="subhead"
+                      variant="caption"
                       tone="secondary"
                       style={{ paddingHorizontal: t.space[1] }}
                     >
