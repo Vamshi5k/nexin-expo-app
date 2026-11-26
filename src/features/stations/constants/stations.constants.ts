@@ -165,7 +165,7 @@ export const connectorTitle = (connectorId: string) => `Connector ${connectorId}
 export const freeBadge = (free: number, total: number) => `${free}/${total} free`;
 export const connectorBusy = (status: string) => `Connector is currently ${status}`;
 
-export const pageLabel = (page: number, total: number) => `${pad2(page)} / ${pad2(total)}`;
+export const pageLabel = (page: number, total: number) => `Photo ${page} of ${total}`;
 export const pad2 = (value: number) => String(value).padStart(2, '0');
 export const routeLabel = (distance: string, eta: string | null) =>
   eta ? `${distance} · ${eta} drive` : distance;

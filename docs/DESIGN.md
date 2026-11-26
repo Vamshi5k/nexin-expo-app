@@ -119,11 +119,14 @@ the driver find, start, watch or pay for a charge.
 - Wallet: the balance card is the hero (large tabular number); transactions are grouped
   by date.
 - Station details (decided with the client from a reference, Nov 2026):
-  - Photo panel, about a third of the screen at a fixed size, with a sheet-radius rounded
-    base: backend photos as a paging slider with story-style segments at the top and a
-    "01 / 04" chip; none or all broken: the station illustration on a soft accent wash. A
-    white status chip (live dot) sits bottom-left. Glass back / share / heart float over it.
-  - Below it on the page: the name in `display`, the address, then the figures, biggest
+  - Photo, about a third of the screen at a fixed size, edge to edge. The page rises over its
+    base as a sheet with rounded top corners (sheet radius), so the photo reads as a layer
+    behind the content. Backend photos page sideways; a glass pill of dots (the current
+    one elongated) shows the position. None or all broken: the station illustration on an
+    accent wash with a soft white glow behind it. A top scrim keeps the glass back / share /
+    heart readable; over photos a soft dark base gradient. A glass status chip with a
+    glowing dot floats bottom-left, just above the sheet.
+  - On the sheet: the name, the address, then the figures, biggest
     first: a "Connectors free" card filled with the brand accent (an exception to "accent
     never fills cards", chosen for this card only) with a big "1/8" and one square per
     connector (filled = free, outlined = charging, faint = busy); Max power and Price

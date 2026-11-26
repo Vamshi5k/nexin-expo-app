@@ -9,7 +9,7 @@ import {
 import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { AppFade, AppText } from '@/shared/components';
+import { AppFade, AppGlass, AppText } from '@/shared/components';
 
 import StationScene from './StationScene';
 import StatusDot from './StatusDot';
@@ -26,24 +26,26 @@ type StationHeroProps = {
   page: number;
   width: number;
   height: number;
+  // How far the page's rounded sheet rises over the bottom of the hero.
+  overlap: number;
   onPageChange: (page: number) => void;
   onImageError: (url: string) => void;
 };
 
-// The scene fills the hero below the floating buttons, like a photo would.
-const SCENE_TOP = 0.18;
-const TOP_SCRIM_OPACITY = 0.4;
-const BASE_SCRIM_OPACITY = 0.35;
+const TOP_SCRIM = 0.45;
+const BASE_SCRIM = 0.3;
+const DOT = 6;
+const ACTIVE_DOT = 18;
 
-// Photos (a paging slider with story-style segments) or the brand illustration, in a panel
-// with a rounded base. Only the live status and the photo count sit on it; the name and
-// figures live below on the page.
+// Edge-to-edge photos (or the brand illustration on a layered accent wash). The page rises over
+// its base as a rounded sheet, so the glass status chip and photo dots float just above it.
 const StationHero = ({
   station,
   images,
   page,
   width,
   height,
+  overlap,
   onPageChange,
   onImageError,
 }: StationHeroProps) => {
@@ -52,32 +54,14 @@ const StationHero = ({
   const hasPhoto = images.length > 0;
   const many = images.length > 1;
   const statusColor = t.colors.connector[pinColorKey(station.status)];
-  const segmentInk = hasPhoto ? t.colors.surface : t.colors.textPrimary;
+  const floatBottom = overlap + t.space[3];
 
   const onPageEnd = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     onPageChange(Math.round(event.nativeEvent.contentOffset.x / width));
   };
 
-  const chip = {
-    paddingHorizontal: t.space[3],
-    height: t.space[6] + t.space[1],
-    borderRadius: t.radius.pill,
-    backgroundColor: t.colors.surface,
-  };
-
   return (
-    <View
-      style={[
-        styles.clip,
-        {
-          width,
-          height,
-          borderBottomLeftRadius: t.radius.card,
-          borderBottomRightRadius: t.radius.card,
-          backgroundColor: t.colors.surfaceSunken,
-        },
-      ]}
-    >
+    <View style={{ width, height, backgroundColor: t.colors.surfaceSunken }}>
       {hasPhoto ? (
         <FlatList
           testID="station-hero-slider"
@@ -109,81 +93,96 @@ const StationHero = ({
           <AppFade
             id={`hero-wash-${station.id}`}
             color={t.colors.accent}
-            from={0.22}
-            to={0.08}
+            from={0.3}
+            to={0.04}
             top
           />
-          <View style={[styles.scene, { top: height * SCENE_TOP, bottom: t.space[12] }]}>
+          <View
+            style={[
+              styles.glow,
+              {
+                width: width * 0.9,
+                height: width * 0.9,
+                left: width * 0.05,
+                top: height * 0.1,
+                borderRadius: t.radius.pill,
+                backgroundColor: withAlpha(t.colors.surface, 0.55),
+              },
+            ]}
+          />
+          <View
+            style={[styles.fill, { top: insets.top + t.space[12], bottom: overlap + t.space[2] }]}
+          >
             <StationScene />
           </View>
         </View>
       )}
 
+      <View style={[styles.top, { height: insets.top + t.space[12] * 2 }]} pointerEvents="none">
+        <AppFade
+          id={`hero-top-${station.id}`}
+          color={hasPhoto ? t.colors.textPrimary : t.colors.bg}
+          from={hasPhoto ? TOP_SCRIM : 0.6}
+          to={0}
+          top
+        />
+      </View>
       {hasPhoto ? (
-        <>
-          <View style={[styles.top, { height: t.space[12] * 3 }]} pointerEvents="none">
-            <AppFade
-              id={`hero-top-${station.id}`}
-              color={t.colors.textPrimary}
-              from={TOP_SCRIM_OPACITY}
-              to={0}
-              top
-            />
-          </View>
-          <View style={[styles.base, { height: t.space[12] * 2 }]} pointerEvents="none">
-            <AppFade
-              id={`hero-base-${station.id}`}
-              color={t.colors.textPrimary}
-              from={BASE_SCRIM_OPACITY}
-              to={0}
-            />
-          </View>
-        </>
-      ) : null}
-
-      {many ? (
-        <View
-          pointerEvents="none"
-          style={[
-            styles.segments,
-            {
-              top: insets.top + t.space[1],
-              left: t.layout.screenPadding,
-              right: t.layout.screenPadding,
-              gap: t.space[1] + t.space[1] / 2,
-            },
-          ]}
-        >
-          {images.map((url, index) => (
-            <View
-              key={url}
-              style={[
-                styles.grow,
-                {
-                  height: 3,
-                  borderRadius: t.radius.pill,
-                  backgroundColor: withAlpha(segmentInk, index === page ? 0.95 : 0.3),
-                },
-              ]}
-            />
-          ))}
+        <View style={[styles.base, { height: height * 0.45 }]} pointerEvents="none">
+          <AppFade
+            id={`hero-base-${station.id}`}
+            color={t.colors.textPrimary}
+            from={BASE_SCRIM}
+            to={0}
+          />
         </View>
       ) : null}
 
       <View
         pointerEvents="none"
-        style={[styles.chips, { left: t.space[3], right: t.space[3], bottom: t.space[3] }]}
+        style={[
+          styles.float,
+          { left: t.space[4], right: t.space[4], bottom: floatBottom, gap: t.space[2] },
+        ]}
       >
-        <View style={[styles.row, chip, { gap: t.space[2] }]}>
-          <StatusDot color={statusColor} live={station.status === 'available'} />
-          <AppText variant="caption">{station.rawStatus || STATUS_LABEL[station.status]}</AppText>
-        </View>
-        {many ? (
-          <View style={[styles.row, chip]}>
-            <AppText variant="caption" tabular>
-              {pageLabel(page + 1, images.length)}
+        <AppGlass radius={t.radius.pill} appearance="light">
+          <View
+            style={[
+              styles.row,
+              { gap: t.space[2], height: t.space[8], paddingHorizontal: t.space[3] },
+            ]}
+          >
+            <StatusDot color={statusColor} glow live={station.status === 'available'} />
+            <AppText variant="caption" style={{ fontFamily: t.type.headline.fontFamily }}>
+              {station.rawStatus || STATUS_LABEL[station.status]}
             </AppText>
           </View>
+        </AppGlass>
+
+        {many ? (
+          <AppGlass radius={t.radius.pill} appearance="light">
+            <View
+              accessible
+              accessibilityLabel={pageLabel(page + 1, images.length)}
+              style={[
+                styles.row,
+                { gap: t.space[1], height: t.space[8], paddingHorizontal: t.space[3] },
+              ]}
+            >
+              {images.map((url, index) => (
+                <View
+                  key={url}
+                  style={{
+                    width: index === page ? ACTIVE_DOT : DOT,
+                    height: DOT,
+                    borderRadius: t.radius.pill,
+                    backgroundColor:
+                      index === page ? t.colors.textPrimary : withAlpha(t.colors.textPrimary, 0.25),
+                  }}
+                />
+              ))}
+            </View>
+          </AppGlass>
         ) : null}
       </View>
     </View>
@@ -193,13 +192,13 @@ const StationHero = ({
 export default StationHero;
 
 const styles = StyleSheet.create({
-  clip: {
-    overflow: 'hidden',
-  },
-  scene: {
+  fill: {
     position: 'absolute',
     left: 0,
     right: 0,
+  },
+  glow: {
+    position: 'absolute',
   },
   top: {
     position: 'absolute',
@@ -213,11 +212,7 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
   },
-  segments: {
-    position: 'absolute',
-    flexDirection: 'row',
-  },
-  chips: {
+  float: {
     position: 'absolute',
     flexDirection: 'row',
     alignItems: 'center',
@@ -226,8 +221,5 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-  },
-  grow: {
-    flex: 1,
   },
 });

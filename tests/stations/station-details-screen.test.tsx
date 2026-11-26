@@ -118,7 +118,7 @@ describe('StationDetailsScreen', () => {
     it('one photo: no slider indicator', async () => {
       await renderStation(withImages(['https://cdn.example/a.jpg']));
       expect(screen.getAllByTestId('station-hero-image')).toHaveLength(1);
-      expect(screen.queryByText('01 / 01')).toBeNull();
+      expect(screen.queryByLabelText('Photo 1 of 1')).toBeNull();
       expect(screen.queryByTestId('station-hero-fallback')).toBeNull();
     });
 
@@ -130,10 +130,10 @@ describe('StationDetailsScreen', () => {
           'https://cdn.example/c.jpg',
         ]),
       );
-      expect(screen.getByText('01 / 03')).toBeTruthy();
+      expect(screen.getByLabelText('Photo 1 of 3')).toBeTruthy();
 
       await act(async () => fireEvent(screen.getAllByTestId('station-hero-image')[0]!, 'error'));
-      expect(screen.getByText('01 / 02')).toBeTruthy();
+      expect(screen.getByLabelText('Photo 1 of 2')).toBeTruthy();
     });
 
     it('every photo broken: falls back to the illustration', async () => {

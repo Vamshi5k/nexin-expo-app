@@ -45,9 +45,9 @@ type StationDetailsScreenProps = {
   stationId: string;
 };
 
-// The photo panel takes about a third of the screen at a fixed size, so images never push the
+// The photo takes about a third of the screen at a fixed size, so images never push the
 // page around.
-const HERO_RATIO = 0.26;
+const HERO_RATIO = 0.32;
 // Until the tabs are measured they never pin.
 const NOT_MEASURED = Number.MAX_SAFE_INTEGER;
 
@@ -179,14 +179,18 @@ const StationDetailsScreen = ({ stationId }: StationDetailsScreenProps) => {
             height={heroHeight}
             onPageChange={hero.setPage}
             onImageError={hero.onError}
+            overlap={t.radius.sheet}
           />
         </Animated.View>
 
         <View
           style={{
+            marginTop: -t.radius.sheet,
             paddingHorizontal: t.layout.screenPadding,
-            paddingTop: t.space[3],
+            paddingTop: t.space[5],
             paddingBottom: t.space[1],
+            borderTopLeftRadius: t.radius.sheet,
+            borderTopRightRadius: t.radius.sheet,
             backgroundColor: t.colors.bg,
           }}
         >
