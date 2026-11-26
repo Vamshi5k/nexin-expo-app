@@ -95,7 +95,7 @@ const StationDetailsScreen = ({ stationId }: StationDetailsScreenProps) => {
         onScroll={header.onScroll}
         scrollEventThrottle={16}
         contentContainerStyle={{
-          gap: t.layout.sectionGapLarge,
+          gap: t.layout.sectionGap,
           paddingBottom: actionBarHeight(t, insets.bottom) + t.layout.sectionGap,
         }}
         refreshControl={

@@ -170,7 +170,7 @@ const StationHero = ({
         pointerEvents="box-none"
         style={[
           styles.content,
-          { gap: t.space[2], padding: t.layout.screenPadding, paddingBottom: t.space[5] },
+          { gap: t.space[2], padding: t.layout.screenPadding, paddingBottom: t.space[2] },
         ]}
       >
         <View style={[styles.row, styles.between]}>
