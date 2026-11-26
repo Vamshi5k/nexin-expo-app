@@ -1,10 +1,12 @@
 import { StyleSheet, TextInput, View } from 'react-native';
 
-import { AppFade, AppText } from '@/shared/components';
+import { Wallet } from 'lucide-react-native';
+
+import { AppText } from '@/shared/components';
 
 import AmountChips from './AmountChips';
 
-import { useTheme, withAlpha } from '@/shared/theme';
+import { useTheme } from '@/shared/theme';
 
 import { brand } from '@/core/config';
 import { formatPaise } from '@/shared/utils/money';
@@ -22,9 +24,9 @@ type AmountHeroProps = {
   onPick: (amountPaise: number) => void;
 };
 
-// The wallet's card again: current balance on top, the amount large in the middle with an
-// accent underline (red with the reason when it's not valid), quick amounts as pills. Theme
-// surfaces only, so it follows light and dark mode.
+// A clean white card: the label with the current balance, the amount large and left-aligned
+// with its symbol, a thin line (accent once typed, red with the reason when not valid), the
+// hint, then the quick amounts.
 const AmountHero = ({
   amountText,
   amountPaise,
@@ -36,101 +38,62 @@ const AmountHero = ({
   onPick,
 }: AmountHeroProps) => {
   const t = useTheme();
-  const ink = t.colors.textPrimary;
-  const soft = t.colors.textTertiary;
+  const typed = amountText.length > 0;
+  const line = error ? t.colors.danger : typed ? t.colors.accent : t.colors.border;
 
   return (
     <View
-      style={[
-        styles.card,
-        {
-          gap: t.space[4],
-          padding: t.space[5],
-          borderRadius: t.radius.sheet,
-          borderWidth: t.layout.hairline,
-          borderColor: t.colors.border,
-          backgroundColor: t.colors.surfaceRaised,
-        },
-      ]}
+      style={{
+        gap: t.space[4],
+        padding: t.space[4],
+        borderRadius: t.radius.sheet,
+        borderWidth: t.layout.hairline,
+        borderColor: t.colors.border,
+        backgroundColor: t.colors.surfaceRaised,
+      }}
     >
-      <AppFade id="amount-wash" color={t.colors.accent} from={0.12} to={0} top />
-      <View
-        pointerEvents="none"
-        style={[
-          styles.glow,
-          {
-            width: t.space[12] * 5,
-            height: t.space[12] * 5,
-            borderRadius: t.radius.pill,
-            backgroundColor: withAlpha(t.colors.accent, 0.07),
-          },
-        ]}
-      />
-
-      <View style={[styles.row, styles.between]}>
-        <AppText variant="caption" tone="secondary">
+      <View style={[styles.row, styles.between, { gap: t.space[3] }]}>
+        <AppText variant="caption" tone="secondary" style={styles.overline}>
           {ADD_MONEY_COPY.enterAmount}
         </AppText>
         <View
-          style={[
-            styles.row,
-            {
-              gap: t.space[1],
-              paddingHorizontal: t.space[3],
-              paddingVertical: t.space[1],
-              borderRadius: t.radius.pill,
-              backgroundColor: t.colors.surfaceSunken,
-            },
-          ]}
+          accessible
+          accessibilityLabel={`${ADD_MONEY_COPY.currentBalance} ${formatPaise(balancePaise)}`}
+          style={[styles.row, { gap: t.space[1] + t.space[1] / 2 }]}
         >
-          <AppText variant="caption" tone="secondary">
-            {ADD_MONEY_COPY.currentBalance}
-          </AppText>
-          <AppText
-            variant="caption"
-            tabular
-            style={{ color: ink, fontFamily: t.type.headline.fontFamily }}
-          >
+          <Wallet color={t.colors.textTertiary} size={t.icon.meta} strokeWidth={t.icon.stroke} />
+          <AppText variant="caption" tone="secondary" tabular>
             {formatPaise(balancePaise)}
           </AppText>
         </View>
       </View>
 
-      <View style={[styles.row, styles.center, { gap: t.space[2], paddingVertical: t.space[2] }]}>
-        <AppText variant="title1" style={{ color: amountText ? ink : soft }}>
-          {brand.currency.symbol}
-        </AppText>
-        <TextInput
-          value={amountText}
-          onChangeText={onChange}
-          placeholder="0"
-          placeholderTextColor={soft}
-          keyboardType="decimal-pad"
-          returnKeyType="done"
-          selectionColor={t.colors.accent}
-          accessibilityLabel={ADD_MONEY_COPY.placeholder}
-          maxFontSizeMultiplier={t.layout.maxFontScale}
-          style={[
-            t.type.display,
-            t.tabularNums,
-            styles.input,
-            { lineHeight: undefined, color: ink },
-          ]}
-        />
-      </View>
-
       <View style={{ gap: t.space[2] }}>
-        <View
-          style={{
-            height: 2,
-            borderRadius: 1,
-            backgroundColor: error ? t.colors.danger : t.colors.accent,
-            opacity: amountPaise || error ? 1 : 0.4,
-          }}
-        />
+        <View style={[styles.row, { gap: t.space[1] }]}>
+          <AppText variant="display" tone={typed ? 'primary' : 'tertiary'}>
+            {brand.currency.symbol}
+          </AppText>
+          <TextInput
+            value={amountText}
+            onChangeText={onChange}
+            placeholder="0"
+            placeholderTextColor={t.colors.textTertiary}
+            keyboardType="decimal-pad"
+            returnKeyType="done"
+            selectionColor={t.colors.accent}
+            accessibilityLabel={ADD_MONEY_COPY.placeholder}
+            maxFontSizeMultiplier={t.layout.maxFontScale}
+            style={[
+              t.type.display,
+              t.tabularNums,
+              styles.input,
+              { lineHeight: undefined, color: t.colors.textPrimary },
+            ]}
+          />
+        </View>
+        <View style={{ height: 1.5, borderRadius: 1, backgroundColor: line }} />
         <AppText
           variant="caption"
-          align="center"
           style={{ color: error ? t.colors.dangerText : t.colors.textSecondary }}
         >
           {error ?? ADD_MONEY_COPY.amountMin(formatPaise(minPaise))}
@@ -145,14 +108,6 @@ const AmountHero = ({
 export default AmountHero;
 
 const styles = StyleSheet.create({
-  card: {
-    overflow: 'hidden',
-  },
-  glow: {
-    position: 'absolute',
-    top: '-55%',
-    right: '-35%',
-  },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -160,11 +115,12 @@ const styles = StyleSheet.create({
   between: {
     justifyContent: 'space-between',
   },
-  center: {
-    justifyContent: 'center',
-  },
   input: {
-    minWidth: 32,
+    flex: 1,
     paddingVertical: 0,
+  },
+  overline: {
+    textTransform: 'uppercase',
+    letterSpacing: 1,
   },
 });

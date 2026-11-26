@@ -5,7 +5,6 @@ import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 
 import {
   AppButton,
-  AppEmptyState,
   AppErrorState,
   AppHeader,
   AppScreen,
@@ -108,11 +107,45 @@ const AddMoneyScreen = ({ initialAmount }: AddMoneyScreenProps) => {
     }
     if (!money.coupons.length) {
       return (
-        <AppEmptyState
-          icon={TicketPercent}
-          title={ADD_MONEY_COPY.noCoupons}
-          description={ADD_MONEY_COPY.noCouponsBody}
-        />
+        <View
+          style={[
+            styles.row,
+            {
+              gap: t.space[3],
+              padding: t.space[3],
+              borderRadius: t.radius.card,
+              borderWidth: t.layout.hairline,
+              borderStyle: 'dashed',
+              borderColor: t.colors.borderStrong,
+            },
+          ]}
+        >
+          <View
+            style={[
+              styles.center,
+              {
+                width: t.space[10],
+                height: t.space[10],
+                borderRadius: t.radius.pill,
+                backgroundColor: t.colors.accentSoft,
+              },
+            ]}
+          >
+            <TicketPercent
+              color={t.colors.accentText}
+              size={t.icon.control}
+              strokeWidth={t.icon.stroke}
+            />
+          </View>
+          <View style={styles.grow}>
+            <AppText variant="subhead" style={{ fontFamily: t.type.headline.fontFamily }}>
+              {ADD_MONEY_COPY.noCoupons}
+            </AppText>
+            <AppText variant="caption" tone="secondary">
+              {ADD_MONEY_COPY.noCouponsBody}
+            </AppText>
+          </View>
+        </View>
       );
     }
     return (
@@ -202,7 +235,12 @@ const AddMoneyScreen = ({ initialAmount }: AddMoneyScreenProps) => {
 
         {money.couponsOn ? (
           <Animated.View entering={riseIn(2)} style={{ gap: t.space[3] }}>
-            <AppText variant="headline" accessibilityRole="header">
+            <AppText
+              variant="caption"
+              tone="secondary"
+              accessibilityRole="header"
+              style={[styles.overline, { paddingHorizontal: t.space[1] }]}
+            >
               {ADD_MONEY_COPY.coupons}
             </AppText>
             {coupons}
@@ -256,6 +294,10 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  overline: {
+    textTransform: 'uppercase',
+    letterSpacing: 1,
   },
   center: {
     alignItems: 'center',

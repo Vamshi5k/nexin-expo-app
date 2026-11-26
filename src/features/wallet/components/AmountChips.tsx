@@ -12,16 +12,15 @@ type AmountChipsProps = {
   onPick: (amountPaise: number) => void;
 };
 
-// The brand's quick top-up amounts as equal pills in one row; the one matching the field is filled.
+// The brand's quick top-up amounts as equal grey pills in one row; the one matching the field
+// turns dark, like the selected tab.
 const AmountChips = ({ amountsPaise, selectedPaise, onPick }: AmountChipsProps) => {
   const t = useTheme();
   const look = {
-    border: t.colors.borderStrong,
-    fill: t.colors.surface,
+    fill: t.colors.surfaceSunken,
     ink: t.colors.textPrimary,
-    pickedBorder: t.colors.accent,
-    pickedFill: t.colors.accentSoft,
-    pickedInk: t.colors.accentText,
+    pickedFill: t.colors.textPrimary,
+    pickedInk: t.colors.surface,
   };
 
   return (
@@ -43,8 +42,6 @@ const AmountChips = ({ amountsPaise, selectedPaise, onPick }: AmountChipsProps) 
               paddingHorizontal: t.space[1],
               paddingVertical: t.space[2],
               borderRadius: t.radius.pill,
-              borderWidth: t.layout.hairline,
-              borderColor: selected ? look.pickedBorder : look.border,
               backgroundColor: selected ? look.pickedFill : look.fill,
             }}
           >
