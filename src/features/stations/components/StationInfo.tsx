@@ -1,6 +1,15 @@
 import { StyleSheet, View } from 'react-native';
 
-import { Building2, MapPin, Phone, PlugZap, type LucideIcon } from 'lucide-react-native';
+import {
+  ArrowUpRight,
+  Building2,
+  Copy,
+  MapPin,
+  Navigation,
+  Phone,
+  PlugZap,
+  type LucideIcon,
+} from 'lucide-react-native';
 
 import { AppEmptyState, AppPressable, AppText } from '@/shared/components';
 
@@ -15,47 +24,124 @@ type StationInfoProps = {
   station: StationDetails;
   onCopyAddress: () => void;
   onCall: () => void;
+  onDirections: () => void;
 };
 
-type RowAction = { label: string; accessibilityLabel: string; onPress: () => void };
-
-type InfoRowProps = {
+type Fact = {
   icon: LucideIcon;
   label: string;
   value: string;
-  first?: boolean;
-  action?: RowAction;
+  onPress?: () => void;
+  accessibilityLabel?: string;
 };
 
-const InfoRow = ({ icon: Icon, label, value, first, action }: InfoRowProps) => {
+type FactTileProps = Fact;
+
+type NumberTileProps = {
+  value: number;
+  label: string;
+};
+
+type ActionPillProps = {
+  icon: LucideIcon;
+  label: string;
+  accessibilityLabel: string;
+  onPress: () => void;
+};
+
+const AMENITY_COLUMNS = 3;
+
+const chunk = <T,>(items: T[], size: number) =>
+  items.reduce<T[][]>((rows, item, position) => {
+    if (position % size === 0) rows.push([item]);
+    else rows[rows.length - 1]!.push(item);
+    return rows;
+  }, []);
+
+const ActionPill = ({ icon: Icon, label, accessibilityLabel, onPress }: ActionPillProps) => {
+  const t = useTheme();
+
+  return (
+    <AppPressable
+      onPress={onPress}
+      haptic="light"
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel}
+      style={[
+        styles.row,
+        styles.grow,
+        styles.center,
+        {
+          gap: t.space[2],
+          height: t.layout.minTouch,
+          borderRadius: t.radius.pill,
+          backgroundColor: t.colors.surfaceSunken,
+        },
+      ]}
+    >
+      <Icon color={t.colors.textPrimary} size={t.icon.meta} strokeWidth={t.icon.stroke} />
+      <AppText variant="subhead" style={{ fontFamily: t.type.headline.fontFamily }}>
+        {label}
+      </AppText>
+    </AppPressable>
+  );
+};
+
+const NumberTile = ({ value, label }: NumberTileProps) => {
   const t = useTheme();
 
   return (
     <View
       style={[
-        styles.row,
+        styles.grow,
         {
-          gap: t.space[3],
-          paddingVertical: t.space[3],
-          borderTopWidth: first ? 0 : t.layout.hairline,
-          borderTopColor: t.colors.border,
+          gap: t.space[1],
+          padding: t.space[4],
+          borderRadius: t.radius.card,
+          borderWidth: t.layout.hairline,
+          borderColor: t.colors.border,
+          backgroundColor: t.colors.surfaceRaised,
         },
       ]}
     >
-      <View
-        style={[
-          styles.center,
-          {
-            width: t.space[8] + t.space[1],
-            height: t.space[8] + t.space[1],
-            borderRadius: t.radius.pill,
-            backgroundColor: t.colors.surfaceSunken,
-          },
-        ]}
-      >
-        <Icon color={t.colors.textPrimary} size={t.icon.meta} strokeWidth={t.icon.stroke} />
+      <AppText variant="title2" tabular>
+        {value}
+      </AppText>
+      <AppText variant="caption" tone="secondary">
+        {label}
+      </AppText>
+    </View>
+  );
+};
+
+const FactTile = ({ icon: Icon, label, value, onPress, accessibilityLabel }: FactTileProps) => {
+  const t = useTheme();
+
+  const body = (
+    <>
+      <View style={[styles.row, styles.between]}>
+        <View
+          style={[
+            styles.center,
+            {
+              width: t.space[8],
+              height: t.space[8],
+              borderRadius: t.radius.pill,
+              backgroundColor: t.colors.surfaceSunken,
+            },
+          ]}
+        >
+          <Icon color={t.colors.textPrimary} size={t.icon.meta} strokeWidth={t.icon.stroke} />
+        </View>
+        {onPress ? (
+          <ArrowUpRight
+            color={t.colors.textTertiary}
+            size={t.icon.meta}
+            strokeWidth={t.icon.stroke}
+          />
+        ) : null}
       </View>
-      <View style={styles.grow}>
+      <View>
         <AppText variant="caption" tone="secondary">
           {label}
         </AppText>
@@ -63,30 +149,43 @@ const InfoRow = ({ icon: Icon, label, value, first, action }: InfoRowProps) => {
           {value}
         </AppText>
       </View>
-      {action ? (
-        <AppPressable
-          onPress={action.onPress}
-          haptic="light"
-          hitSlop={t.space[2]}
-          accessibilityRole="button"
-          accessibilityLabel={action.accessibilityLabel}
-          style={{
-            paddingHorizontal: t.space[3],
-            paddingVertical: t.space[1] + t.space[1] / 2,
-            borderRadius: t.radius.pill,
-            backgroundColor: t.colors.surfaceSunken,
-          }}
-        >
-          <AppText variant="caption">{action.label}</AppText>
-        </AppPressable>
-      ) : null}
-    </View>
+    </>
+  );
+
+  const style = [
+    styles.grow,
+    {
+      gap: t.space[3],
+      padding: t.space[4],
+      borderRadius: t.radius.card,
+      borderWidth: t.layout.hairline,
+      borderColor: t.colors.border,
+      backgroundColor: t.colors.surfaceRaised,
+    },
+  ];
+
+  if (!onPress) return <View style={style}>{body}</View>;
+  return (
+    <AppPressable
+      onPress={onPress}
+      haptic="light"
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel ?? `${label}, ${value}`}
+      style={style}
+    >
+      {body}
+    </AppPressable>
   );
 };
 
-// Everything about the station, inline in the Info tab. Rows without data are left out.
-const StationInfo = ({ station, onCopyAddress, onCall }: StationInfoProps) => {
+// The Info tab as a bento: address with its actions, the station's counts, fact tiles two per
+// row and an amenity grid. Anything without data is left out.
+const StationInfo = ({ station, onCopyAddress, onCall, onDirections }: StationInfoProps) => {
   const t = useTheme();
+  const connectorCount = station.chargers.reduce(
+    (sum, charger) => sum + charger.connectors.length,
+    0,
+  );
 
   const types = [
     ...new Set(
@@ -96,29 +195,14 @@ const StationInfo = ({ station, onCopyAddress, onCall }: StationInfoProps) => {
     ),
   ];
 
-  const candidates: (InfoRowProps | null)[] = [
-    station.address
-      ? {
-          icon: MapPin,
-          label: DETAILS_COPY.address,
-          value: station.address,
-          action: {
-            label: DETAILS_COPY.copy,
-            accessibilityLabel: `${DETAILS_COPY.copy} ${DETAILS_COPY.address}`,
-            onPress: onCopyAddress,
-          },
-        }
-      : null,
+  const candidates: (Fact | null)[] = [
     station.phone
       ? {
           icon: Phone,
           label: DETAILS_COPY.helpLine,
           value: station.phone,
-          action: {
-            label: DETAILS_COPY.callShort,
-            accessibilityLabel: DETAILS_COPY.call,
-            onPress: onCall,
-          },
+          onPress: onCall,
+          accessibilityLabel: DETAILS_COPY.call,
         }
       : null,
     station.accessType
@@ -128,9 +212,9 @@ const StationInfo = ({ station, onCopyAddress, onCall }: StationInfoProps) => {
       ? { icon: PlugZap, label: DETAILS_COPY.connectorTypes, value: types.join(', ') }
       : null,
   ];
-  const rows = candidates.filter((row): row is InfoRowProps => row !== null);
+  const facts = candidates.filter((fact): fact is Fact => fact !== null);
 
-  if (!rows.length && !station.amenities.length) {
+  if (!station.address && !facts.length && !station.amenities.length && !connectorCount) {
     return (
       <AppEmptyState
         icon={Building2}
@@ -140,34 +224,93 @@ const StationInfo = ({ station, onCopyAddress, onCall }: StationInfoProps) => {
     );
   }
 
-  const card = {
-    paddingHorizontal: t.space[3],
-    borderRadius: t.radius.card,
-    borderWidth: t.layout.hairline,
-    borderColor: t.colors.border,
-    backgroundColor: t.colors.surfaceRaised,
-  };
-
   return (
-    <View style={{ gap: t.layout.sectionGap }}>
-      {rows.length ? (
-        <View style={card}>
-          {rows.map((row, index) => (
-            <InfoRow key={row.label} {...row} first={index === 0} />
-          ))}
+    <View style={{ gap: t.space[3] }}>
+      {station.address ? (
+        <View
+          style={{
+            gap: t.space[4],
+            padding: t.space[4],
+            borderRadius: t.radius.card,
+            borderWidth: t.layout.hairline,
+            borderColor: t.colors.border,
+            backgroundColor: t.colors.surfaceRaised,
+          }}
+        >
+          <View style={[styles.row, { gap: t.space[3] }]}>
+            <View
+              style={[
+                styles.center,
+                {
+                  width: t.space[10],
+                  height: t.space[10],
+                  borderRadius: t.radius.control,
+                  backgroundColor: t.colors.accentSoft,
+                },
+              ]}
+            >
+              <MapPin
+                color={t.colors.accentText}
+                size={t.icon.control}
+                strokeWidth={t.icon.stroke}
+              />
+            </View>
+            <View style={styles.grow}>
+              <AppText variant="caption" tone="secondary">
+                {DETAILS_COPY.address}
+              </AppText>
+              <AppText variant="subhead" style={{ fontFamily: t.type.headline.fontFamily }}>
+                {station.address}
+              </AppText>
+            </View>
+          </View>
+          <View style={[styles.row, { gap: t.space[2] }]}>
+            <ActionPill
+              icon={Copy}
+              label={DETAILS_COPY.copy}
+              accessibilityLabel={`${DETAILS_COPY.copy} ${DETAILS_COPY.address}`}
+              onPress={onCopyAddress}
+            />
+            <ActionPill
+              icon={Navigation}
+              label={DETAILS_COPY.directionsShort}
+              accessibilityLabel={DETAILS_COPY.directions}
+              onPress={onDirections}
+            />
+          </View>
         </View>
       ) : null}
 
+      {connectorCount ? (
+        <View style={[styles.row, { gap: t.space[3] }]}>
+          <NumberTile value={station.chargers.length} label={DETAILS_COPY.chargerCount} />
+          <NumberTile value={connectorCount} label={DETAILS_COPY.connectorCount} />
+        </View>
+      ) : null}
+
+      {chunk(facts, 2).map(row => (
+        <View key={row[0]!.label} style={[styles.stretch, { gap: t.space[3] }]}>
+          {row.map(fact => (
+            <FactTile key={fact.label} {...fact} />
+          ))}
+        </View>
+      ))}
+
       {station.amenities.length ? (
-        <View style={{ gap: t.space[3] }}>
+        <View style={{ gap: t.space[3], marginTop: t.space[3] }}>
           <AppText variant="headline" accessibilityRole="header">
             {DETAILS_COPY.amenities}
           </AppText>
-          <View style={[styles.wrap, { gap: t.space[2] }]}>
-            {station.amenities.map(amenity => (
-              <AmenityChip key={amenity} label={amenity} withIcon />
-            ))}
-          </View>
+          {chunk(station.amenities, AMENITY_COLUMNS).map(row => (
+            <View key={row[0]} style={[styles.stretch, { gap: t.space[2] }]}>
+              {row.map(amenity => (
+                <AmenityChip key={amenity} label={amenity} tile />
+              ))}
+              {Array.from({ length: AMENITY_COLUMNS - row.length }, (_, gap) => (
+                <View key={`gap-${gap}`} style={styles.grow} />
+              ))}
+            </View>
+          ))}
         </View>
       ) : null}
     </View>
@@ -181,15 +324,18 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
+  stretch: {
+    flexDirection: 'row',
+    alignItems: 'stretch',
+  },
+  between: {
+    justifyContent: 'space-between',
+  },
   center: {
     alignItems: 'center',
     justifyContent: 'center',
   },
   grow: {
     flex: 1,
-  },
-  wrap: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
   },
 });

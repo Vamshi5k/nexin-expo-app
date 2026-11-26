@@ -97,7 +97,11 @@ describe('StationDetailsScreen', () => {
 
     expect(screen.getByRole('tab', { name: 'Chargers', selected: true })).toBeTruthy();
     expect(screen.getByText('Charger 1')).toBeTruthy();
-    expect(screen.getByText('DC · 60 kW · ₹18.00/kWh')).toBeTruthy();
+    expect(screen.getByText('DC')).toBeTruthy();
+    expect(screen.getAllByText('60 kW')).toHaveLength(2); // hero stat + spec pill
+    expect(screen.getByText('₹18.00/kWh')).toBeTruthy();
+    // Only the free connector offers Start.
+    expect(screen.getAllByText('Start')).toHaveLength(1);
     expect(screen.getByText('1/2 free')).toBeTruthy();
     expect(screen.getByLabelText('Connector 1, CCS2, Charging')).toBeTruthy();
     expect(screen.getByLabelText('Connector 2, CCS2, Available')).toBeTruthy();
@@ -153,6 +157,7 @@ describe('StationDetailsScreen', () => {
     expect(screen.getByText('Wifi')).toBeTruthy();
     expect(screen.getByText('Public')).toBeTruthy();
     expect(screen.getByText('Connector types')).toBeTruthy();
+    expect(screen.getByText('Connectors')).toBeTruthy();
     expect(screen.queryByText('Help line')).toBeNull();
     expect(screen.queryByRole('button', { name: 'Call station' })).toBeNull();
     expect(screen.queryByText('Charger 1')).toBeNull();

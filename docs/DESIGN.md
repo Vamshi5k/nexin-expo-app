@@ -70,7 +70,9 @@ the driver find, start, watch or pay for a charge.
 ## Components and patterns
 - Bottom sheets for choices, filters and confirmations; Dialog only for destructive or
   blocking actions.
-- Segmented controls for tabs inside a screen. Settings-style screens (Profile, Edit
+- Segmented controls for tabs inside a screen: a pill track (surfaceSunken) with one white
+  thumb that springs to the selected segment (no spring under Reduce Motion); a segment may
+  carry a count badge (accentSoft when selected). Settings-style screens (Profile, Edit
   Profile) use inset grouped lists (ListGroup + ListRow: optional icon in a soft tinted
   circle, title, subtitle, value or trailing element, chevron when tappable; separators inset
   past the icon; group label above, helper text below).
@@ -116,17 +118,25 @@ the driver find, start, watch or pay for a charge.
   inputs are large chips; the price breakdown is collapsed by default.
 - Wallet: the balance card is the hero (large tabular number); transactions are grouped
   by date.
-- Station details keep the map screen's language (white surfaces, glass, the dark Go pill).
+- Station details keep the map screen's language (white surfaces, glass, flat fills).
   Hero, about 40% of the screen at a fixed size: backend photos as a paging slider with a
-  "1/4" pill (one photo: no slider; none or all broken: `ChargerArt` on a soft accent wash),
-  a readable gradient (dark scrim over photos, page colour over the illustration), then the
-  station status pill exactly as the API sends it, title1 name, one-line address and a
-  `StatRow` (distance, drive, power, rate). Glass back / share / heart float over the hero; a
-  solid bar with the name fades in once scrolled past it. Chargers are grouped: "Charger 1 ·
-  DC · 60 kW" with "1/2 free", then its connector cards (always a sideways swipe row; a single connector fills the width)
-  on their status tint fading to white. "About this station" shows the address and 3
-  amenities plus "+N"; "View all details" opens a 60%/90% sheet with Copy address, help line,
-  access type, connector types and amenities with icons. Rows without data are hidden.
+  "1/4" pill (one photo: no slider; none or all broken: the station illustration on a soft
+  accent wash), a readable gradient (dark scrim over photos, page colour over the
+  illustration), then the status pill exactly as the API sends it, title2 name and one-line
+  address with a small accent directions circle beside them, and a `StatRow` (distance,
+  drive, power, rate). No bottom action bar. Glass back / share / heart float over the hero.
+  Scrolling drifts and fades the hero; a solid bar with name and address fades in, and the
+  Chargers (with count) / Info segmented tabs pin right under it. Switching tabs while pinned
+  starts the new tab at its top.
+  Chargers tab: one card per charger (accentSoft bolt, "Charger 1", "1/2 free" in success
+  soft), spec pills (DC, 60 kW, rate), then a bento grid of connector tiles two per row (a
+  single connector lays out sideways at full width). A tile: plug on a soft status fill,
+  status pill, type as a headline and "Connector N"; a free tile gets a status-coloured
+  selected border and a dark "Start" pill pinned to its bottom; charging shows a thin charge
+  bar with "% · min to full".
+  Info tab, also bento: address card with Copy and Directions pills, Chargers / Connectors
+  count tiles, fact tiles two per row (help line taps to call, access, connector types) and
+  a 3-column amenity grid with icons. Tiles without data are hidden.
 - Connector status colours come from `brand.connectorStatusColors` (CruzeEV defaults) as
   `t.colors.status.connector.<state>` with `main` (pill dot) and `tint` (card wash); labels
   follow the CruzeEV app (Suspended EV, Suspended EVSE, Engaged; Offline shows "Unavailable").

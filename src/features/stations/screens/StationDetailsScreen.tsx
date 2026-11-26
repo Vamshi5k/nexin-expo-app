@@ -38,11 +38,6 @@ type StationDetailsScreenProps = {
 // The hero takes about 40% of the screen at a fixed size, so images never push the page around.
 const HERO_RATIO = 0.4;
 
-const TABS: { value: DetailsTab; label: string }[] = [
-  { value: 'chargers', label: DETAILS_COPY.chargers },
-  { value: 'info', label: DETAILS_COPY.info },
-];
-
 // Hero first (photos or the brand illustration, status, name, directions, stats), then
 // Chargers / Info tabs. Scrolling fades the hero away and pins the tabs under a header that
 // shows the station name and address.
@@ -155,7 +150,10 @@ const StationDetailsScreen = ({ stationId }: StationDetailsScreenProps) => {
           ]}
         >
           <AppSegmentedControl
-            segments={TABS}
+            segments={[
+              { value: 'chargers', label: DETAILS_COPY.chargers, count: details.chargers.length },
+              { value: 'info', label: DETAILS_COPY.info },
+            ]}
             value={tab}
             onChange={selectTab}
             accessibilityLabel={DETAILS_COPY.sections}
@@ -199,6 +197,7 @@ const StationDetailsScreen = ({ stationId }: StationDetailsScreenProps) => {
                 station={station}
                 onCopyAddress={details.copyAddress}
                 onCall={details.call}
+                onDirections={details.openDirections}
               />
             )}
           </Animated.View>
