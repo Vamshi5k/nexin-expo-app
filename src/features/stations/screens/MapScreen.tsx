@@ -66,7 +66,7 @@ const MapScreen = () => {
 
       <MapTopBar
         activeFilterCount={map.activeFilterCount}
-        onSearch={map.openStationList}
+        onSearch={map.openSearch}
         onFilters={map.openFilters}
       />
 

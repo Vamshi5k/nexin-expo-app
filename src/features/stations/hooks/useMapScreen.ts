@@ -168,6 +168,7 @@ export const useMapScreen = () => {
     openStation: (stationId: string) =>
       router.push({ pathname: '/(app)/station/[stationId]', params: { stationId } }),
     openStationList: () => router.navigate(STATIONS_HREF.list),
+    openSearch: () => router.navigate(STATIONS_HREF.search),
     openDirections,
   };
 };

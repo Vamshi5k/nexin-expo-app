@@ -515,3 +515,31 @@ emulator (hero variants, scrolled header, sheet open/close/reopen, Filters sheet
 
 - App-wide pass with the compact type sizes (plan proposed, waiting for approval).
 - Charging Summary (Phase 4); Stations list (B2).
+
+## Phase 3c: Stations tab (branch `feat/stations-list`, 2026-11-26)
+
+**Done**
+
+- Stations tab (B2): large "Stations" title, a search field ("Search stations...", clear button)
+  and the nearest stations, 10 a page (`GET /station`, `stationsApi.searchStations`).
+- Search runs 500 ms after typing stops (`useDebouncedValue`); answers for an older search are
+  dropped. Infinite scroll at 40% from the end, pull to refresh, the list drag closes the
+  keyboard.
+- `StationListCard`: the map card's language at list size. Name, address, heart, then
+  "2/4 Free" or red "Unavailable", kW, price per kWh and distance. The tint follows the pill.
+- Hearts flip at once, toast "Added to favourites" / "Removed from favourites", roll back on
+  error, and re-sync from the server every time the tab is focused.
+- States: 3 skeleton cards; "Location is off" + Enable location; "Couldn't load stations" +
+  Retry; "No stations found" + Clear Search; "No stations available"; a footer skeleton while
+  loading more. If location is allowed but has no fix, the list uses the brand's default region.
+- The map's search pill opens the tab with the field focused; "View all stations" opens it plain.
+- Tests: availability label rules, paging merge, a screen flow test (debounce, paging, every
+  state, heart rollback, card tap, focus param) and the map search pill.
+
+**Deviations**
+
+- 10 per page instead of the old app's 5 (OPEN_QUESTIONS #17).
+- No profile button in the header (it duplicated the Profile tab) and no filters yet.
+
+**Verified**: tsc, expo lint, jest (53 suites, 386 tests); Android emulator with staging
+(list, search with no results, Clear Search, map search pill focus).

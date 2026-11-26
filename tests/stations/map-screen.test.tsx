@@ -82,6 +82,17 @@ describe('MapScreen', () => {
     });
   });
 
+  it('the search pill opens the Stations tab with the search field focused', async () => {
+    await renderWithApp(<MapScreen />);
+    await screen.findByLabelText('Hub One, 2 Available');
+
+    await fireEvent.press(screen.getByLabelText('Search stations'));
+    expect(router.navigate).toHaveBeenCalledWith({
+      pathname: '/(app)/(tabs)/stations',
+      params: { focus: '1' },
+    });
+  });
+
   it('a pin outside the nearby list shows its own card; that card opens the station', async () => {
     await renderWithApp(<MapScreen />);
     await screen.findByLabelText('Hub One, 2 Available');

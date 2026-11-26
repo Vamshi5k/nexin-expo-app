@@ -9,6 +9,8 @@ import { toast } from '@/shared/utils/toast';
 import { MAP_COPY } from '../constants/stations.constants';
 import type { Coordinates } from '../types/stations.types';
 
+export type LocationPermission = 'checking' | 'granted' | 'off';
+
 const readPosition = async (): Promise<Coordinates> => {
   const last = await Location.getLastKnownPositionAsync();
   const position =
@@ -22,17 +24,24 @@ const readPosition = async (): Promise<Coordinates> => {
 export const useUserLocation = () => {
   const [location, setLocation] = useState<Coordinates | null>(null);
   const [locating, setLocating] = useState(false);
+  // 'checking' until the first permission check answers; lists show a skeleton meanwhile.
+  const [permission, setPermission] = useState<LocationPermission>('checking');
+  // Allowed but no fix (e.g. GPS off): callers fall back to the brand's default region.
+  const [readFailed, setReadFailed] = useState(false);
 
   useEffect(() => {
     let alive = true;
 
     const readIfAllowed = async () => {
       try {
-        if ((await checkPermission('location')) !== 'granted') return;
+        const granted = (await checkPermission('location')) === 'granted';
+        if (alive) setPermission(granted ? 'granted' : 'off');
+        if (!granted) return;
         const position = await readPosition();
         if (alive) setLocation(position);
       } catch (error) {
         log.warn('silent location read failed', { error: String(error) });
+        if (alive) setReadFailed(true);
       }
     };
 
@@ -47,8 +56,9 @@ export const useUserLocation = () => {
 
     setLocating(true);
     try {
-      const permission = await requestPermission('location');
-      if (permission !== 'granted') {
+      const result = await requestPermission('location');
+      setPermission(result === 'granted' ? 'granted' : 'off');
+      if (result !== 'granted') {
         await showPermissionBlocked('location');
         return null;
       }
@@ -65,5 +75,5 @@ export const useUserLocation = () => {
     }
   }, [locating]);
 
-  return { location, locating, locate };
+  return { location, locating, permission, readFailed, locate };
 };

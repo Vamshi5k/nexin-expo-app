@@ -31,8 +31,36 @@ export const DEFAULT_FILTERS: StationFilters = {
 
 export const STATIONS_HREF = {
   list: '/(app)/(tabs)/stations',
+  search: { pathname: '/(app)/(tabs)/stations', params: { focus: '1' } },
   scan: '/(app)/scan',
 } as const;
+
+// Stations tab. 10 a page: the old app's 5 flashed skeletons on every scroll (OPEN_QUESTIONS #17).
+export const STATIONS_PAGE_SIZE = 10;
+export const SEARCH_DEBOUNCE_MS = 500;
+// Load the next page when the user is within 40% of a screen of the end.
+export const LOAD_MORE_THRESHOLD = 0.4;
+
+export const LIST_COPY = {
+  title: 'Stations',
+  searchPlaceholder: 'Search stations...',
+  clearSearch: 'Clear search',
+  locationOffTitle: 'Location is off',
+  locationOffBody: 'Turn on location to see charging stations near you.',
+  enableLocation: 'Enable location',
+  loadError: "Couldn't load stations",
+  loadMoreError: "Couldn't load more stations",
+  retry: 'Retry',
+  noResults: 'No stations found',
+  noResultsBody: 'Try searching with a different keyword.',
+  clearSearchAction: 'Clear Search',
+  emptyTitle: 'No stations available',
+  emptyBody: 'Stations will appear here once available.',
+  unavailable: 'Unavailable',
+  addFavourite: 'Add to favourites',
+  removeFavourite: 'Remove from favourites',
+  free: (available: number, total: number) => `${available}/${total} Free`,
+};
 
 export const MAP_COPY = {
   searchPlaceholder: 'Search stations',
