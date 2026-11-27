@@ -13,11 +13,11 @@ import {
   AppScreen,
   AppSkeleton,
   AppText,
+  AppPageHeader,
 } from '@/shared/components';
 
 import VehicleArt from '../components/VehicleArt';
 import VehiclePickPanel from '../components/VehiclePickPanel';
-import VehiclesHeader from '../components/VehiclesHeader';
 
 import { useTheme } from '@/shared/theme';
 
@@ -83,7 +83,7 @@ const EditVehicleScreen = ({ vehicleId }: EditVehicleScreenProps) => {
   }
 
   const header = (
-    <VehiclesHeader
+    <AppPageHeader
       title={EDIT_VEHICLE_COPY.title}
       subtitle={EDIT_VEHICLE_COPY.subtitle}
       fallbackHref={VEHICLES_HREF.list}

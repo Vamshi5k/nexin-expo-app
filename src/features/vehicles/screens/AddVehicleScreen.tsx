@@ -1,9 +1,8 @@
 import { View } from 'react-native';
 
-import { AppButton, AppScreen } from '@/shared/components';
+import { AppButton, AppScreen, AppPageHeader } from '@/shared/components';
 
 import VehicleFormBody from '../components/VehicleFormBody';
-import VehiclesHeader from '../components/VehiclesHeader';
 import VehicleTrail from '../components/VehicleTrail';
 
 import { useTheme } from '@/shared/theme';
@@ -30,7 +29,7 @@ const AddVehicleScreen = () => {
         />
       }
     >
-      <VehiclesHeader
+      <AppPageHeader
         eyebrow={ADD_COPY.step(wizard.stepIndex, wizard.stepCount)}
         title={wizard.title}
         subtitle={wizard.subtitle}

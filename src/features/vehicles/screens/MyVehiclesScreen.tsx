@@ -11,11 +11,11 @@ import {
   AppErrorState,
   AppFade,
   AppSkeleton,
+  AppPageHeader,
 } from '@/shared/components';
 
 import VehicleActionsSheet from '../components/VehicleActionsSheet';
 import VehicleCard from '../components/VehicleCard';
-import VehiclesHeader from '../components/VehiclesHeader';
 
 import { useTheme } from '@/shared/theme';
 
@@ -112,7 +112,7 @@ const MyVehiclesScreen = () => {
         }
       >
         <View style={{ marginBottom: t.space[2] }}>
-          <VehiclesHeader
+          <AppPageHeader
             title={VEHICLES_COPY.title}
             subtitle={
               list.vehicles.length ? VEHICLES_COPY.count(list.vehicles.length) : VEHICLES_COPY.empty

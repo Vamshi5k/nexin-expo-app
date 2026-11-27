@@ -1,9 +1,8 @@
 import { View } from 'react-native';
 
-import { AppButton, AppScreen } from '@/shared/components';
+import { AppButton, AppScreen, AppPageHeader } from '@/shared/components';
 
 import VehicleFormBody from './VehicleFormBody';
-import VehiclesHeader from './VehiclesHeader';
 import VehicleTrail from './VehicleTrail';
 
 import { useTheme } from '@/shared/theme';
@@ -40,7 +39,7 @@ const VehiclePickPanel = ({ onPicked, onCancel }: VehiclePickPanelProps) => {
         />
       }
     >
-      <VehiclesHeader
+      <AppPageHeader
         eyebrow={ADD_COPY.step(wizard.stepIndex, wizard.stepCount)}
         title={wizard.title}
         subtitle={wizard.subtitle}

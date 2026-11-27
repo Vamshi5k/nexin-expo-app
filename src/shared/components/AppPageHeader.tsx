@@ -3,13 +3,14 @@ import { StyleSheet, View } from 'react-native';
 import type { Href } from 'expo-router';
 import Animated from 'react-native-reanimated';
 
-import { AppBackButton, AppText } from '@/shared/components';
+import AppBackButton from './AppBackButton';
+import AppText from './AppText';
 
 import { useTheme } from '@/shared/theme';
 
 import { riseIn } from '@/shared/utils/motion';
 
-type VehiclesHeaderProps = {
+export type AppPageHeaderProps = {
   title: string;
   subtitle?: string | null;
   eyebrow?: string | null;
@@ -18,14 +19,9 @@ type VehiclesHeaderProps = {
   onBack?: () => void;
 };
 
-// Back button, then a left-aligned title2 with a caption, like Add Money and Edit Profile.
-const VehiclesHeader = ({
-  title,
-  subtitle,
-  eyebrow,
-  fallbackHref,
-  onBack,
-}: VehiclesHeaderProps) => {
+// A pushed screen's header on the brand wash: back button, an optional eyebrow, the title and
+// a caption. Used by vehicles and charging history.
+const AppPageHeader = ({ title, subtitle, eyebrow, fallbackHref, onBack }: AppPageHeaderProps) => {
   const t = useTheme();
 
   return (
@@ -52,7 +48,7 @@ const VehiclesHeader = ({
   );
 };
 
-export default VehiclesHeader;
+export default AppPageHeader;
 
 const styles = StyleSheet.create({
   row: {
