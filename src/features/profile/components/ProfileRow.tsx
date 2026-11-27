@@ -95,7 +95,13 @@ const ProfileRow = ({
             </AppText>
           ) : null}
         </View>
-        {trailing}
+        {trailing ? (
+          // iOS 26 draws its switch larger than the size RN measures, so it gets a fixed box,
+          // centred on the row and ending where the chevrons do.
+          <View style={[styles.center, { minWidth: t.space[12] + t.space[2], height: t.space[8] }]}>
+            {trailing}
+          </View>
+        ) : null}
         {chevron && !trailing ? (
           <ChevronRight
             color={t.colors.textTertiary}
