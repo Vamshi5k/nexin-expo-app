@@ -25,7 +25,12 @@ export const ENDPOINTS = {
     FAVOURITE: (stationId: string) => `/station/favourites/${stationId}`,
   },
   PROFILE: {
+    GET: '/profile',
     UPDATE: '/profile',
+    SEND_OTP: '/profile/send-otp',
+    VERIFY_OTP: '/profile/verify-otp',
+    // TODO(backend): unconfirmed, not called yet (OPEN_QUESTIONS #19).
+    DELETE: '/profile',
   },
   WALLET: {
     TRANSACTIONS: '/transactions',

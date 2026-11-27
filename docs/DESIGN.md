@@ -160,6 +160,12 @@ the driver find, start, watch or pay for a charge.
   a white circle. Bottom: a meter of small cells, one per connector up to 8 then "+N", free
   ones lit and glowing in the availability colour, the availability text under it ("1/8
   Free", "Unavailable"), and a dark "1.9 km ↗" pill that opens directions.
+- Profile tab: the tab screens' brand wash with a title3 "Account" and ID, a white bell
+  circle, a plain white account card (initials, name, email or "No email provided", edit).
+  Rows are compact (subhead title, caption subtitle) in white cards under small uppercase
+  labels, each with a squircle tile holding the Profile duotone icon (`ProfileGlyph`: a soft
+  fill in the ink's colour under a 1.6 outline; car, history, heart, support, log out,
+  delete, bell). Delete Account is a red row on its own card.
 - Connector status colours come from `brand.connectorStatusColors` (CruzeEV defaults) as
   `t.colors.status.connector.<state>` with `main` (pill dot) and `tint` (card wash); labels
   follow the CruzeEV app (Suspended EV, Suspended EVSE, Engaged; Offline shows "Unavailable").

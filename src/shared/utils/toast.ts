@@ -57,7 +57,7 @@ export const AppToaster = () => {
     createElement(Icon, { color, size: 20, strokeWidth: 1.75 });
 
   return createElement(Toaster, {
-    position: 'top-center',
+    position: 'bottom-center',
     theme: t.scheme,
     duration: 3500,
     visibleToasts: 3,

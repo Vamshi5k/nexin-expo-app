@@ -20,12 +20,12 @@ const ENVIRONMENTS: Record<AppEnv, EnvConfig> = {
   development: {
     apiHost: 'https://testapi.evechos.com',
     socketUrl: 'https://testapi.evechos.com',
-    clientToken: 'bf6af0f0-b107-4319-bf6f-67eef6e68a06',
+    clientToken: 'c10204ae-4300-4c58-a3a6-b9cfbdde10fc',
   },
   staging: {
     apiHost: 'https://testapi.evechos.com',
     socketUrl: 'https://testapi.evechos.com',
-    clientToken: 'bf6af0f0-b107-4319-bf6f-67eef6e68a06',
+    clientToken: 'c10204ae-4300-4c58-a3a6-b9cfbdde10fc',
   },
   production: {
     apiHost: 'https://api.nexinev.com',
@@ -38,7 +38,6 @@ export function isAppEnv(value: unknown): value is AppEnv {
   return typeof value === 'string' && (APP_ENVS as readonly string[]).includes(value);
 }
 
-/** Resolve APP_ENV, throwing on typos so a bad EAS profile never builds silently. */
 export function resolveAppEnv(raw: string | undefined): AppEnv {
   const value = raw ?? 'development';
   if (!isAppEnv(value)) {

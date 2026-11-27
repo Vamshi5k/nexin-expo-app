@@ -2,11 +2,11 @@ import { StyleSheet, View } from 'react-native';
 
 import { Eye, EyeOff, Plus } from 'lucide-react-native';
 
-import { AppFade, AppPressable, AppText } from '@/shared/components';
+import { AppPressable, AppText } from '@/shared/components';
 
 import WalletArt from './WalletArt';
 
-import { useTheme, withAlpha } from '@/shared/theme';
+import { useTheme } from '@/shared/theme';
 
 import { brand } from '@/core/config';
 import { formatPaise } from '@/shared/utils/money';
@@ -21,7 +21,7 @@ type BalanceCardProps = {
   onAddMoney: () => void;
 };
 
-// A raised card with a soft brand wash and glow, the animated wallet, and the balance rolling up
+// A plain white card on the screen's brand wash: the animated wallet and the balance rolling up
 // to its value. Theme surfaces only, so it is light in light mode and dark in dark mode. The eye
 // hides the balance (not remembered, like the old app).
 const BalanceCard = ({ balancePaise, hidden, onToggleHidden, onAddMoney }: BalanceCardProps) => {
@@ -45,20 +45,6 @@ const BalanceCard = ({ balancePaise, hidden, onToggleHidden, onAddMoney }: Balan
         },
       ]}
     >
-      <AppFade id="balance-wash" color={t.colors.accent} from={0.14} to={0} top />
-      <View
-        pointerEvents="none"
-        style={[
-          styles.glow,
-          {
-            width: t.space[12] * 4,
-            height: t.space[12] * 4,
-            borderRadius: t.radius.pill,
-            backgroundColor: withAlpha(t.colors.accent, 0.08),
-          },
-        ]}
-      />
-
       <View style={[styles.row, { gap: t.space[3] }]}>
         <View style={[styles.grow, { gap: t.space[1] }]}>
           <View style={[styles.row, { gap: t.space[2] }]}>
@@ -123,11 +109,6 @@ export default BalanceCard;
 const styles = StyleSheet.create({
   card: {
     overflow: 'hidden',
-  },
-  glow: {
-    position: 'absolute',
-    top: '-60%',
-    right: '-25%',
   },
   row: {
     flexDirection: 'row',

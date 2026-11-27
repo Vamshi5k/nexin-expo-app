@@ -9,6 +9,7 @@ export { formatContact } from './utils/contact';
 export { openLegal } from './utils/legal';
 export { default as GuardedStack } from './components/GuardedStack';
 export { default as LogoutDialog } from './components/LogoutDialog';
+export { default as OtpInput } from './components/OtpInput';
 export { default as BootErrorScreen } from './screens/BootErrorScreen';
 export { default as FleetLoginScreen } from './screens/FleetLoginScreen';
 export { default as FleetOtpScreen } from './screens/FleetOtpScreen';
