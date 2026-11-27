@@ -45,8 +45,6 @@ export const VEHICLES_COPY = {
   needsMac: 'Add a MAC ID to use auto-charge',
   autoChargeEnabled: 'Auto-charge turned on',
   autoChargeDisabled: 'Auto-charge turned off',
-  battery: 'Battery',
-  rangeLabel: 'Range',
   rangeValue: (km: number) => `${km} km`,
   actions: (title: string) => `More actions for ${title}`,
   edit: 'Edit vehicle',
