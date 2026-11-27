@@ -38,6 +38,13 @@ export const ENDPOINTS = {
     ORDER: '/payment',
     VERIFY: '/payment/verify',
   },
+  CHARGING: {
+    HISTORY: '/device-transactions',
+  },
+  INVOICE: {
+    SUMMARY: (transactionId: string) => `/invoice/summary/${transactionId}`,
+    PDF: (transactionId: string) => `/invoice/${transactionId}`,
+  },
   VEHICLES: {
     LIST: '/vehicle',
     ADD: '/vehicle',

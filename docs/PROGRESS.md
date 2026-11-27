@@ -666,3 +666,35 @@ single-vehicle endpoint (#25), what auto-charge does (#26).
 backend (My Vehicles empty state, Add Vehicle step 1 with the live brand list). Cards, the
 actions sheet and Edit were not seen on a device: the test account has no vehicles and none
 was added, to avoid writing to the shared dev data.
+
+## Phase 7c: Charging History and Invoice (branch `feat/vehicles`, 2026-11-27)
+
+**Done**
+
+- Charging History (E6, `/(app)/charging/history`): All / Completed / Active tabs with counts
+  (the shared segmented control), newest first under month labels. Cards in the Stations card
+  style: station and address with the cost, tokens for energy, time, connector and power, and a
+  footer with the glowing status and the date. Every card opens its invoice (completed and
+  active, as asked). Skeletons, empty (per tab), error + Retry, pull to refresh, quiet refresh on
+  focus.
+- Invoice (C5, `/(app)/invoice/[id]`): a receipt card (status, station, date, total paid,
+  session id) then Session, Location and Billing cards; lines without data are hidden. Billing
+  follows the old maths: energy charge = `amount`, price per unit = amount / kWh, `gst` split
+  equally into SGST and CGST (each at half of `calcTaxPercent`), total = `price`. Error state with
+  Retry instead of the old auto back. An active session shows a note instead of Download.
+- Download Invoice: `GET /invoice/:id` (PDF) with the signed-in token and client token, saved
+  into the app's documents, then the share sheet (Save to Files / Downloads, Drive, mail…).
+  expo-file-system and expo-sharing added; sharing is loaded on demand so an older dev build
+  shows "Update the app to download invoices" instead of crashing.
+- `AppPageHeader` (back, eyebrow, title, caption on the wash) moved to the shared kit; vehicles
+  and history use it.
+- Tests: session and invoice mappers (including the billing maths), status codes, duration /
+  energy / tax formatting, sort / filter / month groups, file names; flows for the list (order,
+  tokens, cost, status, tabs, open invoice, empty, error) and the invoice (receipt, SGST / CGST,
+  download → share, failed download, active note, error + Retry).
+
+**Open**: status codes (#27), `charginDuration` units (#28).
+
+**Verified**: tsc, expo lint, jest (62 suites, 478 tests); Android emulator: the live history
+call (empty for the test account), and the list and invoice with local sample data (reverted).
+The PDF download needs a real completed session and a dev build rebuilt for expo-sharing.
