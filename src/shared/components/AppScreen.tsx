@@ -1,14 +1,7 @@
 import type { ReactNode } from 'react';
-import {
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  View,
-  type StyleProp,
-  type ViewStyle,
-} from 'react-native';
+import { ScrollView, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 
+import Animated, { useAnimatedKeyboard, useAnimatedStyle } from 'react-native-reanimated';
 import { SafeAreaView, useSafeAreaInsets, type Edge } from 'react-native-safe-area-context';
 
 import AppFade from './AppFade';
@@ -40,6 +33,13 @@ const AppScreen = ({
   const t = useTheme();
   const insets = useSafeAreaInsets();
   const bg = t.colors[background];
+  // Keyboard height from Reanimated, on both platforms: edge-to-edge Android no longer resizes
+  // the window or sends keyboard events, so KeyboardAvoidingView left the footer covered there.
+  // The bottom inset sits under the keyboard, so it is not counted twice.
+  const keyboard = useAnimatedKeyboard();
+  const keyboardRoom = useAnimatedStyle(() => ({
+    paddingBottom: Math.max(0, keyboard.height.value - insets.bottom),
+  }));
   const padding: ViewStyle = { paddingHorizontal: padded ? t.layout.screenPadding : 0 };
 
   const body = scroll ? (
@@ -61,10 +61,7 @@ const AppScreen = ({
           <AppFade id="screen-wash" color={t.colors.accent} from={0.22} to={0} top />
         </View>
       ) : null}
-      <KeyboardAvoidingView
-        style={styles.flex}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
+      <Animated.View style={[styles.flex, keyboardRoom]}>
         {body}
         {footer ? (
           <View
@@ -81,7 +78,7 @@ const AppScreen = ({
             {footer}
           </View>
         ) : null}
-      </KeyboardAvoidingView>
+      </Animated.View>
     </SafeAreaView>
   );
 };
