@@ -698,3 +698,25 @@ was added, to avoid writing to the shared dev data.
 **Verified**: tsc, expo lint, jest (62 suites, 478 tests); Android emulator: the live history
 call (empty for the test account), and the list and invoice with local sample data (reverted).
 The PDF download needs a real completed session and a dev build rebuilt for expo-sharing.
+
+## Phase 7d: Favourite Spots (branch `feat/vehicles`, 2026-11-27)
+
+**Done**
+
+- Favourite Spots (E7, `/(app)/favorites`): the brand wash, `AppPageHeader` with the count, the
+  white `AppSearchBar` (debounced, sent to the server as `search`), and saved stations from
+  `GET /station/favourites/all?page&limit=10`, a page at a time with infinite scroll. Each card:
+  a pin tile, name and address, a filled red heart that removes it (optimistic, rolled back if
+  the server refuses; `POST /station/favourites/:id { isFavourite: false }`), a dark Directions
+  pill when the station has a location, and a tap to Station Details.
+- A station hearted anywhere (Stations tab, map card, Station Details) appears with a filled
+  heart: the screen reloads its first page every time it comes back into focus.
+- Empty: "No favourites yet" with Find stations (to the Map tab); search with no match: "No
+  favourites found" with Clear Search; error + Retry; pull to refresh.
+- Tests: the favourite mapper (station inside each favourite, place, location) and flows (list
+  with filled hearts, directions only with a location, open details, a newly hearted station
+  after refocus, remove with rollback, server search, paging, empty, error).
+
+**Verified**: tsc, expo lint, jest (63 suites, 485 tests); Android emulator against the dev
+backend: hearted Demo Charging Station on the Stations tab, it appeared in Favourite Spots with a
+filled heart and Directions, then removed it with the heart (dev data left as it was).

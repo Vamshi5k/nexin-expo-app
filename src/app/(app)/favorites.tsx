@@ -1,6 +1,3 @@
-import { COMING_SOON_COPY, ComingSoonScreen } from '@/features/profile';
+import { FavouriteSpotsScreen } from '@/features/stations';
 
-// TODO(phase-7): replace with the real screen.
-export default function Placeholder() {
-  return <ComingSoonScreen title={COMING_SOON_COPY.favourites} />;
-}
+export default FavouriteSpotsScreen;

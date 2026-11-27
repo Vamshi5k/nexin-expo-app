@@ -170,3 +170,31 @@ export const moreCells = (count: number) => `+${count}`;
 export const pad2 = (value: number) => String(value).padStart(2, '0');
 export const routeLabel = (distance: string, eta: string | null) =>
   eta ? `${distance} · ${eta} drive` : distance;
+
+export const FAVOURITES_HREF = {
+  profile: '/(app)/(tabs)/profile',
+  map: '/(app)/(tabs)/home',
+} as const;
+
+export const FAVOURITES_COPY = {
+  title: 'Favourite Spots',
+  subtitle: (n: number) => (n === 1 ? '1 saved station' : `${n} saved stations`),
+  subtitleEmpty: 'Stations you heart show up here',
+  searchPlaceholder: 'Search favourites...',
+  clearSearch: 'Clear search',
+  remove: (name: string) => `Remove ${name} from favourites`,
+  removed: 'Removed from favourites',
+  directions: (name: string) => `Directions to ${name}`,
+  go: 'Directions',
+  open: 'Opens the station',
+  unknownStation: 'Charging station',
+  emptyTitle: 'No favourites yet',
+  emptyBody: 'Tap the heart on any station to save it here.',
+  findStations: 'Find stations',
+  noResults: 'No favourites found',
+  noResultsBody: 'Try a different name or area.',
+  clearSearchAction: 'Clear Search',
+  loadError: "Couldn't load your favourites",
+  loadMoreError: "Couldn't load more favourites",
+  retry: 'Retry',
+} as const;

@@ -114,7 +114,19 @@ export type StationDetailsDto = {
   chargers?: ChargerDto[] | null;
 };
 
-export type FavouriteDto = { stationId?: number | string | null };
+export type FavouriteDto = {
+  stationId?: number | string | null;
+  station?: { name?: string | null; stationLocation?: StationLocationDto } | null;
+};
+
+// A saved station as GET /station/favourites/all sends it: no live availability, only the
+// station's name and place.
+export type FavouriteStation = {
+  id: string;
+  name: string;
+  address: string;
+  coordinates: Coordinates | null;
+};
 
 export type Connector = {
   id: string;
