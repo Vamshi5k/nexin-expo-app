@@ -7,7 +7,9 @@ Phase numbers follow the project prompts, not BLUEPRINT.md section 7:
 | 0     | Template and white-label brand layer                                           | part of Phase 0           | Done                                |
 | 1     | Foundation (theme, UI kit, core api/session/storage, root layout) + UI refresh | Phase 0                   | Done, tag `phase-1-done`            |
 | 2     | Client config and consumer auth (A1-A4, A9)                                    | Phase 1                   | Merged to `main`; device check open |
-| fix   | Setup resume, fleet login (F1-F2), shared back button                          | Phase 1 + part of Phase 8 | Branch `fix/setup-flow`, not pushed |
+| fix   | Setup resume, fleet login (F1-F2), shared back button                          | Phase 1 + part of Phase 8 | Merged to `main` (PR #3)            |
+| 3a    | Tab bar and Map home (B0, B1)                                                  | Phase 3 (part)            | Branch `feat/tabs-map`              |
+| 3b    | Station Details (B3)                                                           | Phase 3 (part)            | Branch `feat/station-details`       |
 
 ## Phase 0: Template and brand layer (done, 2026-11-23)
 
@@ -373,3 +375,143 @@ device or simulator.
   setup (including a restart on each step and Android back in the wizard) -> home -> logout,
   and the fleet login flow with the flag on (needs a fleet test account).
 - Fleet home is still a placeholder (rest of Phase 8).
+
+## Phase 3a: Tab bar and Map home (branch `feat/tabs-map`, 2026-11-25)
+
+**Done**
+
+- Tab bar (B0): Map, Stations, Scan, Wallet, Profile, with labels and screen-reader names. Scan
+  is a raised round button that pushes `/scan`, so the camera never mounts in the tab bar. The
+  bar hides when the keyboard is open. Tabs live in `MainTabs` (home feature); the route file
+  only renders it.
+- `/home` is the Map. The old Home content (signed-in card, dev tools, log out) moved to the
+  new Profile tab (`src/features/profile`). Stations, Scan and Station Details are placeholders.
+- New `src/features/stations`:
+  - `stationsApi.getLocations(filters)` (`GET /station/locations`) and
+    `getNearby(center, filters, 5)` (`GET /station`). Both return models: money in paise,
+    missing numbers as `null`, rows without coordinates dropped.
+  - Pins are clustered with supercluster. The index is rebuilt only when the pins change, and
+    clusters are recomputed 250 ms after the map stops moving. Tapping a cluster zooms into it.
+  - Custom markers stop `tracksViewChanges` 500 ms after they paint (and again after a colour
+    or selected change).
+  - Pin colours follow the brand's connector colours by station status.
+  - Pin tap highlights the pin. If the station is in the nearby list, the carousel scrolls to
+    its card; otherwise a single peek card shows. Card or peek tap opens Station Details.
+    Swiping the carousel highlights the matching pin and pans the map to it.
+  - Location is never asked for on open: the map starts at `brand.defaultRegion` and silently
+    moves to the user only if permission is already on. The my-location button asks; a denial
+    shows the existing "Location Access Required" dialog with Open Settings.
+  - Filters sheet (min power, Public/Private, connectors) with an active count on the filter
+    button. Nothing is filtered by default.
+  - States: skeleton cards while loading; error toast (at most once per 3 s) plus a Retry card;
+    empty card with "Clear filters" or "View all stations"; offline uses the global banner.
+- Google Maps keys go through the `react-native-maps` config plugin from env only. Without
+  `GOOGLE_MAPS_IOS_KEY` iOS uses Apple Maps (no custom style). README explains the dev build.
+- Tests: mappers, status, availability, filters, geo and clustering; station paths in
+  `endpoint-urls`; a map flow test with react-native-maps mocked in `jest.setup.ts`.
+
+- Crash fix: an Android dev build made before react-native-maps was added crashed with
+  "RNMapsAirModule could not be found". `src/core/maps.ts` now checks the native module and,
+  on Android, the Google Maps key; the map component loads only when both are there, otherwise
+  a notice shows and the station cards still work. Fix for the device itself: rebuild the dev
+  build (`npx expo prebuild --clean` + `npx expo run:android`).
+- 2027 refresh: floating glass tab bar (`FloatingTabBar`, `AppGlass`), one glass capsule for
+  search + filters, glass my-location button, larger station cards with a stats strip, map
+  padded around the overlays, no shadows (DESIGN.md updated). The map centres on the user only
+  after `onMapReady`, and only a user swipe selects a card.
+- Checked on the iOS simulator (Apple Maps, liquid glass) and the Android emulator (no key, so
+  the notice shows).
+
+**Deviations**
+
+- Min power uses preset chips instead of a slider (OPEN_QUESTIONS #16).
+- All stations load at once; the API has no bounds yet (OPEN_QUESTIONS #15).
+- Search pill and "View all stations" open the Stations tab placeholder; the active-charging
+  button waits for the charging phase.
+- The my-location denial reuses the shared permission dialog instead of new copy.
+
+**Verified**: tsc, expo lint, jest (49 suites, 330 tests); iOS simulator and Android emulator.
+The Android map itself still needs `GOOGLE_MAPS_ANDROID_KEY`.
+
+**Left**
+
+- Device check on Android and the iOS simulator: marker performance with many pins, carousel
+  and pin sync, my-location allow/deny, filters.
+- Stations list (B2) and Station Details (B3).
+
+## Phase 3b: Station Details (branch `feat/station-details`, 2026-11-25)
+
+**Done**
+
+- `GET /station/:id`, `GET /station/favourites/all?page=1&limit=100` and
+  `POST /station/favourites/:id { isFavourite }` in `stationsApi`, mapped to models (paise,
+  plain connector states instead of raw OCPP codes, nulls for missing numbers).
+- Screen (`StationDetailsScreen`, route `station/[stationId]`): hero with glass back / share /
+  heart, status, name, address, stats (distance and drive only with location), amenities,
+  chargers with free ones first, connector rows, sticky Get Directions + Call.
+- Connector tap: Available or Preparing opens `/charging-summary` (placeholder until the
+  charging phase) with stationId, chargerId and connectorId; others toast
+  "Connector is currently {status}".
+- Directions: iOS asks Apple Maps or Google Maps, Android opens Google Maps, both fall back to
+  the web link.
+- States: skeleton, error with Retry, empty chargers, pull to refresh.
+- Tests: mappers, connector rules, share text, maps URLs, endpoint paths, a screen flow test.
+
+**Old-app bugs fixed**
+
+- The heart always sent `isFavourite: false`; it now sends the new state, flips at once and
+  rolls back with a toast if the server refuses.
+- Share text used another brand's links (`lekha://`, lekha.com); it now uses this build's
+  scheme (`expo-linking`) and `brand.deepLinkDomains[0]`.
+- Call is hidden without a phone number; a charger without a tariff no longer crashes the
+  mapper; the hard-coded rating, reviews, network and hours are gone.
+- Header buttons have screen-reader labels and 44 pt targets.
+
+**Verified**: tsc, expo lint, jest (51 suites, 354 tests); Android emulator with the real
+staging station (layout, amenities, busy-connector toast). Not checked on iOS yet.
+
+**Left**
+
+- Charging Summary (Phase 4) behind the connector tap; Stations list (B2) still a placeholder.
+
+### Station Details redesign (2026-11-26, branch `feat/station-details`)
+
+**Done**
+
+- Hero (40% of the screen, fixed): a paging photo slider (expo-image, memory-disk cache) with
+  a "1/4" pill when there are several photos; broken URLs are skipped. With no usable photo, a
+  brand-coloured station scene (`StationScene`: two chargers, cables, two cars) fills the hero.
+  Status pill shows the station status exactly as the API sends it, then name, address and
+  stats (distance, drive, kW, price per kWh).
+- Header: glass back / share / heart float over the hero (light glass so they stay visible on
+  dark photos); past the hero a solid bar with the station name fades in.
+- Connector statuses: one mapper (`toConnectorStatus`) with the CruzeEV labels for every OCPP
+  code, colours from `brand.connectorStatusColors` (theme `status.connector[state]`, main +
+  tint). Offline codes use the old app's fallback ("Unavailable", red).
+- Chargers grouped: "Charger 1 · DC · 60 kW" with "1/2 free", connectors always in a
+  sideways swipe row (one connector fills the width), compact cards with the status gradient,
+  battery % and time to full while charging.
+- About card: address, 3 amenities + "+N", "View all details" opens a 60%/90% sheet with
+  Copy address, help line (only with a phone), access, connector types and all amenities with
+  icons. Rows without data are hidden.
+- Floating bottom bar: dark "Get Directions · ETA" plus Call only with a phone number.
+- Type: new `title3` (20) for section headings; labels and values at 14 bold; tighter gaps.
+- Sheets fix (also the map Filters and Maps chooser): `dismiss()` on a never-opened
+  BottomSheetModal fires `onDismiss`, which closed sheets as they opened. `AppSheet` and
+  `StationInfoSheet` now only dismiss and report back after they were presented.
+- Dev build hides the tools gear (`expo-dev-client` `toolsButton: false`); expo-clipboard
+  added.
+
+**Verified**: tsc, expo lint, jest (51 suites, 369 tests); iOS simulator and Android
+emulator (hero variants, scrolled header, sheet open/close/reopen, Filters sheet, statuses).
+
+**Notes**
+
+- The repeated Reanimated "Dependencies should only be used on the web" warning comes from
+  `@gorhom/bottom-sheet`, not app code.
+- iOS drive time needs a simulator location near the station (more than 300 km shows none).
+
+**Left**
+
+- App-wide pass with the compact type sizes (plan proposed, waiting for approval).
+- Charging Summary (Phase 4); Stations list (B2).

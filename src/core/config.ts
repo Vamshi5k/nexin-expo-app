@@ -2,6 +2,7 @@ import Constants from 'expo-constants';
 import { z } from 'zod';
 
 import { APP_ENVS, type AppEnv } from '@brand/env';
+import brandMapStyle from '@brand/map-style.json';
 import { parseBrand, type BrandConfig } from '@brand/schema';
 
 export function readExtra(): Record<string, unknown> {
@@ -50,5 +51,17 @@ export const { APP_ENV, API_URL, SOCKET_URL, CLIENT_TOKEN } = env;
 export const brand: BrandConfig = parseBrand(readExtra().brand);
 
 export const phonePattern = new RegExp(brand.phoneRegex);
+
+export const mapStyle = brandMapStyle;
+
+const MapsExtraSchema = z
+  .object({ googleOnIos: z.boolean(), googleOnAndroid: z.boolean() })
+  .catch({ googleOnIos: false, googleOnAndroid: false });
+
+const mapsExtra = MapsExtraSchema.parse(readExtra().maps);
+
+// Google Maps on iOS needs its own key; without it iOS uses Apple Maps (no custom style).
+export const googleMapsOnIos = mapsExtra.googleOnIos;
+export const googleMapsOnAndroid = mapsExtra.googleOnAndroid;
 
 export type { BrandConfig, ConnectorStatus } from '@brand/schema';

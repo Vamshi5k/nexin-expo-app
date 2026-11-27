@@ -17,6 +17,13 @@ export const ENDPOINTS = {
   CLIENT: {
     INFO: '/client/info',
   },
+  STATIONS: {
+    LOCATIONS: '/station/locations',
+    LIST: '/station',
+    DETAILS: (stationId: string) => `/station/${stationId}`,
+    FAVOURITES: '/station/favourites/all',
+    FAVOURITE: (stationId: string) => `/station/favourites/${stationId}`,
+  },
   PROFILE: {
     UPDATE: '/profile',
   },

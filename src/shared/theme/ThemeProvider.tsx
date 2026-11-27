@@ -5,7 +5,16 @@ import type { TextStyle } from 'react-native';
 import { brand } from '@/core/config';
 
 import { buildPalette, type ColorScheme, type Palette } from './palette';
-import { layout, motion, radius, space, tabularNums, typography, type TypeVariant } from './tokens';
+import {
+  icon,
+  layout,
+  motion,
+  radius,
+  space,
+  tabularNums,
+  typography,
+  type TypeVariant,
+} from './tokens';
 
 export type Theme = {
   scheme: ColorScheme;
@@ -13,6 +22,7 @@ export type Theme = {
   space: typeof space;
   layout: typeof layout;
   radius: typeof radius;
+  icon: typeof icon;
   type: Record<TypeVariant, TextStyle>;
   tabularNums: TextStyle;
   motion: typeof motion;
@@ -35,6 +45,7 @@ export function buildTheme(scheme: ColorScheme, b = brand): Theme {
     space,
     layout,
     radius,
+    icon,
     type: typography(b.fontFamily),
     tabularNums,
     motion,

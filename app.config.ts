@@ -69,10 +69,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       'GoogleService-Info.plist',
     ),
     associatedDomains: brand.deepLinkDomains.map((d) => `applinks:${d}`),
-    config: {
-      // Read by react-native-maps when PROVIDER_GOOGLE is used on iOS.
-      googleMapsApiKey: process.env.GOOGLE_MAPS_IOS_KEY,
-    },
     infoPlist: {
       ITSAppUsesNonExemptEncryption: false,
     },
@@ -86,9 +82,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     },
     predictiveBackGestureEnabled: false,
     googleServicesFile: firebaseFile(process.env.GOOGLE_SERVICES_JSON, 'google-services.json'),
-    config: {
-      googleMaps: { apiKey: process.env.GOOGLE_MAPS_ANDROID_KEY },
-    },
     intentFilters: brand.deepLinkDomains.length
       ? [
           {
@@ -103,7 +96,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
 
   plugins: [
     'expo-router',
-    'expo-dev-client',
+    // Dev builds only: hide the floating tools button so it never covers primary actions.
+    // The dev menu still opens with a shake (or `adb shell input keyevent 82`).
+    ['expo-dev-client', { toolsButton: false }],
     [
       'expo-splash-screen',
       {
@@ -127,6 +122,14 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         locationWhenInUsePermission: `${brand.appName} uses your location to show charging stations near you.`,
       },
     ],
+    // Keys come only from env. Without the iOS key the app falls back to Apple Maps.
+    [
+      'react-native-maps',
+      {
+        androidGoogleMapsApiKey: process.env.GOOGLE_MAPS_ANDROID_KEY,
+        iosGoogleMapsApiKey: process.env.GOOGLE_MAPS_IOS_KEY,
+      },
+    ],
     [
       'expo-camera',
       {
@@ -140,7 +143,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       { icon: './brand/assets/notification-icon.png', color: brand.colors.primary },
     ],
     // Remaining native plugin slots, added in the phases that need them:
-    // - Maps: react-native-maps reads the keys set in ios.config / android.config above.
     // - Firebase: '@react-native-firebase/app', '@react-native-firebase/messaging'
     //   (+ expo-build-properties { ios: { useFrameworks: 'static' } }).
     // - Payments: react-native-razorpay (needs a config plugin or prebuild patch).
@@ -155,6 +157,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     appEnv: APP_ENV,
     env,
     brand,
+    maps: {
+      googleOnIos: Boolean(process.env.GOOGLE_MAPS_IOS_KEY),
+      googleOnAndroid: Boolean(process.env.GOOGLE_MAPS_ANDROID_KEY),
+    },
     ...(brand.easProjectId ? { eas: { projectId: brand.easProjectId } } : {}),
   },
 });

@@ -26,6 +26,16 @@ export const layout = {
   // Auth top bar; the splash logo docks into its logo slot.
   topBarHeight: 56,
   logoHeight: 28,
+  // Accent border on a selected card or choice (DESIGN.md "1.5 pt accent border").
+  selectedBorder: 1.5,
+} as const;
+
+// DESIGN.md: lucide only, stroke 1.75, 20 inline and 24 in navigation; 16 for meta beside caption text.
+export const icon = {
+  meta: 16,
+  control: 20,
+  nav: 24,
+  stroke: 1.75,
 } as const;
 
 export const radius = {
@@ -50,6 +60,7 @@ export type TypeVariant =
   | 'display'
   | 'title1'
   | 'title2'
+  | 'title3'
   | 'headline'
   | 'body'
   | 'callout'
@@ -63,6 +74,7 @@ export const TYPE_SCALE: Record<TypeVariant, TypeSpec> = {
   display: { size: 34, line: 40, weight: 'SemiBold', tracking: -0.5 },
   title1: { size: 28, line: 34, weight: 'SemiBold', tracking: -0.4 },
   title2: { size: 22, line: 28, weight: 'SemiBold', tracking: -0.25 },
+  title3: { size: 20, line: 26, weight: 'SemiBold', tracking: -0.2 },
   headline: { size: 17, line: 24, weight: 'SemiBold' },
   body: { size: 16, line: 24, weight: 'Regular' },
   callout: { size: 15, line: 20, weight: 'Regular' },

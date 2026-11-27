@@ -26,6 +26,43 @@ New to the code? Start with [How this app works](docs/HOW_THIS_APP_WORKS.md).
    For the full app, install a development build (`eas build --profile development`)
    and run `npm run start:dev`.
 
+## Development build (needed for the map)
+
+The map uses Google Maps with each client's style from `brand/map-style.json`. That only works
+in a development build, not in Expo Go.
+
+1. Add the Google Maps keys to `.env` (see `.env.example`), or to the EAS environment for cloud
+   builds. Never put them in code; `app.config.ts` passes them to the `react-native-maps`
+   config plugin.
+
+   ```bash
+   GOOGLE_MAPS_ANDROID_KEY=...   # Maps SDK for Android, restricted to the app's package + SHA-1
+   GOOGLE_MAPS_IOS_KEY=...       # optional: without it iOS uses Apple Maps (no custom style)
+   ```
+
+2. Build and install the development build, either in the cloud:
+
+   ```bash
+   eas build --profile development --platform android
+   eas build --profile development-simulator --platform ios   # iOS simulator
+   ```
+
+   or on this Mac (needs Android Studio / Xcode):
+
+   ```bash
+   npx expo run:android
+   npx expo run:ios
+   ```
+
+3. Start the bundler for the dev build and open the app on the device:
+
+   ```bash
+   npm run start:dev
+   ```
+
+Rebuild (step 2) after changing a key, a native library or `app.config.ts`. JS changes only
+need step 3.
+
 You can start developing by editing the files inside the **src/app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
 
 ## Get a fresh project

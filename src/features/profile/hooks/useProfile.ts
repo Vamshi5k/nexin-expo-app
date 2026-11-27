@@ -6,7 +6,7 @@ import { isDevToolsEnabled } from '@/features/dev';
 
 import { APP_ENV, brand } from '@/core/config';
 
-export const useHome = () => {
+export const useProfile = () => {
   const config = useClientConfig();
   const { user } = useAuth();
   const logout = useLogoutConfirm();

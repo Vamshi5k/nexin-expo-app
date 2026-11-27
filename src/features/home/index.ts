@@ -1,2 +1,3 @@
+export { default as MainTabs } from './components/MainTabs';
 export { default as FleetHomeScreen } from './screens/FleetHomeScreen';
-export { default as HomeScreen } from './screens/HomeScreen';
+export { PLACEHOLDER_COPY } from './constants/home.constants';

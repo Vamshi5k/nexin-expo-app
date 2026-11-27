@@ -63,3 +63,28 @@ jest.mock('@/shared/utils/toast', () => ({
   toast: { success: jest.fn(), error: jest.fn(), info: jest.fn(), promise: jest.fn() },
   AppToaster: () => null,
 }));
+
+// react-native-maps needs native views. MapView renders its markers as plain views and exposes
+// the imperative calls the app uses as spies; Marker is a pressable view.
+jest.mock('react-native-maps', () => {
+  const React = jest.requireActual('react');
+  const { View } = jest.requireActual('react-native');
+
+  const MapView = React.forwardRef(
+    ({ children, ...props }: { children?: unknown }, ref: unknown) => {
+      React.useImperativeHandle(ref, () => ({
+        animateToRegion: jest.fn(),
+        animateCamera: jest.fn(),
+        fitToCoordinates: jest.fn(),
+      }));
+      return React.createElement(View, props, children);
+    },
+  );
+  const Marker = ({ children, ...props }: { children?: unknown }) =>
+    React.createElement(View, { accessibilityRole: 'button', ...props }, children);
+
+  return { __esModule: true, default: MapView, Marker, PROVIDER_GOOGLE: 'google' };
+});
+
+// The native maps module and keys don't exist in Jest; the mock above stands in for the map.
+jest.mock('@/core/maps', () => ({ mapsSupport: 'ready' }));

@@ -36,6 +36,44 @@ export const CONNECTOR_STATUSES = [
 ] as const;
 export type ConnectorStatus = (typeof CONNECTOR_STATUSES)[number];
 
+/** Every connector state the app shows, after mapping raw OCPP codes (see connector.ts). */
+export const CONNECTOR_STATES = [
+  'available',
+  'preparing',
+  'charging',
+  'suspendedEv',
+  'suspendedEvse',
+  'finishing',
+  'reserved',
+  'engaged',
+  'unavailable',
+  'faulted',
+  'offline',
+  'unknown',
+] as const;
+export type ConnectorState = (typeof CONNECTOR_STATES)[number];
+
+const statusColor = z.object({ main: hex, tint: hex });
+
+/**
+ * Connector status colours: `main` for the pill dot, `tint` for the card wash. Defaults are
+ * the CruzeEV app's values (its connector status display); Offline follows its fallback.
+ */
+const DEFAULT_CONNECTOR_STATUS_COLORS: Record<ConnectorState, { main: string; tint: string }> = {
+  available: { main: '#16A34A', tint: '#22C55E' },
+  preparing: { main: '#F59E0B', tint: '#F59E0B' },
+  charging: { main: '#0DD5E3', tint: '#00C8D0' },
+  suspendedEv: { main: '#F59E0B', tint: '#F59E0B' },
+  suspendedEvse: { main: '#F59E0B', tint: '#F59E0B' },
+  finishing: { main: '#1A8F99', tint: '#00C8D0' },
+  reserved: { main: '#F59E0B', tint: '#F59E0B' },
+  engaged: { main: '#1A8F99', tint: '#00C8D0' },
+  unavailable: { main: '#EF4444', tint: '#D32F2F' },
+  faulted: { main: '#D32F2F', tint: '#D32F2F' },
+  offline: { main: '#D32F2F', tint: '#D32F2F' },
+  unknown: { main: '#9CA3AF', tint: '#9CA3AF' },
+};
+
 const BrandObjectSchema = z.object({
   /** Display name. "(Dev)" / "(Stg)" is appended for non-production builds. */
   appName: z.string().min(1),
@@ -105,6 +143,9 @@ const BrandObjectSchema = z.object({
   }),
   /** OCPP connector status colours. All statuses are required. */
   connectorColors: z.record(z.enum(CONNECTOR_STATUSES), hex),
+  connectorStatusColors: z
+    .record(z.enum(CONNECTOR_STATES), statusColor)
+    .default(DEFAULT_CONNECTOR_STATUS_COLORS),
 
   /**
    * Colour scheme the app follows. 'system' follows the device setting; 'light' / 'dark'

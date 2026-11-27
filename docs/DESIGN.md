@@ -1,4 +1,4 @@
-# Design direction: modern, clean, professional (2026)
+# Design direction: modern, clean, professional (2027)
 
 ## Feel
 Calm and confident, like a good banking or mobility app. Content first, generous whitespace,
@@ -38,7 +38,7 @@ the driver find, start, watch or pay for a charge.
   even while a brand ships light only. Cruze EV stays on 'light' until the core screens exist.
 
 ## Typography (font from brand, Inter by default)
-- Scale: display 34/40 semibold, title1 28/34 semibold, title2 22/28 semibold,
+- Scale: display 34/40 semibold, title1 28/34 semibold, title2 22/28 semibold, title3 20/26 semibold (section headings),
   headline 17/24 semibold, body 16/24 regular, callout 15/20, subhead 14/20 medium,
   caption 12/16 medium. Slight negative letter-spacing on 22 and above.
 - Numbers (currency, kWh, %, kW, timers) use tabular figures (fontVariant tabular-nums) so
@@ -75,12 +75,31 @@ the driver find, start, watch or pay for a charge.
   during payment and charger start.
 - Empty and error states: simple line icon in an accentSoft circle, one-line title, one
   sentence, one centred action.
-- Floating map controls (search pill, filter, my-location) sit on a blurred translucent
-  surface (expo-blur, or the native glass effect where the SDK supports it), with a solid
-  fallback on Android if blur is slow.
-- Tab bar: labels always visible, raised circular Scan button in accent with onAccent icon,
-  hairline top border, translucent background.
-- Icons: lucide only, stroke 1.75, size 20 inline and 24 in navigation.
+- Floating surfaces use `AppGlass`: native liquid glass on iOS 26+, expo-blur on older iOS,
+  solid surfaceRaised with a hairline borderStrong edge on Android. Still no shadows.
+- Map: full bleed under the status bar and the tab bar. One glass capsule at the top holds
+  search and a filter button (accentSoft + count badge when filters are on). A glass
+  my-location circle sits above the cards.
+- Station status colours come from `brand.connectorColors` (per client): Available green,
+  Unavailable red, Under maintenance yellow, Upcoming amber, unknown grey. The same colour is
+  used by the status badge on the card (`AppStatusChip` with `connector`) and by the map pin,
+  and a pin in the nearby list takes the card's status so the two always match.
+- Map pins: a rounded-square tile (corner 30% of its size) in the station's status colour with a
+  soft surface-to-clear diagonal gradient, a surface ring, a filled bolt and a short pointer,
+  all drawn in one SVG so Android's marker snapshot always includes the icon. 25 pt at rest,
+  33 pt when selected. Bolt ink uses `onConnector`, picked by contrast.
+- Nearby station cards on the map: one surface with a soft vertical gradient of the station's
+  status colour fading to white (`CardGradient`, an exception to the no-gradient rule chosen
+  for this card), dark text, a white status pill and a "⚡ 60 kW" pill, the name (up to two
+  lines) and address, `ChargerArt` (a flat charger in theme colours with a status-colour glow),
+  and a footer that blends in: "59 km · 1h 58m", the rate per kWh and a dark "Go" pill.
+- Tab bar: a floating glass capsule inset 16 from the screen edges, above the home indicator.
+  Labels always visible; the active tab sits in an accentSoft pill with accentText icon and
+  label. Scan is an accent circle with an onAccent icon in the middle of the capsule. Tab
+  screens pad their content by the tab bar height (`BottomTabBarHeightContext`).
+- Icons: lucide only, sizes and stroke from `t.icon` (meta 16 beside captions, control 20,
+  nav 24, stroke 1.75). A selected card or choice uses `t.layout.selectedBorder` (1.5 pt) at
+  all times and only changes its colour, so nothing shifts on select.
 - Status chips: soft tinted background + coloured dot + text label. Colour is never the
   only signal.
 
@@ -92,8 +111,20 @@ the driver find, start, watch or pay for a charge.
   inputs are large chips; the price breakdown is collapsed by default.
 - Wallet: the balance card is the hero (large tabular number); transactions are grouped
   by date.
-- Station details: hero image with a gradient fade at the bottom, and a sticky bottom bar
-  with Directions and the primary action.
+- Station details keep the map screen's language (white surfaces, glass, the dark Go pill).
+  Hero, about 40% of the screen at a fixed size: backend photos as a paging slider with a
+  "1/4" pill (one photo: no slider; none or all broken: `ChargerArt` on a soft accent wash),
+  a readable gradient (dark scrim over photos, page colour over the illustration), then the
+  station status pill exactly as the API sends it, title1 name, one-line address and a
+  `StatRow` (distance, drive, power, rate). Glass back / share / heart float over the hero; a
+  solid bar with the name fades in once scrolled past it. Chargers are grouped: "Charger 1 ·
+  DC · 60 kW" with "1/2 free", then its connector cards (always a sideways swipe row; a single connector fills the width)
+  on their status tint fading to white. "About this station" shows the address and 3
+  amenities plus "+N"; "View all details" opens a 60%/90% sheet with Copy address, help line,
+  access type, connector types and amenities with icons. Rows without data are hidden.
+- Connector status colours come from `brand.connectorStatusColors` (CruzeEV defaults) as
+  `t.colors.status.connector.<state>` with `main` (pill dot) and `tint` (card wash); labels
+  follow the CruzeEV app (Suspended EV, Suspended EVSE, Engaged; Offline shows "Unavailable").
 
 ## Splash, onboarding, auth and first-run setup (flat)
 - Completely flat: no shadows, glows or blurs. Shape comes from flat fills (accent,
@@ -156,6 +187,6 @@ the driver find, start, watch or pay for a charge.
 - Everything tappable has a pressed state (opacity, or scale 0.98). No dead taps.
 
 ## Avoid
-Gradient backgrounds (except the backdrop fades above), more than one accent colour, shadows of any kind, centred paragraphs,
+Gradient backgrounds (except the backdrop fades above and the map station card), more than one accent colour, shadows of any kind, centred paragraphs,
 cramped cards, emoji in the UI, mixed icon sets, grey text below AA, stock illustrations,
 and any brand value hard-coded in a component.

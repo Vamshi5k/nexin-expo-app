@@ -34,6 +34,10 @@ jest.mock('@/features/client-config/api/clientConfig.api', () => {
     },
   };
 });
+jest.mock('@/features/stations/api/stations.api', () => ({
+  ...jest.requireActual('@/features/stations/api/stations.api'),
+  stationsApi: { getLocations: jest.fn(async () => []), getNearby: jest.fn(async () => []) },
+}));
 jest.mock('@/features/auth/api/auth.api', () => {
   const actual = jest.requireActual('@/features/auth/api/auth.api');
   return {
@@ -57,7 +61,7 @@ async function settle(rounds = 20) {
   }
 }
 
-it('a signed-in user logs out from home and lands on Login (no redirect loop)', async () => {
+it('a signed-in user logs out from Profile and lands on Login (no redirect loop)', async () => {
   const errors: string[] = [];
   const spy = jest.spyOn(console, 'error').mockImplementation((...a) => {
     errors.push(a.map(String).join(' '));
@@ -80,8 +84,11 @@ it('a signed-in user logs out from home and lands on Login (no redirect loop)', 
 
   await renderRouter('./src/app', { initialUrl: '/' });
   await settle();
-  expect(screen.getByText('Signed in as')).toBeTruthy();
+  expect(screen).toHavePathname('/home');
+  expect(screen.getByTestId('station-map')).toBeTruthy();
 
+  await fireEvent.press(screen.getByRole('tab', { name: 'Profile' }));
+  await settle();
   await fireEvent.press(screen.getByText('Log out'));
   await fireEvent.press(screen.getByRole('button', { name: 'Yes, log out' }));
   await settle();
