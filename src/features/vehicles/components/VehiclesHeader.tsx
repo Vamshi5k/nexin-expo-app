@@ -29,7 +29,7 @@ const VehiclesHeader = ({
   const t = useTheme();
 
   return (
-    <Animated.View entering={riseIn(0)} style={{ gap: t.space[4] }}>
+    <Animated.View entering={riseIn(0)} style={{ gap: t.space[3] }}>
       <View style={styles.row}>
         <AppBackButton fallbackHref={fallbackHref} onPress={onBack} hardwareBack={!!onBack} />
       </View>
@@ -39,7 +39,7 @@ const VehiclesHeader = ({
             {eyebrow}
           </AppText>
         ) : null}
-        <AppText variant="title2" accessibilityRole="header">
+        <AppText variant="title3" accessibilityRole="header">
           {title}
         </AppText>
         {subtitle ? (

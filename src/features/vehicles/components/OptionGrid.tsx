@@ -25,7 +25,7 @@ const OptionGrid = ({ options, onSelect }: OptionGridProps) => {
   const c = t.colors;
 
   return (
-    <View style={[styles.grid, { gap: t.space[3] }]} accessibilityRole="radiogroup">
+    <View style={[styles.grid, { gap: t.space[2] }]} accessibilityRole="radiogroup">
       {options.map(o => (
         <AppPressable
           key={o.key}
@@ -37,8 +37,8 @@ const OptionGrid = ({ options, onSelect }: OptionGridProps) => {
           style={[
             styles.cell,
             {
-              minHeight: o.monogram ? 104 : 80,
-              padding: t.space[4],
+              minHeight: o.monogram ? 84 : 64,
+              padding: t.space[3],
               borderRadius: t.radius.card,
               borderWidth: 1.5,
               borderColor: o.selected ? c.accent : 'transparent',
@@ -57,13 +57,23 @@ const OptionGrid = ({ options, onSelect }: OptionGridProps) => {
                 },
               ]}
             >
-              <AppText variant="headline" style={{ color: o.selected ? c.onAccent : c.accentText }}>
+              <AppText
+                variant="subhead"
+                style={{
+                  fontFamily: t.type.headline.fontFamily,
+                  color: o.selected ? c.onAccent : c.accentText,
+                }}
+              >
                 {o.label.trim().charAt(0).toUpperCase()}
               </AppText>
             </View>
           ) : null}
           <View style={{ gap: 2 }}>
-            <AppText variant="headline" numberOfLines={2} style={styles.label}>
+            <AppText
+              variant="subhead"
+              numberOfLines={2}
+              style={[styles.label, { fontFamily: t.type.headline.fontFamily }]}
+            >
               {o.label}
             </AppText>
             {o.subtitle ? (
@@ -99,7 +109,7 @@ const styles = StyleSheet.create({
   grid: { flexDirection: 'row', flexWrap: 'wrap' },
   cell: { width: '47%', flexGrow: 1, justifyContent: 'flex-start' },
   label: { paddingRight: 24 },
-  monogram: { width: 36, height: 36, alignItems: 'center', justifyContent: 'center' },
+  monogram: { width: 30, height: 30, alignItems: 'center', justifyContent: 'center' },
   badge: {
     position: 'absolute',
     width: 22,

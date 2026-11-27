@@ -20,7 +20,7 @@ const AddVehicleScreen = () => {
     <AppScreen
       scroll
       wash
-      contentStyle={{ gap: t.space[4], paddingTop: t.space[2] }}
+      contentStyle={{ gap: t.space[3], paddingTop: t.space[2] }}
       footer={
         <AppButton
           label={wizard.isLastStep ? ADD_COPY.add : ADD_COPY.continue}

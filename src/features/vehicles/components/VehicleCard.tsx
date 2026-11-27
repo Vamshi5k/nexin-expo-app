@@ -66,7 +66,7 @@ const VehicleCard = ({
 }: VehicleCardProps) => {
   const t = useTheme();
   const eligible = canAutoCharge(vehicle);
-  const tile = t.space[10];
+  const tile = t.space[8] + t.space[1];
 
   return (
     <AppPressable
@@ -78,7 +78,7 @@ const VehicleCard = ({
         .join(', ')}
       accessibilityHint={VEHICLES_COPY.edit}
       style={{
-        gap: t.space[3],
+        gap: t.space[2] + t.space[1] / 2,
         padding: t.space[3],
         borderRadius: t.radius.card,
         borderWidth: t.layout.hairline,
@@ -165,7 +165,7 @@ const VehicleCard = ({
           styles.row,
           {
             gap: t.space[2],
-            paddingTop: t.space[2] + t.space[1] / 2,
+            paddingTop: t.space[2],
             borderTopWidth: t.layout.hairline,
             borderTopColor: t.colors.border,
           },

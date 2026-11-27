@@ -31,7 +31,7 @@ const VehiclePickPanel = ({ onPicked, onCancel }: VehiclePickPanelProps) => {
     <AppScreen
       scroll
       wash
-      contentStyle={{ gap: t.space[4], paddingTop: t.space[2] }}
+      contentStyle={{ gap: t.space[3], paddingTop: t.space[2] }}
       footer={
         <AppButton
           label={wizard.isLastStep ? EDIT_VEHICLE_COPY.usePick : ADD_COPY.continue}

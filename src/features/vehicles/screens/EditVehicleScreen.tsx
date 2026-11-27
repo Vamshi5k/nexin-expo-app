@@ -58,8 +58,8 @@ const Section = ({ title, step, children }: SectionProps) => {
       </AppText>
       <View
         style={{
-          gap: t.space[4],
-          padding: t.space[4],
+          gap: t.space[3],
+          padding: t.space[3],
           borderRadius: t.radius.card,
           borderWidth: t.layout.hairline,
           borderColor: t.colors.border,
@@ -92,7 +92,7 @@ const EditVehicleScreen = ({ vehicleId }: EditVehicleScreenProps) => {
 
   if (edit.loading || edit.failed || edit.notFound) {
     return (
-      <AppScreen scroll wash contentStyle={{ gap: t.space[5], paddingTop: t.space[2] }}>
+      <AppScreen scroll wash contentStyle={{ gap: t.space[4], paddingTop: t.space[2] }}>
         {header}
         {edit.loading ? (
           <View testID="edit-vehicle-loading" style={{ gap: t.space[3] }}>
@@ -124,7 +124,7 @@ const EditVehicleScreen = ({ vehicleId }: EditVehicleScreenProps) => {
       <AppScreen
         scroll
         wash
-        contentStyle={{ gap: t.space[5], paddingTop: t.space[2] }}
+        contentStyle={{ gap: t.space[4], paddingTop: t.space[2] }}
         footer={
           <AppButton
             label={EDIT_VEHICLE_COPY.save}
@@ -143,8 +143,8 @@ const EditVehicleScreen = ({ vehicleId }: EditVehicleScreenProps) => {
               style={[
                 styles.center,
                 {
-                  width: t.space[10],
-                  height: t.space[10],
+                  width: t.space[8] + t.space[1],
+                  height: t.space[8] + t.space[1],
                   borderRadius: t.radius.control,
                   backgroundColor: t.colors.accentSoft,
                 },
