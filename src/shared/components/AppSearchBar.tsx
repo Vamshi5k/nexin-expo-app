@@ -1,26 +1,37 @@
-import type { ComponentRef, RefObject } from 'react';
+import type { ComponentRef, Ref } from 'react';
 import { StyleSheet, TextInput, View } from 'react-native';
 
 import { Search, X } from 'lucide-react-native';
 
-import { AppPressable } from '@/shared/components';
+import AppPressable from './AppPressable';
 
 import { useTheme } from '@/shared/theme';
 
-import { LIST_COPY } from '../constants/stations.constants';
-
-type SearchCapsuleProps = {
+export type AppSearchBarProps = {
   value: string;
-  inputRef: RefObject<ComponentRef<typeof TextInput> | null>;
-  onChange: (text: string) => void;
-  onClear: () => void;
+  onChangeText: (text: string) => void;
+  placeholder: string;
+  // Shown with the clear button; defaults to clearing the text.
+  onClear?: () => void;
+  clearLabel?: string;
+  autoFocus?: boolean;
+  ref?: Ref<ComponentRef<typeof TextInput>>;
 };
 
-// A solid white search field in a pill, matching the cards below it.
-const SearchCapsule = ({ value, inputRef, onChange, onClear }: SearchCapsuleProps) => {
+// The app's search field: a solid white pill with a hairline edge, a search icon, and a clear
+// button once there is text. Used by the Stations tab and the vehicle pickers.
+const AppSearchBar = ({
+  value,
+  onChangeText,
+  placeholder,
+  onClear,
+  clearLabel = 'Clear search',
+  autoFocus,
+  ref,
+}: AppSearchBarProps) => {
   const t = useTheme();
-  const height = t.layout.minTouch + t.space[1];
-  const clear = t.space[8];
+  const height = t.layout.minTouch;
+  const clear = t.space[8] - t.space[1];
   const inset = (height - clear) / 2;
 
   return (
@@ -41,16 +52,17 @@ const SearchCapsule = ({ value, inputRef, onChange, onClear }: SearchCapsuleProp
     >
       <Search color={t.colors.textSecondary} size={t.icon.meta} strokeWidth={t.icon.stroke} />
       <TextInput
-        ref={inputRef}
+        ref={ref}
         value={value}
-        onChangeText={onChange}
-        placeholder={LIST_COPY.searchPlaceholder}
+        onChangeText={onChangeText}
+        placeholder={placeholder}
         placeholderTextColor={t.colors.textTertiary}
         selectionColor={t.colors.accent}
-        accessibilityLabel={LIST_COPY.searchPlaceholder}
+        accessibilityLabel={placeholder}
         returnKeyType="search"
         autoCorrect={false}
         autoCapitalize="none"
+        autoFocus={autoFocus}
         maxFontSizeMultiplier={t.layout.maxFontScale}
         style={[
           styles.input,
@@ -60,11 +72,11 @@ const SearchCapsule = ({ value, inputRef, onChange, onClear }: SearchCapsuleProp
       />
       {value ? (
         <AppPressable
-          onPress={onClear}
+          onPress={onClear ?? (() => onChangeText(''))}
           haptic="light"
           accessibilityRole="button"
-          accessibilityLabel={LIST_COPY.clearSearch}
-          hitSlop={t.space[1]}
+          accessibilityLabel={clearLabel}
+          hitSlop={t.space[2]}
           style={[
             styles.center,
             {
@@ -82,7 +94,7 @@ const SearchCapsule = ({ value, inputRef, onChange, onClear }: SearchCapsuleProp
   );
 };
 
-export default SearchCapsule;
+export default AppSearchBar;
 
 const styles = StyleSheet.create({
   capsule: {
