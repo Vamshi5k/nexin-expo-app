@@ -39,7 +39,11 @@ export const ENDPOINTS = {
     VERIFY: '/payment/verify',
   },
   VEHICLES: {
+    LIST: '/vehicle',
     ADD: '/vehicle',
+    // PUT edits the vehicle, PATCH { autoCharge } toggles auto-charge, DELETE removes it.
+    ITEM: (vehicleId: string) => `/vehicle/${vehicleId}`,
+    PRIMARY: (vehicleId: string) => `/vehicle/primary/${vehicleId}`,
     BRANDS: '/vehicle/brand',
     MODELS: (brandId: string) => `/vehicle/model/${brandId}`,
     CAPACITIES: (modelId: string) => `/vehicle/capacity/${modelId}`,
