@@ -1,12 +1,19 @@
 import { useContext } from 'react';
-import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
+import { RefreshControl, ScrollView, StyleSheet, Switch, View } from 'react-native';
 
 import { BottomTabBarHeightContext } from 'expo-router/tabs';
 import { LayoutGrid, ShieldCheck } from 'lucide-react-native';
 import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { AppButton, AppDialog, AppFade, AppPressable, AppText } from '@/shared/components';
+import {
+  AppButton,
+  AppDialog,
+  AppFade,
+  AppPressable,
+  AppSegmentedControl,
+  AppText,
+} from '@/shared/components';
 
 import ProfileGlyph, { type ProfileGlyphName } from '../components/ProfileGlyph';
 import ProfileGroup from '../components/ProfileGroup';
@@ -14,12 +21,14 @@ import ProfileHero from '../components/ProfileHero';
 import ProfileRow from '../components/ProfileRow';
 import { LogoutDialog } from '@/features/auth';
 
-import { useTheme } from '@/shared/theme';
+import { useTheme, type AppearancePreference } from '@/shared/theme';
 
 import { riseIn } from '@/shared/utils/motion';
 
-import { DELETE_COPY, PROFILE_COPY } from '../constants/profile.constants';
+import { DELETE_COPY, PROFILE_COPY, SETTINGS_COPY } from '../constants/profile.constants';
 import { useProfile } from '../hooks/useProfile';
+
+const APPEARANCES: AppearancePreference[] = ['system', 'light', 'dark'];
 
 // Profile tab (BLUEPRINT E1): the account card, counts that link to their screens, support,
 // log out and account deletion, then the app version. Rows use the Profile duotone icons.
@@ -163,8 +172,69 @@ const ProfileScreen = () => {
           </ProfileGroup>
         </Animated.View>
 
+        <Animated.View entering={riseIn(3)}>
+          <ProfileGroup title={SETTINGS_COPY.title}>
+            <View style={{ gap: t.space[3], paddingVertical: t.space[3] }}>
+              <View style={[styles.row, { gap: t.space[3] }]}>
+                <View
+                  style={[
+                    styles.center,
+                    {
+                      width: t.space[8] + t.space[1],
+                      height: t.space[8] + t.space[1],
+                      borderRadius: t.radius.control,
+                      backgroundColor: t.colors.accentSoft,
+                    },
+                  ]}
+                >
+                  {glyph('appearance')}
+                </View>
+                <View style={[styles.grow, { gap: t.space[1] / 2 }]}>
+                  <AppText variant="subhead" style={{ fontFamily: t.type.headline.fontFamily }}>
+                    {SETTINGS_COPY.appearance}
+                  </AppText>
+                  <AppText variant="caption" tone="secondary">
+                    {SETTINGS_COPY.appearanceHint[profile.appearance]}
+                  </AppText>
+                </View>
+              </View>
+              <AppSegmentedControl
+                segments={APPEARANCES.map(value => ({
+                  value,
+                  label: SETTINGS_COPY.appearanceOptions[value],
+                }))}
+                value={profile.appearance}
+                onChange={profile.setAppearance}
+                accessibilityLabel={SETTINGS_COPY.appearanceLabel}
+              />
+            </View>
+            <ProfileRow
+              icon={glyph('bell')}
+              title={SETTINGS_COPY.notifications}
+              subtitle={profile.notifications.known ? profile.notifications.subtitle : null}
+              chevron={false}
+              onPress={profile.notifications.toggle}
+              trailing={
+                <Switch
+                  value={profile.notifications.enabled}
+                  onValueChange={profile.notifications.toggle}
+                  disabled={!profile.notifications.known || profile.notifications.busy}
+                  accessibilityLabel={SETTINGS_COPY.notifications}
+                  accessibilityState={{
+                    checked: profile.notifications.enabled,
+                    disabled: !profile.notifications.known || profile.notifications.busy,
+                  }}
+                  trackColor={{ false: t.colors.surfaceSunken, true: t.colors.accent }}
+                  thumbColor={t.colors.surface}
+                  ios_backgroundColor={t.colors.surfaceSunken}
+                />
+              }
+            />
+          </ProfileGroup>
+        </Animated.View>
+
         {profile.hasSupport ? (
-          <Animated.View entering={riseIn(3)}>
+          <Animated.View entering={riseIn(4)}>
             <ProfileGroup title={PROFILE_COPY.support}>
               <ProfileRow
                 first

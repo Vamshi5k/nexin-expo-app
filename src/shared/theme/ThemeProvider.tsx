@@ -1,8 +1,9 @@
-import { createContext, useContext, useMemo, useState, type ReactNode } from 'react';
-import { useColorScheme } from 'react-native';
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { Appearance, useColorScheme } from 'react-native';
 import type { TextStyle } from 'react-native';
 
 import { brand } from '@/core/config';
+import { KV_KEYS, kv } from '@/core/storage';
 
 import { buildPalette, type ColorScheme, type Palette } from './palette';
 import {
@@ -28,10 +29,24 @@ export type Theme = {
   motion: typeof motion;
 };
 
+export type AppearancePreference = 'system' | 'light' | 'dark';
+
 type ThemeContextType = {
   theme: Theme;
   setSchemeOverride: (scheme: ColorScheme | null) => void;
   schemeOverride: ColorScheme | null;
+  appearance: AppearancePreference;
+  setAppearance: (appearance: AppearancePreference) => void;
+};
+
+const APPEARANCES: AppearancePreference[] = ['system', 'light', 'dark'];
+
+// The driver's saved choice, else the brand's default.
+const readAppearance = (): AppearancePreference => {
+  const saved = kv.getString(KV_KEYS.appearance);
+  return APPEARANCES.includes(saved as AppearancePreference)
+    ? (saved as AppearancePreference)
+    : brand.appearance;
 };
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -70,11 +85,26 @@ type ThemeProviderProps = {
 export const ThemeProvider = ({ children }: ThemeProviderProps) => {
   const device = useColorScheme();
   const [schemeOverride, setSchemeOverride] = useState<ColorScheme | null>(null);
-  const scheme = resolveScheme(brand.appearance, device, schemeOverride);
+  const [appearance, setAppearanceState] = useState<AppearancePreference>(readAppearance);
+  const scheme = resolveScheme(appearance, device, schemeOverride);
+
+  // Native parts (switches, keyboard, alerts) follow the same choice; "system" hands it back.
+  useEffect(() => {
+    Appearance.setColorScheme(appearance === 'system' ? 'unspecified' : appearance);
+  }, [appearance]);
 
   const value = useMemo<ThemeContextType>(
-    () => ({ theme: buildTheme(scheme), schemeOverride, setSchemeOverride }),
-    [scheme, schemeOverride],
+    () => ({
+      theme: buildTheme(scheme),
+      schemeOverride,
+      setSchemeOverride,
+      appearance,
+      setAppearance: (next: AppearancePreference) => {
+        kv.setString(KV_KEYS.appearance, next);
+        setAppearanceState(next);
+      },
+    }),
+    [scheme, schemeOverride, appearance],
   );
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
@@ -113,4 +143,12 @@ export const useSchemeOverride = () => {
     throw new Error('useSchemeOverride must be used inside ThemeProvider');
   }
   return { schemeOverride: context.schemeOverride, setSchemeOverride: context.setSchemeOverride };
+};
+
+export const useAppearance = () => {
+  const context = useContext(ThemeContext);
+  if (!context) {
+    throw new Error('useAppearance must be used inside ThemeProvider');
+  }
+  return { appearance: context.appearance, setAppearance: context.setAppearance };
 };

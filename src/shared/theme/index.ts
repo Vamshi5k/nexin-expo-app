@@ -3,6 +3,8 @@ export {
   ThemeScope,
   useTheme,
   useSchemeOverride,
+  useAppearance,
+  type AppearancePreference,
   buildTheme,
   resolveScheme,
   type Theme,

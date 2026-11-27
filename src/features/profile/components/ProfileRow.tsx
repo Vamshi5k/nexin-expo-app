@@ -15,6 +15,8 @@ type ProfileRowProps = {
   tone?: 'accent' | 'neutral' | 'danger';
   chevron?: boolean;
   first?: boolean;
+  // A control on the right (a switch), shown in place of the chevron.
+  trailing?: ReactNode;
   onPress?: () => void;
 };
 
@@ -28,6 +30,7 @@ const ProfileRow = ({
   tone = 'accent',
   chevron = true,
   first,
+  trailing,
   onPress,
 }: ProfileRowProps) => {
   const t = useTheme();
@@ -92,7 +95,8 @@ const ProfileRow = ({
             </AppText>
           ) : null}
         </View>
-        {chevron ? (
+        {trailing}
+        {chevron && !trailing ? (
           <ChevronRight
             color={t.colors.textTertiary}
             size={t.icon.meta}

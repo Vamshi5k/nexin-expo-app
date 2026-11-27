@@ -58,7 +58,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   version: '1.0.0',
   platforms: ['ios', 'android'],
   orientation: 'portrait',
-  userInterfaceStyle: USER_INTERFACE_STYLE[brand.appearance],
+  // Automatic so the in-app Appearance setting can follow the phone; the brand's choice is the
+  // in-app default (ThemeProvider), not a native lock.
+  userInterfaceStyle: USER_INTERFACE_STYLE.system,
   icon: './brand/assets/icon.png',
 
   ios: {
@@ -68,7 +70,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       process.env.GOOGLE_SERVICE_INFO_PLIST,
       'GoogleService-Info.plist',
     ),
-    associatedDomains: brand.deepLinkDomains.map((d) => `applinks:${d}`),
+    associatedDomains: brand.deepLinkDomains.map(d => `applinks:${d}`),
     infoPlist: {
       ITSAppUsesNonExemptEncryption: false,
     },
@@ -87,7 +89,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
           {
             action: 'VIEW',
             autoVerify: true,
-            data: brand.deepLinkDomains.map((host) => ({ scheme: 'https', host })),
+            data: brand.deepLinkDomains.map(host => ({ scheme: 'https', host })),
             category: ['BROWSABLE', 'DEFAULT'],
           },
         ]
