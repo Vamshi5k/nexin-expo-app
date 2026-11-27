@@ -10,6 +10,8 @@ import {
 } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
 
+const TITLE_RISE = 8;
+
 // Over the hero the header is just floating buttons; past it, a solid bar with the title fades
 // in so nothing shows through behind it.
 export const useHeaderReveal = (revealAt: number, fadeDistance: number) => {
@@ -38,7 +40,10 @@ export const useHeaderReveal = (revealAt: number, fadeDistance: number) => {
   };
 
   const barStyle = useAnimatedStyle(() => ({ opacity: progress() }));
-  const titleStyle = useAnimatedStyle(() => ({ opacity: progress() }));
+  const titleStyle = useAnimatedStyle(() => ({
+    opacity: progress(),
+    transform: [{ translateY: (1 - progress()) * TITLE_RISE }],
+  }));
 
-  return { onScroll, barStyle, titleStyle, revealed };
+  return { onScroll, scrollY, barStyle, titleStyle, revealed };
 };

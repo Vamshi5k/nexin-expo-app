@@ -1,5 +1,7 @@
+import { formatRate } from '@/shared/utils/money';
 import type { ConnectorState } from '@brand/schema';
 
+import { CARD_COPY } from '../constants/stations.constants';
 import type { Charger, Connector } from '../types/stations.types';
 
 export type ConnectorStatus = { state: ConnectorState; label: string };
@@ -59,13 +61,38 @@ export function sortChargers(chargers: Charger[]): Charger[] {
     .map(entry => entry.charger);
 }
 
+// Chargers sometimes report a nonsense estimate (weeks); anything past a day is not shown.
+const MAX_MINUTES_TO_FULL = 24 * 60;
+
+export function timeToFull(minutes: number | null): string | null {
+  if (minutes === null || minutes <= 0 || minutes > MAX_MINUTES_TO_FULL) return null;
+
+  const hours = Math.floor(minutes / 60);
+  const rest = Math.round(minutes % 60);
+  if (!hours) return `${rest} min to full`;
+  return rest ? `${hours} h ${rest} min to full` : `${hours} h to full`;
+}
+
 export function chargingProgress(connector: Connector): string | null {
   if (connector.state !== 'charging') return null;
 
   const parts = [
     connector.socPercent !== null ? `${connector.socPercent}%` : null,
-    connector.minutesToFull !== null ? `${connector.minutesToFull} min to full` : null,
+    timeToFull(connector.minutesToFull),
   ];
   const text = parts.filter(Boolean).join(' · ');
   return text || null;
+}
+
+// "DC · 60 kW · ₹18.00/kWh", leaving out whatever the charger does not report.
+export function chargerSpecs(charger: Charger): string {
+  return [
+    charger.powerType,
+    charger.capacityKw !== null ? `${charger.capacityKw} kW` : null,
+    charger.pricePerKwhPaise !== null
+      ? `${formatRate(charger.pricePerKwhPaise)}${CARD_COPY.price}`
+      : null,
+  ]
+    .filter(Boolean)
+    .join(' · ');
 }

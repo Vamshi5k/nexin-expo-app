@@ -41,6 +41,11 @@ the driver find, start, watch or pay for a charge.
 - Scale: display 34/40 semibold, title1 28/34 semibold, title2 22/28 semibold, title3 20/26 semibold (section headings),
   headline 17/24 semibold, body 16/24 regular, callout 15/20, subhead 14/20 medium,
   caption 12/16 medium. Slight negative letter-spacing on 22 and above.
+- One set of roles across the app (auth hero headings aside):
+  - Screen titles (Stations, Wallet, Profile, the station name in the hero): title2 22.
+  - Section, sheet and dialog headings (Chargers, About, Filters): headline 17.
+  - Card titles and key values (charger header, connector type, stats, price): subhead 14
+    in the semibold face. Pills, labels and hints: caption 12.
 - Numbers (currency, kWh, %, kW, timers) use tabular figures (fontVariant tabular-nums) so
   live values don't jitter.
 - Layouts survive font scaling up to 1.3x.
@@ -65,7 +70,9 @@ the driver find, start, watch or pay for a charge.
 ## Components and patterns
 - Bottom sheets for choices, filters and confirmations; Dialog only for destructive or
   blocking actions.
-- Segmented controls for tabs inside a screen. Settings-style screens (Profile, Edit
+- Segmented controls for tabs inside a screen: a pill track (surfaceSunken) with one white
+  thumb that springs to the selected segment (no spring under Reduce Motion); a segment may
+  carry a count badge (accentSoft when selected). Settings-style screens (Profile, Edit
   Profile) use inset grouped lists (ListGroup + ListRow: optional icon in a soft tinted
   circle, title, subtitle, value or trailing element, chevron when tappable; separators inset
   past the icon; group label above, helper text below).
@@ -109,19 +116,50 @@ the driver find, start, watch or pay for a charge.
   tiles, Stop as a full-width danger-outline button.
 - Charging summary: the total to pay is the most prominent number on screen; amount
   inputs are large chips; the price breakdown is collapsed by default.
-- Wallet: the balance card is the hero (large tabular number); transactions are grouped
+- Wallet: the balance card is the hero (large tabular number) on surfaceRaised with a soft
+  accent wash and glow, never a dark ink slab, so it follows light and dark mode. Add Money
+  looks like the Wallet tab: the brand wash at the top (`AppScreen wash`), a filled back
+  button, then a left-aligned title2 with a subtitle; a white amount card with the same wash (ENTER AMOUNT overline with the balance beside it, the amount
+  large and left-aligned with its symbol, a thin line that turns accent or red, then the minimum hint, the error, or "Balance after
+  top-up" with the new total in success once the amount is valid; no separate preview card),
+  grey quick-amount pills with the picked one dark, and a compact dashed card when there
+  are no coupons; transactions are grouped
   by date.
-- Station details keep the map screen's language (white surfaces, glass, the dark Go pill).
-  Hero, about 40% of the screen at a fixed size: backend photos as a paging slider with a
-  "1/4" pill (one photo: no slider; none or all broken: `ChargerArt` on a soft accent wash),
-  a readable gradient (dark scrim over photos, page colour over the illustration), then the
-  station status pill exactly as the API sends it, title1 name, one-line address and a
-  `StatRow` (distance, drive, power, rate). Glass back / share / heart float over the hero; a
-  solid bar with the name fades in once scrolled past it. Chargers are grouped: "Charger 1 ·
-  DC · 60 kW" with "1/2 free", then its connector cards (always a sideways swipe row; a single connector fills the width)
-  on their status tint fading to white. "About this station" shows the address and 3
-  amenities plus "+N"; "View all details" opens a 60%/90% sheet with Copy address, help line,
-  access type, connector types and amenities with icons. Rows without data are hidden.
+- Station details (decided with the client from a reference, Nov 2026):
+  - Photo, about a third of the screen at a fixed size, edge to edge. The page rises over its
+    base as a sheet with rounded top corners (sheet radius), so the photo reads as a layer
+    behind the content. Backend photos page sideways; a glass pill of dots (the current
+    one elongated) shows the position. None or all broken: the station illustration on an
+    accent wash with a soft white glow behind it. A top scrim keeps the glass back / share /
+    heart readable; over photos a soft dark base gradient. A glass status chip with a
+    glowing dot floats bottom-left, just above the sheet.
+  - On the sheet: the name, the address, then the figures, biggest
+    first: a white "Connectors free" card with the Stations card's corner glow (success
+    when something is free, danger when nothing is), the free count in that colour over
+    "/8", and one square per connector in its own status colour (free and charging lit with
+    a soft glow, busy ones at 45%); Max power and Price
+    tiles; a Route tile ("1.9 km · 4 min drive") with a dark circle that opens directions.
+  - Chargers / Info segmented tabs (white track, dark thumb, "04" count) pin under a solid
+    header with the name and "● status · address" once scrolled.
+  - Chargers tab: one flat card per charger, no boxes inside it. Header: "Charger 01" and
+    "DC · 60 kW · ₹18.99/kWh", with "1/2 free" as plain text (success when something is free,
+    tertiary when not), then a hairline. Each connector is a list row with dividers inset
+    past the icon: the plug on a soft status-tinted circle, the type over a light line
+    ("Connector 1", or "20% · time to full" while charging; estimates past a day are
+    hidden), and on the right the status as a glowing dot plus coloured text, no pill (the
+    dot pulses while charging). Tapping a free row opens charging. No Start pill, no ring,
+    no slide-to-charge bar.
+  - Info tab: a card with a drawn map hint (roads, route, accent pin, distance chip), the
+    ADDRESS overline, address, and Copy (outlined) + Directions (accent) pills; big-number
+    tiles two per row (chargers, connectors, connector type, access); the help line with a
+    dark call circle; AMENITIES overline and chips with accent icons.
+- Stations tab: title, subtitle and the header charger art on a soft accent wash, then a
+  solid white search pill (hairline border, not glass). Cards are white with a faint radial
+  glow in the availability colour in the top-right corner. Top: the name (headline), the
+  address, and spec tokens (bolt + "60 kW", "₹18.99/kWh" in sunken pills), with the heart in
+  a white circle. Bottom: a meter of small cells, one per connector up to 8 then "+N", free
+  ones lit and glowing in the availability colour, the availability text under it ("1/8
+  Free", "Unavailable"), and a dark "1.9 km ↗" pill that opens directions.
 - Connector status colours come from `brand.connectorStatusColors` (CruzeEV defaults) as
   `t.colors.status.connector.<state>` with `main` (pill dot) and `tint` (card wash); labels
   follow the CruzeEV app (Suspended EV, Suspended EVSE, Engaged; Offline shows "Unavailable").
@@ -185,6 +223,12 @@ the driver find, start, watch or pay for a charge.
 - expo-haptics: light on selections and toggles, success on payment and charge start,
   warning on stop or delete confirmation.
 - Everything tappable has a pressed state (opacity, or scale 0.98). No dead taps.
+- Entrances come from `src/shared/utils/motion.ts` so every screen moves the same way:
+  `riseIn(step)` for content (staggered by `motion.stagger`), `dropIn` for top controls,
+  `slideIn` for cards in a sideways row, `springUp` for bars pinned to the bottom.
+- Station Details: the hero drifts at 40% of the scroll speed and stretches on pull-down; the
+  heart bounces when added; a charging connector's dot pulses. Map pins stay static (they are
+  native snapshots on Android, and animating them makes the map stutter).
 
 ## Avoid
 Gradient backgrounds (except the backdrop fades above and the map station card), more than one accent colour, shadows of any kind, centred paragraphs,

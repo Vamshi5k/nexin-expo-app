@@ -58,6 +58,14 @@ export type NearbyStation = Coordinates & {
   status: StationStatus;
 };
 
+export type StationSearchQuery = {
+  center: Coordinates;
+  search: string;
+  page: number;
+  limit: number;
+  signal?: AbortSignal;
+};
+
 export type StationAccess = 'any' | 'public' | 'private';
 
 export type StationFilters = {

@@ -2,6 +2,7 @@ import { useContext, useState, type ComponentType } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { BottomTabBarHeightContext } from 'expo-router/tabs';
+import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppButton, AppGlass, AppText } from '@/shared/components';
@@ -17,6 +18,7 @@ import StationPeekCard from '../components/StationPeekCard';
 import { useTheme } from '@/shared/theme';
 
 import { mapsSupport } from '@/core/maps';
+import { riseIn } from '@/shared/utils/motion';
 
 import { MAP_COPY } from '../constants/stations.constants';
 import { useMapScreen } from '../hooks/useMapScreen';
@@ -64,7 +66,7 @@ const MapScreen = () => {
 
       <MapTopBar
         activeFilterCount={map.activeFilterCount}
-        onSearch={map.openStationList}
+        onSearch={map.openSearch}
         onFilters={map.openFilters}
       />
 
@@ -76,9 +78,13 @@ const MapScreen = () => {
           { bottom: tabBarHeight, gap: t.space[3], paddingBottom: t.space[3] },
         ]}
       >
-        <View pointerEvents="box-none" style={[styles.fabs, { paddingHorizontal: t.space[4] }]}>
+        <Animated.View
+          entering={riseIn(2)}
+          pointerEvents="box-none"
+          style={[styles.fabs, { paddingHorizontal: t.space[4] }]}
+        >
           <MapLocateButton locating={map.locating} onPress={map.onLocate} />
-        </View>
+        </Animated.View>
 
         {map.failed ? (
           <View style={{ paddingHorizontal: t.space[4] }}>

@@ -1,11 +1,14 @@
 import { StyleSheet, View } from 'react-native';
 
 import { Search, SlidersHorizontal } from 'lucide-react-native';
+import Animated, { ZoomIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppBadge, AppGlass, AppPressable, AppText } from '@/shared/components';
 
 import { useTheme, type Theme } from '@/shared/theme';
+
+import { dropIn } from '@/shared/utils/motion';
 
 import { MAP_COPY } from '../constants/stations.constants';
 
@@ -29,7 +32,8 @@ const MapTopBar = ({ activeFilterCount, onSearch, onFilters }: MapTopBarProps) =
     : MAP_COPY.filters;
 
   return (
-    <View
+    <Animated.View
+      entering={dropIn()}
       pointerEvents="box-none"
       style={[styles.wrap, { top: insets.top + t.space[2], paddingHorizontal: t.space[4] }]}
     >
@@ -79,13 +83,17 @@ const MapTopBar = ({ activeFilterCount, onSearch, onFilters }: MapTopBarProps) =
             strokeWidth={t.icon.stroke}
           />
           {activeFilterCount ? (
-            <View style={[styles.badge, { top: -t.space[1], right: -t.space[1] }]}>
+            <Animated.View
+              key={activeFilterCount}
+              entering={ZoomIn.springify()}
+              style={[styles.badge, { top: -t.space[1], right: -t.space[1] }]}
+            >
               <AppBadge label={activeFilterCount} />
-            </View>
+            </Animated.View>
           ) : null}
         </AppPressable>
       </AppGlass>
-    </View>
+    </Animated.View>
   );
 };
 

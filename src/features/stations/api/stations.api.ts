@@ -14,6 +14,7 @@ import type {
   StationFilters,
   StationPin,
   StationPinDto,
+  StationSearchQuery,
 } from '../types/stations.types';
 import { toConnectorStatus } from '../utils/connector';
 import { toFilterParams } from '../utils/filters';
@@ -162,6 +163,27 @@ export const stationsApi = {
         page: 1,
         ...toFilterParams(filters),
       },
+    });
+    return (unwrap(res) ?? []).map(toNearbyStation).filter(isPresent);
+  },
+
+  // The Stations tab: nearest first, optionally filtered by name, one page at a time.
+  searchStations: async ({
+    center,
+    search,
+    page,
+    limit,
+    signal,
+  }: StationSearchQuery): Promise<NearbyStation[]> => {
+    const res = await api.get<Envelope<NearbyStationDto[] | null>>(ENDPOINTS.STATIONS.LIST, {
+      params: {
+        latitude: center.latitude,
+        longitude: center.longitude,
+        limit,
+        page,
+        ...(search ? { search } : {}),
+      },
+      signal,
     });
     return (unwrap(res) ?? []).map(toNearbyStation).filter(isPresent);
   },

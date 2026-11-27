@@ -515,3 +515,65 @@ emulator (hero variants, scrolled header, sheet open/close/reopen, Filters sheet
 
 - App-wide pass with the compact type sizes (plan proposed, waiting for approval).
 - Charging Summary (Phase 4); Stations list (B2).
+
+## Phase 3c: Stations tab (branch `feat/stations-list`, 2026-11-26)
+
+**Done**
+
+- Stations tab (B2): large "Stations" title, a search field ("Search stations...", clear button)
+  and the nearest stations, 10 a page (`GET /station`, `stationsApi.searchStations`).
+- Search runs 500 ms after typing stops (`useDebouncedValue`); answers for an older search are
+  dropped. Infinite scroll at 40% from the end, pull to refresh, the list drag closes the
+  keyboard.
+- `StationListCard`: the map card at list size: white availability and kW pills with a heart,
+  the name, then distance · drive · ₹/kWh beside a dark Go pill (opens directions). Header has
+  a brand wash, subtitle and the map's glass search capsule. Previously: name, address, heart, then
+  "2/4 Free" or red "Unavailable", kW, price per kWh and distance. The tint follows the pill.
+- Hearts flip at once, toast "Added to favourites" / "Removed from favourites", roll back on
+  error, and re-sync from the server every time the tab is focused.
+- States: 3 skeleton cards; "Location is off" + Enable location; "Couldn't load stations" +
+  Retry; "No stations found" + Clear Search; "No stations available"; a footer skeleton while
+  loading more. If location is allowed but has no fix, the list uses the brand's default region.
+- The map's search pill opens the tab with the field focused; "View all stations" opens it plain.
+- Tests: availability label rules, paging merge, a screen flow test (debounce, paging, every
+  state, heart rollback, card tap, focus param) and the map search pill.
+
+**Deviations**
+
+- 10 per page instead of the old app's 5 (OPEN_QUESTIONS #17).
+- No profile button in the header (it duplicated the Profile tab) and no filters yet.
+
+**Verified**: tsc, expo lint, jest (53 suites, 386 tests); Android emulator with staging
+(list, search with no results, Clear Search, map search pill focus).
+
+## Phase 4a: Wallet (branch `feat/stations-list`, 2026-11-26)
+
+**Done**
+
+- Wallet tab (D1): title, a dark balance card with an animated wallet (`WalletArt`: card
+  sliding out, coins bobbing), the balance counting up to its value, an eye to hide it and Add
+  Money; "Transactions" with See All and the latest 10 on one card. Quiet reload on focus (no
+  skeleton flash), pull to refresh, skeleton / empty / error + Retry.
+- Wallet History (D2, `/(app)/wallet/history`): All / Credit / Debit, sticky month headers,
+  10 a page with infinite scroll; pull to refresh keeps the list on screen.
+- Add Money (D3, `/(app)/wallet/add?amount=`): a large amount field, the brand's quick amounts
+  (`brand.quickTopUpRupees`) and the minimum (`brand.minTopUpRupees`) shown up front, coupons
+  as tickets (only ACTIVE, only with `features.coupons`), Price Breakdown with cashback.
+  Create order → Razorpay → verify → refresh the user. Result sheets with a drawn mark
+  (`ResultArt`): success (credits, order id), failure with Try Again on the same order, and
+  "Payment Not Confirmed" with no retry when verification fails after paying.
+- `src/core/payments.ts` wraps react-native-razorpay: loads it only when a payment starts and
+  reports `unavailable` on builds without the native module (toast, no crash).
+- `AppFade` moved to the shared kit (used by Stations, the station hero and Wallet).
+- Tests: wallet endpoint paths, mappers, amount and coupon rules, transaction display, and
+  flows for the three screens (balance, hide, retry, history filter paging, minimum, quick
+  amount, success, failure → retry, unverified, missing native module).
+
+**Deviations**
+
+- Credit / Debit filtering is client-side over paged data (OPEN_QUESTIONS #18).
+- react-native-razorpay was added: rebuild the dev build (`npx expo run:ios` /
+  `npx expo run:android`) before testing a real payment.
+
+**Verified**: tsc, expo lint, jest (55 suites, 411 tests); Android emulator (Wallet tab,
+Add Money with quick amounts). A real payment was not run.

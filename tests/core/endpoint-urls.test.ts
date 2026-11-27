@@ -8,6 +8,7 @@ import { fleetApi } from '@/features/fleet/api/fleet.api';
 import { setupApi } from '@/features/setup/api/setup.api';
 import { stationsApi } from '@/features/stations/api/stations.api';
 import { vehiclesApi } from '@/features/vehicles/api/vehicles.api';
+import { walletApi } from '@/features/wallet/api/wallet.api';
 
 // Paths are written out by hand from the old app (src/api/endpoints.ts and its call sites),
 // not imported from ENDPOINTS, so a typo in ENDPOINTS fails here.
@@ -214,6 +215,41 @@ describe('stationsApi calls the same paths as the old app', () => {
       method: 'POST',
       url: '/station/favourites/9',
       data: { isFavourite: true },
+    });
+  });
+});
+
+describe('wallet', () => {
+  it('getTransactions -> GET /transactions?limit&page', async () => {
+    await walletApi.getTransactions(2, 10);
+    expect(lastCall()).toMatchObject({
+      method: 'GET',
+      url: '/transactions',
+      params: { page: 2, limit: 10 },
+    });
+  });
+
+  it('getCoupons -> GET /coupon', async () => {
+    await walletApi.getCoupons();
+    expect(lastCall()).toMatchObject({ method: 'GET', url: '/coupon' });
+  });
+
+  it('createOrder -> POST /payment { amount in rupees, couponId }', async () => {
+    respond({ data: { keyId: 'k', orderId: 'o', amount: 50000, currency: 'INR' } });
+    await walletApi.createOrder(50000, '7');
+    expect(lastCall()).toMatchObject({
+      method: 'POST',
+      url: '/payment',
+      data: { amount: 500, couponId: '7' },
+    });
+  });
+
+  it('verifyPayment -> POST /payment/verify with the Razorpay fields', async () => {
+    await walletApi.verifyPayment({ paymentId: 'p', orderId: 'o', signature: 's' });
+    expect(lastCall()).toMatchObject({
+      method: 'POST',
+      url: '/payment/verify',
+      data: { razorpay_payment_id: 'p', razorpay_order_id: 'o', razorpay_signature: 's' },
     });
   });
 });

@@ -89,7 +89,7 @@ const AppSheet = ({
         {title || description ? (
           <View style={{ gap: t.space[1] }}>
             {title ? (
-              <AppText variant="title2" accessibilityRole="header">
+              <AppText variant="headline" accessibilityRole="header">
                 {title}
               </AppText>
             ) : null}

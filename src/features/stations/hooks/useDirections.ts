@@ -4,7 +4,7 @@ import { Linking, Platform } from 'react-native';
 import { log } from '@/core/log';
 
 import type { Coordinates } from '../types/stations.types';
-import { mapsAppUrls } from '../utils/directions';
+import { directionsUrls, mapsAppUrls } from '../utils/directions';
 
 const openWithFallback = (url: string, fallback: string) =>
   Linking.openURL(url).catch(() =>
@@ -12,6 +12,12 @@ const openWithFallback = (url: string, fallback: string) =>
       log.warn('could not open directions', { error: String(error) }),
     ),
   );
+
+// Straight into the platform's maps app (the map and list cards' Go button).
+export const openStationDirections = (point: Coordinates) => {
+  const { app, web } = directionsUrls(point, Platform.OS === 'ios' ? 'ios' : 'android');
+  void openWithFallback(app, web);
+};
 
 // iOS asks Apple Maps or Google Maps (BLUEPRINT B3); Android goes straight to Google Maps.
 export const useDirections = () => {

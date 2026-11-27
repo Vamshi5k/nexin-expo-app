@@ -1,0 +1,88 @@
+export const TRANSACTIONS_PREVIEW = 10;
+export const HISTORY_PAGE_SIZE = 10;
+export const LOAD_MORE_THRESHOLD = 0.5;
+
+export const WALLET_HREF = {
+  tab: '/(app)/(tabs)/wallet',
+  history: '/(app)/wallet/history',
+  add: '/(app)/wallet/add',
+} as const;
+
+export const WALLET_COPY = {
+  title: 'Wallet',
+  subtitle: 'Top up once, charge anywhere',
+  balance: 'Available Balance',
+  showBalance: 'Show balance',
+  hideBalance: 'Hide balance',
+  hidden: '••••••',
+  addMoney: 'Add Money',
+  transactions: 'Transactions',
+  seeAll: 'See All',
+  recharge: 'Wallet Recharge',
+  charging: (station: string) => `Charging - ${station}`,
+  unknownStation: 'Unknown Station',
+  emptyTitle: 'No Transactions Yet',
+  emptyBody: 'Your wallet transactions will appear here once you start using it.',
+  loadError: "Couldn't load transactions. Pull down to retry.",
+  retry: 'Retry',
+};
+
+export const HISTORY_COPY = {
+  title: 'Wallet History',
+  all: 'All',
+  credit: 'Credit',
+  debit: 'Debit',
+  emptyTitle: 'No Transactions Found',
+  emptyBody: 'Your wallet activity will appear here.',
+  loadError: "Couldn't load transactions",
+  loadMoreError: "Couldn't load more transactions",
+  retry: 'Retry',
+};
+
+export const ADD_MONEY_COPY = {
+  title: 'Add Money',
+  subtitle: 'Top up your wallet in seconds',
+  enterAmount: 'Enter Amount',
+  currentBalance: 'Current balance',
+  afterTopUp: 'Balance after top-up',
+  secure: 'Payments are secure and encrypted',
+  methods: ['UPI', 'Cards', 'Net banking'],
+  placeholder: 'Enter amount',
+  quickAmounts: 'Quick amounts',
+  amountRequired: 'Amount is required',
+  amountInvalid: 'Please enter a valid amount',
+  amountMin: (min: string) => `Minimum amount is ${min}`,
+  breakdown: 'Price Breakdown',
+  amount: 'Amount',
+  couponDiscount: 'Coupon Discount',
+  couponBadge: (code: string, percent: number) => `${code} · ${percent}% OFF`,
+  totalCredits: 'Total Credits',
+  coupons: 'Available Coupons',
+  couponFallback: (percent: number) => `Get ${percent}% bonus on wallet top-up`,
+  eligible: 'Eligible',
+  notEligible: 'Not Eligible',
+  applied: 'Applied',
+  apply: 'Apply',
+  couponMin: (min: string) => `Minimum ${min} required for this coupon`,
+  noCoupons: 'No Coupons Available',
+  noCouponsBody: 'New offers will appear here soon.',
+  couponsError: 'Failed to load coupons',
+  pay: 'Add Money',
+  payAmount: (amount: string) => `Add ${amount}`,
+  processing: 'Processing payment…',
+  description: 'Add Funds to Wallet',
+  successTitle: 'Payment Successful!',
+  successBody: (credits: string) => `Your wallet has been recharged with ${credits} credits.`,
+  amountAdded: 'Amount Added',
+  transactionId: 'Transaction ID',
+  continue: 'Continue',
+  failedTitle: 'Payment Failed',
+  failedBody: 'Something went wrong while processing your payment.',
+  dismiss: 'Dismiss',
+  tryAgain: 'Try Again',
+  unconfirmedTitle: 'Payment Not Confirmed',
+  unconfirmedBody: (orderId: string) =>
+    `We couldn't confirm your payment yet. Please don't pay again. If money was debited, it will reflect shortly. Order ID ${orderId}`,
+  close: 'Close',
+  needsRebuild: 'Payments need the latest app build. Please update the app.',
+};

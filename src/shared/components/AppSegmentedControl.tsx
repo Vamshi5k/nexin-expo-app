@@ -1,11 +1,19 @@
-import { View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { StyleSheet, View, type LayoutChangeEvent } from 'react-native';
+
+import Animated, {
+  useAnimatedStyle,
+  useReducedMotion,
+  useSharedValue,
+  withSpring,
+} from 'react-native-reanimated';
 
 import AppPressable from './AppPressable';
 import AppText from './AppText';
 
-import { useTheme } from '@/shared/theme';
+import { useTheme, withAlpha } from '@/shared/theme';
 
-export type Segment<T extends string> = { value: T; label: string };
+export type Segment<T extends string> = { value: T; label: string; badge?: string };
 
 export type AppSegmentedControlProps<T extends string> = {
   segments: Segment<T>[];
@@ -14,6 +22,10 @@ export type AppSegmentedControlProps<T extends string> = {
   accessibilityLabel?: string;
 };
 
+const PAD = 4;
+const HEIGHT = 40;
+
+// A white pill track with one dark thumb that springs to the selected segment.
 const AppSegmentedControl = <T extends string>({
   segments,
   value,
@@ -21,19 +33,59 @@ const AppSegmentedControl = <T extends string>({
   accessibilityLabel,
 }: AppSegmentedControlProps<T>) => {
   const t = useTheme();
+  const reduceMotion = useReducedMotion();
+  const [width, setWidth] = useState(0);
+  const index = Math.max(
+    0,
+    segments.findIndex(s => s.value === value),
+  );
+  const segmentWidth = width ? (width - PAD * 2) / segments.length : 0;
+  const x = useSharedValue(0);
+
+  useEffect(() => {
+    const target = index * segmentWidth;
+    x.set(reduceMotion ? target : withSpring(target, t.motion.springSnappy));
+  }, [index, segmentWidth, reduceMotion, t.motion.springSnappy, x]);
+
+  const thumbStyle = useAnimatedStyle(() => ({ transform: [{ translateX: x.value }] }));
+
+  const onLayout = (event: LayoutChangeEvent) => setWidth(event.nativeEvent.layout.width);
 
   return (
     <View
       accessibilityRole="tablist"
       accessibilityLabel={accessibilityLabel}
-      style={{
-        flexDirection: 'row',
-        backgroundColor: t.colors.surfaceSunken,
-        borderRadius: t.radius.control,
-        padding: 3,
-        gap: 3,
-      }}
+      onLayout={onLayout}
+      style={[
+        styles.track,
+        {
+          height: HEIGHT,
+          padding: PAD,
+          borderRadius: t.radius.pill,
+          borderWidth: t.layout.hairline,
+          borderColor: t.colors.border,
+          backgroundColor: t.colors.surfaceRaised,
+        },
+      ]}
     >
+      {segmentWidth ? (
+        <Animated.View
+          pointerEvents="none"
+          style={[
+            styles.thumb,
+            {
+              top: PAD,
+              left: PAD,
+              bottom: PAD,
+              width: segmentWidth,
+              borderRadius: t.radius.pill,
+              backgroundColor: t.colors.textPrimary,
+            },
+            thumbStyle,
+          ]}
+        />
+      ) : null}
+
       {segments.map(s => {
         const selected = s.value === value;
         return (
@@ -45,22 +97,29 @@ const AppSegmentedControl = <T extends string>({
             onPress={() => !selected && onChange(s.value)}
             haptic={selected ? false : 'selection'}
             feedback="opacity"
-            style={[
-              {
-                flex: 1,
-                minHeight: 38,
-                alignItems: 'center',
-                justifyContent: 'center',
-                borderRadius: t.radius.control - 3,
-                backgroundColor: selected ? t.colors.surfaceRaised : 'transparent',
-                borderWidth: selected ? t.layout.hairline : 0,
-                borderColor: t.colors.border,
-              },
-            ]}
+            style={[styles.segment, { gap: t.space[2] }]}
           >
-            <AppText variant="subhead" tone={selected ? 'primary' : 'secondary'} numberOfLines={1}>
+            <AppText
+              variant="subhead"
+              numberOfLines={1}
+              style={{
+                fontFamily: t.type.headline.fontFamily,
+                color: selected ? t.colors.surface : t.colors.textSecondary,
+              }}
+            >
               {s.label}
             </AppText>
+            {s.badge ? (
+              <AppText
+                variant="caption"
+                tabular
+                style={{
+                  color: selected ? withAlpha(t.colors.surface, 0.6) : t.colors.textTertiary,
+                }}
+              >
+                {s.badge}
+              </AppText>
+            ) : null}
           </AppPressable>
         );
       })}
@@ -69,3 +128,18 @@ const AppSegmentedControl = <T extends string>({
 };
 
 export default AppSegmentedControl;
+
+const styles = StyleSheet.create({
+  track: {
+    flexDirection: 'row',
+  },
+  thumb: {
+    position: 'absolute',
+  },
+  segment: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});

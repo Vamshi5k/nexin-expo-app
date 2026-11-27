@@ -31,8 +31,37 @@ export const DEFAULT_FILTERS: StationFilters = {
 
 export const STATIONS_HREF = {
   list: '/(app)/(tabs)/stations',
+  search: { pathname: '/(app)/(tabs)/stations', params: { focus: '1' } },
   scan: '/(app)/scan',
 } as const;
+
+// Stations tab. 10 a page: the old app's 5 flashed skeletons on every scroll (OPEN_QUESTIONS #17).
+export const STATIONS_PAGE_SIZE = 10;
+export const SEARCH_DEBOUNCE_MS = 500;
+// Load the next page when the user is within 40% of a screen of the end.
+export const LOAD_MORE_THRESHOLD = 0.4;
+
+export const LIST_COPY = {
+  title: 'Stations',
+  subtitle: 'Nearest charging stations first',
+  searchPlaceholder: 'Search stations...',
+  clearSearch: 'Clear search',
+  locationOffTitle: 'Location is off',
+  locationOffBody: 'Turn on location to see charging stations near you.',
+  enableLocation: 'Enable location',
+  loadError: "Couldn't load stations",
+  loadMoreError: "Couldn't load more stations",
+  retry: 'Retry',
+  noResults: 'No stations found',
+  noResultsBody: 'Try searching with a different keyword.',
+  clearSearchAction: 'Clear Search',
+  emptyTitle: 'No stations available',
+  emptyBody: 'Stations will appear here once available.',
+  unavailable: 'Unavailable',
+  addFavourite: 'Add to favourites',
+  removeFavourite: 'Remove from favourites',
+  free: (available: number, total: number) => `${available}/${total} Free`,
+};
 
 export const MAP_COPY = {
   searchPlaceholder: 'Search stations',
@@ -106,22 +135,38 @@ export const DETAILS_COPY = {
   address: 'Address',
   helpLine: 'Help line',
   connectorTypes: 'Connector types',
-  viewAll: 'View all details',
-  close: 'Close',
+  directionsShort: 'Directions',
+  chargerCount: 'Chargers',
+  connectorCount: 'Connectors',
+  connectorType: 'Connector type',
+  connectorsFree: 'Connectors free',
+  price: 'Price',
+  route: 'Route',
+  mapPreview: 'Map preview, opens directions',
   copy: 'Copy',
   copied: 'Address copied',
   access: 'Access',
   openingHours: 'Opening hours',
   photo: 'Station photo',
   illustration: 'Electric cars charging at a station',
-  about: 'About this station',
   free: 'free',
+  info: 'Info',
+  sections: 'Station sections',
+  noInfo: 'No details yet',
+  noInfoBody: 'This station has not shared any details yet.',
 } as const;
 
+export const DETAILS_TABS = ['chargers', 'info'] as const;
+export type DetailsTab = (typeof DETAILS_TABS)[number];
+
 export const chargerTitle = (index: number) => `Charger ${index + 1}`;
+export const chargerName = (index: number) => `Charger ${String(index + 1).padStart(2, '0')}`;
 export const connectorTitle = (connectorId: string) => `Connector ${connectorId}`;
 export const freeBadge = (free: number, total: number) => `${free}/${total} free`;
 export const connectorBusy = (status: string) => `Connector is currently ${status}`;
 
-export const pageLabel = (page: number, total: number) => `${page}/${total}`;
-export const moreChip = (count: number) => `+${count}`;
+export const pageLabel = (page: number, total: number) => `Photo ${page} of ${total}`;
+export const moreCells = (count: number) => `+${count}`;
+export const pad2 = (value: number) => String(value).padStart(2, '0');
+export const routeLabel = (distance: string, eta: string | null) =>
+  eta ? `${distance} · ${eta} drive` : distance;

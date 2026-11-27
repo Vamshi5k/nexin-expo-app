@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { BackHandler, StyleSheet } from 'react-native';
 
-import { router, useFocusEffect } from 'expo-router';
+import { router, useFocusEffect, type Href } from 'expo-router';
 import { ChevronLeft } from 'lucide-react-native';
 
 import AppPressable from './AppPressable';
@@ -10,6 +10,9 @@ import { useTheme } from '@/shared/theme';
 
 export type AppBackButtonProps = {
   onPress?: () => void;
+  // Where to go when there is nothing to go back to (opened from a deep link, a notification or
+  // after a reload). The root route sends the user to the right home.
+  fallbackHref?: Href;
   variant?: 'filled' | 'plain';
   // Android's back button runs onPress too while the screen is focused (in-screen steps, wizards).
   hardwareBack?: boolean;
@@ -17,11 +20,17 @@ export type AppBackButtonProps = {
 
 const AppBackButton = ({
   onPress,
+  fallbackHref = '/',
   variant = 'filled',
   hardwareBack = false,
 }: AppBackButtonProps) => {
   const t = useTheme();
-  const goBack = onPress ?? (() => router.back());
+  const goBack =
+    onPress ??
+    (() => {
+      if (router.canGoBack()) router.back();
+      else router.replace(fallbackHref);
+    });
   const filled = variant === 'filled';
 
   useFocusEffect(

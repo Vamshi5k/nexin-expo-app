@@ -208,6 +208,10 @@ describe('chargers', () => {
     expect(chargingProgress({ ...base, socPercent: 45, minutesToFull: 30 })).toBe(
       '45% · 30 min to full',
     );
+    expect(chargingProgress({ ...base, socPercent: 20, minutesToFull: 2237400 })).toBe('20%');
+    expect(chargingProgress({ ...base, socPercent: 20, minutesToFull: 95 })).toBe(
+      '20% · 1 h 35 min to full',
+    );
     expect(chargingProgress(base)).toBeNull();
     expect(chargingProgress({ ...base, state: 'available', socPercent: 45 })).toBeNull();
     expect(chargingProgress({ ...base, state: 'suspendedEv', socPercent: 45 })).toBeNull();

@@ -40,7 +40,7 @@ const AppLargeTitleScroll = ({
   const onScroll = useAnimatedScrollHandler(e => {
     y.value = e.contentOffset.y;
   });
-  const largeHeight = t.type.title1.lineHeight ?? 34;
+  const largeHeight = t.type.title2.lineHeight ?? 28;
   const barHeight = HEADER_BAR_HEIGHT + insets.top;
 
   const compactTitle = useAnimatedStyle(() => ({
@@ -85,7 +85,7 @@ const AppLargeTitleScroll = ({
             { paddingTop: t.space[2], paddingBottom: t.space[6], gap: t.space[1] },
           ]}
         >
-          <AppText variant="title1" accessibilityRole="header">
+          <AppText variant="title2" accessibilityRole="header">
             {title}
           </AppText>
           {subtitle ? (

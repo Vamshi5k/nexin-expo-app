@@ -32,13 +32,13 @@ export const useStationDetails = (stationId: string) => {
   const directions = useDirections();
 
   const [refreshing, setRefreshing] = useState(false);
-  const [infoOpen, setInfoOpen] = useState(false);
   const [favouriteOverride, setFavouriteOverride] = useState<boolean | null>(null);
   const [savingFavourite, setSavingFavourite] = useState(false);
 
   const station = details.data ?? null;
   const isFavourite = favouriteOverride ?? favourites.data?.includes(stationId) ?? false;
   const distance = station && location ? distanceKm(location, station) : null;
+  const chargers = station ? sortChargers(station.chargers) : [];
 
   const refresh = async () => {
     if (refreshing) return;
@@ -108,13 +108,10 @@ export const useStationDetails = (stationId: string) => {
 
   return {
     station,
-    chargers: station ? sortChargers(station.chargers) : [],
+    chargers,
     loading: details.loading && !station,
     error: station ? null : details.error,
     refreshing,
-    infoOpen,
-    openInfo: () => setInfoOpen(true),
-    closeInfo: () => setInfoOpen(false),
     copyAddress,
     distance,
     eta: distance !== null && distance <= MAX_ETA_KM ? formatEta(distance) : null,

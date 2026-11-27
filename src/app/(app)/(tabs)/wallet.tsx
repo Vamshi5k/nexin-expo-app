@@ -1,10 +1,5 @@
-import { AppPlaceholderScreen } from '@/shared/components';
+import { WalletScreen } from '@/features/wallet';
 
 export default function WalletRoute() {
-  return (
-    <AppPlaceholderScreen
-      title="Wallet"
-      description="Your balance and transactions will show here."
-    />
-  );
+  return <WalletScreen />;
 }
