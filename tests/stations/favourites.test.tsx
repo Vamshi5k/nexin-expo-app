@@ -26,6 +26,9 @@ jest.mock('expo-router', () => ({
     jest.requireActual('react').useEffect(effect, [effect]);
   },
 }));
+jest.mock('expo-location', () => ({
+  getForegroundPermissionsAsync: jest.fn(async () => ({ granted: false, canAskAgain: true })),
+}));
 jest.mock('@/features/stations/api/stations.api', () => ({
   ...jest.requireActual('@/features/stations/api/stations.api'),
   stationsApi: { getFavourites: jest.fn(), setFavourite: jest.fn(async () => undefined) },
@@ -37,7 +40,11 @@ const station = (id: string, name: string, coords = true): FavouriteStation => (
   id,
   name,
   address: 'Madhapur, Hyderabad',
+  status: 'available',
+  rawStatus: 'Available',
+  stationType: 'Public',
   coordinates: coords ? { latitude: 17.44, longitude: 78.38 } : null,
+  distanceKm: null,
 });
 const page = (items: FavouriteStation[], current = 1, totalPages = 1) => ({
   items,
@@ -54,27 +61,40 @@ beforeEach(() => {
 });
 
 describe('toFavouriteStation', () => {
-  it('reads the station inside each favourite, with its place and location', () => {
+  // The dev backend's real shape (2026-11-27).
+  it('maps status, type, a place without repeats, and the location', () => {
     expect(
       toFavouriteStation({
-        stationId: 9,
+        stationId: 11,
         station: {
-          name: ' Hub One ',
+          name: 'EcoCharge Station',
+          status: 'Not Available',
+          stationType: 'Public',
           stationLocation: {
-            address: 'MG Road',
-            city: 'Hyderabad',
-            latitude: '17.4',
-            longitude: 78.3,
+            latitude: '16.9611',
+            longitude: '82.2120000',
+            address: 'Kakinada',
+            city: 'Kakinada',
+            state: 'Andhra Pradesh',
           },
         },
       }),
     ).toEqual({
-      id: '9',
-      name: 'Hub One',
-      address: 'MG Road, Hyderabad',
-      coordinates: { latitude: 17.4, longitude: 78.3 },
+      id: '11',
+      name: 'EcoCharge Station',
+      address: 'Kakinada, Andhra Pradesh',
+      status: 'unavailable',
+      rawStatus: 'Not Available',
+      stationType: 'Public',
+      coordinates: { latitude: 16.9611, longitude: 82.212 },
+      distanceKm: null,
     });
-    expect(toFavouriteStation({ stationId: 3 })).toMatchObject({ name: '', coordinates: null });
+    expect(toFavouriteStation({ stationId: 3 })).toMatchObject({
+      name: '',
+      status: 'unknown',
+      stationType: null,
+      coordinates: null,
+    });
     expect(toFavouriteStation({ station: { name: 'x' } })).toBeNull();
   });
 });
@@ -93,7 +113,9 @@ describe('Favourite Spots', () => {
     expect(screen.getByRole('button', { name: 'Directions to Hub One' })).toBeTruthy();
     expect(screen.queryByRole('button', { name: 'Directions to Hub Two' })).toBeNull();
 
-    await fireEvent.press(screen.getByLabelText('Hub One, Madhapur, Hyderabad'));
+    await fireEvent.press(screen.getByLabelText('Hub One, Madhapur, Hyderabad, Available'));
+    expect(screen.getAllByText('Public').length).toBe(2);
+    expect(screen.getAllByText('Available').length).toBe(2);
     expect(router.push).toHaveBeenCalledWith({
       pathname: '/(app)/station/[stationId]',
       params: { stationId: '1' },

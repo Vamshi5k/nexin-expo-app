@@ -8,6 +8,7 @@ import { useDebouncedValue } from '@/shared/utils/debounce';
 import { toast } from '@/shared/utils/toast';
 
 import { openStationDirections } from './useDirections';
+import { useUserLocation } from './useUserLocation';
 import { FAVOURITES_PAGE_SIZE, stationsApi } from '../api/stations.api';
 import {
   FAVOURITES_COPY,
@@ -15,6 +16,7 @@ import {
   SEARCH_DEBOUNCE_MS,
 } from '../constants/stations.constants';
 import type { FavouriteStation } from '../types/stations.types';
+import { distanceKm } from '../utils/geo';
 import { hasMorePages } from '../utils/list';
 
 type Extra = { key: string; items: FavouriteStation[]; page: number; hasMore: boolean };
@@ -30,6 +32,7 @@ export const useFavouriteSpots = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [removed, setRemoved] = useState<string[]>([]);
   const firstFocus = useRef(true);
+  const { location } = useUserLocation();
 
   const loadFirst = useCallback(() => stationsApi.getFavourites(1, search), [search]);
   const first = useRequest(loadFirst);
@@ -54,11 +57,17 @@ export const useFavouriteSpots = () => {
   const firstItems = first.data?.items ?? [];
   const items = extra && extra.key === search ? [...firstItems, ...extra.items] : firstItems;
   const seen = new Set<string>();
-  const stations = items.filter(station => {
-    if (seen.has(station.id) || removed.includes(station.id)) return false;
-    seen.add(station.id);
-    return true;
-  });
+  const stations = items
+    .filter(station => {
+      if (seen.has(station.id) || removed.includes(station.id)) return false;
+      seen.add(station.id);
+      return true;
+    })
+    .map(station => ({
+      ...station,
+      distanceKm:
+        location && station.coordinates ? distanceKm(location, station.coordinates) : null,
+    }));
   const hasMore =
     extra && extra.key === search
       ? extra.hasMore

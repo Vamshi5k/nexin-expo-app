@@ -116,7 +116,12 @@ export type StationDetailsDto = {
 
 export type FavouriteDto = {
   stationId?: number | string | null;
-  station?: { name?: string | null; stationLocation?: StationLocationDto } | null;
+  station?: {
+    name?: string | null;
+    status?: string | null;
+    stationType?: string | null;
+    stationLocation?: (StationLocationDto & { state?: string | null }) | null;
+  } | null;
 };
 
 // A saved station as GET /station/favourites/all sends it: no live availability, only the
@@ -125,7 +130,13 @@ export type FavouriteStation = {
   id: string;
   name: string;
   address: string;
+  status: StationStatus;
+  // Exactly as the API sends it ("Not Available"), for the label; `status` drives the colour.
+  rawStatus: string;
+  stationType: string | null;
   coordinates: Coordinates | null;
+  // From the user's location when it is known.
+  distanceKm: number | null;
 };
 
 export type Connector = {

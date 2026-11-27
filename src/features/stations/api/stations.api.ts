@@ -148,19 +148,34 @@ const coord = (v: number | string | null | undefined): number | null => {
   return typeof n === 'number' && Number.isFinite(n) ? n : null;
 };
 
+// Address, city and state without repeats ("Kakinada, Kakinada" reads once).
+const placeLine = (parts: (string | null | undefined)[]): string => {
+  const seen = new Set<string>();
+  return parts
+    .map(part => part?.trim())
+    .filter((part): part is string => {
+      if (!part || seen.has(part.toLowerCase())) return false;
+      seen.add(part.toLowerCase());
+      return true;
+    })
+    .join(', ');
+};
+
 export const toFavouriteStation = (dto: FavouriteDto): FavouriteStation | null => {
   if (dto.stationId == null) return null;
   const place = dto.station?.stationLocation;
   const latitude = coord(place?.latitude);
   const longitude = coord(place?.longitude);
+  const rawStatus = dto.station?.status?.trim() ?? '';
   return {
     id: String(dto.stationId),
     name: dto.station?.name?.trim() ?? '',
-    address: [place?.address, place?.city]
-      .map(part => part?.trim())
-      .filter(Boolean)
-      .join(', '),
+    address: placeLine([place?.address, place?.city, place?.state]),
+    status: toStationStatus(rawStatus),
+    rawStatus,
+    stationType: dto.station?.stationType?.trim() || null,
     coordinates: latitude !== null && longitude !== null ? { latitude, longitude } : null,
+    distanceKm: null,
   };
 };
 

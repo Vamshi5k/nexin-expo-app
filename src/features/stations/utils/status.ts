@@ -13,6 +13,7 @@ const STATUS_BY_KEY: Record<string, StationStatus> = {
   undermaintainance: 'maintenance',
   maintenance: 'maintenance',
   unavailable: 'unavailable',
+  notavailable: 'unavailable',
   inactive: 'unavailable',
   offline: 'unavailable',
   outoforder: 'unavailable',
