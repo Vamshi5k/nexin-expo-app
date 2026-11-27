@@ -632,3 +632,37 @@ zero counts); Android emulator (Profile, Delete Account confirm, Edit Profile va
 Discard on Android back). Not seen on a device: the Profile error strip (needs `/profile` to
 fail while boot succeeds; covered by a flow test) and the OTP sheet (needs a test contact so no
 code goes to a real person).
+
+## Phase 4: My Vehicles, Add Vehicle, Edit Vehicle (branch `feat/vehicles`, 2026-11-27)
+
+**Done**
+
+- My Vehicles (E3, `/(app)/vehicles`), in the Profile screens' style: brand wash, back, title
+  and count. The primary vehicle first, then newest. Each card: duotone car tile, "{brand}
+  {model}", the plate once, Primary / battery / range chips, and an auto-charge switch that
+  needs a MAC ID (disabled with "Add a MAC ID to use auto-charge" otherwise, decided with the
+  client). Tapping a card opens Edit; ⋯ opens Edit / Make primary / Delete (no swipe-only
+  actions). Auto-charge and Make primary are optimistic with rollback; only one vehicle is
+  primary. Delete asks first and warns about the primary or only vehicle, then reloads.
+  Add Vehicle pinned at the bottom. Skeletons, empty, error + Retry, pull to refresh, quiet
+  refresh on focus.
+- Add Vehicle (E4, `/(app)/vehicles/add`): the setup wizard without Skip, with "Step n of 4",
+  back stepping through the wizard (Android back too), success → toast and back. The details
+  step subtitle no longer claims the reg no is only for auto-charge.
+- Edit Vehicle (E5, `/(app)/vehicles/[vehicleId]/edit`): a form instead of the wizard. Loads
+  by id (from the list, OPEN_QUESTIONS #25), a vehicle card with "Change" that runs the
+  wizard's brand / model / battery pickers (`useVehicleWizard({ onPicked })`) and comes back,
+  reg no / MAC ID / max amount in place. Save only after a change; `PUT /vehicle/:id`; asks
+  before leaving with edits; "Couldn't find this vehicle" for a stale id.
+- Tests: vehicle mapper (capacity as a number or `{ capacity }`), sort / primary / MAC rules,
+  edit draft and change detection, endpoints; flows for the list (order, chips, auto-charge
+  with rollback, Make primary with rollback, delete with the primary warning, empty, error,
+  open Edit), Add (wizard → add → back) and Edit (save, Change pickers, unknown id).
+
+**Open**: clearing MAC ID / max amount on edit (#23), primary after delete (#24), a
+single-vehicle endpoint (#25), what auto-charge does (#26).
+
+**Verified**: tsc, expo lint, jest (60 suites, 463 tests); Android emulator against the dev
+backend (My Vehicles empty state, Add Vehicle step 1 with the live brand list). Cards, the
+actions sheet and Edit were not seen on a device: the test account has no vehicles and none
+was added, to avoid writing to the shared dev data.
