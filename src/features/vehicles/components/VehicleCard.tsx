@@ -1,10 +1,11 @@
 import { StyleSheet, Switch, View } from 'react-native';
 
-import { MoreHorizontal, Zap } from 'lucide-react-native';
+import { MoreHorizontal, Star, Zap } from 'lucide-react-native';
+import Svg, { Defs, RadialGradient, Rect, Stop } from 'react-native-svg';
 
 import { AppPressable, AppText } from '@/shared/components';
 
-import VehicleGlyph from './VehicleGlyph';
+import VehicleArt from './VehicleArt';
 
 import { useTheme } from '@/shared/theme';
 
@@ -22,40 +23,47 @@ type VehicleCardProps = {
   onToggleAutoCharge: () => void;
 };
 
-type ChipProps = {
+type StatProps = {
   label: string;
-  accent?: boolean;
+  value: string;
 };
 
-const Chip = ({ label, accent }: ChipProps) => {
+const GLOW = 0.14;
+
+const Stat = ({ label, value }: StatProps) => {
   const t = useTheme();
 
   return (
     <View
-      style={{
-        paddingHorizontal: t.space[2],
-        paddingVertical: t.space[1] / 2,
-        borderRadius: t.radius.pill,
-        backgroundColor: accent ? t.colors.accentSoft : t.colors.surfaceSunken,
-      }}
+      style={[
+        styles.grow,
+        {
+          gap: t.space[1] / 2,
+          paddingHorizontal: t.space[3],
+          paddingVertical: t.space[2],
+          borderRadius: t.radius.control,
+          backgroundColor: t.colors.surfaceSunken,
+        },
+      ]}
     >
-      <AppText
-        variant="caption"
-        tabular
-        style={
-          accent
-            ? { color: t.colors.accentText, fontFamily: t.type.headline.fontFamily }
-            : undefined
-        }
-      >
+      <AppText variant="caption" tone="secondary">
         {label}
+      </AppText>
+      <AppText
+        variant="subhead"
+        tabular
+        numberOfLines={1}
+        style={{ fontFamily: t.type.headline.fontFamily }}
+      >
+        {value}
       </AppText>
     </View>
   );
 };
 
-// One vehicle: the car tile, name, the plate once, battery / range / Primary chips, and the
-// auto-charge switch (off without a MAC ID). Tapping opens Edit; ⋯ opens the actions.
+// One vehicle: a side-view car on a soft brand tile, the name with a number-plate pill and the
+// Primary badge, battery and range as small stat tiles, then auto-charge (off without a MAC ID).
+// The primary vehicle gets a faint corner glow. Tapping opens Edit; ⋯ opens the actions.
 const VehicleCard = ({
   vehicle,
   title,
@@ -66,7 +74,16 @@ const VehicleCard = ({
 }: VehicleCardProps) => {
   const t = useTheme();
   const eligible = canAutoCharge(vehicle);
-  const tile = t.space[8] + t.space[1];
+  const stats: (StatProps | null)[] = [
+    vehicle.capacityKwh !== null
+      ? { label: VEHICLES_COPY.battery, value: formatCapacity(vehicle.capacityKwh) }
+      : null,
+    vehicle.rangeKm !== null
+      ? { label: VEHICLES_COPY.rangeLabel, value: VEHICLES_COPY.rangeValue(vehicle.rangeKm) }
+      : null,
+  ];
+  const shown = stats.filter((stat): stat is StatProps => stat !== null);
+  const glowId = `vehicle-glow-${vehicle.id}`;
 
   return (
     <AppPressable
@@ -77,30 +94,46 @@ const VehicleCard = ({
         .filter(Boolean)
         .join(', ')}
       accessibilityHint={VEHICLES_COPY.edit}
-      style={{
-        gap: t.space[2] + t.space[1] / 2,
-        padding: t.space[3],
-        borderRadius: t.radius.card,
-        borderWidth: t.layout.hairline,
-        borderColor: vehicle.isPrimary ? t.colors.accentText : t.colors.border,
-        backgroundColor: t.colors.surfaceRaised,
-      }}
+      style={[
+        styles.clip,
+        {
+          gap: t.space[3],
+          padding: t.space[3],
+          borderRadius: t.radius.card,
+          borderWidth: t.layout.hairline,
+          borderColor: t.colors.border,
+          backgroundColor: t.colors.surfaceRaised,
+        },
+      ]}
     >
+      {vehicle.isPrimary ? (
+        <Svg style={StyleSheet.absoluteFill} pointerEvents="none">
+          <Defs>
+            <RadialGradient id={glowId} cx="100%" cy="0%" rx="60%" ry="80%">
+              <Stop offset="0" stopColor={t.colors.accent} stopOpacity={GLOW} />
+              <Stop offset="1" stopColor={t.colors.accent} stopOpacity={0} />
+            </RadialGradient>
+          </Defs>
+          <Rect x="0" y="0" width="100%" height="100%" fill={`url(#${glowId})`} />
+        </Svg>
+      ) : null}
+
       <View style={[styles.row, { gap: t.space[3] }]}>
         <View
           style={[
             styles.center,
             {
-              width: tile,
-              height: tile,
+              width: t.space[12] + t.space[6],
+              height: t.space[12] + t.space[1],
               borderRadius: t.radius.control,
               backgroundColor: t.colors.accentSoft,
             },
           ]}
         >
-          <VehicleGlyph color={t.colors.accentText} size={t.icon.control} />
+          <VehicleArt width={t.space[12] + t.space[3]} />
         </View>
-        <View style={[styles.grow, { gap: t.space[1] }]}>
+
+        <View style={[styles.grow, { gap: t.space[1] + t.space[1] / 2 }]}>
           <AppText
             variant="subhead"
             numberOfLines={1}
@@ -108,28 +141,57 @@ const VehicleCard = ({
           >
             {title}
           </AppText>
-          {vehicle.regNo ? (
-            <View
-              style={[
-                styles.plate,
-                {
+          <View style={[styles.row, { gap: t.space[2] }]}>
+            {vehicle.regNo ? (
+              <View
+                style={{
                   paddingHorizontal: t.space[2],
+                  paddingVertical: 1,
                   borderRadius: t.space[1],
-                  borderWidth: 1,
-                  borderColor: t.colors.borderStrong,
-                },
-              ]}
-            >
-              <AppText
-                variant="caption"
-                tabular
-                style={[styles.plateText, { fontFamily: t.type.headline.fontFamily }]}
+                  borderWidth: 1.5,
+                  borderColor: t.colors.textPrimary,
+                  backgroundColor: t.colors.surface,
+                }}
               >
-                {vehicle.regNo}
-              </AppText>
-            </View>
-          ) : null}
+                <AppText
+                  variant="caption"
+                  tabular
+                  style={[styles.plate, { fontFamily: t.type.headline.fontFamily }]}
+                >
+                  {vehicle.regNo}
+                </AppText>
+              </View>
+            ) : null}
+            {vehicle.isPrimary ? (
+              <View
+                style={[
+                  styles.row,
+                  {
+                    gap: t.space[1] / 2,
+                    paddingHorizontal: t.space[2],
+                    paddingVertical: 1,
+                    borderRadius: t.radius.pill,
+                    backgroundColor: t.colors.accentSoft,
+                  },
+                ]}
+              >
+                <Star
+                  color={t.colors.accentText}
+                  fill={t.colors.accentText}
+                  size={t.icon.meta - 6}
+                  strokeWidth={t.icon.stroke}
+                />
+                <AppText
+                  variant="caption"
+                  style={{ color: t.colors.accentText, fontFamily: t.type.headline.fontFamily }}
+                >
+                  {VEHICLES_COPY.primary}
+                </AppText>
+              </View>
+            ) : null}
+          </View>
         </View>
+
         <AppPressable
           onPress={onMore}
           haptic="light"
@@ -138,11 +200,14 @@ const VehicleCard = ({
           accessibilityLabel={VEHICLES_COPY.actions(title)}
           style={[
             styles.center,
+            styles.top,
             {
               width: t.space[8],
               height: t.space[8],
               borderRadius: t.radius.pill,
-              backgroundColor: t.colors.surfaceSunken,
+              borderWidth: t.layout.hairline,
+              borderColor: t.colors.border,
+              backgroundColor: t.colors.surface,
             },
           ]}
         >
@@ -154,28 +219,43 @@ const VehicleCard = ({
         </AppPressable>
       </View>
 
-      <View style={[styles.wrap, { gap: t.space[1] + t.space[1] / 2 }]}>
-        {vehicle.isPrimary ? <Chip label={VEHICLES_COPY.primary} accent /> : null}
-        {vehicle.capacityKwh !== null ? <Chip label={formatCapacity(vehicle.capacityKwh)} /> : null}
-        {vehicle.rangeKm !== null ? <Chip label={VEHICLES_COPY.range(vehicle.rangeKm)} /> : null}
-      </View>
+      {shown.length ? (
+        <View style={[styles.row, { gap: t.space[2] }]}>
+          {shown.map(stat => (
+            <Stat key={stat.label} {...stat} />
+          ))}
+        </View>
+      ) : null}
 
       <View
         style={[
           styles.row,
           {
-            gap: t.space[2],
-            paddingTop: t.space[2],
+            gap: t.space[2] + t.space[1] / 2,
+            paddingTop: t.space[2] + t.space[1] / 2,
             borderTopWidth: t.layout.hairline,
             borderTopColor: t.colors.border,
           },
         ]}
       >
-        <Zap
-          color={eligible ? t.colors.accentText : t.colors.textTertiary}
-          size={t.icon.meta}
-          strokeWidth={t.icon.stroke}
-        />
+        <View
+          style={[
+            styles.center,
+            {
+              width: t.space[8],
+              height: t.space[8],
+              borderRadius: t.radius.pill,
+              backgroundColor: eligible ? t.colors.accentSoft : t.colors.surfaceSunken,
+            },
+          ]}
+        >
+          <Zap
+            color={eligible ? t.colors.accentText : t.colors.textTertiary}
+            fill={eligible && vehicle.autoCharge ? t.colors.accentText : 'transparent'}
+            size={t.icon.meta}
+            strokeWidth={t.icon.stroke}
+          />
+        </View>
         <View style={styles.grow}>
           <AppText variant="caption" style={{ fontFamily: t.type.headline.fontFamily }}>
             {VEHICLES_COPY.autoCharge}
@@ -192,11 +272,11 @@ const VehicleCard = ({
           value={eligible && vehicle.autoCharge}
           onValueChange={onToggleAutoCharge}
           disabled={!eligible || busy}
+          accessibilityLabel={`${VEHICLES_COPY.autoCharge}, ${title}`}
           accessibilityState={{
             disabled: !eligible || busy,
             checked: eligible && vehicle.autoCharge,
           }}
-          accessibilityLabel={`${VEHICLES_COPY.autoCharge}, ${title}`}
           trackColor={{ false: t.colors.surfaceSunken, true: t.colors.accent }}
           thumbColor={t.colors.surface}
           ios_backgroundColor={t.colors.surfaceSunken}
@@ -209,6 +289,9 @@ const VehicleCard = ({
 export default VehicleCard;
 
 const styles = StyleSheet.create({
+  clip: {
+    overflow: 'hidden',
+  },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -217,17 +300,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  top: {
+    alignSelf: 'flex-start',
+  },
   grow: {
     flex: 1,
   },
-  wrap: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-  },
   plate: {
-    alignSelf: 'flex-start',
-  },
-  plateText: {
     letterSpacing: 1,
   },
 });

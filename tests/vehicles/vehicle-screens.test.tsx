@@ -79,7 +79,8 @@ describe('My Vehicles', () => {
     expect(screen.getAllByText('KA01AB1234')).toHaveLength(1);
     expect(screen.getByText('Primary')).toBeTruthy();
     expect(screen.getByText('40.5 kWh')).toBeTruthy();
-    expect(screen.getByText('312 km range')).toBeTruthy();
+    expect(screen.getByText('312 km')).toBeTruthy();
+    expect(screen.getAllByText('Battery').length).toBeGreaterThan(0);
     expect(screen.getByText('2 vehicles')).toBeTruthy();
   });
 

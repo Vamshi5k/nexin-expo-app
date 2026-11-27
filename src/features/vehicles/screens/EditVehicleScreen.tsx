@@ -15,7 +15,7 @@ import {
   AppText,
 } from '@/shared/components';
 
-import VehicleGlyph from '../components/VehicleGlyph';
+import VehicleArt from '../components/VehicleArt';
 import VehiclePickPanel from '../components/VehiclePickPanel';
 import VehiclesHeader from '../components/VehiclesHeader';
 
@@ -143,14 +143,14 @@ const EditVehicleScreen = ({ vehicleId }: EditVehicleScreenProps) => {
               style={[
                 styles.center,
                 {
-                  width: t.space[8] + t.space[1],
-                  height: t.space[8] + t.space[1],
+                  width: t.space[12] + t.space[2],
+                  height: t.space[10],
                   borderRadius: t.radius.control,
                   backgroundColor: t.colors.accentSoft,
                 },
               ]}
             >
-              <VehicleGlyph color={t.colors.accentText} size={t.icon.control} />
+              <VehicleArt width={t.space[10] + t.space[2]} />
             </View>
             <View style={[styles.grow, { gap: t.space[1] / 2 }]}>
               <AppText
