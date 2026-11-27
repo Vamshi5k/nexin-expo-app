@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { View } from 'react-native';
 
 import type { LucideIcon } from 'lucide-react-native';
@@ -13,6 +14,8 @@ export type AppEmptyStateProps = {
   description?: string;
   actionLabel?: string;
   onAction?: () => void;
+  // A custom action (e.g. a compact pill) in place of the default button.
+  action?: ReactNode;
 };
 
 const AppEmptyState = ({
@@ -21,6 +24,7 @@ const AppEmptyState = ({
   description,
   actionLabel,
   onAction,
+  action,
 }: AppEmptyStateProps) => {
   const t = useTheme();
 
@@ -54,7 +58,8 @@ const AppEmptyState = ({
           {description}
         </AppText>
       ) : null}
-      {actionLabel && onAction ? (
+      {action ? <View style={{ marginTop: t.space[1] }}>{action}</View> : null}
+      {!action && actionLabel && onAction ? (
         <AppButton
           label={actionLabel}
           onPress={onAction}

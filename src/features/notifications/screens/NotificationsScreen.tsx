@@ -1,6 +1,6 @@
 import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 
-import { BellOff, Filter } from 'lucide-react-native';
+import { BellOff, Filter, ListFilter } from 'lucide-react-native';
 import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -9,6 +9,7 @@ import {
   AppErrorState,
   AppFade,
   AppPageHeader,
+  AppPressable,
   AppSkeleton,
   AppText,
 } from '@/shared/components';
@@ -79,8 +80,32 @@ const NotificationsScreen = () => {
           icon={Filter}
           title={NOTIFICATIONS_COPY.emptyFiltered(KIND_LABEL[list.filter])}
           description={NOTIFICATIONS_COPY.emptyFilteredBody}
-          actionLabel={NOTIFICATIONS_COPY.showAll}
-          onAction={() => list.setFilter('all')}
+          action={
+            <AppPressable
+              onPress={() => list.setFilter('all')}
+              feedback="opacity"
+              accessibilityRole="button"
+              accessibilityLabel={NOTIFICATIONS_COPY.showAll}
+              style={[
+                styles.pill,
+                {
+                  gap: t.space[1] + t.space[1] / 2,
+                  height: t.space[8],
+                  paddingHorizontal: t.space[3] + t.space[1],
+                  borderRadius: t.radius.pill,
+                  backgroundColor: t.colors.textPrimary,
+                },
+              ]}
+            >
+              <ListFilter color={t.colors.surface} size={14} strokeWidth={t.icon.stroke} />
+              <AppText
+                variant="caption"
+                style={{ color: t.colors.surface, fontFamily: t.type.headline.fontFamily }}
+              >
+                {NOTIFICATIONS_COPY.showAll}
+              </AppText>
+            </AppPressable>
+          }
         />
       );
     }
@@ -174,6 +199,10 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     right: 0,
+  },
+  pill: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   overline: {
     textTransform: 'uppercase',
