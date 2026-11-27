@@ -6,10 +6,13 @@ import { formatContact, openLegal, useAuth, useLogoutConfirm } from '@/features/
 import { useClientConfig } from '@/features/client-config';
 import { isDevToolsEnabled } from '@/features/dev';
 
+import { useAppearance } from '@/shared/theme';
+
 import { APP_ENV, brand } from '@/core/config';
 import { useRequest } from '@/core/request';
 
 import { useDeleteAccount } from './useDeleteAccount';
+import { useNotificationSetting } from './useNotificationSetting';
 import { profileApi } from '../api/profile.api';
 import { PROFILE_COPY, PROFILE_HREF } from '../constants/profile.constants';
 import { initialsOf } from '../utils/form';
@@ -23,6 +26,8 @@ export const useProfile = () => {
   const { user } = useAuth();
   const logout = useLogoutConfirm();
   const deletion = useDeleteAccount();
+  const { appearance, setAppearance } = useAppearance();
+  const notifications = useNotificationSetting();
   const stats = useRequest(profileApi.getStats);
   const [refreshing, setRefreshing] = useState(false);
   const [appVersion] = useState(readAppVersion);
@@ -78,6 +83,9 @@ export const useProfile = () => {
     showDevTools: isDevToolsEnabled(APP_ENV),
     openUiKit: () => router.push('/dev/ui'),
     openCookieCheck: () => router.push('/dev/cookie-check'),
+    appearance,
+    setAppearance,
+    notifications,
     logout,
     deletion,
   };

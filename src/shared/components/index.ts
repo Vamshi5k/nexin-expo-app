@@ -33,6 +33,8 @@ export {
 export { default as AppPressable, type AppPressableProps } from './AppPressable';
 export { default as AppReveal, type AppRevealProps } from './AppReveal';
 export { default as AppScreen, type AppScreenProps } from './AppScreen';
+export { default as AppPageHeader, type AppPageHeaderProps } from './AppPageHeader';
+export { default as AppSearchBar, type AppSearchBarProps } from './AppSearchBar';
 export { default as AppSegmentedControl, type Segment } from './AppSegmentedControl';
 export { default as AppSheet, type AppSheetProps } from './AppSheet';
 export { default as AppSkeleton, type AppSkeletonProps } from './AppSkeleton';

@@ -6,9 +6,15 @@ import { MapPinOff, PlugZap, SearchX } from 'lucide-react-native';
 import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { AppEmptyState, AppErrorState, AppSkeleton, AppText, AppFade } from '@/shared/components';
+import {
+  AppEmptyState,
+  AppErrorState,
+  AppFade,
+  AppSearchBar,
+  AppSkeleton,
+  AppText,
+} from '@/shared/components';
 
-import SearchCapsule from '../components/SearchCapsule';
 import StationListCard from '../components/StationListCard';
 import StationsHeaderArt from '../components/StationsHeaderArt';
 
@@ -120,11 +126,13 @@ const StationsScreen = ({ focusSearch = false }: StationsScreenProps) => {
           </Animated.View>
         </View>
         <Animated.View entering={dropIn(2)}>
-          <SearchCapsule
+          <AppSearchBar
+            ref={inputRef}
             value={list.query}
-            inputRef={inputRef}
-            onChange={list.setQuery}
+            onChangeText={list.setQuery}
             onClear={list.clearSearch}
+            placeholder={LIST_COPY.searchPlaceholder}
+            clearLabel={LIST_COPY.clearSearch}
           />
         </Animated.View>
       </View>

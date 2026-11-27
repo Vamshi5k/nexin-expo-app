@@ -132,7 +132,9 @@ describe('Profile tab', () => {
   it('rows and the bell open their screens', async () => {
     await renderProfile();
 
-    await act(async () => fireEvent.press(screen.getByRole('button', { name: 'Notifications' })));
+    await act(async () =>
+      fireEvent.press(screen.getByRole('button', { name: 'Open notifications' })),
+    );
     await waitFor(() => expect(screen).toHavePathname('/notifications'));
     expect(screen.getByText('Coming soon')).toBeTruthy();
   });

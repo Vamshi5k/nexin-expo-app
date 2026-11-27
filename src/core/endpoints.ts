@@ -38,8 +38,22 @@ export const ENDPOINTS = {
     ORDER: '/payment',
     VERIFY: '/payment/verify',
   },
+  NOTIFICATIONS: {
+    LIST: '/notification',
+  },
+  CHARGING: {
+    HISTORY: '/device-transactions',
+  },
+  INVOICE: {
+    SUMMARY: (transactionId: string) => `/invoice/summary/${transactionId}`,
+    PDF: (transactionId: string) => `/invoice/${transactionId}`,
+  },
   VEHICLES: {
+    LIST: '/vehicle',
     ADD: '/vehicle',
+    // PUT edits the vehicle, PATCH { autoCharge } toggles auto-charge, DELETE removes it.
+    ITEM: (vehicleId: string) => `/vehicle/${vehicleId}`,
+    PRIMARY: (vehicleId: string) => `/vehicle/primary/${vehicleId}`,
     BRANDS: '/vehicle/brand',
     MODELS: (brandId: string) => `/vehicle/model/${brandId}`,
     CAPACITIES: (modelId: string) => `/vehicle/capacity/${modelId}`,

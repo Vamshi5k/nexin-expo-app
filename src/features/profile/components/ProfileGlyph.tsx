@@ -3,7 +3,7 @@ import Svg, { Circle, Path, Rect } from 'react-native-svg';
 import { withAlpha } from '@/shared/theme';
 
 export type ProfileGlyphName =
-  'car' | 'history' | 'heart' | 'support' | 'logout' | 'delete' | 'bell';
+  'car' | 'history' | 'heart' | 'support' | 'logout' | 'delete' | 'bell' | 'appearance';
 
 type ProfileGlyphProps = {
   name: ProfileGlyphName;
@@ -86,6 +86,14 @@ const ProfileGlyph = ({ name, color, size }: ProfileGlyphProps) => {
             fill="none"
             {...line}
           />
+        </>
+      ) : null}
+
+      {name === 'appearance' ? (
+        <>
+          <Circle cx={12} cy={12} r={8.5} fill={soft} />
+          <Path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill={color} />
+          <Circle cx={12} cy={12} r={8.5} fill="none" {...line} />
         </>
       ) : null}
 

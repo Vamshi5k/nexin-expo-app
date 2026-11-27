@@ -2,16 +2,16 @@ import { useCallback, useEffect, useState } from 'react';
 import { AppState, Linking, Platform } from 'react-native';
 
 import * as Location from 'expo-location';
-import * as Notifications from 'expo-notifications';
 import { router } from 'expo-router';
 
-import { authApi, saveSetupStep, useAuth } from '@/features/auth';
+import { saveSetupStep, useAuth } from '@/features/auth';
 
 import { log } from '@/core/log';
 import { checkPermission, requestPermission, type PermissionResult } from '@/core/permissions';
 
 import { SETUP_HREF } from '../constants/setup.constants';
 import type { SetupPermission } from '../types/setup.types';
+import { syncPushToken } from '../utils/push';
 
 const useFinishSetup = () => {
   const { user } = useAuth();
@@ -21,15 +21,6 @@ const useFinishSetup = () => {
     router.replace(SETUP_HREF.home);
   }, [user]);
 };
-
-async function syncPushToken() {
-  try {
-    const token = await Notifications.getDevicePushTokenAsync();
-    if (typeof token.data === 'string' && token.data) await authApi.registerPushToken(token.data);
-  } catch (error) {
-    log.warn('push token sync failed', { error: String(error) });
-  }
-}
 
 type Statuses = Record<SetupPermission, PermissionResult | null>;
 

@@ -9,6 +9,8 @@ import type {
   Model,
   NamedDto,
   NewVehicle,
+  Vehicle,
+  VehicleDto,
 } from '../types/vehicles.types';
 
 const num = (v: number | string | null | undefined): number | null => {
@@ -48,6 +50,36 @@ export const toAddVehicleBody = ({ model, capacity, details }: NewVehicle): AddV
   };
 };
 
+const text = (v: string | null | undefined): string | null => {
+  const trimmed = v?.trim();
+  return trimmed ? trimmed : null;
+};
+
+const optionalId = (v: number | string | null | undefined): string | null =>
+  v === null || v === undefined || v === '' ? null : String(v);
+
+// `capacity` arrives as a number or as { capacity } depending on the endpoint.
+export const toVehicle = (dto: VehicleDto): Vehicle => {
+  const capacity =
+    dto.capacity && typeof dto.capacity === 'object' ? dto.capacity.capacity : dto.capacity;
+
+  return {
+    id: String(dto.id),
+    regNo: text(dto.regNo)?.toUpperCase() ?? '',
+    macId: text(dto.vinNumber),
+    maxAmountRupees: num(dto.maxAmount),
+    autoCharge: dto.autoCharge === true,
+    isPrimary: dto.isPrimary === true,
+    capacityId: optionalId(dto.capacityId),
+    capacityKwh: num(capacity),
+    rangeKm: num(dto.range),
+    modelId: optionalId(dto.modelId ?? dto.model?.id),
+    modelName: text(dto.model?.name) ?? '',
+    brandId: optionalId(dto.model?.brand?.id),
+    brandName: text(dto.model?.brand?.name) ?? '',
+  };
+};
+
 export const vehiclesApi = {
   getBrands: async (): Promise<Brand[]> => {
     const res = await api.get<Envelope<NamedDto[]>>(ENDPOINTS.VEHICLES.BRANDS);
@@ -66,5 +98,28 @@ export const vehiclesApi = {
 
   addVehicle: async (vehicle: NewVehicle): Promise<void> => {
     await api.post(ENDPOINTS.VEHICLES.ADD, toAddVehicleBody(vehicle));
+  },
+
+  getVehicles: async (): Promise<Vehicle[]> => {
+    const res = await api.get<Envelope<VehicleDto[] | null>>(ENDPOINTS.VEHICLES.LIST);
+    return (unwrap(res) ?? []).map(toVehicle);
+  },
+
+  // TODO(backend): an emptied MAC ID or max amount is left out, as on add; confirm how to clear
+  // one on edit (OPEN_QUESTIONS #23).
+  updateVehicle: async (vehicleId: string, vehicle: NewVehicle): Promise<void> => {
+    await api.put(ENDPOINTS.VEHICLES.ITEM(vehicleId), toAddVehicleBody(vehicle));
+  },
+
+  setAutoCharge: async (vehicleId: string, autoCharge: boolean): Promise<void> => {
+    await api.patch(ENDPOINTS.VEHICLES.ITEM(vehicleId), { autoCharge });
+  },
+
+  setPrimary: async (vehicleId: string): Promise<void> => {
+    await api.patch(ENDPOINTS.VEHICLES.PRIMARY(vehicleId));
+  },
+
+  deleteVehicle: async (vehicleId: string): Promise<void> => {
+    await api.delete(ENDPOINTS.VEHICLES.ITEM(vehicleId));
   },
 };

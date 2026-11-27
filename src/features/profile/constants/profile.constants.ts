@@ -22,7 +22,7 @@ export const PROFILE_COPY = {
   userId: (id: string) => `ID ${id}`,
   newUser: 'New user',
   noEmail: 'No email provided',
-  notifications: 'Notifications',
+  notifications: 'Open notifications',
   editProfile: 'Edit profile',
   account: 'Account',
   vehicles: 'My Vehicles',
@@ -41,6 +41,23 @@ export const PROFILE_COPY = {
   developer: 'Developer',
   uiKit: 'UI kit',
   cookieCheck: 'Cookie check',
+} as const;
+
+export const SETTINGS_COPY = {
+  title: 'Settings & preferences',
+  appearance: 'Appearance',
+  appearanceHint: {
+    system: 'Follows your phone',
+    light: 'Always light',
+    dark: 'Always dark',
+  },
+  appearanceOptions: { system: 'System', light: 'Light', dark: 'Dark' },
+  appearanceLabel: 'Choose appearance',
+  notifications: 'Notifications',
+  notificationsOnHint: 'On · charging and wallet updates',
+  notificationsOffHint: 'Off · tap to turn on',
+  notificationsBlocked: 'Off · turn on in Settings',
+  notificationsOn: 'Notifications turned on',
 } as const;
 
 export const COMING_SOON_COPY = {

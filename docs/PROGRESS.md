@@ -632,3 +632,112 @@ zero counts); Android emulator (Profile, Delete Account confirm, Edit Profile va
 Discard on Android back). Not seen on a device: the Profile error strip (needs `/profile` to
 fail while boot succeeds; covered by a flow test) and the OTP sheet (needs a test contact so no
 code goes to a real person).
+
+## Phase 4: My Vehicles, Add Vehicle, Edit Vehicle (branch `feat/vehicles`, 2026-11-27)
+
+**Done**
+
+- My Vehicles (E3, `/(app)/vehicles`), in the Profile screens' style: brand wash, back, title
+  and count. The primary vehicle first, then newest. Each card: duotone car tile, "{brand}
+  {model}", the plate once, Primary / battery / range chips, and an auto-charge switch that
+  needs a MAC ID (disabled with "Add a MAC ID to use auto-charge" otherwise, decided with the
+  client). Tapping a card opens Edit; ⋯ opens Edit / Make primary / Delete (no swipe-only
+  actions). Auto-charge and Make primary are optimistic with rollback; only one vehicle is
+  primary. Delete asks first and warns about the primary or only vehicle, then reloads.
+  Add Vehicle pinned at the bottom. Skeletons, empty, error + Retry, pull to refresh, quiet
+  refresh on focus.
+- Add Vehicle (E4, `/(app)/vehicles/add`): the setup wizard without Skip, with "Step n of 4",
+  back stepping through the wizard (Android back too), success → toast and back. The details
+  step subtitle no longer claims the reg no is only for auto-charge.
+- Edit Vehicle (E5, `/(app)/vehicles/[vehicleId]/edit`): a form instead of the wizard. Loads
+  by id (from the list, OPEN_QUESTIONS #25), a vehicle card with "Change" that runs the
+  wizard's brand / model / battery pickers (`useVehicleWizard({ onPicked })`) and comes back,
+  reg no / MAC ID / max amount in place. Save only after a change; `PUT /vehicle/:id`; asks
+  before leaving with edits; "Couldn't find this vehicle" for a stale id.
+- Tests: vehicle mapper (capacity as a number or `{ capacity }`), sort / primary / MAC rules,
+  edit draft and change detection, endpoints; flows for the list (order, chips, auto-charge
+  with rollback, Make primary with rollback, delete with the primary warning, empty, error,
+  open Edit), Add (wizard → add → back) and Edit (save, Change pickers, unknown id).
+
+**Open**: clearing MAC ID / max amount on edit (#23), primary after delete (#24), a
+single-vehicle endpoint (#25), what auto-charge does (#26).
+
+**Verified**: tsc, expo lint, jest (60 suites, 463 tests); Android emulator against the dev
+backend (My Vehicles empty state, Add Vehicle step 1 with the live brand list). Cards, the
+actions sheet and Edit were not seen on a device: the test account has no vehicles and none
+was added, to avoid writing to the shared dev data.
+
+## Phase 7c: Charging History and Invoice (branch `feat/vehicles`, 2026-11-27)
+
+**Done**
+
+- Charging History (E6, `/(app)/charging/history`): All / Completed / Active tabs with counts
+  (the shared segmented control), newest first under month labels. Cards in the Stations card
+  style: station and address with the cost, tokens for energy, time, connector and power, and a
+  footer with the glowing status and the date. Every card opens its invoice (completed and
+  active, as asked). Skeletons, empty (per tab), error + Retry, pull to refresh, quiet refresh on
+  focus.
+- Invoice (C5, `/(app)/invoice/[id]`): a receipt card (status, station, date, total paid,
+  session id) then Session, Location and Billing cards; lines without data are hidden. Billing
+  follows the old maths: energy charge = `amount`, price per unit = amount / kWh, `gst` split
+  equally into SGST and CGST (each at half of `calcTaxPercent`), total = `price`. Error state with
+  Retry instead of the old auto back. An active session shows a note instead of Download.
+- Download Invoice: `GET /invoice/:id` (PDF) with the signed-in token and client token, saved
+  into the app's documents, then the share sheet (Save to Files / Downloads, Drive, mail…).
+  expo-file-system and expo-sharing added; sharing is loaded on demand so an older dev build
+  shows "Update the app to download invoices" instead of crashing.
+- `AppPageHeader` (back, eyebrow, title, caption on the wash) moved to the shared kit; vehicles
+  and history use it.
+- Tests: session and invoice mappers (including the billing maths), status codes, duration /
+  energy / tax formatting, sort / filter / month groups, file names; flows for the list (order,
+  tokens, cost, status, tabs, open invoice, empty, error) and the invoice (receipt, SGST / CGST,
+  download → share, failed download, active note, error + Retry).
+
+**Open**: status codes (#27), `charginDuration` units (#28).
+
+**Verified**: tsc, expo lint, jest (62 suites, 478 tests); Android emulator: the live history
+call (empty for the test account), and the list and invoice with local sample data (reverted).
+The PDF download needs a real completed session and a dev build rebuilt for expo-sharing.
+
+## Phase 7d: Favourite Spots (branch `feat/vehicles`, 2026-11-27)
+
+**Done**
+
+- Favourite Spots (E7, `/(app)/favorites`): the brand wash, `AppPageHeader` with the count, the
+  white `AppSearchBar` (debounced, sent to the server as `search`), and saved stations from
+  `GET /station/favourites/all?page&limit=10`, a page at a time with infinite scroll. Each card:
+  a pin tile, name and address, a filled red heart that removes it (optimistic, rolled back if
+  the server refuses; `POST /station/favourites/:id { isFavourite: false }`), a dark Directions
+  pill when the station has a location, and a tap to Station Details.
+- A station hearted anywhere (Stations tab, map card, Station Details) appears with a filled
+  heart: the screen reloads its first page every time it comes back into focus.
+- Empty: "No favourites yet" with Find stations (to the Map tab); search with no match: "No
+  favourites found" with Clear Search; error + Retry; pull to refresh.
+- Tests: the favourite mapper (station inside each favourite, place, location) and flows (list
+  with filled hearts, directions only with a location, open details, a newly hearted station
+  after refocus, remove with rollback, server search, paging, empty, error).
+
+**Verified**: tsc, expo lint, jest (63 suites, 485 tests); Android emulator against the dev
+backend: hearted Demo Charging Station on the Stations tab, it appeared in Favourite Spots with a
+filled heart and Directions, then removed it with the heart (dev data left as it was).
+
+## Phase 7e: Notifications (branch `feat/vehicles`, 2026-11-27)
+
+**Done**
+
+- Notifications (E8, `/(app)/notifications`): the brand wash, `AppPageHeader` with the unread
+  count ("2 unread" / "You're all caught up"), and category pills that scroll sideways (All,
+  Offers, New Station, Maintenance, Customer Support, Information), each with its count.
+- `GET /notification?page=` a page at a time with infinite scroll and pull to refresh, grouped
+  by day (Today, Yesterday, then the date). Each card: a tile in its category's colour (offers
+  green, maintenance amber, new station and support in the accent, information grey), the
+  category and a relative time ("5 min ago"), the title and the message, 2 lines.
+- Fixes from the audit: unread cards are tinted with a glowing dot and a bold title; tapping
+  one opens the full message and marks it read (on the device only, #29); a category with
+  nothing in the loaded pages keeps fetching until something shows up.
+- Unknown `type` values show as Information; a blank title falls back to the category.
+- Empty: "No Notifications" (audit copy); an empty category offers Show all; error + Retry.
+- Tests: `toKind`, the mapper, filters, day groups, relative times, and flows (pills, unread
+  count, open marks read, empty category, empty, error + Retry, paging, auto-fetch).
+
+**Open**: mark as read, type filter and unread count on the server (#29).

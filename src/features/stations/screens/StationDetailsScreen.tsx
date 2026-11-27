@@ -153,7 +153,7 @@ const StationDetailsScreen = ({ stationId }: StationDetailsScreenProps) => {
 
   return (
     <View style={[styles.screen, { backgroundColor: t.colors.bg }]}>
-      <StatusBar style={overPhoto ? 'light' : 'dark'} />
+      <StatusBar style={overPhoto || t.scheme === 'dark' ? 'light' : 'dark'} />
 
       <Animated.ScrollView
         ref={scrollRef}

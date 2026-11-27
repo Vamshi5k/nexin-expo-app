@@ -1,4 +1,4 @@
-import { api, unwrap, type Envelope } from '@/core/api';
+import { api, toPage, unwrap, type Envelope, type Page } from '@/core/api';
 import { ENDPOINTS } from '@/core/endpoints';
 import { rupeesToPaise } from '@/shared/utils/money';
 
@@ -7,6 +7,7 @@ import type {
   Connector,
   Coordinates,
   FavouriteDto,
+  FavouriteStation,
   NearbyStation,
   NearbyStationDto,
   StationDetails,
@@ -140,6 +141,43 @@ function isPresent<T>(value: T | null): value is T {
 
 // The old app loaded the first 100 favourites to mark hearts; keep the same window.
 const FAVOURITES_WINDOW = 100;
+export const FAVOURITES_PAGE_SIZE = 10;
+
+const coord = (v: number | string | null | undefined): number | null => {
+  const n = typeof v === 'string' ? Number(v) : v;
+  return typeof n === 'number' && Number.isFinite(n) ? n : null;
+};
+
+// Address, city and state without repeats ("Kakinada, Kakinada" reads once).
+const placeLine = (parts: (string | null | undefined)[]): string => {
+  const seen = new Set<string>();
+  return parts
+    .map(part => part?.trim())
+    .filter((part): part is string => {
+      if (!part || seen.has(part.toLowerCase())) return false;
+      seen.add(part.toLowerCase());
+      return true;
+    })
+    .join(', ');
+};
+
+export const toFavouriteStation = (dto: FavouriteDto): FavouriteStation | null => {
+  if (dto.stationId == null) return null;
+  const place = dto.station?.stationLocation;
+  const latitude = coord(place?.latitude);
+  const longitude = coord(place?.longitude);
+  const rawStatus = dto.station?.status?.trim() ?? '';
+  return {
+    id: String(dto.stationId),
+    name: dto.station?.name?.trim() ?? '',
+    address: placeLine([place?.address, place?.city, place?.state]),
+    status: toStationStatus(rawStatus),
+    rawStatus,
+    stationType: dto.station?.stationType?.trim() || null,
+    coordinates: latitude !== null && longitude !== null ? { latitude, longitude } : null,
+    distanceKm: null,
+  };
+};
 
 export const stationsApi = {
   // TODO(backend): accept map bounds so we stop loading every station at once.
@@ -198,6 +236,17 @@ export const stationsApi = {
       params: { page: 1, limit: FAVOURITES_WINDOW },
     });
     return toFavouriteIds(unwrap(res) ?? []);
+  },
+
+  getFavourites: async (page: number, search: string): Promise<Page<FavouriteStation>> => {
+    const res = await api.get<Envelope<FavouriteDto[] | null>>(ENDPOINTS.STATIONS.FAVOURITES, {
+      params: { page, limit: FAVOURITES_PAGE_SIZE, ...(search ? { search } : {}) },
+    });
+    const result = toPage(res);
+    return {
+      ...result,
+      items: result.items.map(toFavouriteStation).filter((s): s is FavouriteStation => s !== null),
+    };
   },
 
   // `isFavourite` is the new state, not a toggle (the old app always sent false).

@@ -1,8 +1,15 @@
 import { View } from 'react-native';
 
-import { Car, Cpu, Hash, Search } from 'lucide-react-native';
+import { Car, Cpu, Hash } from 'lucide-react-native';
 
-import { AppEmptyState, AppErrorState, AppFormInput, AppInput, AppText } from '@/shared/components';
+import {
+  AppEmptyState,
+  AppErrorState,
+  AppFormInput,
+  AppInput,
+  AppSearchBar,
+  AppText,
+} from '@/shared/components';
 
 import OptionGrid, { type Option } from './OptionGrid';
 import OptionGridSkeleton from './OptionGridSkeleton';
@@ -118,7 +125,7 @@ const VehicleFormBody = ({ wizard: w }: VehicleFormBodyProps) => {
       );
     case 'details':
       return (
-        <View style={{ gap: t.space[5] }}>
+        <View style={{ gap: t.space[4] }}>
           <AppFormInput
             control={w.control}
             name="regNo"
@@ -201,16 +208,12 @@ const Choices = <T,>({
   const options = toOptions(items);
 
   return (
-    <View style={{ gap: t.space[4] }}>
+    <View style={{ gap: t.space[3] }}>
       {search && items.length > SEARCH_AFTER ? (
-        <AppInput
-          icon={Search}
+        <AppSearchBar
           placeholder={search.placeholder}
           value={search.query}
           onChangeText={search.onChange}
-          autoCorrect={false}
-          returnKeyType="search"
-          accessibilityLabel={search.placeholder}
         />
       ) : null}
       {options.length > 0 ? (

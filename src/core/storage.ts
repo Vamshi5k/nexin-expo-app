@@ -14,6 +14,7 @@ export const SECURE_KEYS = {
 export type SecureKey = (typeof SECURE_KEYS)[keyof typeof SECURE_KEYS];
 
 export const KV_KEYS = {
+  appearance: 'appearance',
   clientConfig: 'CLIENT_CONFIG',
   firstLogin: 'firstlogin',
   fcmToken: 'FCM_TOKEN',

@@ -9,24 +9,28 @@ import { useAction, useRequest } from '@/core/request';
 import { toast } from '@/shared/utils/toast';
 
 import { vehiclesApi } from '../api/vehicles.api';
-import { STEP_COPY, WIZARD_STEPS } from '../constants/vehicles.constants';
+import { PICK_STEPS, STEP_COPY, WIZARD_STEPS } from '../constants/vehicles.constants';
 import type {
   Brand,
   CapacityChoice,
   Model,
   VehicleDetails,
+  VehiclePick,
   WizardStep,
 } from '../types/vehicles.types';
 import { customCapacitySchema, detailsSchema, formatCapacity } from '../utils/form';
 
 const NO_ITEMS = () => Promise.resolve([]);
 
-// Brand -> model -> capacity -> details. Shared by Vehicle Setup and, later, Add / Edit Vehicle.
+// Brand -> model -> capacity -> details, shared by Vehicle Setup and Add Vehicle. With
+// `onPicked` it stops after the battery and hands the picks back (Edit Vehicle's "Change").
 type UseVehicleWizardOptions = {
-  onAdded: () => void;
+  onAdded?: () => void;
+  onPicked?: (pick: VehiclePick) => void;
 };
 
-export const useVehicleWizard = ({ onAdded }: UseVehicleWizardOptions) => {
+export const useVehicleWizard = ({ onAdded, onPicked }: UseVehicleWizardOptions) => {
+  const steps = onPicked ? PICK_STEPS : WIZARD_STEPS;
   const [stepIndex, setStepIndex] = useState(0);
   const [brand, setBrand] = useState<Brand | null>(null);
   const [model, setModel] = useState<Model | null>(null);
@@ -35,7 +39,7 @@ export const useVehicleWizard = ({ onAdded }: UseVehicleWizardOptions) => {
   const [customMode, setCustomMode] = useState(false);
   const [customText, setCustomText] = useState('');
   const [query, setQuery] = useState('');
-  const step: WizardStep = WIZARD_STEPS[stepIndex];
+  const step: WizardStep = steps[stepIndex] ?? 'brand';
 
   const brandId = brand?.id;
   const modelId = model?.id;
@@ -79,7 +83,7 @@ export const useVehicleWizard = ({ onAdded }: UseVehicleWizardOptions) => {
     try {
       await add.run({ model, capacity, details: values });
       toast.success('Vehicle added successfully!');
-      onAdded();
+      onAdded?.();
     } catch (error) {
       toast.error(getErrorMessage(error));
     }
@@ -114,7 +118,7 @@ export const useVehicleWizard = ({ onAdded }: UseVehicleWizardOptions) => {
   return {
     step,
     stepIndex,
-    stepCount: WIZARD_STEPS.length,
+    stepCount: steps.length,
     title: copy.title,
     subtitle: copy.subtitle.replace('{brand}', brand?.name ?? ''),
     brands,
@@ -156,10 +160,17 @@ export const useVehicleWizard = ({ onAdded }: UseVehicleWizardOptions) => {
     control: form.control,
     canContinue,
     submitting: add.isPending,
-    isLastStep: stepIndex === WIZARD_STEPS.length - 1,
+    isLastStep: stepIndex === steps.length - 1,
     next: () => {
-      if (stepIndex < WIZARD_STEPS.length - 1) goToStep(stepIndex + 1);
-      else void submit();
+      if (stepIndex < steps.length - 1) {
+        goToStep(stepIndex + 1);
+        return;
+      }
+      if (!onPicked) {
+        void submit();
+        return;
+      }
+      if (model && capacity) onPicked({ brand, model, capacity });
     },
     // Returns false on the first step, so the screen decides what "back" means there.
     back: (): boolean => {

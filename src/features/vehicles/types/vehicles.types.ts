@@ -33,3 +33,40 @@ export type NewVehicle = {
 };
 
 export type WizardStep = 'brand' | 'model' | 'capacity' | 'details';
+
+export type VehicleDto = {
+  id: number | string;
+  regNo?: string | null;
+  vinNumber?: string | null;
+  maxAmount?: number | string | null;
+  autoCharge?: boolean | null;
+  isPrimary?: boolean | null;
+  capacityId?: number | string | null;
+  capacity?: number | string | { capacity?: number | string | null } | null;
+  range?: number | string | null;
+  modelId?: number | string | null;
+  model?: {
+    id?: number | string | null;
+    name?: string | null;
+    brand?: { id?: number | string | null; name?: string | null } | null;
+  } | null;
+};
+
+export type Vehicle = {
+  id: string;
+  regNo: string;
+  macId: string | null;
+  maxAmountRupees: number | null;
+  autoCharge: boolean;
+  isPrimary: boolean;
+  capacityId: string | null;
+  capacityKwh: number | null;
+  rangeKm: number | null;
+  modelId: string | null;
+  modelName: string;
+  brandId: string | null;
+  brandName: string;
+};
+
+// What Edit shows and saves: the picked model and battery plus the typed details.
+export type VehiclePick = { brand: Brand | null; model: Model; capacity: CapacityChoice };
