@@ -1,7 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 
 import { ArrowUpRight, Heart, Zap } from 'lucide-react-native';
-import Svg, { Defs, RadialGradient, Rect, Stop } from 'react-native-svg';
 
 import { AppPressable, AppText } from '@/shared/components';
 
@@ -30,7 +29,6 @@ type SpecTokenProps = {
 };
 
 const SOFT = 0.12;
-const GLOW = 0.1;
 // More connectors than this collapse into a "+N" after the cells.
 const MAX_CELLS = 8;
 const CELL = 10;
@@ -80,8 +78,8 @@ const SpecToken = ({ label, bolt }: SpecTokenProps) => {
 };
 
 // Name, address and spec tokens with the heart; then a meter with one cell per connector (free
-// ones lit), the free count, and a dark distance pill that opens directions. A faint glow in
-// the availability colour sits in the corner.
+// ones lit), the free count, and a dark distance pill that opens directions. A solid white card
+// with a clear edge, so it stands out on the page.
 const StationListCard = ({
   station,
   favourite,
@@ -96,9 +94,9 @@ const StationListCard = ({
   const km = station.distanceKm;
   const { availableConnectors: free, totalConnectors: total } = station;
   const cells = total !== null && total > 0 ? Math.min(total, MAX_CELLS) : 0;
-  const lit = free !== null ? Math.min(free, cells) : 0;
+  // Only a station that really has free connectors lights its cells; a closed one stays dark.
+  const lit = availability.tone === 'success' && free !== null ? Math.min(free, cells) : 0;
   const extra = total !== null && total > MAX_CELLS ? total - MAX_CELLS : 0;
-  const glowId = `station-glow-${station.id}`;
 
   return (
     <AppPressable
@@ -112,21 +110,11 @@ const StationListCard = ({
           padding: t.space[4],
           borderRadius: t.radius.card,
           borderWidth: t.layout.hairline,
-          borderColor: t.colors.border,
+          borderColor: t.colors.borderStrong,
           backgroundColor: t.colors.surfaceRaised,
         },
       ]}
     >
-      <Svg style={StyleSheet.absoluteFill} pointerEvents="none">
-        <Defs>
-          <RadialGradient id={glowId} cx="100%" cy="0%" rx="55%" ry="75%">
-            <Stop offset="0" stopColor={tone.dot} stopOpacity={GLOW} />
-            <Stop offset="1" stopColor={tone.dot} stopOpacity={0} />
-          </RadialGradient>
-        </Defs>
-        <Rect x="0" y="0" width="100%" height="100%" fill={`url(#${glowId})`} />
-      </Svg>
-
       <View style={[styles.top, { gap: t.space[3] }]}>
         <View style={[styles.grow, { gap: t.space[2] }]}>
           <View>

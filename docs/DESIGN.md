@@ -154,11 +154,12 @@ the driver find, start, watch or pay for a charge.
     tiles two per row (chargers, connectors, connector type, access); the help line with a
     dark call circle; AMENITIES overline and chips with accent icons.
 - Stations tab: title, subtitle and the header charger art on a soft accent wash, then a
-  solid white search pill (hairline border, not glass). Cards are white with a faint radial
-  glow in the availability colour in the top-right corner. Top: the name (headline), the
+  solid white search pill (hairline border, not glass). Cards are solid white with a
+  borderStrong hairline, no glow, so they stand out on the page. Top: the name (headline), the
   address, and spec tokens (bolt + "60 kW", "₹18.99/kWh" in sunken pills), with the heart in
   a white circle. Bottom: a meter of small cells, one per connector up to 8 then "+N", free
-  ones lit and glowing in the availability colour, the availability text under it ("1/8
+  ones lit and glowing in the availability colour (only when the station really has free
+  connectors; a closed station's cells stay dark), the availability text under it ("1/8
   Free", "Unavailable"), and a dark "1.9 km ↗" pill that opens directions.
 - Profile tab: the tab screens' brand wash with a title3 "Account" and ID, a white bell
   circle, a plain white account card (initials, name, email or "No email provided", edit).
