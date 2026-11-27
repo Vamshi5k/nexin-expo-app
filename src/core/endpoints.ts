@@ -38,6 +38,9 @@ export const ENDPOINTS = {
     ORDER: '/payment',
     VERIFY: '/payment/verify',
   },
+  NOTIFICATIONS: {
+    LIST: '/notification',
+  },
   CHARGING: {
     HISTORY: '/device-transactions',
   },

@@ -720,3 +720,24 @@ The PDF download needs a real completed session and a dev build rebuilt for expo
 **Verified**: tsc, expo lint, jest (63 suites, 485 tests); Android emulator against the dev
 backend: hearted Demo Charging Station on the Stations tab, it appeared in Favourite Spots with a
 filled heart and Directions, then removed it with the heart (dev data left as it was).
+
+## Phase 7e: Notifications (branch `feat/vehicles`, 2026-11-27)
+
+**Done**
+
+- Notifications (E8, `/(app)/notifications`): the brand wash, `AppPageHeader` with the unread
+  count ("2 unread" / "You're all caught up"), and category pills that scroll sideways (All,
+  Offers, New Station, Maintenance, Customer Support, Information), each with its count.
+- `GET /notification?page=` a page at a time with infinite scroll and pull to refresh, grouped
+  by day (Today, Yesterday, then the date). Each card: a tile in its category's colour (offers
+  green, maintenance amber, new station and support in the accent, information grey), the
+  category and a relative time ("5 min ago"), the title and the message, 2 lines.
+- Fixes from the audit: unread cards are tinted with a glowing dot and a bold title; tapping
+  one opens the full message and marks it read (on the device only, #29); a category with
+  nothing in the loaded pages keeps fetching until something shows up.
+- Unknown `type` values show as Information; a blank title falls back to the category.
+- Empty: "No Notifications" (audit copy); an empty category offers Show all; error + Retry.
+- Tests: `toKind`, the mapper, filters, day groups, relative times, and flows (pills, unread
+  count, open marks read, empty category, empty, error + Retry, paging, auto-fetch).
+
+**Open**: mark as read, type filter and unread count on the server (#29).
